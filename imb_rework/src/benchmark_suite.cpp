@@ -3,4 +3,4 @@
 #ifdef MPI1
 map<string, const Benchmark*> *BenchmarkSuite<BS_MPI1>::pnames = 0;
 #endif
-
+map<string, const Benchmark*> *BenchmarkSuite<BS_OSU>::pnames = 0;

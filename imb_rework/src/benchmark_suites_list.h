@@ -5,7 +5,8 @@ enum benchmark_suite_t {
     BS_MPI1, 
 #endif
 #ifdef NBC    
-    BS_NBC
+    BS_NBC,
 #endif
+    BS_OSU,
     BS_DUMMY        
 };

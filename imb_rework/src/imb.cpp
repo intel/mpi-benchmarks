@@ -29,6 +29,7 @@ int main(int argc, char **argv)
 
         // bechmark suite related args
         BenchmarkSuite<BS_MPI1>::declare_args(parser);
+        //BenchmarkSuite<BS_OSU>::declare_args(parser);
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
@@ -92,11 +93,16 @@ int main(int argc, char **argv)
             actual_benchmark_list = requested_benchmarks;            
 #endif            
             BenchmarkSuite<BS_MPI1>::prepare(parser.dump());
+            //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
             for (int j = 0; j < actual_benchmark_list.size(); j++) {
                 shared_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(actual_benchmark_list[j]);
                 if (b == NULL) {
-                    cout << "ERROR: benchmark creator failed!" << endl;
-                    return 1;
+
+                    b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
+                    if (b == NULL) {
+                        cout << "ERROR: benchmark creator failed!" << endl;
+                        return 1;
+                    }
                 }
                 b->run();
                 cout << "OK" << endl;
