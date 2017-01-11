@@ -1,6 +1,6 @@
 #CFLAGS=-g -O0 -Wall -Wextra -pedantic
 CPP=mpiicpc
-CFLAGS = -DMPI1 -std=c++11 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src
+CFLAGS = -DMPI1 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src
 
 CFLAGS += -Iosu/mpi/pt2pt/
 

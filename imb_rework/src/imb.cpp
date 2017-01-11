@@ -95,11 +95,10 @@ int main(int argc, char **argv)
             BenchmarkSuite<BS_MPI1>::prepare(parser.dump());
             //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
             for (int j = 0; j < actual_benchmark_list.size(); j++) {
-                shared_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(actual_benchmark_list[j]);
-                if (b == NULL) {
-
+                auto_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(actual_benchmark_list[j]);
+                if (b.get() == NULL) {
                     b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
-                    if (b == NULL) {
+                    if (b.get() == NULL) {
                         cout << "ERROR: benchmark creator failed!" << endl;
                         return 1;
                     }

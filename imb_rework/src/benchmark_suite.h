@@ -28,45 +28,43 @@ class Benchmark {
         virtual Benchmark* create_myself() const = 0;
         virtual void run() = 0;
         virtual ~Benchmark() { }
-        Benchmark &operator=(const Benchmark &) = delete;
-        Benchmark &operator=(const Benchmark &&) = delete;
-        Benchmark(const Benchmark &) = delete;
-        Benchmark(const Benchmark &&) = delete;
+    private:
+        Benchmark &operator=(const Benchmark &) { return *this; }
+        Benchmark(const Benchmark &) {}
 };
 
 template <benchmark_suite_t bs>
 class BenchmarkSuite {
-    static map<string, const Benchmark*> *pnames;
+        static map<string, const Benchmark*> *pnames;
     public:   
-    static void declare_args(args_parser &parser); 
-    static bool prepare(const std::string &yaml_config); 
-    static void register_elem(const Benchmark *elem) {
-        assert(elem != NULL);
-        string name = elem->get_name();
-        assert(name != "(none)");
-        if (pnames == NULL) {
-            pnames = new map<string, const Benchmark*>();
+        static void declare_args(args_parser &parser); 
+        static bool prepare(const std::string &yaml_config); 
+        static void register_elem(const Benchmark *elem) {
+            assert(elem != NULL);
+            string name = elem->get_name();
+            assert(name != "(none)");
+            if (pnames == NULL) {
+                pnames = new map<string, const Benchmark*>();
+            }
+            if (pnames->find(name) == pnames->end())
+                (*pnames)[name] = elem;
         }
-        if (pnames->find(name) == pnames->end())
-            (*pnames)[name] = elem;
-    }
-    static shared_ptr<Benchmark> create(const string &s) {
-        if (pnames == NULL) {
-            pnames = new map<string, const Benchmark*>();
+        static auto_ptr<Benchmark> create(const string &s) {
+            if (pnames == NULL) {
+                pnames = new map<string, const Benchmark*>();
+            }
+            const Benchmark *elem = (*pnames)[s];
+    //        if (elem == NULL)
+    //            throw std::invalid_argument(s);
+            if (elem == NULL)
+                return auto_ptr<Benchmark>((Benchmark *)0);
+            return auto_ptr<Benchmark>(elem->create_myself());
         }
-        const Benchmark *elem = (*pnames)[s];
-//        if (elem == NULL)
-//            throw std::invalid_argument(s);
-        if (elem == NULL)
-            return shared_ptr<Benchmark>((Benchmark *)0);
-        return shared_ptr<Benchmark>(elem->create_myself());
-    }
-    BenchmarkSuite() {}
-    ~BenchmarkSuite() { if (pnames != 0) delete pnames; }
-    BenchmarkSuite &operator=(const BenchmarkSuite &) = delete;
-    BenchmarkSuite &operator=(const BenchmarkSuite &&) = delete;    
-    BenchmarkSuite(const BenchmarkSuite &) = delete;
-    BenchmarkSuite(const BenchmarkSuite &&) = delete;    
+        BenchmarkSuite() {}
+        ~BenchmarkSuite() { if (pnames != 0) delete pnames; }
+    private:
+        BenchmarkSuite &operator=(const BenchmarkSuite &) { return *this; }
+        BenchmarkSuite(const BenchmarkSuite &) {}
 };
 
 
