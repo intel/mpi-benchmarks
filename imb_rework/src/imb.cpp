@@ -14,16 +14,16 @@ int main(int argc, char **argv)
         //args_parser parser(argc, argv, "--", '=');
         args_parser parser(argc, argv, "-", ' ');
 
-        parser.add_option_with_defaults("input", args_parser::STRING, args_parser::value("")).
+        parser.add_option_with_defaults<string>("input", "").
             set_caption("input", "filename");
-        parser.add_option_with_defaults_vec("include", args_parser::STRING, "", ',', 1).
+        parser.add_option_with_defaults_vec<string>("include", "", ',', 1).
             set_caption("include", "[benchmark[,benchmark,[...]]");
-        parser.add_option_with_defaults_vec("exclude", args_parser::STRING, "", ',', 1).
+        parser.add_option_with_defaults_vec<string>("exclude", "", ',', 1).
             set_caption("exclude", "[benchmark[,benchmark,[...]]");
 
         // extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
-        parser.add_option_with_defaults_vec("(benchmarks)", args_parser::STRING, "", ',', 0).
+        parser.add_option_with_defaults_vec<string>("(benchmarks)", "", ',', 1).
             set_caption("(benchmarks)", "benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
 
@@ -33,15 +33,15 @@ int main(int argc, char **argv)
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
-        parser.add_option_with_defaults("dump", args_parser::STRING, args_parser::value("")).
+        parser.add_option_with_defaults<string>("dump", "").
             set_caption("dump", "config.yaml");
-        parser.add_option_with_defaults("load", args_parser::STRING, args_parser::value("")).
+        parser.add_option_with_defaults<string>("load", "").
             set_caption("load", "config.yaml");
         parser.set_default_current_group();
          
         if (parser.parse()) {
             string infile;  
-            infile = parser.get_result_string("load");
+            infile = parser.get_result<string>("load");
             if (infile != "") {
                 ifstream in(infile.c_str(), ios_base::in);
                 parser.load(in);
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
                 }
             }
             string outfile;  
-            outfile = parser.get_result_string("dump");
+            outfile = parser.get_result<string>("dump");
             if (outfile != "") {
                 string out;
                 out = parser.dump();
@@ -59,9 +59,9 @@ int main(int argc, char **argv)
             }
             
             vector<string> requested_benchmarks, to_include, to_exclude;
-            parser.get_result_vec_string("(benchmarks)", requested_benchmarks);
-            parser.get_result_vec_string("include", to_include);
-            parser.get_result_vec_string("exclude", to_exclude);
+            parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
+            parser.get_result_vec<string>("include", to_include);
+            parser.get_result_vec<string>("exclude", to_exclude);
 
             vector<string> default_benchmarks, all_benchmarks;
             vector<string> actual_benchmark_list;

@@ -276,13 +276,14 @@ void args_parser::print_help() const {
     if (num_extra_args)
         cout << endl;
 }
-
+/*
 template <typename T> T get_val(const args_parser::value &v);
 template <> int get_val<int>(const args_parser::value &v) { return v.i; }
 template <> float get_val<float>(const args_parser::value &v) { return v.f; }
 template <> bool get_val<bool>(const args_parser::value &v) { return v.b; }
 template <> string get_val<string>(const args_parser::value &v) { return v.str; }
-
+*/
+/*
 template <args_parser::arg_t t, typename T>
 void vresult_to_vector(const vector<args_parser::value> &in, vector<T> &out) {
     assert(in.size() > 0);
@@ -291,6 +292,7 @@ void vresult_to_vector(const vector<args_parser::value> &in, vector<T> &out) {
     for (size_t i = 0; i < in.size(); i++)
         out.push_back(get_val<T>(in[i]));
 }
+*/
 void args_parser::print() const {
     const string *pgroup;
     const descr *parg;
@@ -471,6 +473,7 @@ bool args_parser::parse() {
         print_help_advice();
     return parse_result;
 }
+/*
 args_parser &args_parser::add_required_option(const char *s, arg_t type) {
     expected_args[current_group].push_back(args_parser::descr(s, type));
     return *this;
@@ -491,6 +494,7 @@ args_parser &args_parser::add_option_with_defaults_vec(const char *s, arg_t type
     expected_args[current_group].push_back(args_parser::descr(s, type, delim, min, max, defaults));
     return *this;
 }
+*/
 args_parser &args_parser::set_caption(const char *s, const char *cap) {
     const string *pgroup;
     descr *parg;
@@ -511,7 +515,7 @@ args_parser &args_parser::set_caption(int n, const char *cap) {
     extra_args[n].caption.assign(cap);
     return *this;
 }
-const vector<args_parser::value> &args_parser::get_result(const string &s) {
+const vector<args_parser::value> &args_parser::get_result_value(const string &s) {
     const string *pgroup;
     descr *parg;
     in_expected_args(FOREACH_FIRST, pgroup, parg);
@@ -522,6 +526,7 @@ const vector<args_parser::value> &args_parser::get_result(const string &s) {
     }
     throw logic_error("args_parser: no such option");
 }
+/*
 int args_parser::get_result_int(const string &s) {
     vector<int> r;
     get_result_vec_int(s, r);
@@ -543,26 +548,28 @@ string args_parser::get_result_string(const string &s) {
     return r[0];
 }
 void args_parser::get_result_vec_int(const string &s, vector<int> &r) {
-    const vector<value> &v = get_result(s);
-    vresult_to_vector<INT, int>(v, r);
+    const vector<value> &v = get_result_value(s);
+    vresult_to_vector<int>(v, r);
 }
 void args_parser::get_result_vec_float(const string &s, vector<float> &r) {
-    const vector<value> &v = get_result(s);
-    vresult_to_vector<FLOAT, float>(v, r);
+    const vector<value> &v = get_result_value(s);
+    vresult_to_vector<float>(v, r);
 }
 void args_parser::get_result_vec_bool(const string &s, vector<bool> &r) {
-    const vector<value> &v = get_result(s);
-    vresult_to_vector<BOOL, bool>(v, r);
+    const vector<value> &v = get_result_value(s);
+    vresult_to_vector<bool>(v, r);
 }
 void args_parser::get_result_vec_string(const string &s, vector<string> &r) {
-    const vector<value> &v = get_result(s);
-    vresult_to_vector<STRING, string>(v, r);
+    const vector<value> &v = get_result_value(s);
+    vresult_to_vector<string>(v, r);
 }
+*/
 void args_parser::get_unknown_args(vector<string> &r) {
     for (size_t j = 0; j < unknown_args.size(); j++) {
         r.push_back(unknown_args[j]);
     }
 }
+/*
 bool args_parser::parse_special_int(string &s, int &r) {
     descr d("[FREE ARG]", INT);
     prev_option_descr = &d;
@@ -600,7 +607,7 @@ bool args_parser::parse_special_vec_int(string &s, vector<int> &r, char delim, i
     prev_option_descr = &d;
     bool res = get_value(s, d);
     if (res) 
-        vresult_to_vector<INT, int>(d.val, r);
+        vresult_to_vector<int>(d.val, r);
     return res;
 }
 bool args_parser::parse_special_vec_float(string &s, vector<float> &r, char delim, int min, int max) {
@@ -608,7 +615,7 @@ bool args_parser::parse_special_vec_float(string &s, vector<float> &r, char deli
     prev_option_descr = &d;
     bool res = get_value(s, d);
     if (res) 
-        vresult_to_vector<FLOAT, float>(d.val, r);
+        vresult_to_vector<float>(d.val, r);
     return res;
 }
 bool args_parser::parse_special_vec_bool(string &s, vector<bool> &r, char delim, int min, int max) {
@@ -616,7 +623,7 @@ bool args_parser::parse_special_vec_bool(string &s, vector<bool> &r, char delim,
     prev_option_descr = &d;
     bool res = get_value(s, d);
     if (res) 
-        vresult_to_vector<BOOL, bool>(d.val, r);
+        vresult_to_vector<bool>(d.val, r);
     return res;
 }
 bool args_parser::parse_special_vec_string(string &s, vector<string> &r, char delim, int min, int max) {
@@ -624,9 +631,10 @@ bool args_parser::parse_special_vec_string(string &s, vector<string> &r, char de
     prev_option_descr = &d;
     bool res = get_value(s, d);
     if (res) 
-        vresult_to_vector<STRING, string>(d.val, r);
+        vresult_to_vector<string>(d.val, r);
     return res;
 }
+*/
 bool args_parser::load(istream &stream) {
     try {
         YAML::Parser parser(stream);
