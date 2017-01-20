@@ -5,10 +5,13 @@
 #include "benchmark_suite.h"
 #include "benchmark_suite_MPI1.h"
 
+#include <mpi.h>
+
 using namespace std;
 
 int main(int argc, char **argv)
 {
+    MPI_Init(&argc, &argv);
     try {
         //args_parser parser(argc, argv, "/", ':');
         //args_parser parser(argc, argv, "--", '=');
@@ -28,7 +31,7 @@ int main(int argc, char **argv)
         parser.set_default_current_group();
 
         // bechmark suite related args
-        BenchmarkSuite<BS_MPI1>::declare_args(parser);
+        OriginalBenchmarkSuite_MPI1::declare_args(parser);
         //BenchmarkSuite<BS_OSU>::declare_args(parser);
 
         // "system" option args to do special things, not dumped to files
@@ -39,73 +42,75 @@ int main(int argc, char **argv)
             set_caption("load", "config.yaml");
         parser.set_default_current_group();
          
-        if (parser.parse()) {
-            string infile;  
-            infile = parser.get_result<string>("load");
-            if (infile != "") {
-                ifstream in(infile.c_str(), ios_base::in);
-                parser.load(in);
-                if (!parser.parse()) {
-                    throw logic_error("parser after load failed");
-                }
+        if (!parser.parse()) {
+            return 1;
+        }
+        string infile;  
+        infile = parser.get_result<string>("load");
+        if (infile != "") {
+            ifstream in(infile.c_str(), ios_base::in);
+            parser.load(in);
+            if (!parser.parse()) {
+                throw logic_error("parser after load failed");
             }
-            string outfile;  
-            outfile = parser.get_result<string>("dump");
-            if (outfile != "") {
-                string out;
-                out = parser.dump();
-                ofstream of(outfile.c_str(), ios_base::out);
-                of << out;
-            }
-            
-            vector<string> requested_benchmarks, to_include, to_exclude;
-            parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
-            parser.get_result_vec<string>("include", to_include);
-            parser.get_result_vec<string>("exclude", to_exclude);
+        }
+        string outfile;  
+        outfile = parser.get_result<string>("dump");
+        if (outfile != "") {
+            string out;
+            out = parser.dump();
+            ofstream of(outfile.c_str(), ios_base::out);
+            of << out;
+        }
+        
+        vector<string> requested_benchmarks, to_include, to_exclude;
+        parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
+        parser.get_result_vec<string>("include", to_include);
+        parser.get_result_vec<string>("exclude", to_exclude);
 
-            vector<string> default_benchmarks, all_benchmarks;
-            vector<string> actual_benchmark_list;
+        vector<string> default_benchmarks, all_benchmarks;
+        vector<string> actual_benchmark_list;
 #if 0            
 #ifdef MPI1
-            BenchmarkSuite<BS_MPI1>::get_default_list(default_benchmarks);
-            BenchmarkSuite<BS_MPI1>::get_full_list(all_benchmarks);
+        BenchmarkSuite<BS_MPI1>::get_default_list(default_benchmarks);
+        BenchmarkSuite<BS_MPI1>::get_full_list(all_benchmarks);
 #endif            
 
-            if (to_include.size() != 0 || to_exclude.size() != 0) {
-                if (requested_benchmarks.size() != 0) {
-                    // FIXME we can actually work it out
-                    cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
-                    return 1;
-                } else {
-                    combine(actual_bechmark_list, default_benchmarks);
-                    combine(actual_bechmark_list, to_include);
-                    exclude(actual_bechmark_list, to_exclude);
-               }
-            } else if (requested_benchmarks.size() != 0) {
-                combine(actual_benchrark_list, requested_benchmarks);
-            }
-            diff(actual_bechmark_list, all_benchmarks, missing);
-            if (missing.size() != 0) {
-                // print ERROR
-                // return 1
-            }
+        if (to_include.size() != 0 || to_exclude.size() != 0) {
+            if (requested_benchmarks.size() != 0) {
+                // FIXME we can actually work it out
+                cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
+                return 1;
+            } else {
+                combine(actual_bechmark_list, default_benchmarks);
+                combine(actual_bechmark_list, to_include);
+                exclude(actual_bechmark_list, to_exclude);
+           }
+        } else if (requested_benchmarks.size() != 0) {
+            combine(actual_benchrark_list, requested_benchmarks);
+        }
+        diff(actual_bechmark_list, all_benchmarks, missing);
+        if (missing.size() != 0) {
+            // print ERROR
+            // return 1
+        }
 #else 
-            actual_benchmark_list = requested_benchmarks;            
-#endif            
-            BenchmarkSuite<BS_MPI1>::prepare(parser.dump());
-            //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
-            for (int j = 0; j < actual_benchmark_list.size(); j++) {
-                auto_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(actual_benchmark_list[j]);
+        actual_benchmark_list = requested_benchmarks;            
+#endif   
+        OriginalBenchmarkSuite_MPI1::prepare(parser.dump());        
+        //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
+        for (int j = 0; j < actual_benchmark_list.size(); j++) {
+            auto_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
+            if (b.get() == NULL) {
+                b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
                 if (b.get() == NULL) {
-                    b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
-                    if (b.get() == NULL) {
-                        cout << "ERROR: benchmark creator failed!" << endl;
-                        return 1;
-                    }
+                    cout << "ERROR: benchmark creator failed!" << endl;
+                    return 1;
                 }
-                b->run();
-                cout << "OK" << endl;
             }
+            b->init();
+            b->run(0, 1024);
+            cout << "OK" << endl;
         }
     }
     catch(exception &ex) {

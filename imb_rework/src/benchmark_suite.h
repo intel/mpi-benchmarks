@@ -26,7 +26,8 @@ class Benchmark {
         Benchmark() {}
         virtual const string get_name() const = 0;
         virtual Benchmark* create_myself() const = 0;
-        virtual void run() = 0;
+        virtual void init() = 0;
+        virtual void run(int iter, int size) = 0;
         virtual ~Benchmark() { }
     private:
         Benchmark &operator=(const Benchmark &) { return *this; }
@@ -68,7 +69,7 @@ class BenchmarkSuite {
 };
 
 
-#define DEFINE_INHERITED(CLASS, SUITE)     CLASS() { BenchmarkSuite<SUITE>::register_elem(this); } \
+#define DEFINE_INHERITED(CLASS, SUITE_CLASS)     CLASS() { SUITE_CLASS::register_elem(this); } \
     virtual const string get_name() const { return name; } \
     virtual Benchmark *create_myself() const { return new CLASS; } \
 

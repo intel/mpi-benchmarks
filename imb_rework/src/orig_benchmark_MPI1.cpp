@@ -3,6 +3,10 @@
 #include <iostream>
 #include "orig_benchmark.h"
 
+extern "C" {
+#include "IMB_prototypes.h"
+}
+
 using namespace std;
 
 #if 0
@@ -19,14 +23,12 @@ DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<BS_MPI1, func_two>), func_two)
 // void IMB_pingpong(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
 //                   MODES RUN_MODE, double* time)
 
-#include "original_imb/src/IMB_pingpong.c"
-template class OriginalBenchmark<BS_MPI1, IMB_pingpong>;
-DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<BS_MPI1, IMB_pingpong>), pingpong)
+//#include "original_imb/src/IMB_pingpong.c"
+template class OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_pingpong>;
+DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_pingpong>), pingpong)
 
-#include "original_imb/src/IMB_pingping.c"
-template class OriginalBenchmark<BS_MPI1, IMB_pingping>;
-DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<BS_MPI1, IMB_pingping>), pingping)
-
-
+//#include "original_imb/src/IMB_pingping.c"
+template class OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_pingping>;
+DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_pingping>), pingping)
 
 #endif    
