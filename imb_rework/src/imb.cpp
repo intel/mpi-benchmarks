@@ -1,4 +1,5 @@
 #include "args_parser.h"
+#include "counted_ptr.h"
 #include <stdexcept>
 #include <fstream>
 
@@ -100,7 +101,7 @@ int main(int argc, char **argv)
         OriginalBenchmarkSuite_MPI1::prepare(parser.dump());        
         //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
         for (int j = 0; j < actual_benchmark_list.size(); j++) {
-            auto_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
+            counted_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
             if (b.get() == NULL) {
                 b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
                 if (b.get() == NULL) {

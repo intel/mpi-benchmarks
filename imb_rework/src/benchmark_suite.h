@@ -11,6 +11,8 @@
 #include "benchmark_suites_list.h"
 #include "args_parser.h"
 
+#include "counted_ptr.h"
+
 using namespace std;
 //struct benchmark_not_found : public std::exception {
 //    string name;
@@ -50,7 +52,7 @@ class BenchmarkSuite {
             if (pnames->find(name) == pnames->end())
                 (*pnames)[name] = elem;
         }
-        static auto_ptr<Benchmark> create(const string &s) {
+        static counted_ptr<Benchmark> create(const string &s) {
             if (pnames == NULL) {
                 pnames = new map<string, const Benchmark*>();
             }
@@ -58,8 +60,8 @@ class BenchmarkSuite {
     //        if (elem == NULL)
     //            throw std::invalid_argument(s);
             if (elem == NULL)
-                return auto_ptr<Benchmark>((Benchmark *)0);
-            return auto_ptr<Benchmark>(elem->create_myself());
+                return counted_ptr<Benchmark>((Benchmark *)0);
+            return counted_ptr<Benchmark>(elem->create_myself());
         }
         BenchmarkSuite() {}
         ~BenchmarkSuite() { if (pnames != 0) delete pnames; }
