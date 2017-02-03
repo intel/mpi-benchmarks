@@ -605,13 +605,24 @@ ostream &operator<<(ostream &s, const args_parser::value &val) {
 
 
 //-- UNIT TESTS ----------------------------------------------------------------------------------
-#if 1
+#if 0
+
+void print_args(int nargs, const char * const *argv) {
+    cout << ":: ";
+    for (int i = 0; i < nargs; i++) {
+        cout << argv[i];
+        if (i != nargs - 1) cout << " ";
+    }
+    cout << endl;
+}
+
 struct CheckParser {
     bool result;
     bool except;
     smart_ptr<args_parser> pparser;
     CheckParser() : result(false), except(false) {}
     args_parser &init(int argc, char ** argv, int mode = 1) {
+        print_args(argc, argv);
         switch (mode) {
             case 1: pparser = new args_parser(argc, argv, "-", ' '); break;
             case 2: pparser = new args_parser(argc, argv, "--", '='); break;
@@ -698,21 +709,11 @@ int make_args_vector(char ** const &argv, string opt, int mode, T val1, T val2)
     return make_args<T>(1, argv, opt, sval, mode) + 1;
 }
 
-void print_args(int nargs, const char * const *argv) {
-    cout << ":: ";
-    for (int i = 0; i < nargs; i++) {
-        cout << argv[0];
-        if (i != nargs - 1) cout << " ";
-    }
-    cout << endl;
-}
-
 template <typename T>
 void basic_scalar_check(const char *sval, T val) {
     char * argv[1024]; 
     for (int mode = 1; mode <= 3; mode++) {
         int nargs = make_args_scalar<T>(argv, "aaa", mode, val);
-        print_args(nargs, argv);
         CheckParser p;
         p.init(nargs, argv, mode).add_required_option<T>("aaa").set_caption("aaa", "bbb");
         T result = p.run().get_result<T>("aaa");
@@ -725,7 +726,6 @@ void basic_vector_check(const char *sval, T val1, T val2) {
     char * argv[1024]; 
     for (int mode = 1; mode <= 3; mode++) {
         int nargs = make_args_vector<T>(argv, "aaa", mode, val1, val2);
-        print_args(nargs, argv);
         CheckParser p;
         p.init(nargs, argv, mode).add_required_option_vec<T>("aaa", ',').set_caption("aaa", "bbb");
         vector<T> result;

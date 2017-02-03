@@ -14,7 +14,7 @@ extern void check_parser();
 
 int main(int argc, char **argv)
 {
-#if 1    
+#if 0
     check_parser();
 #endif    
 
