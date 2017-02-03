@@ -7,6 +7,8 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include "smart_ptr.h"
+#include "yaml-cpp/yaml.h"
 
 // TODO:
 // proposed moding to add:
@@ -16,17 +18,18 @@
 // NODUPLICATE -- don't allow duplicate options
 // NODEFAULTSDUMP -- don't put defaults into dump
 
+
 class args_parser {
     protected:
     int argc;
-    char **argv;
+    const char * const *argv;
     const char *option_starter;
     const char option_delimiter;
     const static int version;
 
     public:
     args_parser(int &_argc, char **&_argv, const char *opt_st = "--", char opt_delim = '=', bool silnt = false) : argc(_argc), argv(_argv), option_starter(opt_st), option_delimiter(opt_delim),
-                                             prev_option_descr(NULL), silent(silnt) {}
+                                             prev_option(NULL), silent(silnt) {}
     typedef enum { STRING, INT, FLOAT, BOOL } arg_t;
 
     class value {
@@ -52,59 +55,108 @@ class args_parser {
             void sanity_check(arg_t _type) const;
             static const std::string get_type_str(arg_t _type); 
     };
-    struct descr {
-        enum { MAX_VEC_SIZE = 1024 };
+    struct option {
         std::string str;
         arg_t type;
         bool required;
         bool defaulted;
+        std::string caption;
+        option() {};
+        option(std::string _str, arg_t _type, bool _required) : str(_str), type(_type), 
+                                                               required(_required), defaulted(false) {};
+        virtual void print() const = 0;
+        virtual bool do_parse(char *sval) = 0;
+        virtual bool is_scalar() const = 0;
+        virtual void set_default_value() = 0;
+        virtual bool is_default_setting_required() = 0;
+        virtual bool is_required_but_not_set() = 0;
+        virtual std::vector<args_parser::value> get_value_as_vector() = 0; 
+        virtual void to_ostream(std::ostream &s) const = 0;
+        friend std::ostream &operator<<(std::ostream &s, const args_parser::option &d);
+        virtual void to_yaml(YAML::Emitter& out) const = 0;
+        virtual void from_yaml(const YAML::Node& node) = 0;
+        virtual ~option() {}
+        private:
+        option(const option &) {}
+        option &operator=(const option &) { return *this; }
+    };
+    struct option_scalar : public option {
+        args_parser::value def;
+        args_parser::value val;
+        option_scalar(std::string _str, arg_t _type) : option(_str, _type, true) { }
+        option_scalar(std::string _str, arg_t _type, value _def) : option(_str, _type, false), def(_def)
+        { def.sanity_check(type); }
+        virtual ~option_scalar() {}
+        virtual void print() const { std::cout << str << ": " << val << std::endl; }
+        virtual bool do_parse(char *sval) { return val.parse(sval, type); }
+        virtual bool is_scalar() const { return true; }
+        virtual void to_ostream(std::ostream &s) const { s << val; }
+        virtual void to_yaml(YAML::Emitter& out) const; 
+        virtual void from_yaml(const YAML::Node& node); 
+        virtual void set_default_value() { val = def; defaulted = true; }
+        virtual bool is_default_setting_required() { return !val.is_initialized() && !required; }
+        virtual bool is_required_but_not_set() { return required && !val.is_initialized(); }
+        virtual std::vector<args_parser::value> get_value_as_vector() { std::vector<args_parser::value> r; r.push_back(val); return r; }
+    };
+    struct option_vector : public option {
+        enum { MAX_VEC_SIZE = 1024 };
         char vec_delimiter;
         int vec_min;
         int vec_max;
         args_parser::value def;
         std::vector<args_parser::value> val;
-        std::string caption;
         std::string vec_def;
-        descr() {};
-        descr(std::string _str, arg_t _type, char _vec_delimiter, int _vec_min, int _vec_max, const std::string &_vec_def)  :
-            str(_str), type(_type), required(false), defaulted(false), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max), vec_def(_vec_def)
+        option_vector() {};
+        option_vector(std::string _str, arg_t _type, 
+                     char _vec_delimiter, int _vec_min, int _vec_max)  :
+            option(_str, _type, true), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max)
         { }
-        //{ val.resize(vec_max == 0 ? 1 : vec_max); }
-        descr(std::string _str, arg_t _type, char _vec_delimiter, int _vec_min, int _vec_max)  :
-            str(_str), type(_type), required(true), defaulted(false), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max)
+        option_vector(std::string _str, arg_t _type, 
+                     char _vec_delimiter, int _vec_min, int _vec_max, 
+                     const std::string &_vec_def)  :
+            option(_str, _type, false), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max), 
+            vec_def(_vec_def)
         { }
-        //{ val.resize(vec_max == 0 ? 1 : vec_max); }
-        descr(std::string _str, arg_t _type) :
-            str(_str), type(_type), required(true), defaulted(false), vec_delimiter(0), vec_min(0), vec_max(0)
-        { val.resize(1); }
-        descr(std::string _str, arg_t _type, value _def) :
-            str(_str), type(_type), required(false), defaulted(false), vec_delimiter(0), vec_min(0), vec_max(0), def(_def)
-        { val.resize(1); def.sanity_check(type); }
-        void print() const { std::cout << str << ": " << val[0] << std::endl; }
+        virtual ~option_vector() {}
+        virtual void print() const { 
+            std::cout << str << ": ";
+            to_ostream(std::cout);
+            std::cout << std::endl; 
+        }
+        virtual bool do_parse(char *sval);
+        virtual bool is_scalar() const { return false; }
+        virtual void to_ostream(std::ostream &s) const { for (size_t i = 0; i < val.size(); i++) { s << val[i]; if (i != val.size()) s << ", "; } }
+        virtual void to_yaml(YAML::Emitter& out) const; 
+        virtual void from_yaml(const YAML::Node& node); 
+        virtual void set_default_value();
+        virtual bool is_default_setting_required() { return val.size() == 0 && !required; }
+        virtual bool is_required_but_not_set() { return required && vec_min != 0 && !val.size() ==0; }
+        virtual std::vector<args_parser::value> get_value_as_vector() { return val; }
     };
+
     protected:
     std::string current_group;
-    std::map<std::string, std::vector<descr> > expected_args;
+    std::map<std::string, std::vector<smart_ptr<option> > > expected_args;
     std::vector<std::string> unknown_args;
-    descr *prev_option_descr;
+    option *prev_option;
     bool silent;
    
     bool match(std::string &arg, std::string pattern) const;
-    bool match(std::string &arg, descr &exp) const;
-    bool get_value(std::string &arg, descr &exp);
-    void get_default_value(descr &d);
+    bool match(std::string &arg, option &exp) const;
+    bool get_value(std::string &arg, option &exp);
+    void get_default_value(option &d);
     
-    const std::vector<args_parser::descr> &get_extra_args_info(int &num_extra_args, int &num_required_extra_args) const;
-    std::vector<args_parser::descr> &get_extra_args_info(int &num_extra_args, int &num_required_extra_args);
+    const std::vector<smart_ptr<args_parser::option> > &get_extra_args_info(int &num_extra_args, int &num_required_extra_args) const;
+    std::vector<smart_ptr<args_parser::option> > &get_extra_args_info(int &num_extra_args, int &num_required_extra_args);
 
-    void print_err_required_arg(descr &arg) const;
+    void print_err_required_arg(const option &arg) const;
     void print_err_required_extra_arg() const;
-    void print_err_parse(descr &arg) const; 
+    void print_err_parse(const option &arg) const; 
     void print_err_parse_extra_args() const;
     void print_err_extra_args() const;
-    void print_single_option_usage(const descr &d, size_t header_size, bool is_first, bool no_option_name = false) const;
+    void print_single_option_usage(const smart_ptr<option> &d, size_t header_size, bool is_first, bool no_option_name = false) const;
 
-    const std::vector<value> &get_result_value(const std::string &s);
+    std::vector<value> get_result_value(const std::string &s);
 
     public:
     void print_help_advice() const;
@@ -116,9 +168,9 @@ class args_parser {
     template <typename T>
     args_parser &add_option_with_defaults(const char *s, T v);
     template <typename T>
-    args_parser &add_required_option_vec(const char *s, char delim, int min = 1, int max = descr::MAX_VEC_SIZE);
+    args_parser &add_required_option_vec(const char *s, char delim = ',', int min = 0, int max = option_vector::MAX_VEC_SIZE);
     template <typename T>
-    args_parser &add_option_with_defaults_vec(const char *s, const std::string &defaults, char delim, int min = 1, int max = descr::MAX_VEC_SIZE);
+    args_parser &add_option_with_defaults_vec(const char *s, const char *defaults = "", char delim = ',', int min = 0, int max = option_vector::MAX_VEC_SIZE);
 
     args_parser &set_current_group(const std::string &g) { current_group = g; return *this; }
     args_parser &set_default_current_group() { current_group = ""; return *this; }
@@ -128,37 +180,14 @@ class args_parser {
 
     template <typename T>
     T get_result(const std::string &s);
-
-//    int get_result_int(const std::string &s);
-//    float get_result_float(const std::string &s);
-//    bool get_result_bool(const std::string &s);
-//    std::string get_result_string(const std::string &s);
-
     template <typename T>
     void get_result_vec(const std::string &s, std::vector<T> &r);
-
-//    void get_result_vec_int(const std::string &s, std::vector<int> &r);
-//    void get_result_vec_float(const std::string &s, std::vector<float> &r);
-//    void get_result_vec_bool(const std::string &s, std::vector<bool> &r);
-//    void get_result_vec_string(const std::string &s, std::vector<std::string> &r);
-
     void get_unknown_args(std::vector<std::string> &r);
 
     template <typename T>
     bool parse_special(std::string &s, T &r);
-
-//    bool parse_special_int(std::string &s, int &r);
-//    bool parse_special_float(std::string &s, float &r);
-//    bool parse_special_bool(std::string &s, bool &r);
-//    bool parse_special_string(std::string &s, std::string &r);
-
     template <typename T>
     bool parse_special_vec(std::string &s, std::vector<T> &r, char delim, int min, int max);
-
-//    bool parse_special_vec_int(std::string &s, std::vector<int> &r, char delim, int min, int max);
-//    bool parse_special_vec_float(std::string &s, std::vector<float> &r, char delim, int min, int max);
-//    bool parse_special_vec_bool(std::string &s, std::vector<bool> &r, char delim, int min, int max);
-//    bool parse_special_vec_string(std::string &s, std::vector<std::string> &r, char delim, int min, int max);
 
     void clean_args() { argc = 0; }
     std::string dump() const;
@@ -168,8 +197,8 @@ class args_parser {
     protected:
     // NOTE: see source for usage comments
     enum foreach_t { FOREACH_FIRST, FOREACH_NEXT };
-    bool in_expected_args(enum foreach_t t, const std::string *&group, descr *&arg);    
-    bool in_expected_args(enum foreach_t t, const std::string *&group, const descr *&arg) const;    
+    bool in_expected_args(enum foreach_t t, const std::string *&group, smart_ptr<option> *&arg);    
+    bool in_expected_args(enum foreach_t t, const std::string *&group, const smart_ptr<option> *&arg) const;    
 };
 
 template <typename T> args_parser::arg_t get_arg_t();
@@ -186,43 +215,40 @@ template <> std::string get_val<std::string>(const args_parser::value &v) { retu
 
 template <typename T>
 void vresult_to_vector(const std::vector<args_parser::value> &in, std::vector<T> &out) {
-    assert(in.size() > 0);
     args_parser::arg_t t = get_arg_t<T>();
-    if (in[0].type != t)
-        throw std::logic_error("args_parse: wrong option type");
     for (size_t i = 0; i < in.size(); i++)
         out.push_back(get_val<T>(in[i]));
 }
 
 template <typename T>
 args_parser &args_parser::add_required_option(const char *s) {
-    expected_args[current_group].push_back(args_parser::descr(s, get_arg_t<T>()));
+    smart_ptr<option> pd = new args_parser::option_scalar(s, get_arg_t<T>());
+    expected_args[current_group].push_back(pd);
     return *this;
 }
 
 template <typename T>
 args_parser &args_parser::add_option_with_defaults(const char *s, T v) {
-    expected_args[current_group].push_back(args_parser::descr(s, get_arg_t<T>(), value(v)));
+    smart_ptr<option> pd = new args_parser::option_scalar(s, get_arg_t<T>(), value(v));
+    expected_args[current_group].push_back(pd);
     return *this;
 }
 
 template <typename T>
 args_parser &args_parser::add_required_option_vec(const char *s, char delim, int min, int max) {
-    if (max > descr::MAX_VEC_SIZE)
+    if (max > option_vector::MAX_VEC_SIZE)
         throw std::logic_error("args_parser: maximum allowed vector size for vector argument exceeded");
-    if (min < 1)
-        throw std::logic_error("args_parser: minimum allowed vector size is 1");
-    expected_args[current_group].push_back(args_parser::descr(s, get_arg_t<T>(), delim, min, max));
+    smart_ptr<option> pd = new args_parser::option_vector(s, get_arg_t<T>(), delim, min, max);
+    expected_args[current_group].push_back(pd);
     return *this;
 }
 
 template <typename T>
-args_parser &args_parser::add_option_with_defaults_vec(const char *s, const std::string &defaults, char delim, int min, int max) {
-    if (max > descr::MAX_VEC_SIZE)
+args_parser &args_parser::add_option_with_defaults_vec(const char *s, const char *defaults, char delim, int min, int max) {
+    if (max > option_vector::MAX_VEC_SIZE)
         throw std::logic_error("args_parser: maximum allowed vector size for vector argument exceeded");
-    if (min < 1)
-        throw std::logic_error("args_parser: minimum allowed vector size is 1");
-    expected_args[current_group].push_back(args_parser::descr(s, get_arg_t<T>(), delim, min, max, defaults));
+    smart_ptr<option> pd = new args_parser::option_vector(s, get_arg_t<T>(), delim, min, max, defaults); 
+    expected_args[current_group].push_back(pd);
     return *this;
 }
 
@@ -236,13 +262,15 @@ template <typename T>
 T args_parser::get_result(const std::string &s) {
     std::vector<T> r;
     get_result_vec<T>(s, r);
+    if (r.size() != 1)
+        throw std::logic_error("args_parser: get_result can't get a result: zero-sized vector returned");
     return r[0];
 }
-
+/*
 template <typename T>
 bool args_parser::parse_special(std::string &s, T &r) {
-    descr d("[FREE ARG]", get_arg_t<T>());
-    prev_option_descr = &d;
+    option_scalar d("[FREE ARG]", get_arg_t<T>());
+    prev_option = &d;
     bool res = get_value(s, d);
     if (res)
         r = get_val<T>(d.val[0]);
@@ -251,10 +279,11 @@ bool args_parser::parse_special(std::string &s, T &r) {
 
 template <typename T>
 bool args_parser::parse_special_vec(std::string &s, std::vector<T> &r, char delim, int min, int max) {
-    descr d("[FREE ARG]", get_arg_t<T>(), delim, min, max);
-    prev_option_descr = &d;
+    option_vector d("[FREE ARG]", get_arg_t<T>(), delim, min, max);
+    prev_option = &d;
     bool res = get_value(s, d);
     if (res)
         vresult_to_vector<T>(d.val, r);
     return res;
 }
+*/

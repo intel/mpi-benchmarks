@@ -1,5 +1,5 @@
 #include "args_parser.h"
-#include "counted_ptr.h"
+#include "smart_ptr.h"
 #include <stdexcept>
 #include <fstream>
 
@@ -10,8 +10,14 @@
 
 using namespace std;
 
+extern void check_parser();
+
 int main(int argc, char **argv)
 {
+#if 1    
+    check_parser();
+#endif    
+
     MPI_Init(&argc, &argv);
     try {
         //args_parser parser(argc, argv, "/", ':');
@@ -20,14 +26,14 @@ int main(int argc, char **argv)
 
         parser.add_option_with_defaults<string>("input", "").
             set_caption("input", "filename");
-        parser.add_option_with_defaults_vec<string>("include", "", ',', 1).
-            set_caption("include", "[benchmark[,benchmark,[...]]");
-        parser.add_option_with_defaults_vec<string>("exclude", "", ',', 1).
-            set_caption("exclude", "[benchmark[,benchmark,[...]]");
+        parser.add_option_with_defaults_vec<string>("include").
+            set_caption("include", "benchmark[,benchmark,[...]");
+        parser.add_option_with_defaults_vec<string>("exclude").
+            set_caption("exclude", "benchmark[,benchmark,[...]");
 
         // extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
-        parser.add_option_with_defaults_vec<string>("(benchmarks)", "", ',', 1).
+        parser.add_option_with_defaults_vec<string>("(benchmarks)").
             set_caption("(benchmarks)", "benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
 
@@ -101,7 +107,7 @@ int main(int argc, char **argv)
         OriginalBenchmarkSuite_MPI1::prepare(parser.dump());        
         //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
         for (int j = 0; j < actual_benchmark_list.size(); j++) {
-            counted_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
+            smart_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
             if (b.get() == NULL) {
                 b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
                 if (b.get() == NULL) {
@@ -117,4 +123,5 @@ int main(int argc, char **argv)
     catch(exception &ex) {
         cout << "EXCEPTION: " << ex.what() << endl;
     }
+    MPI_Finalize();
 }
