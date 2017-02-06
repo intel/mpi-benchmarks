@@ -65,7 +65,7 @@ class args_parser {
         option(std::string _str, arg_t _type, bool _required) : str(_str), type(_type), 
                                                                required(_required), defaulted(false) {};
         virtual void print() const = 0;
-        virtual bool do_parse(char *sval) = 0;
+        virtual bool do_parse(const char *sval) = 0;
         virtual bool is_scalar() const = 0;
         virtual void set_default_value() = 0;
         virtual bool is_default_setting_required() = 0;
@@ -88,7 +88,7 @@ class args_parser {
         { def.sanity_check(type); }
         virtual ~option_scalar() {}
         virtual void print() const { std::cout << str << ": " << val << std::endl; }
-        virtual bool do_parse(char *sval) { return val.parse(sval, type); }
+        virtual bool do_parse(const char *sval) { return val.parse(sval, type); }
         virtual bool is_scalar() const { return true; }
         virtual void to_ostream(std::ostream &s) const { s << val; }
         virtual void to_yaml(YAML::Emitter& out) const; 
@@ -123,7 +123,7 @@ class args_parser {
             to_ostream(std::cout);
             std::cout << std::endl; 
         }
-        virtual bool do_parse(char *sval);
+        virtual bool do_parse(const char *sval);
         virtual bool is_scalar() const { return false; }
         virtual void to_ostream(std::ostream &s) const { for (size_t i = 0; i < val.size(); i++) { s << val[i]; if (i != val.size()) s << ", "; } }
         virtual void to_yaml(YAML::Emitter& out) const; 
@@ -187,7 +187,7 @@ class args_parser {
     template <typename T>
     bool parse_special(std::string &s, T &r);
     template <typename T>
-    bool parse_special_vec(std::string &s, std::vector<T> &r, char delim, int min, int max);
+    bool parse_special_vec(std::string &s, std::vector<T> &r, char delim = ',', int min = 0, int max = option_vector::MAX_VEC_SIZE);
 
     void clean_args() { argc = 0; }
     std::string dump() const;
@@ -266,24 +266,24 @@ T args_parser::get_result(const std::string &s) {
         throw std::logic_error("args_parser: get_result can't get a result: zero-sized vector returned");
     return r[0];
 }
-/*
+
 template <typename T>
 bool args_parser::parse_special(std::string &s, T &r) {
     option_scalar d("[FREE ARG]", get_arg_t<T>());
-    prev_option = &d;
-    bool res = get_value(s, d);
-    if (res)
-        r = get_val<T>(d.val[0]);
+    bool res = d.do_parse(s.c_str());
+    if (res) {
+        r = get_val<T>(d.get_value_as_vector()[0]);
+    }
     return res;
 }
 
 template <typename T>
 bool args_parser::parse_special_vec(std::string &s, std::vector<T> &r, char delim, int min, int max) {
     option_vector d("[FREE ARG]", get_arg_t<T>(), delim, min, max);
-    prev_option = &d;
-    bool res = get_value(s, d);
-    if (res)
-        vresult_to_vector<T>(d.val, r);
+    bool res = d.do_parse(s.c_str());
+    if (res) {
+        r = vresult_to_vector(d.get_value_as_vector(), r);
+    }
     return res;
 }
-*/
+

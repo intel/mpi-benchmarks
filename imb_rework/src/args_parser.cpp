@@ -121,34 +121,40 @@ void args_parser::option_vector::from_yaml(const YAML::Node& node)
     assert(val.size() >= vec_min && val.size() <= vec_max);
 }
 
-bool args_parser::option_vector::do_parse(char *sval) {
-    std::vector<int> positions;
-    for (char *s = sval; *s; s++) {
-        if (*s == vec_delimiter)
-            positions.push_back(s - sval);
-    }
-    size_t nelems = strlen(sval) ? positions.size() + 1 : 0;
-    if (nelems < (size_t)vec_min || nelems > (size_t)vec_max) {
-        return false;
-    }
-    val.resize(std::max(nelems, val.size()));
-    if (nelems == 0)
-        return true;
-    size_t i = 0, j = 0;
+bool args_parser::option_vector::do_parse(const char *const_sval) {
     bool res = true;
-    for (; i < positions.size(); i++) {
-        sval[positions[i]] = 0;
+    char *sval = strdup(const_sval);
+    try {
+        std::vector<int> positions;
+        for (char *s = sval; *s; s++) {
+            if (*s == vec_delimiter)
+                positions.push_back(s - sval);
+        }
+        size_t nelems = strlen(sval) ? positions.size() + 1 : 0;
+        if (nelems < (size_t)vec_min || nelems > (size_t)vec_max) {
+            return false;
+        }
+        val.resize(std::max(nelems, val.size()));
+        if (nelems == 0)
+            return true;
+        size_t i = 0, j = 0;
+        for (; i < positions.size(); i++) {
+            sval[positions[i]] = 0;
+            res = res && val[i].parse(sval + j, type);
+            j = positions[i] + 1;
+        }
         res = res && val[i].parse(sval + j, type);
-        j = positions[i] + 1;
     }
-    res = res && val[i].parse(sval + j, type);
+    catch(...) {
+        free(sval);
+        sval = NULL;
+    }
+    free(sval);
     return res;
 }
 
 void args_parser::option_vector::set_default_value() {
-    char *sval = strdup(vec_def.c_str());
-    do_parse(sval);
-    free(sval);
+    do_parse(vec_def.c_str());
     defaulted = true;
 }
 
@@ -159,52 +165,57 @@ bool args_parser::match(string &arg, string pattern) const {
        return false;
     return true;
 }
-bool args_parser::match(string &arg, option &exp) const {
-    return match(arg, exp.str);
+
+bool args_parser::match(string &arg, option &opt) const {
+    return match(arg, opt.str);
 }
-bool args_parser::get_value(string &arg, option &exp) {
+
+bool args_parser::get_value(string &arg, option &opt) {
     size_t offset = 0; 
-    if (prev_option == NULL) {
-        offset = strlen(option_starter);
-        if (option_delimiter == ' ') {
-            prev_option = &exp;
-            offset += exp.str.size();
-            if (*(arg.c_str() + offset) != 0)
-                return false;
-            return true;
-        } else {
-            offset += exp.str.size();
-            if (*(arg.c_str() + offset) != option_delimiter)
-                return false;
-            offset += 1;
-        }
+    assert(prev_option == NULL);
+    offset = strlen(option_starter);
+    if (option_delimiter == ' ') {
+        // save the option descriptor -- next arg will be the value
+        prev_option = &opt;
+        offset += opt.str.size();
+        if (*(arg.c_str() + offset) != 0)
+            return false;
+        return true;
+    } else {
+        offset += opt.str.size();
+        if (*(arg.c_str() + offset) != option_delimiter)
+            return false;
+        offset += 1;
     }
-    prev_option = NULL;
-    char *sval = strdup(arg.c_str() + offset);
-    bool res = exp.do_parse(sval);
-    free(sval);
+    bool res = opt.do_parse(arg.c_str() + offset);
     return res;
 }
+
 void args_parser::print_err_required_arg(const option &arg) const {
     if (!silent)
         cout << "ERROR: The required argument missing or can't be parsed: " << option_starter << arg.str << endl;
 }
+
 void args_parser::print_err_required_extra_arg() const {
     if (!silent)
         cout << "ERROR: The required extra argument missing" << endl;
 }
+
 void args_parser::print_err_parse(const option &arg) const {
     if (!silent)
         cout << "ERROR: Parse error on argument: " << option_starter << arg.str << endl;
 }
+
 void args_parser::print_err_parse_extra_args() const {
     if (!silent)
         cout << "ERROR: Parse error on an extra argument" << endl;
 }
+
 void args_parser::print_err_extra_args() const {
     if (!silent)
         cout << "ERROR: Some extra or unknown arguments or options" << endl;
 }
+
 void args_parser::print_help_advice() const {
     cout << "Try \"" <<  basename(argv[0]) << " " << option_starter << "help\" for usage information" << endl;
 }
@@ -310,6 +321,7 @@ void args_parser::print_help() const {
     if (num_extra_args)
         cout << endl;
 }
+
 void args_parser::print() const {
     const string *pgroup;
     const smart_ptr<option> *parg;
@@ -355,21 +367,21 @@ bool args_parser::parse() {
         string arg(argv[i]);
         // if there is a pointer to a optioniptor which corresponds to previous argv[i]
         if (prev_option) {
-            // the option itself was given as a previous argv[i] or was just pre-stored
-            // (for special cases)
+            // the option itself was given as a previous argv[i] 
             // now only parse the option argument
             option &d = *prev_option;
             if (!d.required) 
                 d.set_default_value();
-            if (!get_value(arg, d)) {
+            d.defaulted = false;
+            if (!d.do_parse(arg.c_str())) {
                 print_err_parse(d);
                 parse_result = false;
             }
-            d.defaulted = false;
+            prev_option = NULL;
             continue;
         }
         // help is hardcoded as and optional 1st arg
-        // NOTE: may be change this to be optional?
+        // TODO: change this to be optional
         if (i == 1 && match(arg, string("help"))) {
             print_help();
             parse_result = false;
@@ -421,8 +433,7 @@ bool args_parser::parse() {
                 continue;
             if (!extra_args[j]->required)
                 extra_args[j]->set_default_value();
-            prev_option = extra_args[j].get();
-            if (!get_value(unknown_args[j], *extra_args[j])) {
+            if (!extra_args[j]->do_parse(unknown_args[j].c_str())) {
                 print_err_parse_extra_args();
                 parse_result = false;
                 break;
@@ -449,16 +460,17 @@ bool args_parser::parse() {
         }
     }
     // if there are too many unexpected args, raise error
-    // NOTE: may be change this to me optional?
+    // TODO change this to be optional?
     if (parse_result && unknown_args.size()) {
         print_err_extra_args();
         parse_result = false;
     }
-    // NOTE: silent flag is a bit outstanding as for now, may be change to a more common flag scheme?
+    // TODO silent flag is a bit outstanding as for now, may be change to a more common flag scheme?
     if (!parse_result && !silent && !help_printed)
         print_help_advice();
     return parse_result;
 }
+
 args_parser &args_parser::set_caption(const char *s, const char *cap) {
     const string *pgroup;
     smart_ptr <option> *parg;
@@ -471,6 +483,7 @@ args_parser &args_parser::set_caption(const char *s, const char *cap) {
     }
     throw logic_error("args_parser: no such option");
 }
+
 args_parser &args_parser::set_caption(int n, const char *cap) {
     int num_extra_args = 0, num_required_extra_args = 0;
     vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
@@ -479,6 +492,7 @@ args_parser &args_parser::set_caption(int n, const char *cap) {
     extra_args[n]->caption.assign(cap);
     return *this;
 }
+
 vector<args_parser::value> args_parser::get_result_value(const string &s) {
     const string *pgroup;
     smart_ptr<option> *parg;
@@ -490,11 +504,13 @@ vector<args_parser::value> args_parser::get_result_value(const string &s) {
     }
     throw logic_error("args_parser: no such option");
 }
+
 void args_parser::get_unknown_args(vector<string> &r) {
     for (size_t j = 0; j < unknown_args.size(); j++) {
         r.push_back(unknown_args[j]);
     }
 }
+
 bool args_parser::load(istream &stream) {
     try {
         YAML::Parser parser(stream);
@@ -534,10 +550,12 @@ bool args_parser::load(istream &stream) {
     // call to clean_args()
     return parse();
 }
+
 bool args_parser::load(const string &input) {
     stringstream stream(input.c_str());
     return load(stream);
 }
+
 string args_parser::dump() const {
     YAML::Emitter out;
     // FIXME remove mentioning of IMB!!!
@@ -601,224 +619,3 @@ ostream &operator<<(ostream &s, const args_parser::value &val) {
     }
     return s;
 }
-
-
-
-//-- UNIT TESTS ----------------------------------------------------------------------------------
-#if 0
-
-void print_args(int nargs, const char * const *argv) {
-    cout << ":: ";
-    for (int i = 0; i < nargs; i++) {
-        cout << argv[i];
-        if (i != nargs - 1) cout << " ";
-    }
-    cout << endl;
-}
-
-struct CheckParser {
-    bool result;
-    bool except;
-    smart_ptr<args_parser> pparser;
-    CheckParser() : result(false), except(false) {}
-    args_parser &init(int argc, char ** argv, int mode = 1) {
-        print_args(argc, argv);
-        switch (mode) {
-            case 1: pparser = new args_parser(argc, argv, "-", ' '); break;
-            case 2: pparser = new args_parser(argc, argv, "--", '='); break;
-            case 3: pparser = new args_parser(argc, argv, "/", ':'); break;
-            default: assert(false);
-        }
-        return *pparser;
-    }
-    args_parser &run() {
-        try {
-            result = pparser->parse();
-        }
-        catch(exception &ex) {
-            cout << "EXCEPTION: " << ex.what() << endl;
-            except = true;
-        }
-        return *pparser;
-    }
-};
-
-template <typename T> 
-void val2str(T val, string &str)
-{
-    ostringstream os;
-    os << val;
-    str = os.str();
-}
-    
-template <> 
-void val2str<bool>(bool val, string &str)
-{
-    str = (val ? "true" : "false");
-}
-
-template <typename T> 
-void vals2str(vector<T> vals, string delim, string &str)
-{
-    for (size_t i = 0; i < vals.size(); i++) {
-        string tmp;
-        val2str<T>(vals[i], tmp);
-        str += tmp;
-        if (i != vals.size() - 1) {
-            str += delim;
-        }
-    }
-}
-
-template <typename T>
-int make_args(int start, char ** const &argv, string opt, const string &sval, int mode)
-{
-    switch (mode) {
-        case 1: { 
-                    string a1 = "-" + opt; 
-                    argv[start] = strdup(a1.c_str()); 
-                    argv[start+1] = strdup(sval.c_str()); 
-                    return 2; 
-                    break; 
-                }
-        case 2: { string a1 = "--" + opt + "=" + sval; argv[start] = strdup(a1.c_str()); return 1; break; }
-        case 3: { string a1 = "/" + opt + ":" + sval; argv[start] = strdup(a1.c_str()); return 1; break; }
-        default: assert(false);
-    }
-    return 0;
-}
-
-template <typename T>
-int make_args_scalar(char ** const &argv, string opt, int mode, T val)
-{
-    string sval;
-    val2str<T>(val, sval);
-    argv[0] = strdup("check");
-    return make_args<T>(1, argv, opt, sval, mode) + 1;
-}
- 
-template <typename T>
-int make_args_vector(char ** const &argv, string opt, int mode, T val1, T val2)
-{
-    string sval;
-    vector<T> vals;
-    vals.push_back(val1);
-    vals.push_back(val2);
-    vals2str<T>(vals, ",", sval);
-    argv[0] = strdup("check");
-    return make_args<T>(1, argv, opt, sval, mode) + 1;
-}
-
-template <typename T>
-void basic_scalar_check(const char *sval, T val) {
-    char * argv[1024]; 
-    for (int mode = 1; mode <= 3; mode++) {
-        int nargs = make_args_scalar<T>(argv, "aaa", mode, val);
-        CheckParser p;
-        p.init(nargs, argv, mode).add_required_option<T>("aaa").set_caption("aaa", "bbb");
-        T result = p.run().get_result<T>("aaa");
-        assert(result == val && p.result && !p.except);
-    }
-}
- 
-template <typename T>
-void basic_vector_check(const char *sval, T val1, T val2) {
-    char * argv[1024]; 
-    for (int mode = 1; mode <= 3; mode++) {
-        int nargs = make_args_vector<T>(argv, "aaa", mode, val1, val2);
-        CheckParser p;
-        p.init(nargs, argv, mode).add_required_option_vec<T>("aaa", ',').set_caption("aaa", "bbb");
-        vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
-        assert(result.size() == 2 && result[0] == val1 && result[1] == val2 && p.result && !p.except);
-    }
-}
-
-template <typename T>
-void default_scalar_check(T def) {
-    char *argv[1024]; 
-    for (int mode = 1; mode <= 3; mode++) {
-        argv[0] = "check";
-        CheckParser p;
-        p.init(1, argv, mode).add_option_with_defaults<T>("aaa", def).set_caption("aaa", "bbb");
-        T res = p.run().get_result<T>("aaa");
-        assert(res == def && p.result && !p.except);
-    }
-}
-
-template <typename T>
-void default_vector_check(const char *def, size_t n) {
-    char *argv[1024]; 
-    for (int mode = 1; mode <= 3; mode++) {
-        argv[0] = "check";
-        CheckParser p;
-        p.init(1, argv, mode).add_option_with_defaults_vec<T>("aaa", def).set_caption("aaa", "bbb");
-        vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
-        assert(result.size() == n && p.result && !p.except);
-    }
-}
-
-template <typename T>
-void default_vector_check_ext(const char *def, const char *sval, size_t n, T val1, T val2) {
-    char *argv[1024]; 
-    for (int mode = 1; mode <= 3; mode++) {
-        argv[0] = "check";
-        int nargs = make_args<string>(1, argv, "aaa", sval, mode) + 1;
-        CheckParser p;
-        p.init(nargs, argv, mode).add_option_with_defaults_vec<T>("aaa", def).set_caption("aaa", "bbb");
-        vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
-        assert(result.size() == n && p.result && !p.except);
-        assert(result[0] == val1 && result[1] == val2);
-    }
-}
-
-void check_parser()
-{
-    basic_scalar_check<int>("5", 5);
-    basic_scalar_check<int>("-5", -5);
-    basic_scalar_check<float>("5.5", 5.5);
-    basic_scalar_check<float>("-5.5", -5.5);
-    basic_scalar_check<bool>("true", true);
-    basic_scalar_check<bool>("on", true);
-    basic_scalar_check<string>("ccc", "ccc");
-    
-    basic_vector_check<int>("5,5", 5, 5);
-    basic_vector_check<int>("5,-5", 5, -5);
-    basic_vector_check<int>("-5,-5", -5, 5);
-    basic_vector_check<float>("5.5,5.5", 5.5, 5.5);
-    basic_vector_check<float>("-5.5,5.5", -5.5, 5.5);
-    basic_vector_check<bool>("true,false", true, false);
-    basic_vector_check<bool>("on,off", true, false);
-    basic_vector_check<string>("ccc,ddd", "ccc", "ddd");
-
-    default_scalar_check<int>(5);
-    default_scalar_check<float>(5.5);
-    default_scalar_check<bool>(true);
-    default_scalar_check<string>("ccc");
-
-    default_vector_check<int>("", 0);
-    default_vector_check<int>("5", 1);
-    default_vector_check<int>("5,-5", 2);
-    default_vector_check<float>("", 0);
-    default_vector_check<float>("5.5", 1);
-    default_vector_check<float>("5.5,.3", 2);
-    default_vector_check<bool>("", 0);
-    default_vector_check<bool>("true", 1);
-    default_vector_check<bool>("true,false", 2);
-    default_vector_check<string>("", 0);
-    default_vector_check<string>("ccc", 1);
-    default_vector_check<string>("ccc,ddd", 2);
-
-    default_vector_check_ext<int>("5,-5", "1", 2, 1, -5);
-    default_vector_check_ext<int>("5,-5", "1,1", 2, 1, 1);
-    default_vector_check_ext<float>("5.,-5.0e0", ".1", 2, 0.1, -5.0);
-    default_vector_check_ext<float>("5.", ".1,1e-6", 2, 0.1, 1e-6);
-    default_vector_check_ext<bool>("true,false", "false", 2, false, false);
-    default_vector_check_ext<bool>("true", "false,true", 2, false, true);
-    default_vector_check_ext<string>("aaa,bbbb", "ccc", 2, "ccc", "bbbb");
-    default_vector_check_ext<string>("aaa", "ccc,ddd", 2, "ccc", "ddd");
-}
-#endif
-

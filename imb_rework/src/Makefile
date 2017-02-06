@@ -45,7 +45,7 @@ yamlcpp/test/old-api/spectests.cpp
 YAMLCPP_OBJ = $(YAMLCPP_SRC:.cpp=.o)
 YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
 
-IMB_SRC = imb.cpp args_parser.cpp
+IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
 
 BECHMARK_SUITE_SRC = benchmark_suite.cpp orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp
@@ -84,7 +84,7 @@ original_imb/src/IMB_warm_up.c
 LEGACY_OBJ=$(LEGACY_SRC:.c=.o)
 BECHMARK_SUITE_OBJ = $(BECHMARK_SUITE_SRC:.cpp=.o) $(LEGACY_OBJ)
 
-HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h
+HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h
 
 all: libyaml-cpp.a imb
 
@@ -107,5 +107,5 @@ imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) libyaml-cpp.a
 clean:
 	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) imb yamltest libyaml-cpp.a
 
-imb.cpp: $(HEADERS)
-args_parser.cpp: $(HEADERS)
+imb.o: $(HEADERS)
+args_parser.o: $(HEADERS)
