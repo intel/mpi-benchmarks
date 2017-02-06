@@ -84,7 +84,7 @@ original_imb/src/IMB_warm_up.c
 LEGACY_OBJ=$(LEGACY_SRC:.c=.o)
 BECHMARK_SUITE_OBJ = $(BECHMARK_SUITE_SRC:.cpp=.o) $(LEGACY_OBJ)
 
-HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h
+HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h reworked_IMB_functions.h
 
 all: libyaml-cpp.a imb
 
@@ -109,3 +109,8 @@ clean:
 
 imb.o: $(HEADERS)
 args_parser.o: $(HEADERS)
+orig_benchmark_MPI1.o: $(HEADERS)
+benchmark_suite_MPI1.o: $(HEADERS)
+benchmark_suite.o: $(HEADERS)
+args_parser_utests.o: $(HEADERS)
+

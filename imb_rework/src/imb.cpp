@@ -14,7 +14,7 @@ extern void check_parser();
 
 int main(int argc, char **argv)
 {
-#if 1
+#if 0
     check_parser();
 #endif    
 
@@ -116,8 +116,8 @@ int main(int argc, char **argv)
                 }
             }
             b->init();
-            b->run(0, 1024);
-            cout << "OK" << endl;
+            b->run(0, 1024*1024*64);
+            //cout << "OK" << endl;
         }
     }
     catch(exception &ex) {
