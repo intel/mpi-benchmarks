@@ -1,5 +1,9 @@
 #pragma once
 
+typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
+                struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
+
+
 enum descr_t { 
     REDUCTION, SELECT_SOURCE, 
     SINGLE_TRANSFER, PARALLEL_TRANSFER, COLLECTIVE, 
@@ -10,11 +14,23 @@ enum descr_t {
     HAS_ROOT
 };
 
+struct LEGACY_GLOBALS {
+    int NP_min;
+    int NP, iter, size, ci_np;
+    int header, MAXMSG;
+    int x_sample, n_sample;
+    Type_Size unit_size;
+    double time[MAX_TIME_ID];
+};
+
 struct reworked_Bmark_descr {
     typedef std::set<descr_t> descr_set;
     descr_set flags;
     std::vector<std::string> comments; 
     std::vector<const char *> cmt; 
+    bool stop_iterations;
+    int time_limit[2];
+    double sample_time;
     BTYPES descr2type(descr_t t) {
         switch(t) {
             case SINGLE_TRANSFER:
@@ -419,6 +435,96 @@ struct reworked_Bmark_descr {
 
     }
 
+    void helper_sync_legacy_globals(comm_info &c_info, LEGACY_GLOBALS &glob, 
+struct Bench *Bmark) {
+        // NP_min is already initialized by IMB_basic_input
+        glob.ci_np = c_info.w_num_procs;
+        if (Bmark->RUN_MODES[0].type == ParallelTransferMsgRate) {
+            glob.ci_np -= glob.ci_np % 2;
+            glob.NP_min += glob.NP_min % 2;
+        }
+        glob.NP=max(1,min(glob.ci_np,glob.NP_min));
+        if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+            glob.NP = (min(2,glob.ci_np));
+        }
+        if (Bmark->reduction ||
+            Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+            MPI_Type_size(c_info.red_data_type,&glob.unit_size);
+        } else {
+            MPI_Type_size(c_info.s_data_type,&glob.unit_size);
+        }
+        glob.MAXMSG=(1<<c_info.max_msg_log)/glob.unit_size * glob.unit_size;
+        glob.header=1;
+        Bmark->sample_failure = 0;
+        time_limit[0] = time_limit[1] = 0;
+        Bmark->success = 1;
+        c_info.select_source = Bmark->select_source;
+        stop_iterations = false;
+        glob.iter = 0;
+        glob.size = 0;
+        sample_time = MPI_Wtime();
+        if (Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+            /* just one size needs to be tested (the size of one element) */
+            MPI_Type_size(c_info.red_data_type, &glob.size);
+        }
+    }
+
+    bool helper_is_next_iter(comm_info &c_info, LEGACY_GLOBALS &glob) {
+        if (!(((c_info.n_lens == 0 && glob.size < glob.MAXMSG ) ||
+             (c_info.n_lens > 0  && glob.iter < c_info.n_lens))))
+            return false;
+        if (stop_iterations)
+            return false;
+        return true;
+    }
+
+    void helper_get_next_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
+        if (c_info.n_lens > 0) {
+            glob.size = c_info.msglen[glob.iter];
+        } else {
+            if( glob.iter == 0 ) {
+                glob.size = 0;
+            } else if (glob.iter == 1) {
+                glob.size = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+            } else {
+                glob.size = min(glob.MAXMSG, glob.size + glob.size);
+            }
+        }
+    }
+
+    void helper_adjust_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
+        if (glob.size > glob.MAXMSG) {
+            if (c_info.w_rank == 0) {
+//                fprintf(unit,"Attention, msg size %d truncated to %d\n", size,MAXMSG);
+            }
+            glob.size = glob.MAXMSG;
+        }
+        glob.size = (glob.size+glob.unit_size-1)/glob.unit_size*glob.unit_size;
+    }
+    
+    bool helper_time_check(comm_info &c_info, LEGACY_GLOBALS &glob, 
+                           Bench *Bmark, iter_schedule &ITERATIONS) {
+        if (!Bmark->sample_failure) {
+            time_limit[1] = 0;
+            if (c_info.rank >= 0) {
+                time_limit[1] = (MPI_Wtime() - sample_time < max(max(c_info.n_lens, c_info.max_msg_log - c_info.min_msg_log) - 1, 1) * ITERATIONS.secs) ? 0 : 1;
+            }
+        }
+        MPI_Allreduce(&time_limit[1], &time_limit[0], 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+        if (time_limit[0]) {
+            Bmark->sample_failure = SAMPLE_FAILED_TIME_OUT;
+            stop_iterations = true;
+        }
+        return Bmark->sample_failure;
+    }
+
+    void helper_post_step(LEGACY_GLOBALS &glob, Bench *Bmark) {
+        glob.header = 0;
+        glob.iter++;
+        if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+            stop_iterations = true;
+        }
+    }
 };
 
 /*

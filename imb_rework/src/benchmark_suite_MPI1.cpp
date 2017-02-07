@@ -1,9 +1,12 @@
 #include "benchmark_suite_MPI1.h"
 #include "IMB_comm_info.h"
 
+#include "reworked_IMB_functions.h"
+
 namespace NS_MPI1 {
     struct comm_info c_info;
     struct iter_schedule ITERATIONS;
+    struct LEGACY_GLOBALS glob;
 //    MODES BMODE;
 //    double time_[MAX_TIME_ID];
 //    int iter;
@@ -45,8 +48,24 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const std::string &yaml) {
     IMB_init_pointers(&c_info);
     char *argv[] = { "" };
     int argc = 0;
-    int NPmin = 2;
-    IMB_basic_input(&c_info, &BList, &ITERATIONS, &argc, (char ***)argv, &NPmin);
+    IMB_basic_input(&c_info, &BList, &ITERATIONS, &argc, (char ***)argv, &glob.NP_min);
+    if (c_info.w_rank == 0 ) {
+        IMB_general_info();
+        fprintf(unit,"\n\n# Calling sequence was: \n\n#");
+        fprintf(unit,"# ------------------- \n\n#");
+        if (c_info.n_lens) {
+            fprintf(unit,"# Message lengths were user defined\n");
+        } else {
+            fprintf(unit,"# Minimum message length in bytes:   %d\n",0);
+            fprintf(unit,"# Maximum message length in bytes:   %d\n", 1<<c_info.max_msg_log);
+        }
+
+        fprintf(unit,"#\n");
+        fprintf(unit,"# MPI_Datatype                   :   MPI_BYTE \n");
+        fprintf(unit,"# MPI_Datatype for reductions    :   MPI_FLOAT\n");
+        fprintf(unit,"# MPI_Op                         :   MPI_SUM  \n");
+    }
+
     // IMB_show_selections
 //    Bmark->RUN_MODES[0].
 //    IMB_valid(&c_info, Bmark, NP);
@@ -75,6 +94,7 @@ void *OriginalBenchmarkSuite_MPI1::get_internal_data_ptr(const std::string &key)
     using namespace NS_MPI1;
     if (key == "c_info") return &c_info;
     if (key == "ITERATIONS") return &ITERATIONS;
+    if (key == "glob") return &glob;
     return 0;
 }
 

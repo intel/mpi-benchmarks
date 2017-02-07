@@ -116,7 +116,8 @@ int main(int argc, char **argv)
                 }
             }
             b->init();
-            b->run(0, 1024*1024*64);
+            for (int n = 0; n < 40; n++)
+                b->run();
             //cout << "OK" << endl;
         }
     }

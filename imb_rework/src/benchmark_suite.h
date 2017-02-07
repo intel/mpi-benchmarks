@@ -29,7 +29,7 @@ class Benchmark {
         virtual const string get_name() const = 0;
         virtual Benchmark* create_myself() const = 0;
         virtual void init() = 0;
-        virtual void run(int iter, int size) = 0;
+        virtual void run() = 0;
         virtual ~Benchmark() { }
     private:
         Benchmark &operator=(const Benchmark &) { return *this; }
