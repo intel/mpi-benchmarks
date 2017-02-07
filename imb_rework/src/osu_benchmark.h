@@ -13,7 +13,7 @@ class OSUBenchmark : public Benchmark {
     public:
     virtual void init() {
     }
-    virtual void run(int iter, int size) { 
+    virtual void run() { 
 //        cout << "I am " << name << " benchmark wrapper and I've got benchmark function ptr: " << long(fn_ptr) << endl;
         char *argv = "";
         fn_ptr(1, &argv);

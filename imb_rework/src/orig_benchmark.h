@@ -74,11 +74,14 @@ class OriginalBenchmark : public Benchmark {
             if (!IMB_valid(&c_info, BMark, glob.NP))
                 return;
             IMB_init_communicator(&c_info, glob.NP);
+            initialized = true;
 //            if (RANK == 0) {
 //                cout << "I am " << name << " benchmark wrapper and I've got benchmark function ptr: " << long(fn_ptr) << endl;
 //            }
         }
         virtual void run() { 
+            if (!initialized)
+                return;
             if (!descr.helper_is_next_iter(c_info, glob))
                 return;
             descr.helper_get_next_size(c_info, glob);
