@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include "benchmark_suite.h"
 #include "benchmark_suite_MPI1.h"
 

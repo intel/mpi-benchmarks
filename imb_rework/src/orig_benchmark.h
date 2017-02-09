@@ -35,6 +35,8 @@ struct LEGACY_GLOBALS {
 };
 */
 
+extern "C" { void IMB_Barrier(MPI_Comm comm); }
+
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
     protected:
@@ -49,7 +51,7 @@ class OriginalBenchmark : public Benchmark {
         int FULL_NP;
         int RANK;
 
-        LEGACY_GLOBALS glob; //int NP, iter, size, unit_size, ci_np;
+        LEGACY_GLOBALS glob;
     public:
         static bool init_descr();
         virtual void init() {
@@ -68,7 +70,7 @@ class OriginalBenchmark : public Benchmark {
             assert(RANK == c_info.w_rank);
             assert(FULL_NP == c_info.w_num_procs);
  
-            BMark->name = strdup(name); //FIXME memleak here
+            BMark->name = strdup(name);
             descr.IMB_set_bmark(BMark, fn_ptr);
             descr.helper_sync_legacy_globals(c_info, glob, BMark);
             if (!IMB_valid(&c_info, BMark, glob.NP))
@@ -96,10 +98,14 @@ class OriginalBenchmark : public Benchmark {
 //                    cout << "time: " << time[0] << endl;
 //                }
             }
-            MPI_Barrier(MPI_COMM_WORLD);
+//            MPI_Barrier(MPI_COMM_WORLD);
+            IMB_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, glob.size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, glob.size);
             descr.helper_post_step(glob, BMark);
+        }
+        ~OriginalBenchmark() {
+            free(BMark[0].name);
         } 
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };

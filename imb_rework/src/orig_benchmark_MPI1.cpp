@@ -1,5 +1,7 @@
 #ifdef MPI1
 
+#include <mpi.h>
+
 #include <iostream>
 #include "orig_benchmark.h"
 

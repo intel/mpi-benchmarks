@@ -1,6 +1,5 @@
 #pragma once
 #include "benchmark_suite.h"
-#include <mpi.h>
 extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"

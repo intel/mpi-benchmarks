@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include "args_parser.h"
 #include "smart_ptr.h"
 #include <stdexcept>
@@ -6,7 +7,6 @@
 #include "benchmark_suite.h"
 #include "benchmark_suite_MPI1.h"
 
-#include <mpi.h>
 
 using namespace std;
 

@@ -1,0 +1,96 @@
+diff -ruBbw imb_dvlp_orig/src/IMB_init.c imb_dvlp/src/IMB_init.c
+--- imb_dvlp_orig/src/IMB_init.c	2017-02-08 14:44:35.337096000 +0300
++++ imb_dvlp/src/IMB_init.c	2017-02-08 14:40:01.612640000 +0300
+@@ -97,6 +97,8 @@
+ 
+ #define MAX_INT_LOG (31)
+ 
++//#define COMM_EXPERIMENT 1
++
+ struct Blist_item
+ {
+     const char *bname;
+@@ -1308,7 +1310,12 @@
+         MPI_Comm_rank(c_info->communicator,&(c_info ->rank));
+ 
+         c_info->pair0 = 0;
++#if COMM_EXPERIMENT == 0
+         c_info->pair1 = c_info ->num_procs-1;
++#else
++        c_info->pair1 = 1;
++        c_info->num_procs = 2;
++#endif        
+ 
+         c_info->select_tag = 0;
+         /*c_info->select_source = 0;*/
+@@ -1320,10 +1327,17 @@
+ 
+     if( c_info->communicator == MPI_COMM_WORLD ) 
+     {
++#if COMM_EXPERIMENT == 0        
+         c_info->n_groups = 1;
+         c_info->g_sizes[0] = c_info->w_num_procs;
+ 
+         for(i=0; i<c_info->w_num_procs; i++) c_info->g_ranks[i]=i;
++#else
++        c_info->n_groups = 1;
++        c_info->g_sizes[0] = 2;
++
++        for(i=0; i<2; i++) c_info->g_ranks[i]=i;
++#endif        
+     }
+     else
+     {
+@@ -1484,12 +1498,17 @@
+     /* Default choice and Group definition.  */
+     else
+     {
++#if COMM_EXPERIMENT == 0       
+         if(map[c_info->w_rank] < c_info->NP) color=0;
+         else color=MPI_UNDEFINED;   
+ 
+         c_info->group_no = 0;
+         key=map[c_info->w_rank];
+         MPI_Comm_split(MPI_COMM_WORLD, color, key, &c_info->communicator); 
++#else
++        //c_info->communicator = MPI_COMM_WORLD;
++        MPI_Comm_dup(MPI_COMM_WORLD, &c_info->communicator);
++#endif        
+     }
+ 
+     IMB_v_free((void**)&map);
+diff -ruBbw imb_dvlp_orig/src/IMB_pingpong.c imb_dvlp/src/IMB_pingpong.c
+--- imb_dvlp_orig/src/IMB_pingpong.c	2017-02-08 14:44:35.378099000 +0300
++++ imb_dvlp/src/IMB_pingpong.c	2017-02-08 14:40:00.933631000 +0300
+@@ -160,7 +160,8 @@
+ 	dest = c_info->pair1;
+ 	source = c_info->select_source ? dest : MPI_ANY_SOURCE;
+ 
+-	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
++//	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
++    IMB_do_n_barriers(c_info->communicator, N_BARR);	
+ 
+ 	t1 = MPI_Wtime();
+ 	for(i=0;i<ITERATIONS->n_sample;i++)
+@@ -189,7 +190,8 @@
+ 	dest =c_info->pair0 ;
+ 	source = c_info->select_source ? dest : MPI_ANY_SOURCE;
+ 
+-	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
++//	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
++	IMB_do_n_barriers(c_info->communicator, N_BARR);
+ 
+ 	t1 = MPI_Wtime();
+ 	for(i=0;i<ITERATIONS->n_sample;i++)
+@@ -215,6 +217,11 @@
+     }
+     else 
+     { 
++#if COMM_EXPERIMENT == 0
++#else        
++//	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
++	IMB_do_n_barriers(c_info->communicator, N_BARR);
++#endif    
+ 	*time = 0.;
+     }
+ }
