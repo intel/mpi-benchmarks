@@ -11,7 +11,8 @@ enum descr_t {
     SCALE_TIME_HALF, SCALE_BW_DOUBLE, SCALE_BW_FOUR,
     SENDBUF_SIZE_I, SENDBUF_SIZE_2I, SENDBUF_SIZE_NP_I, SENDBUF_SIZE_0,
     RECVBUF_SIZE_I, RECVBUF_SIZE_2I, RECVBUF_SIZE_NP_I, RECVBUF_SIZE_0,
-    HAS_ROOT
+    HAS_ROOT,
+    DEFAULT
 };
 
 struct LEGACY_GLOBALS {
@@ -68,6 +69,11 @@ struct reworked_Bmark_descr {
         }
         throw logic_error("descr2len: unknown len");
         return 0;
+    }
+
+    bool is_default() {
+//        cout << (flags.count(DEFAULT) > 0 ? "true" : "false") << endl;
+        return flags.count(DEFAULT) > 0;
     }
 
     bool IMB_set_bmark(struct Bench* Bmark, original_benchmark_func_t fn)

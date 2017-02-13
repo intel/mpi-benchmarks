@@ -3,6 +3,7 @@
 #include "smart_ptr.h"
 #include <stdexcept>
 #include <fstream>
+#include <algorithm>
 
 #include "benchmark_suite.h"
 #include "benchmark_suite_MPI1.h"
@@ -12,11 +13,30 @@ using namespace std;
 
 extern void check_parser();
 
+void combine(set<string> &to, vector<string> &from) {
+    copy(from.begin(), from.end(), inserter(to, to.end()));
+}
+void exclude(set<string> &to, vector<string> &from) {
+    for (size_t i = 0; i < from.size(); i++) {
+        set<string>::iterator it = to.find(from[i]);
+        if (it != to.end()) {
+            to.erase(*it);
+        }
+    }
+}
+void diff(set<string> &one, vector<string> &two, set<string> &result) {
+    set<string> tmp;
+    copy(two.begin(), two.end(), inserter(tmp, tmp.end()));
+    set_difference(one.begin(), one.end(), tmp.begin(), tmp.end(), inserter(result, result.end()));
+}
+
 int main(int argc, char **argv)
 {
 #if 0
     check_parser();
 #endif    
+
+    OriginalBenchmarkSuite_MPI1::init();
 
     MPI_Init(&argc, &argv);
     try {
@@ -75,12 +95,13 @@ int main(int argc, char **argv)
         parser.get_result_vec<string>("include", to_include);
         parser.get_result_vec<string>("exclude", to_exclude);
 
+
         vector<string> default_benchmarks, all_benchmarks;
-        vector<string> actual_benchmark_list;
-#if 0            
+        set<string> actual_benchmark_list;
+#if 1 
 #ifdef MPI1
-        BenchmarkSuite<BS_MPI1>::get_default_list(default_benchmarks);
-        BenchmarkSuite<BS_MPI1>::get_full_list(all_benchmarks);
+        OriginalBenchmarkSuite_MPI1::get_full_list(all_benchmarks);
+        OriginalBenchmarkSuite_MPI1::get_default_list(default_benchmarks);
 #endif            
 
         if (to_include.size() != 0 || to_exclude.size() != 0) {
@@ -89,27 +110,37 @@ int main(int argc, char **argv)
                 cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
                 return 1;
             } else {
-                combine(actual_bechmark_list, default_benchmarks);
-                combine(actual_bechmark_list, to_include);
-                exclude(actual_bechmark_list, to_exclude);
+                combine(actual_benchmark_list, default_benchmarks);
+                combine(actual_benchmark_list, to_include);
+                exclude(actual_benchmark_list, to_exclude);
            }
-        } else if (requested_benchmarks.size() != 0) {
-            combine(actual_benchrark_list, requested_benchmarks);
+        } else { 
+            if (requested_benchmarks.size() != 0) {
+                combine(actual_benchmark_list, requested_benchmarks);
+            } else {
+                combine(actual_benchmark_list, default_benchmarks);
+            }
         }
-        diff(actual_bechmark_list, all_benchmarks, missing);
+        set<string> missing;
+        diff(actual_benchmark_list, all_benchmarks, missing);
         if (missing.size() != 0) {
-            // print ERROR
-            // return 1
+            cout << "Benchmarks not found:" << endl;
+            for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
+                cout << *it << endl;
+            }
+            return 1;
         }
 #else 
         actual_benchmark_list = requested_benchmarks;            
 #endif   
-        OriginalBenchmarkSuite_MPI1::prepare(parser.dump());        
+
+        OriginalBenchmarkSuite_MPI1::prepare(parser, actual_benchmark_list);        
         //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
-        for (int j = 0; j < actual_benchmark_list.size(); j++) {
-            smart_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(actual_benchmark_list[j]);
+ 
+        for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
+            smart_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(*it);
             if (b.get() == NULL) {
-                b = BenchmarkSuite<BS_OSU>::create(actual_benchmark_list[j]);
+                b = BenchmarkSuite<BS_OSU>::create(*it);
                 if (b.get() == NULL) {
                     cout << "ERROR: benchmark creator failed!" << endl;
                     return 1;
@@ -118,7 +149,6 @@ int main(int argc, char **argv)
             b->init();
             for (int n = 0; n < 40; n++)
                 b->run();
-            //cout << "OK" << endl;
         }
     }
     catch(exception &ex) {

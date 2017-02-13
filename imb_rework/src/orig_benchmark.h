@@ -19,21 +19,7 @@ using namespace std;
 
 #define GLUE_TYPENAME(A,B) A,B
 
-//typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size, 
-//        struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
-
-//void (*)(comm_info *, int, iter_schedule *, MODES, double *)
-
 #include "reworked_IMB_functions.h"
-/*
-struct LEGACY_GLOBALS {
-    int NP, iter, size, ci_np;
-    int header, MAXMSG;
-    int x_sample, n_sample;
-    Type_Size unit_size;
-    double time[MAX_TIME_ID];
-};
-*/
 
 extern "C" { void IMB_Barrier(MPI_Comm comm); }
 
@@ -53,13 +39,13 @@ class OriginalBenchmark : public Benchmark {
 
         LEGACY_GLOBALS glob;
     public:
-        static bool init_descr();
+        virtual bool init_description();
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);
             MPI_Comm_rank(MPI_COMM_WORLD, &RANK);
-            if (!init_descr()) {
-                throw logic_error("OriginalBenchmark: something is wrong with a benchmark description");
-            }
+//            if (!init_descr()) {
+//                throw logic_error("OriginalBenchmark: something is wrong with a benchmark description");
+//            }
             comm_info *p1 = (comm_info *)bs::get_internal_data_ptr("c_info");
             memcpy(&c_info, p1, sizeof(comm_info));
             iter_schedule *p2 = (iter_schedule *)bs::get_internal_data_ptr("ITERATIONS");
@@ -103,6 +89,9 @@ class OriginalBenchmark : public Benchmark {
             IMB_output(&c_info, BMark, BMODE, glob.header, glob.size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, glob.size);
             descr.helper_post_step(glob, BMark);
+        }
+        virtual bool is_default() {
+            return descr.is_default();
         }
         ~OriginalBenchmark() {
             free(BMark[0].name);

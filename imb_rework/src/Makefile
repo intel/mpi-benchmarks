@@ -1,7 +1,7 @@
 #CFLAGS=-g -O0 -Wall -Wextra -pedantic
-CPP=mpiCC
-CC=mpicc
-CFLAGS = -DMPI1 -O3 -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
+CPP=mpiicpc
+CC=mpiicc
+CFLAGS = -DMPI1 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
 
 CFLAGS += -Iosu/mpi/pt2pt/
 

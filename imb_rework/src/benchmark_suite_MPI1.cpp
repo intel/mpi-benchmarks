@@ -1,3 +1,7 @@
+#include <set>
+#include <vector>
+#include <string>
+#include <algorithm>
 #include <mpi.h>
 #include "benchmark_suite_MPI1.h"
 #include "IMB_comm_info.h"
@@ -8,9 +12,17 @@ namespace NS_MPI1 {
     struct comm_info c_info;
     struct iter_schedule ITERATIONS;
     struct LEGACY_GLOBALS glob;
-//    MODES BMODE;
-//    double time_[MAX_TIME_ID];
-//    int iter;
+}
+
+
+template <> void BenchmarkSuite<BS_MPI1>::init() {
+    vector<string> benchs;
+    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
+    for (vector<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
+        smart_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(*it);
+        if (!b->init_description())
+            throw logic_error("BenchmarkSuite<BS_MPI1>: wrong description of one of benchmarks in suite");
+    }
 }
 
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) {
@@ -42,8 +54,14 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) {
         set_caption("imb_barrier", "on or off");
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const std::string &yaml) {
+template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, set<string> &benchs) {
     using namespace NS_MPI1;
+    set<string> all_benchs, intersection;
+    BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
+    set_intersection(all_benchs.begin(), all_benchs.end(), benchs.begin(), benchs.end(),
+                     inserter(intersection, intersection.begin()));
+    if (intersection.size() == 0)
+        return true;
     struct Bench *BList;
     IMB_set_default(&c_info);
     IMB_init_pointers(&c_info);
@@ -52,8 +70,8 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const std::string &yaml) {
     IMB_basic_input(&c_info, &BList, &ITERATIONS, &argc, (char ***)argv, &glob.NP_min);
     if (c_info.w_rank == 0 ) {
         IMB_general_info();
-        fprintf(unit,"\n\n# Calling sequence was: \n\n#");
-        fprintf(unit,"# ------------------- \n\n#");
+        fprintf(unit,"\n\n# Calling sequence was: \n\n");
+        fprintf(unit,"# ------------------- \n\n");
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");
         } else {
@@ -65,30 +83,27 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const std::string &yaml) {
         fprintf(unit,"# MPI_Datatype                   :   MPI_BYTE \n");
         fprintf(unit,"# MPI_Datatype for reductions    :   MPI_FLOAT\n");
         fprintf(unit,"# MPI_Op                         :   MPI_SUM  \n");
+        fprintf(unit,"# \n");
+        fprintf(unit,"# \n");
+        fprintf(unit,"\n");
+        fprintf(unit,"# List of Benchmarks to run:\n\n");
+        for (set<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
+            printf("# %s\n", it->c_str());
+        }
     }
-
-    // IMB_show_selections
-//    Bmark->RUN_MODES[0].
-//    IMB_valid(&c_info, Bmark, NP);
-
-    // -- run
-//    Bmark->name = strdup(name.c_str());
-//    BMark->name = strdup("pingpong");
-//    IMB_set_bmark(BMark);
-//    MPI_Comm_size(MPI_COMM_WORLD, &NP);
-//    IMB_init_communicator(&c_info, NP);
-    // MPI_Type_size
-//    iter = 0;
-//    size = 1024;
-//    IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, iter, size);
-
-//    IMB_warm_up(&c_info, BMark, &ITERATIONS, iter);
-//    BMark->Benchmark(&c_info, size, &ITERATIONS, BMODE, time_);
-
-    // INPUT: YAML-string of all given benchmark parameters, defaults are filled in
-    // OUTPUT: c_info and other strictures for IMB cycle
-
     return true;
+}
+
+void OriginalBenchmarkSuite_MPI1::get_default_list(vector<string> &default_benchmarks) {
+    BenchmarkSuite<BS_MPI1>::get_full_list(default_benchmarks);
+    for (vector<string>::iterator it = default_benchmarks.begin(); it != default_benchmarks.end();) {
+        smart_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(*it);
+        if (!b->is_default()) {
+            it = default_benchmarks.erase(it);
+        }
+        else
+            ++it;
+    }
 }
 
 void *OriginalBenchmarkSuite_MPI1::get_internal_data_ptr(const std::string &key) {
