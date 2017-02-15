@@ -1,7 +1,7 @@
 #CFLAGS=-g -O0 -Wall -Wextra -pedantic
 CPP=mpiicpc
 CC=mpiicc
-CFLAGS = -DMPI1 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
+CFLAGS = -DMPI1 -DOSU -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
 
 CFLAGS += -Iosu/mpi/pt2pt/
 
@@ -48,7 +48,7 @@ YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
 IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
 
-BECHMARK_SUITE_SRC = benchmark_suite.cpp orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp
+BECHMARK_SUITE_SRC = benchmark_suite.cpp orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suites_list.cpp
 LEGACY_SRC = original_imb/src/IMB_allgather.c \
 original_imb/src/IMB_allgatherv.c \
 original_imb/src/IMB_allreduce.c \

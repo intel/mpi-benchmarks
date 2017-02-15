@@ -13,21 +13,27 @@ using namespace std;
 
 extern void check_parser();
 
-void combine(set<string> &to, vector<string> &from) {
-    copy(from.begin(), from.end(), inserter(to, to.end()));
-}
-void exclude(set<string> &to, vector<string> &from) {
-    for (size_t i = 0; i < from.size(); i++) {
-        set<string>::iterator it = to.find(from[i]);
-        if (it != to.end()) {
-            to.erase(*it);
+namespace set_operations {
+    template <typename T1, typename T2>
+    void combine(T1 &to, T2 &from) {
+        copy(from.begin(), from.end(), inserter(to, to.end()));
+    }
+    template <typename T1, typename T2>
+    void exclude(T1 &to, T2 &from) {
+        for (typename T2::iterator from_it = from.begin(); 
+             from_it != from.end(); ++from_it) {
+            typename T1::iterator it = to.find(*from_it);
+            if (it != to.end()) {
+                to.erase(*it);
+            }
         }
     }
-}
-void diff(set<string> &one, vector<string> &two, set<string> &result) {
-    set<string> tmp;
-    copy(two.begin(), two.end(), inserter(tmp, tmp.end()));
-    set_difference(one.begin(), one.end(), tmp.begin(), tmp.end(), inserter(result, result.end()));
+    template <typename T1, typename T2>
+    void diff(T1 &one, T2 &two, T2 &result) {
+        T2 tmp;
+        copy(two.begin(), two.end(), inserter(tmp, tmp.end()));
+        set_difference(one.begin(), one.end(), tmp.begin(), tmp.end(), inserter(result, result.end()));
+    }
 }
 
 int main(int argc, char **argv)
@@ -36,7 +42,13 @@ int main(int argc, char **argv)
     check_parser();
 #endif    
 
-    OriginalBenchmarkSuite_MPI1::init();
+#ifdef MPI1    
+//    OriginalBenchmarkSuite_MPI1::init();
+#endif
+#ifdef OSU
+    BenchmarkSuite<BS_OSU>::init();
+#endif    
+
 
     MPI_Init(&argc, &argv);
     try {
@@ -58,8 +70,7 @@ int main(int argc, char **argv)
         parser.set_default_current_group();
 
         // bechmark suite related args
-        OriginalBenchmarkSuite_MPI1::declare_args(parser);
-        //BenchmarkSuite<BS_OSU>::declare_args(parser);
+        BenchmarkSuitesCollection::declare_args(parser);
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
@@ -96,55 +107,53 @@ int main(int argc, char **argv)
         parser.get_result_vec<string>("exclude", to_exclude);
 
 
-        vector<string> default_benchmarks, all_benchmarks;
+        set<string> default_benchmarks, all_benchmarks;
         set<string> actual_benchmark_list;
 #if 1 
 #ifdef MPI1
-        OriginalBenchmarkSuite_MPI1::get_full_list(all_benchmarks);
-        OriginalBenchmarkSuite_MPI1::get_default_list(default_benchmarks);
+        BenchmarkSuitesCollection::get_full_list(all_benchmarks);
+        BenchmarkSuitesCollection::get_default_list(default_benchmarks);
 #endif            
+        {
+            using namespace set_operations;
 
-        if (to_include.size() != 0 || to_exclude.size() != 0) {
-            if (requested_benchmarks.size() != 0) {
-                // FIXME we can actually work it out
-                cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
+            if (to_include.size() != 0 || to_exclude.size() != 0) {
+                if (requested_benchmarks.size() != 0) {
+                    // FIXME we can actually work it out
+                    cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
+                    return 1;
+                } else {
+                    combine(actual_benchmark_list, default_benchmarks);
+                    combine(actual_benchmark_list, to_include);
+                    exclude(actual_benchmark_list, to_exclude);
+               }
+            } else { 
+                if (requested_benchmarks.size() != 0) {
+                    combine(actual_benchmark_list, requested_benchmarks);
+                } else {
+                    combine(actual_benchmark_list, default_benchmarks);
+                }
+            }
+            set<string> missing;
+            diff(actual_benchmark_list, all_benchmarks, missing);
+            if (missing.size() != 0) {
+                cout << "Benchmarks not found:" << endl;
+                for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
+                    cout << *it << endl;
+                }
                 return 1;
-            } else {
-                combine(actual_benchmark_list, default_benchmarks);
-                combine(actual_benchmark_list, to_include);
-                exclude(actual_benchmark_list, to_exclude);
-           }
-        } else { 
-            if (requested_benchmarks.size() != 0) {
-                combine(actual_benchmark_list, requested_benchmarks);
-            } else {
-                combine(actual_benchmark_list, default_benchmarks);
             }
-        }
-        set<string> missing;
-        diff(actual_benchmark_list, all_benchmarks, missing);
-        if (missing.size() != 0) {
-            cout << "Benchmarks not found:" << endl;
-            for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
-                cout << *it << endl;
-            }
-            return 1;
         }
 #else 
         actual_benchmark_list = requested_benchmarks;            
 #endif   
 
-        OriginalBenchmarkSuite_MPI1::prepare(parser, actual_benchmark_list);        
-        //BenchmarkSuite<BS_OSU>::prepare(parser.dump());
- 
+        BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list);        
         for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
-            smart_ptr<Benchmark> b = OriginalBenchmarkSuite_MPI1::create(*it);
+            smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
-                b = BenchmarkSuite<BS_OSU>::create(*it);
-                if (b.get() == NULL) {
-                    cout << "ERROR: benchmark creator failed!" << endl;
-                    return 1;
-                }
+                cout << "ERROR: benchmark creator failed!" << endl;
+                return 1;
             }
             b->init();
             for (int n = 0; n < 40; n++)

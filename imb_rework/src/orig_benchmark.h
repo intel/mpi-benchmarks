@@ -21,6 +21,8 @@ using namespace std;
 
 #include "reworked_IMB_functions.h"
 
+#define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
+
 extern "C" { void IMB_Barrier(MPI_Comm comm); }
 
 template <class bs, original_benchmark_func_t fn_ptr>
@@ -43,15 +45,18 @@ class OriginalBenchmark : public Benchmark {
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);
             MPI_Comm_rank(MPI_COMM_WORLD, &RANK);
-//            if (!init_descr()) {
-//                throw logic_error("OriginalBenchmark: something is wrong with a benchmark description");
-//            }
-            comm_info *p1 = (comm_info *)bs::get_internal_data_ptr("c_info");
-            memcpy(&c_info, p1, sizeof(comm_info));
-            iter_schedule *p2 = (iter_schedule *)bs::get_internal_data_ptr("ITERATIONS");
-            memcpy(&ITERATIONS, p2, sizeof(ITERATIONS));
-            LEGACY_GLOBALS *p3 = (LEGACY_GLOBALS *)bs::get_internal_data_ptr("glob");
-            memcpy(&glob, p3, sizeof(LEGACY_GLOBALS));
+
+            // Copy some global data from BenchmarkSuite
+            GET_GLOBAL(comm_info, c_info);
+            GET_GLOBAL(iter_schedule, ITERATIONS);
+            GET_GLOBAL(LEGACY_GLOBALS, glob);
+
+//            comm_info *p1 = (comm_info *)bs::get_internal_data_ptr("c_info");
+//            memcpy(&c_info, p1, sizeof(comm_info));
+//            iter_schedule *p2 = (iter_schedule *)bs::get_internal_data_ptr("ITERATIONS");
+//            memcpy(&ITERATIONS, p2, sizeof(ITERATIONS));
+//            LEGACY_GLOBALS *p3 = (LEGACY_GLOBALS *)bs::get_internal_data_ptr("glob");
+//            memcpy(&glob, p3, sizeof(LEGACY_GLOBALS));
 
             assert(RANK == c_info.w_rank);
             assert(FULL_NP == c_info.w_num_procs);
@@ -63,9 +68,6 @@ class OriginalBenchmark : public Benchmark {
                 return;
             IMB_init_communicator(&c_info, glob.NP);
             initialized = true;
-//            if (RANK == 0) {
-//                cout << "I am " << name << " benchmark wrapper and I've got benchmark function ptr: " << long(fn_ptr) << endl;
-//            }
         }
         virtual void run() { 
             if (!initialized)
@@ -84,8 +86,8 @@ class OriginalBenchmark : public Benchmark {
 //                    cout << "time: " << time[0] << endl;
 //                }
             }
-//            MPI_Barrier(MPI_COMM_WORLD);
-            IMB_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
+//            IMB_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, glob.size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, glob.size);
             descr.helper_post_step(glob, BMark);
@@ -96,6 +98,7 @@ class OriginalBenchmark : public Benchmark {
         ~OriginalBenchmark() {
             free(BMark[0].name);
         } 
+        OriginalBenchmark<bs, fn_ptr>() { bs::register_elem(this); BMark[0].name = NULL; }
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };
 

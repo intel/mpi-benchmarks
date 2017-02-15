@@ -16,16 +16,16 @@ namespace NS_MPI1 {
 
 
 template <> void BenchmarkSuite<BS_MPI1>::init() {
-    vector<string> benchs;
+    set<string> benchs;
     BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
-    for (vector<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
-        smart_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(*it);
+    for (set<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
+        smart_ptr<Benchmark> b = get_instance().create(*it);
         if (!b->init_description())
             throw logic_error("BenchmarkSuite<BS_MPI1>: wrong description of one of benchmarks in suite");
     }
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) {
+template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
     parser.add_option_with_defaults<int>("npmin", 2).
         set_caption("npmin", "NPmin");
     parser.add_option_with_defaults<int>("multi", 0).
@@ -54,7 +54,7 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) {
         set_caption("imb_barrier", "on or off");
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, set<string> &benchs) {
+template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const set<string> &benchs) {
     using namespace NS_MPI1;
     set<string> all_benchs, intersection;
     BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
@@ -94,9 +94,25 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, set
     return true;
 }
 
-void OriginalBenchmarkSuite_MPI1::get_default_list(vector<string> &default_benchmarks) {
+template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs, 
+                                                         BenchmarkSuiteBase::BenchListFilter filter) const {
+    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
+    if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
+        for (set<string>::iterator it = benchs.begin(); it != benchs.end();) {
+            smart_ptr<Benchmark> b = get_instance().create(*it);
+            if (!b->is_default()) {
+                benchs.erase(it++);
+            }
+            else
+                ++it;
+        }
+    }
+}
+
+/*
+template <> void BenchmarkSuite<BS_MPI1>::get_default_list(T &default_benchmarks) {
     BenchmarkSuite<BS_MPI1>::get_full_list(default_benchmarks);
-    for (vector<string>::iterator it = default_benchmarks.begin(); it != default_benchmarks.end();) {
+    for (T::iterator it = default_benchmarks.begin(); it != default_benchmarks.end();) {
         smart_ptr<Benchmark> b = BenchmarkSuite<BS_MPI1>::create(*it);
         if (!b->is_default()) {
             it = default_benchmarks.erase(it);
@@ -105,6 +121,7 @@ void OriginalBenchmarkSuite_MPI1::get_default_list(vector<string> &default_bench
             ++it;
     }
 }
+*/
 
 void *OriginalBenchmarkSuite_MPI1::get_internal_data_ptr(const std::string &key) {
     using namespace NS_MPI1;

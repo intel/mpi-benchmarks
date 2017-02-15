@@ -1,7 +1,10 @@
 #ifdef MPI1
 
 #include <mpi.h>
-
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
 #include <iostream>
 #include "orig_benchmark.h"
 
