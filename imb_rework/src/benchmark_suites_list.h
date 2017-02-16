@@ -48,12 +48,15 @@ class BenchmarkSuitesCollection {
                 it->second->declare_args(parser);
         }
     }
-    static void prepare(args_parser &parser, const std::set<std::string> &benchs) {
+    static bool prepare(args_parser &parser, const std::set<std::string> &benchs) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
-                it->second->prepare(parser, benchs);
+                if (!it->second->prepare(parser, benchs)) {
+                    return false;
+                }
         }
+        return true;
     }
     static smart_ptr<Benchmark> create(const std::string &name) {
         assert(pnames != NULL);

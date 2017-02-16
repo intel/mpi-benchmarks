@@ -370,7 +370,7 @@ bool args_parser::parse() {
             // the option itself was given as a previous argv[i] 
             // now only parse the option argument
             option &d = *prev_option;
-            if (!d.required) 
+            if (!d.required && d.defaultize_before_parsing) 
                 d.set_default_value();
             d.defaulted = false;
             if (!d.do_parse(arg.c_str())) {
@@ -396,13 +396,13 @@ bool args_parser::parse() {
             if (*pgroup == "EXTRA_ARGS")
                 continue;
             if (match(arg, **parg)) {
-                if (!(*parg)->required)
+                if (!(*parg)->required && (*parg)->defaultize_before_parsing)
                     (*parg)->set_default_value();
+                (*parg)->defaulted = false;
                 if (!get_value(arg, **parg)) {
                     print_err_parse(**parg);
                     parse_result = false;
                 }
-                (*parg)->defaulted = false;
                 found = true;
                 break;
             }
@@ -431,14 +431,14 @@ bool args_parser::parse() {
                break;
             if (match(unknown_args[j], "")) 
                 continue;
-            if (!extra_args[j]->required)
+            if (!extra_args[j]->required && extra_args[j]->defaultize_before_parsing)
                 extra_args[j]->set_default_value();
+            extra_args[j]->defaulted = false;
             if (!extra_args[j]->do_parse(unknown_args[j].c_str())) {
                 print_err_parse_extra_args();
                 parse_result = false;
                 break;
             }
-            extra_args[j]->defaulted = false;
             num_processed_extra_args++;
         }
         assert(num_processed_extra_args <= unknown_args.size());
@@ -471,6 +471,7 @@ bool args_parser::parse() {
     return parse_result;
 }
 
+/*
 args_parser &args_parser::set_caption(const char *s, const char *cap) {
     const string *pgroup;
     smart_ptr <option> *parg;
@@ -483,19 +484,20 @@ args_parser &args_parser::set_caption(const char *s, const char *cap) {
     }
     throw logic_error("args_parser: no such option");
 }
+*/
 
-args_parser &args_parser::set_caption(int n, const char *cap) {
+args_parser::option &args_parser::set_caption(int n, const char *cap) {
     int num_extra_args = 0, num_required_extra_args = 0;
     vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
     if (n >= num_extra_args)
         throw logic_error("args_parser: no such extra argument");
     extra_args[n]->caption.assign(cap);
-    return *this;
+    return *extra_args[n];
 }
 
-vector<args_parser::value> args_parser::get_result_value(const string &s) {
+vector<args_parser::value> args_parser::get_result_value(const string &s) const {
     const string *pgroup;
-    smart_ptr<option> *parg;
+    const smart_ptr<option> *parg;
     in_expected_args(FOREACH_FIRST, pgroup, parg);
     while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
         if ((*parg)->str == s) {
@@ -505,7 +507,7 @@ vector<args_parser::value> args_parser::get_result_value(const string &s) {
     throw logic_error("args_parser: no such option");
 }
 
-void args_parser::get_unknown_args(vector<string> &r) {
+void args_parser::get_unknown_args(vector<string> &r) const {
     for (size_t j = 0; j < unknown_args.size(); j++) {
         r.push_back(unknown_args[j]);
     }

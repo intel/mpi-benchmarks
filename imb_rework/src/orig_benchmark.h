@@ -64,6 +64,8 @@ class OriginalBenchmark : public Benchmark {
             BMark->name = strdup(name);
             descr.IMB_set_bmark(BMark, fn_ptr);
             descr.helper_sync_legacy_globals(c_info, glob, BMark);
+
+            // This is to do when change NP
             if (!IMB_valid(&c_info, BMark, glob.NP))
                 return;
             IMB_init_communicator(&c_info, glob.NP);

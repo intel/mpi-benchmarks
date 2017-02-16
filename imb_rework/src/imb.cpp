@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 #endif    
 
 #ifdef MPI1    
-//    OriginalBenchmarkSuite_MPI1::init();
+    OriginalBenchmarkSuite_MPI1::init();
 #endif
 #ifdef OSU
     BenchmarkSuite<BS_OSU>::init();
@@ -57,16 +57,16 @@ int main(int argc, char **argv)
         args_parser parser(argc, argv, "-", ' ');
 
         parser.add_option_with_defaults<string>("input", "").
-            set_caption("input", "filename");
+            set_caption("filename");
         parser.add_option_with_defaults_vec<string>("include").
-            set_caption("include", "benchmark[,benchmark,[...]");
+            set_caption("benchmark[,benchmark,[...]");
         parser.add_option_with_defaults_vec<string>("exclude").
-            set_caption("exclude", "benchmark[,benchmark,[...]");
+            set_caption("benchmark[,benchmark,[...]");
 
         // extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
         parser.add_option_with_defaults_vec<string>("(benchmarks)").
-            set_caption("(benchmarks)", "benchmark[,benchmark,[...]]"); 
+            set_caption("benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
 
         // bechmark suite related args
@@ -75,9 +75,9 @@ int main(int argc, char **argv)
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
         parser.add_option_with_defaults<string>("dump", "").
-            set_caption("dump", "config.yaml");
+            set_caption("config.yaml");
         parser.add_option_with_defaults<string>("load", "").
-            set_caption("load", "config.yaml");
+            set_caption("config.yaml");
         parser.set_default_current_group();
          
         if (!parser.parse()) {
@@ -148,7 +148,10 @@ int main(int argc, char **argv)
         actual_benchmark_list = requested_benchmarks;            
 #endif   
 
-        BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list);        
+        if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
+            cout << "One or more benchmark suites failed at preparation stage" << endl;
+            return 1;
+        }        
         for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
