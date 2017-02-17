@@ -67,46 +67,13 @@ struct reworked_Bmark_descr {
             case RECVBUF_SIZE_0:
                 return 0;
         }
-        throw logic_error("descr2len: unknown len");
+        throw std::logic_error("descr2len: unknown len");
         return 0;
     }
 
     bool is_default() {
-//        cout << (flags.count(DEFAULT) > 0 ? "true" : "false") << endl;
         return flags.count(DEFAULT) > 0;
     }
-#if 0
-    int IMB_basic_input_part1(struct comm_info* c_info, 
-                              struct iter_schedule* ITERATIONS,
-                              int* NP_min) 
-    {
-        
-        /* run time control as default */
-        ITERATIONS->n_sample=0;
-        ITERATIONS->off_cache=0;
-        ITERATIONS->cache_size=-1;
-        ITERATIONS->s_offs = ITERATIONS->r_offs = 0;
-        ITERATIONS->s_cache_iter = ITERATIONS->r_cache_iter = 1;
-        ITERATIONS->msgspersample=MSGSPERSAMPLE;
-        ITERATIONS->msgs_nonaggr=MSGS_NONAGGR;
-        ITERATIONS->overall_vol=OVERALL_VOL;
-        ITERATIONS->secs=SECS_PER_SAMPLE;
-        ITERATIONS->iter_policy=ITER_POLICY;
-        ITERATIONS->numiters=(int*)NULL;
-
-        MPI_Comm_rank(MPI_COMM_WORLD,&c_info->w_rank);
-        MPI_Comm_size(MPI_COMM_WORLD,&c_info->w_num_procs);
-
-        unit = stdout;
-
-        if( c_info->w_rank == 0 && strlen(OUTPUT_FILENAME) > 0 )
-            unit = fopen(OUTPUT_FILENAME,"w");
-
-        c_info->group_mode = -1;
-        *NP_min=2;
-
-    }
-#endif    
 
     bool IMB_set_bmark(struct Bench* Bmark, original_benchmark_func_t fn)
     {
@@ -248,7 +215,7 @@ struct reworked_Bmark_descr {
                 result = false;
         }
         if (!result) {
-            throw logic_error("wrong recv or send buffer requirement description on a benchmark"); 
+            throw std::logic_error("wrong recv or send buffer requirement description on a benchmark"); 
         }
 //        printf(">> s_len=%ld, r_len=%ld\n", s_len, r_len);
 //---------------------------------------------------------------------------------------------------

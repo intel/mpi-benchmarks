@@ -7,6 +7,14 @@
 #include "IMB_comm_info.h"
 
 #include "reworked_IMB_functions.h"
+#include "utils.h"
+
+using namespace std;
+
+//#ifdef MPI1
+map<string, const Benchmark*, case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
+BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
+//#endif
 
 namespace NS_MPI1 {
     struct comm_info c_info;
@@ -42,7 +50,6 @@ bool load_msg_sizes(const char *filename)
     char S[32];
     int sz, isz;
 
-    //IMB_i_alloc(int, c_info->msglen,n_lens,"Basic_Input");
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
 
     isz=-1;
@@ -105,7 +112,6 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
     parser.add_option_with_defaults<float>("mem", 1.0f).
         set_caption("max. per process memory for overall message buffers");
     parser.add_option_with_defaults<string>("msglen", "").set_caption("Lengths_file");
-    parser.add_option_with_defaults<string>("input", "").set_caption("filename");
     parser.add_option_with_defaults_vec<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ");
     parser.add_option_with_defaults_vec<int>("msglog", "0:22", ':', 1, 2).
         set_caption("min_msglog:max_msglog").
@@ -117,10 +123,18 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
 
 #define BASIC_INPUT_EXPERIMENT 1
 
+template <typename T>
+void preprocess_list(T &list) {
+    T tmp;
+    transform(list.begin(), list.end(), inserter(tmp, tmp.end()), to_lower);
+    list = tmp;
+}
+
 template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const set<string> &benchs) {
     using namespace NS_MPI1;
     set<string> all_benchs, intersection;
     BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
+    set_operations::preprocess_list(all_benchs);
     set_intersection(all_benchs.begin(), all_benchs.end(), benchs.begin(), benchs.end(),
                      inserter(intersection, intersection.begin()));
     if (intersection.size() == 0)
@@ -129,9 +143,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     IMB_set_default(&c_info);
     IMB_init_pointers(&c_info);
 
-   
 #if BASIC_INPUT_EXPERIMENT == 1
-//    IMB_basic_input_part1(&c_info, &ITERATIONS, );
     {
         /* run time control as default */
         ITERATIONS.n_sample=0;
@@ -221,13 +233,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
             cout << "Sizes File " << given_msglen_filename << " invalid or doesnt exist" << endl;
             cmd_line_error = true;
         }
-    }
-
-    // input
-    string given_input_filename = parser.get_result<string>("input");
-    if (given_input_filename != "") {
-        cout << "FIXME: input file usage is not implemented yet!" << endl;
-        cmd_line_error = true;
     }
 
     // msglog

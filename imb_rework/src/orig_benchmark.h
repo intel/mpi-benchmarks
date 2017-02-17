@@ -11,10 +11,6 @@ extern "C" {
 #include "IMB_prototypes.h"
 }
 
-//extern "C" {
-//#include "original_imb/src/IMB_parse_name_mpi1.c"
-//}
-
 using namespace std;
 
 #define GLUE_TYPENAME(A,B) A,B
@@ -51,13 +47,6 @@ class OriginalBenchmark : public Benchmark {
             GET_GLOBAL(iter_schedule, ITERATIONS);
             GET_GLOBAL(LEGACY_GLOBALS, glob);
 
-//            comm_info *p1 = (comm_info *)bs::get_internal_data_ptr("c_info");
-//            memcpy(&c_info, p1, sizeof(comm_info));
-//            iter_schedule *p2 = (iter_schedule *)bs::get_internal_data_ptr("ITERATIONS");
-//            memcpy(&ITERATIONS, p2, sizeof(ITERATIONS));
-//            LEGACY_GLOBALS *p3 = (LEGACY_GLOBALS *)bs::get_internal_data_ptr("glob");
-//            memcpy(&glob, p3, sizeof(LEGACY_GLOBALS));
-
             assert(RANK == c_info.w_rank);
             assert(FULL_NP == c_info.w_num_procs);
  
@@ -84,12 +73,8 @@ class OriginalBenchmark : public Benchmark {
             if (!failed) {
                 IMB_warm_up(&c_info, BMark, &ITERATIONS, glob.iter);
                 fn_ptr(&c_info, glob.size, &ITERATIONS, BMODE, time);
-//                if (RANK == 0) {
-//                    cout << "time: " << time[0] << endl;
-//                }
             }
             MPI_Barrier(MPI_COMM_WORLD);
-//            IMB_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, glob.size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, glob.size);
             descr.helper_post_step(glob, BMark);

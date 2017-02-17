@@ -21,7 +21,7 @@ DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, L
 reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr; \
 bool OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::init_description() 
 
-LEGACY_BENCHMARK(IMB_pingpong, pingpong)
+LEGACY_BENCHMARK(IMB_pingpong, PingPong)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(SELECT_SOURCE);
@@ -33,7 +33,7 @@ LEGACY_BENCHMARK(IMB_pingpong, pingpong)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_pingping, pingping)
+LEGACY_BENCHMARK(IMB_pingping, PingPing)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(SELECT_SOURCE);
@@ -44,7 +44,7 @@ LEGACY_BENCHMARK(IMB_pingping, pingping)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_sendrecv, sendrecv)
+LEGACY_BENCHMARK(IMB_sendrecv, Sendrecv)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(PARALLEL_TRANSFER);
@@ -54,7 +54,7 @@ LEGACY_BENCHMARK(IMB_sendrecv, sendrecv)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_exchange, exchange)
+LEGACY_BENCHMARK(IMB_exchange, Exchange)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(PARALLEL_TRANSFER);
@@ -64,7 +64,7 @@ LEGACY_BENCHMARK(IMB_exchange, exchange)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_allreduce, allreduce)
+LEGACY_BENCHMARK(IMB_allreduce, Allreduce)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -74,7 +74,7 @@ LEGACY_BENCHMARK(IMB_allreduce, allreduce)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_reduce, reduce)
+LEGACY_BENCHMARK(IMB_reduce, Reduce)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -85,7 +85,7 @@ LEGACY_BENCHMARK(IMB_reduce, reduce)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_reduce_scatter, reduce_scatter)
+LEGACY_BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -95,7 +95,7 @@ LEGACY_BENCHMARK(IMB_reduce_scatter, reduce_scatter)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_bcast, bcast)
+LEGACY_BENCHMARK(IMB_bcast, Bcast)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -105,7 +105,7 @@ LEGACY_BENCHMARK(IMB_bcast, bcast)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_barrier, barrier)
+LEGACY_BENCHMARK(IMB_barrier, Barrier)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(SYNC);
@@ -114,7 +114,7 @@ LEGACY_BENCHMARK(IMB_barrier, barrier)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_allgather, allgather)
+LEGACY_BENCHMARK(IMB_allgather, Allgather)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -123,7 +123,7 @@ LEGACY_BENCHMARK(IMB_allgather, allgather)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_allgatherv, allgatherv)
+LEGACY_BENCHMARK(IMB_allgatherv, Allgatherv)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -132,17 +132,7 @@ LEGACY_BENCHMARK(IMB_allgatherv, allgatherv)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_gather, gather)
-{
-    descr.flags.insert(DEFAULT);
-    descr.flags.insert(COLLECTIVE);
-    descr.flags.insert(SENDBUF_SIZE_I);
-    descr.flags.insert(RECVBUF_SIZE_NP_I);
-    descr.flags.insert(HAS_ROOT);
-    return true;
-};
-
-LEGACY_BENCHMARK(IMB_gatherv, gatherv)
+LEGACY_BENCHMARK(IMB_gather, Gather)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -152,7 +142,17 @@ LEGACY_BENCHMARK(IMB_gatherv, gatherv)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_scatter, scatter)
+LEGACY_BENCHMARK(IMB_gatherv, Gatherv)
+{
+    descr.flags.insert(DEFAULT);
+    descr.flags.insert(COLLECTIVE);
+    descr.flags.insert(SENDBUF_SIZE_I);
+    descr.flags.insert(RECVBUF_SIZE_NP_I);
+    descr.flags.insert(HAS_ROOT);
+    return true;
+};
+
+LEGACY_BENCHMARK(IMB_scatter, Scatter)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -162,7 +162,7 @@ LEGACY_BENCHMARK(IMB_scatter, scatter)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_scatterv, scatterv)
+LEGACY_BENCHMARK(IMB_scatterv, Scatterv)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -172,7 +172,7 @@ LEGACY_BENCHMARK(IMB_scatterv, scatterv)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_alltoall, alltoall)
+LEGACY_BENCHMARK(IMB_alltoall, Alltoall)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -181,7 +181,7 @@ LEGACY_BENCHMARK(IMB_alltoall, alltoall)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_alltoallv, alltoallv)
+LEGACY_BENCHMARK(IMB_alltoallv, Alltoallv)
 {
     descr.flags.insert(DEFAULT);
     descr.flags.insert(COLLECTIVE);
@@ -190,7 +190,7 @@ LEGACY_BENCHMARK(IMB_alltoallv, alltoallv)
     return true;
 };
 
-LEGACY_BENCHMARK(IMB_uni_bandwidth, uniband)
+LEGACY_BENCHMARK(IMB_uni_bandwidth, Uniband)
 {
     descr.flags.insert(PARALLEL_TRANSFER_MSG_RATE);
     descr.flags.insert(SENDBUF_SIZE_I);
@@ -198,7 +198,7 @@ LEGACY_BENCHMARK(IMB_uni_bandwidth, uniband)
     return true;
 }
 
-LEGACY_BENCHMARK(IMB_bi_bandwidth, biband)
+LEGACY_BENCHMARK(IMB_bi_bandwidth, Biband)
 {
     descr.flags.insert(PARALLEL_TRANSFER_MSG_RATE);
     descr.flags.insert(SCALE_BW_DOUBLE);

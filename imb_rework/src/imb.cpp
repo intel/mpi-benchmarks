@@ -7,34 +7,12 @@
 
 #include "benchmark_suite.h"
 #include "benchmark_suite_MPI1.h"
+#include "utils.h"
 
 
 using namespace std;
 
 extern void check_parser();
-
-namespace set_operations {
-    template <typename T1, typename T2>
-    void combine(T1 &to, T2 &from) {
-        copy(from.begin(), from.end(), inserter(to, to.end()));
-    }
-    template <typename T1, typename T2>
-    void exclude(T1 &to, T2 &from) {
-        for (typename T2::iterator from_it = from.begin(); 
-             from_it != from.end(); ++from_it) {
-            typename T1::iterator it = to.find(*from_it);
-            if (it != to.end()) {
-                to.erase(*it);
-            }
-        }
-    }
-    template <typename T1, typename T2>
-    void diff(T1 &one, T2 &two, T2 &result) {
-        T2 tmp;
-        copy(two.begin(), two.end(), inserter(tmp, tmp.end()));
-        set_difference(one.begin(), one.end(), tmp.begin(), tmp.end(), inserter(result, result.end()));
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -106,17 +84,45 @@ int main(int argc, char **argv)
         parser.get_result_vec<string>("include", to_include);
         parser.get_result_vec<string>("exclude", to_exclude);
 
+        string filename = parser.get_result<string>("input");
+        if (filename != "") {
+            int n_cases = 0;
+            FILE *t = fopen(filename.c_str(), "r");
+            if (t == NULL) {
+                cout << "ERROR: can't open a file given in -input option" << endl;
+                return 1;
+            }
+            char inp_line[72], nam[32];
+            while (fgets(inp_line, 72, t)) {
+                if (inp_line[0] != '#' && strlen(inp_line) - 1) {
+                    sscanf(inp_line, "%32s", nam);
+                    n_cases++;
+                    requested_benchmarks.push_back(nam);
+                }
+            }
+            fclose(t);
+        }
+
 
         set<string> default_benchmarks, all_benchmarks;
         set<string> actual_benchmark_list;
-#if 1 
-#ifdef MPI1
         BenchmarkSuitesCollection::get_full_list(all_benchmarks);
         BenchmarkSuitesCollection::get_default_list(default_benchmarks);
-#endif            
         {
             using namespace set_operations;
+            
+            preprocess_list(requested_benchmarks);
+            preprocess_list(to_include);
+            preprocess_list(to_exclude);
 
+            preprocess_list(all_benchmarks);
+            preprocess_list(default_benchmarks);
+
+//            for (set<string>::iterator it = all_benchmarks.begin();
+//                it != all_benchmarks.end(); ++it) {
+//                cout << ">> " << *it << endl;
+//            }
+ 
             if (to_include.size() != 0 || to_exclude.size() != 0) {
                 if (requested_benchmarks.size() != 0) {
                     // FIXME we can actually work it out
@@ -139,16 +145,22 @@ int main(int argc, char **argv)
             if (missing.size() != 0) {
                 cout << "Benchmarks not found:" << endl;
                 for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
-                    cout << *it << endl;
+                    cout << ">> " << *it << endl;
                 }
                 return 1;
             }
         }
-#else 
-        actual_benchmark_list = requested_benchmarks;            
-#endif   
+//#else 
+//        actual_benchmark_list = requested_benchmarks;            
+//#endif   \
+//
+        for (set<string>::iterator it = actual_benchmark_list.begin();
+            it != actual_benchmark_list.end(); ++it) {
+            cout << ">> " << *it << endl;
+        }
 
-        if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
+
+       if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
             cout << "One or more benchmark suites failed at preparation stage" << endl;
             return 1;
         }        
