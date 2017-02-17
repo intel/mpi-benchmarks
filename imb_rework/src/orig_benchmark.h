@@ -11,8 +11,6 @@ extern "C" {
 #include "IMB_prototypes.h"
 }
 
-using namespace std;
-
 #define GLUE_TYPENAME(A,B) A,B
 
 #include "reworked_IMB_functions.h"

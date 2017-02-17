@@ -32,5 +32,10 @@ namespace set_operations {
         transform(list.begin(), list.end(), inserter(tmp, tmp.end()), to_lower);
         list = tmp;
     }
+    struct case_insens_cmp : public std::binary_function<std::string, std::string, bool> {
+        bool operator()(const std::string &lhs, const std::string &rhs) const {
+            return ::strcasecmp(lhs.c_str(), rhs.c_str()) < 0 ;
+        }
+    };
 }
 

@@ -12,7 +12,7 @@
 using namespace std;
 
 //#ifdef MPI1
-map<string, const Benchmark*, case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
+map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
 BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
 //#endif
 

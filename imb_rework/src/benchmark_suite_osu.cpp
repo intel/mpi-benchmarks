@@ -6,7 +6,7 @@
 
 using namespace std;
 
-map<string, const Benchmark*, case_insens_cmp> *BenchmarkSuite<BS_OSU>::pnames = 0;
+map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_OSU>::pnames = 0;
 BenchmarkSuite<BS_OSU> *BenchmarkSuite<BS_OSU>::instance = 0;
 
 template <> const std::string BenchmarkSuite<BS_OSU>::get_name() const { return "OSU"; }

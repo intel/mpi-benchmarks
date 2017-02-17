@@ -118,11 +118,6 @@ int main(int argc, char **argv)
             preprocess_list(all_benchmarks);
             preprocess_list(default_benchmarks);
 
-//            for (set<string>::iterator it = all_benchmarks.begin();
-//                it != all_benchmarks.end(); ++it) {
-//                cout << ">> " << *it << endl;
-//            }
- 
             if (to_include.size() != 0 || to_exclude.size() != 0) {
                 if (requested_benchmarks.size() != 0) {
                     // FIXME we can actually work it out
@@ -150,17 +145,8 @@ int main(int argc, char **argv)
                 return 1;
             }
         }
-//#else 
-//        actual_benchmark_list = requested_benchmarks;            
-//#endif   \
-//
-        for (set<string>::iterator it = actual_benchmark_list.begin();
-            it != actual_benchmark_list.end(); ++it) {
-            cout << ">> " << *it << endl;
-        }
 
-
-       if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
+        if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
             cout << "One or more benchmark suites failed at preparation stage" << endl;
             return 1;
         }        

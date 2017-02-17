@@ -48,7 +48,7 @@ YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
 IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
 
-BECHMARK_SUITE_SRC = benchmark_suite.cpp orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suite_osu.cpp benchmark_suites_list.cpp
+BECHMARK_SUITE_SRC = orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suite_osu.cpp benchmark_suites_list.cpp
 LEGACY_SRC = original_imb/src/IMB_allgather.c \
 original_imb/src/IMB_allgatherv.c \
 original_imb/src/IMB_allreduce.c \
@@ -82,9 +82,21 @@ original_imb/src/IMB_strgs.c \
 original_imb/src/IMB_utils.c \
 original_imb/src/IMB_warm_up.c
 LEGACY_OBJ=$(LEGACY_SRC:.c=.o)
-BECHMARK_SUITE_OBJ = $(BECHMARK_SUITE_SRC:.cpp=.o) $(LEGACY_OBJ)
+BECHMARK_SUITE_OBJ = $(BECHMARK_SUITE_SRC:.cpp=.o)
 
-HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h reworked_IMB_functions.h
+HEADERS = args_parser.h \
+benchmark.h \
+benchmark_suite_base.h \
+benchmark_suite.h \
+benchmark_suite_MPI1.h \
+benchmark_suites_list.h \
+orig_benchmark.h \
+osu_benchmark.h \
+reworked_IMB_functions.h \
+smart_ptr.h \
+utils.h
+
+#HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h reworked_IMB_functions.h utils.h
 
 all: libyaml-cpp.a imb
 
@@ -95,7 +107,7 @@ libyaml-cpp.a: $(YAMLCPP_OBJ)
 yamltest: $(YAMLCPP_TEST_OBJ) libyaml-cpp.a
 	$(CPP) $(CFLAGS) -o $@ $^
 
-imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) libyaml-cpp.a
+imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(LEGACY_OBJ) libyaml-cpp.a
 	$(CPP) $(CFLAGS) -o $@ $^
 
 %.o: %.cpp
@@ -105,12 +117,8 @@ imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) libyaml-cpp.a
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) imb yamltest libyaml-cpp.a
+	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(LEGACY_OBJ) imb yamltest libyaml-cpp.a
 
-imb.o: $(HEADERS)
-args_parser.o: $(HEADERS)
-orig_benchmark_MPI1.o: $(HEADERS)
-benchmark_suite_MPI1.o: $(HEADERS)
-benchmark_suite.o: $(HEADERS)
-args_parser_utests.o: $(HEADERS)
+
+$(BECHMARK_SUITE_OBJ): $(HEADERS) Makefile
 

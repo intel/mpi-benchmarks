@@ -16,22 +16,12 @@
 #include "args_parser.h"
 
 #include "smart_ptr.h"
+#include "utils.h"
 
-static std::string to_lower(const std::string &in) {
-    std::string out = in; 
-    std::transform(out.begin(), out.end(), out.begin(), ::tolower);
-    return out;
-}
-
-struct case_insens_cmp : public std::binary_function<std::string, std::string, bool> {
-    bool operator()(const std::string &lhs, const std::string &rhs) const {
-        return ::strcasecmp(lhs.c_str(), rhs.c_str()) < 0 ;
-    }
-};
 
 template <benchmark_suite_t bs>
 class BenchmarkSuite : public BenchmarkSuiteBase {
-        static std::map<std::string, const Benchmark*, case_insens_cmp> *pnames;
+        static std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> *pnames;
         static BenchmarkSuite<bs> *instance;
     public:   
         static BenchmarkSuite<bs> &get_instance() { 
@@ -65,14 +55,14 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             std::string name = elem->get_name();
             assert(name != "(none)");
             if (pnames == NULL) {
-                pnames = new std::map<std::string, const Benchmark*, case_insens_cmp>();
+                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
             }
             if (pnames->find(name) == pnames->end())
                 (*pnames)[name] = elem;
         }
         smart_ptr<Benchmark> do_create(const std::string &s) {
             if (pnames == NULL) {
-                pnames = new std::map<std::string, const Benchmark*, case_insens_cmp>();
+                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
             }
             const Benchmark *elem = (*pnames)[s];
             if (elem == NULL)

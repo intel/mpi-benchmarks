@@ -471,21 +471,6 @@ bool args_parser::parse() {
     return parse_result;
 }
 
-/*
-args_parser &args_parser::set_caption(const char *s, const char *cap) {
-    const string *pgroup;
-    smart_ptr <option> *parg;
-    in_expected_args(FOREACH_FIRST, pgroup, parg);
-    while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
-        if ((*parg)->str == s) {
-            (*parg)->caption.assign(cap);
-            return *this;
-        }
-    }
-    throw logic_error("args_parser: no such option");
-}
-*/
-
 args_parser::option &args_parser::set_caption(int n, const char *cap) {
     int num_extra_args = 0, num_required_extra_args = 0;
     vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
