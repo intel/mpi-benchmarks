@@ -1,7 +1,7 @@
 #CFLAGS=-g -O0 -Wall -Wextra -pedantic
 CPP=mpiicpc
 CC=mpiicc
-CFLAGS = -DMPI1 -DOSU -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
+CFLAGS = -DOSU -DMPI1 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
 
 CFLAGS += -Iosu/mpi/pt2pt/
 
@@ -48,7 +48,7 @@ YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
 IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
 
-BECHMARK_SUITE_SRC = orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suite_osu.cpp benchmark_suites_list.cpp
+BECHMARK_SUITE_SRC = orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suite_osu.cpp benchmark_suites_list.cpp scope.cpp
 LEGACY_SRC = original_imb/src/IMB_allgather.c \
 original_imb/src/IMB_allgatherv.c \
 original_imb/src/IMB_allreduce.c \
@@ -94,7 +94,8 @@ orig_benchmark.h \
 osu_benchmark.h \
 reworked_IMB_functions.h \
 smart_ptr.h \
-utils.h
+utils.h \
+scope.h
 
 #HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h reworked_IMB_functions.h utils.h
 
@@ -121,4 +122,6 @@ clean:
 
 
 $(BECHMARK_SUITE_OBJ): $(HEADERS) Makefile
-
+$(IMB_OBJ): $(HEADERS) Makefile
+$(YAMLCPP_OBJ): Makefile
+$(LEGACY_OBJ): Makefile

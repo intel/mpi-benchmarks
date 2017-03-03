@@ -9,10 +9,14 @@
 #include "benchmark_suite_MPI1.h"
 #include "utils.h"
 
+#include "scope.h"
+
 
 using namespace std;
 
 extern void check_parser();
+
+
 
 int main(int argc, char **argv)
 {
@@ -157,8 +161,9 @@ int main(int argc, char **argv)
                 return 1;
             }
             b->init();
-            for (int n = 0; n < 40; n++)
-                b->run();
+            smart_ptr<Scope> scope = b->get_scope();            
+            for (Scope::iterator it = scope->begin(); it != scope->end(); ++it)
+                b->run(*it);
         }
     }
     catch(exception &ex) {

@@ -1,3 +1,5 @@
+#ifdef MPI1
+
 #include <set>
 #include <vector>
 #include <string>
@@ -87,7 +89,7 @@ bool load_msg_sizes(const char *filename)
         return false;
     return true;
 }
-
+/*
 template <> void BenchmarkSuite<BS_MPI1>::init() {
     set<string> benchs;
     BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
@@ -97,7 +99,7 @@ template <> void BenchmarkSuite<BS_MPI1>::init() {
             throw logic_error("BenchmarkSuite<BS_MPI1>: wrong description of one of benchmarks in suite");
     }
 }
-
+*/
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
     parser.add_option_with_defaults<int>("npmin", 2).set_caption("NPmin");
     parser.add_option_with_defaults<int>("multi", -1).set_caption("MultiMode");
@@ -196,6 +198,11 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
             cmd_line_error = true;
         }
     }
+    // if (!parser.is_defaulted("off_cache")) {
+    //     
+    // }
+    if (ITERATIONS.cache_size > 0.0)
+        ITERATIONS.off_cache = 1;
 
     // iter
     vector<int> given_iter;
@@ -325,4 +332,7 @@ void *OriginalBenchmarkSuite_MPI1::get_internal_data_ptr(const std::string &key)
     if (key == "glob") return &glob;
     return 0;
 }
+
+
+#endif
 

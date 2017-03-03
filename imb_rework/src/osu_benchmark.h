@@ -1,8 +1,6 @@
 #pragma once
 #include "benchmark_suite.h"
 
-using namespace std;
-
 #define GLUE_TYPENAME(A,B) A,B
 
 typedef int (*osu_benchmark_func_t)(int argc, char **argv);
@@ -13,7 +11,7 @@ class OSUBenchmark : public Benchmark {
     public:
     virtual bool init_description() { return true; }
     virtual void init() { }
-    virtual void run() { 
+    virtual void run(const std::pair<int, int> &) { 
         char *argv = "";
         fn_ptr(1, &argv);
     }

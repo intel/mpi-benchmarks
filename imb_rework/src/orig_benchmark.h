@@ -35,6 +35,7 @@ class OriginalBenchmark : public Benchmark {
 
         LEGACY_GLOBALS glob;
     public:
+        using Benchmark::scope;
         virtual bool init_description();
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);
@@ -52,30 +53,42 @@ class OriginalBenchmark : public Benchmark {
             descr.IMB_set_bmark(BMark, fn_ptr);
             descr.helper_sync_legacy_globals(c_info, glob, BMark);
 
+            scope = descr.helper_init_scope(c_info, BMark, glob);
+
             // This is to do when change NP
             if (!IMB_valid(&c_info, BMark, glob.NP))
                 return;
             IMB_init_communicator(&c_info, glob.NP);
             initialized = true;
         }
-        virtual void run() { 
+        virtual void run(const std::pair<int, int> &p) {
+            int size = p.second;
+            int np = p.first; 
             if (!initialized)
                 return;
-            if (!descr.helper_is_next_iter(c_info, glob))
+            if (descr.stop_iterations)
                 return;
-            descr.helper_get_next_size(c_info, glob);
-            descr.helper_adjust_size(c_info, glob);
+            if (np != glob.NP) {
+                glob.NP = np;
+                if (!IMB_valid(&c_info, BMark, glob.NP))
+                    return;
+                IMB_init_communicator(&c_info, glob.NP);
+                glob.header = 1;
+            }
+            glob.size = size;
             BMODE = BMark->RUN_MODES;
-            descr.IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, glob.size);
-            bool failed = descr.helper_time_check(c_info, glob, BMark, ITERATIONS);
+            descr.IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, size);
+            descr.helper_time_check(c_info, glob, BMark, ITERATIONS);
+            bool failed = (descr.stop_iterations || (BMark->sample_failure));
             if (!failed) {
                 IMB_warm_up(&c_info, BMark, &ITERATIONS, glob.iter);
-                fn_ptr(&c_info, glob.size, &ITERATIONS, BMODE, time);
+                fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
             }
             MPI_Barrier(MPI_COMM_WORLD);
-            IMB_output(&c_info, BMark, BMODE, glob.header, glob.size, &ITERATIONS, time);
-            IMB_close_transfer(&c_info, BMark, glob.size);
-            descr.helper_post_step(glob, BMark);
+            IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
+            IMB_close_transfer(&c_info, BMark, size);
+            glob.header = 0;
+            glob.iter++;
         }
         virtual bool is_default() {
             return descr.is_default();

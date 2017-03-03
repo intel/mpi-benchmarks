@@ -1,3 +1,5 @@
+#ifdef OSU
+
 #include <mpi.h>
 #include <vector>
 #include <string>
@@ -16,3 +18,4 @@ using namespace std;
 template class OSUBenchmark<BenchmarkSuite<BS_OSU>, osu_bw>;
 DECLARE_INHERITED(GLUE_TYPENAME(OSUBenchmark<BenchmarkSuite<BS_OSU>, osu_bw>), osu_bw)
 
+#endif

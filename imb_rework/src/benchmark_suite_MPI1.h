@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef MPI1
+
 #include "benchmark_suite.h"
 extern "C" {
 #include "IMB_benchmark.h"
@@ -25,3 +28,4 @@ class OriginalBenchmarkSuite_MPI1 : public BenchmarkSuite<BS_MPI1> {
         static void *get_internal_data_ptr(const std::string &key);
 };
 
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 template <typename T>
 class smart_ptr {
 private:
@@ -10,6 +12,15 @@ public:
     smart_ptr(const smart_ptr& rhs) : pointer(rhs.pointer), rc(rhs.rc) { increment(); }
     ~smart_ptr() {
         if(rc && decrement() == 0) { delete pointer; delete rc; }
+    }
+    void assign(T *p) {
+        if(rc == NULL && pointer == NULL) { 
+            pointer = p;
+            rc = (p ? new counter_t(0) : NULL);
+            increment();
+        } else {
+            throw std::logic_error("smart_ptr: assign: bad usage");
+        }
     }
     void swap(smart_ptr& rhs) {
         std::swap(pointer, rhs.pointer);

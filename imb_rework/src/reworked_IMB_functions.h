@@ -124,6 +124,51 @@ struct reworked_Bmark_descr {
         return result;
     }
 
+    smart_ptr<Scope> helper_init_scope(struct comm_info &c_info,
+                                       struct Bench* Bmark, LEGACY_GLOBALS &glob) {
+        SingleTransferScope &scope = *(new SingleTransferScope);
+//        scope.add_len(1024);
+//        scope.fill_nps(2, 2);
+        int len = 0;
+        int iter = 0;
+        bool stop = false;
+        while (helper_is_next_iter(c_info, glob)) {
+            if (!(((c_info.n_lens == 0 && len < glob.MAXMSG ) ||
+                 (c_info.n_lens > 0  && iter < c_info.n_lens))))
+                break;
+            if (stop)
+                break;
+
+            // --- helper_get_next_size(c_info, glob);
+            if (c_info.n_lens > 0) {
+                len = c_info.msglen[iter];
+            } else {
+                if( iter == 0 ) {
+                    len = 0;
+                } else if (iter == 1) {
+                    len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+                } else {
+                    len = min(glob.MAXMSG, len + len);
+                }
+            }
+
+            // --- helper_adjust_size(c_info, glob);
+            if (len > glob.MAXMSG) {
+                len = glob.MAXMSG;
+            }
+            len = (len + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+            // --- helper_post_step(glob, BMark);
+            iter++;
+            if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+                stop = true;
+            }
+            scope.add_len(len);
+        }
+        scope.fill_nps(glob.NP, glob.NP);
+        scope.commit();
+        return smart_ptr<Scope>(&scope);
+    }
+
     void IMB_init_buffers_iter(struct comm_info* c_info, struct iter_schedule* ITERATIONS,
                                struct Bench* Bmark, MODES BMODE, int iter, int size)
     {
@@ -475,16 +520,19 @@ struct Bench *Bmark) {
     }
 
     bool helper_is_next_iter(comm_info &c_info, LEGACY_GLOBALS &glob) {
+/*
         if (!(((c_info.n_lens == 0 && glob.size < glob.MAXMSG ) ||
              (c_info.n_lens > 0  && glob.iter < c_info.n_lens))))
             return false;
         if (stop_iterations)
             return false;
+*/
         return true;
     }
 
     void helper_get_next_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
-        if (c_info.n_lens > 0) {
+/*  
+      if (c_info.n_lens > 0) {
             glob.size = c_info.msglen[glob.iter];
         } else {
             if( glob.iter == 0 ) {
@@ -495,9 +543,11 @@ struct Bench *Bmark) {
                 glob.size = min(glob.MAXMSG, glob.size + glob.size);
             }
         }
+*/
     }
 
     void helper_adjust_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
+/*
         if (glob.size > glob.MAXMSG) {
             if (c_info.w_rank == 0) {
 //                fprintf(unit,"Attention, msg size %d truncated to %d\n", size,MAXMSG);
@@ -505,9 +555,10 @@ struct Bench *Bmark) {
             glob.size = glob.MAXMSG;
         }
         glob.size = (glob.size+glob.unit_size-1)/glob.unit_size*glob.unit_size;
+*/
     }
     
-    bool helper_time_check(comm_info &c_info, LEGACY_GLOBALS &glob, 
+    void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &glob, 
                            Bench *Bmark, iter_schedule &ITERATIONS) {
         if (!Bmark->sample_failure) {
             time_limit[1] = 0;
@@ -520,15 +571,15 @@ struct Bench *Bmark) {
             Bmark->sample_failure = SAMPLE_FAILED_TIME_OUT;
             stop_iterations = true;
         }
-        return Bmark->sample_failure;
+        return;
     }
 
     void helper_post_step(LEGACY_GLOBALS &glob, Bench *Bmark) {
-        glob.header = 0;
-        glob.iter++;
-        if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
-            stop_iterations = true;
-        }
+//        glob.header = 0;
+//        glob.iter++;
+//        if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+///            stop_iterations = true;
+//        }
     }
 };
 

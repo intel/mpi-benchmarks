@@ -1,3 +1,5 @@
+#ifdef OSU
+
 #include <set>
 #include <vector>
 #include <string>
@@ -16,3 +18,4 @@ template <> bool BenchmarkSuite<BS_OSU>::prepare(args_parser const&, const std::
 
 template <> void BenchmarkSuite<BS_OSU>::get_bench_list(std::set<std::string> &list, BenchmarkSuiteBase::BenchListFilter filter) const { get_full_list(list); }
 
+#endif

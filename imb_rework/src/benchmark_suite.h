@@ -37,7 +37,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             for (std::set<std::string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
                 smart_ptr<Benchmark> b = get_instance().create(*it);
                 if (!b->init_description())
-                    throw std::logic_error("BenchmarkSuite<BS_MPI1>: wrong description of one of benchmarks in suite");
+                    throw std::logic_error("BenchmarkSuite: wrong description of one of benchmarks in suite");
             }
         }
 
