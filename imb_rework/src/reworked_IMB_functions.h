@@ -126,13 +126,11 @@ struct reworked_Bmark_descr {
 
     smart_ptr<Scope> helper_init_scope(struct comm_info &c_info,
                                        struct Bench* Bmark, LEGACY_GLOBALS &glob) {
-        SingleTransferScope &scope = *(new SingleTransferScope);
-//        scope.add_len(1024);
-//        scope.fill_nps(2, 2);
+        NPLenCombinedScope &scope = *(new NPLenCombinedScope);
         int len = 0;
         int iter = 0;
         bool stop = false;
-        while (helper_is_next_iter(c_info, glob)) {
+        while (true) {
             if (!(((c_info.n_lens == 0 && len < glob.MAXMSG ) ||
                  (c_info.n_lens > 0  && iter < c_info.n_lens))))
                 break;
@@ -164,7 +162,30 @@ struct reworked_Bmark_descr {
             }
             scope.add_len(len);
         }
-        scope.fill_nps(glob.NP, glob.NP);
+       
+        {
+            int &NP_min = glob.NP_min;
+            int &ci_np = c_info.w_num_procs;
+            if (Bmark->RUN_MODES[0].type == ParallelTransferMsgRate) {
+                ci_np -= ci_np % 2;
+                NP_min += NP_min % 2;
+            }
+            int NP = max(1, min(ci_np, NP_min));
+            bool do_it = true;
+            while (do_it) {
+                if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+                    NP = min(2, ci_np);
+                }
+                //std::cout << ">> " << ci_np << " " << NP << std::endl;
+                scope.add_np(NP);
+                
+                // CALCULATE THE NUMBER OF PROCESSES FOR NEXT STEP
+                if (NP >= ci_np) { do_it = false; }
+                else {
+                    NP = min(NP + NP, ci_np);
+                }
+            }
+        }
         scope.commit();
         return smart_ptr<Scope>(&scope);
     }
@@ -485,7 +506,7 @@ struct reworked_Bmark_descr {
 
     }
 
-    void helper_sync_legacy_globals(comm_info &c_info, LEGACY_GLOBALS &glob, 
+    void helper_sync_legacy_globals_1(comm_info &c_info, LEGACY_GLOBALS &glob, 
 struct Bench *Bmark) {
         // NP_min is already initialized by IMB_basic_input
         glob.ci_np = c_info.w_num_procs;
@@ -503,61 +524,28 @@ struct Bench *Bmark) {
         } else {
             MPI_Type_size(c_info.s_data_type,&glob.unit_size);
         }
+    }
+
+    void helper_sync_legacy_globals_2(comm_info &c_info, LEGACY_GLOBALS &glob,
+struct Bench *Bmark) {
         glob.MAXMSG=(1<<c_info.max_msg_log)/glob.unit_size * glob.unit_size;
         glob.header=1;
         Bmark->sample_failure = 0;
+        sample_time = MPI_Wtime();
         time_limit[0] = time_limit[1] = 0;
         Bmark->success = 1;
         c_info.select_source = Bmark->select_source;
         stop_iterations = false;
         glob.iter = 0;
         glob.size = 0;
-        sample_time = MPI_Wtime();
         if (Bmark->RUN_MODES[0].type == SingleElementTransfer) {
             /* just one size needs to be tested (the size of one element) */
             MPI_Type_size(c_info.red_data_type, &glob.size);
         }
+//        if (Bmark->RUN_MODES[0].type == BTYPE_INVALID)
+//            stop_iterations = true;
     }
 
-    bool helper_is_next_iter(comm_info &c_info, LEGACY_GLOBALS &glob) {
-/*
-        if (!(((c_info.n_lens == 0 && glob.size < glob.MAXMSG ) ||
-             (c_info.n_lens > 0  && glob.iter < c_info.n_lens))))
-            return false;
-        if (stop_iterations)
-            return false;
-*/
-        return true;
-    }
-
-    void helper_get_next_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
-/*  
-      if (c_info.n_lens > 0) {
-            glob.size = c_info.msglen[glob.iter];
-        } else {
-            if( glob.iter == 0 ) {
-                glob.size = 0;
-            } else if (glob.iter == 1) {
-                glob.size = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
-            } else {
-                glob.size = min(glob.MAXMSG, glob.size + glob.size);
-            }
-        }
-*/
-    }
-
-    void helper_adjust_size(comm_info &c_info, LEGACY_GLOBALS &glob) {
-/*
-        if (glob.size > glob.MAXMSG) {
-            if (c_info.w_rank == 0) {
-//                fprintf(unit,"Attention, msg size %d truncated to %d\n", size,MAXMSG);
-            }
-            glob.size = glob.MAXMSG;
-        }
-        glob.size = (glob.size+glob.unit_size-1)/glob.unit_size*glob.unit_size;
-*/
-    }
-    
     void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &glob, 
                            Bench *Bmark, iter_schedule &ITERATIONS) {
         if (!Bmark->sample_failure) {
@@ -573,19 +561,4 @@ struct Bench *Bmark) {
         }
         return;
     }
-
-    void helper_post_step(LEGACY_GLOBALS &glob, Bench *Bmark) {
-//        glob.header = 0;
-//        glob.iter++;
-//        if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
-///            stop_iterations = true;
-//        }
-    }
 };
-
-/*
-IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, iter, size)
-{
-
-}
-*/

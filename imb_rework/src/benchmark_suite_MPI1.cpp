@@ -287,6 +287,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     if (c_info.w_rank == 0 ) {
         IMB_general_info();
         fprintf(unit,"\n\n# Calling sequence was: \n\n");
+        // FIXME out real cmdline, extract from parser
         fprintf(unit,"# ------------------- \n\n");
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");

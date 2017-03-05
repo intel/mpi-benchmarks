@@ -36,22 +36,3 @@ ScopeIterator Scope::end() {
 }
 
 
-/*
-struct SingleTransferScope : public Scope {
-    int npmin, npmax;
-    void fill_lens(vector<int> alens) { lens = alens; }
-    void add_len(int len) { lens.push_back(len); }
-    void fill_nps(int _npmin, int _npmax) { npmin = _npmin; npmax = _npmax; }
-    void commit() {
-        formed = true;
-        assert(sequence.size() == 0);
-        assert(lens.size() != 0);
-        assert(npmax >= npmin && npmin != 0);
-        for (int np = npmin; np < npmax; np += np) {
-            for (size_t i = 0; i < lens.size(); i++) {
-                sequence.push_back(pair<int, int>(np, lens[i]));
-            }
-        }
-    }
-};
-*/

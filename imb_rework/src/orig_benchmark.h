@@ -51,14 +51,18 @@ class OriginalBenchmark : public Benchmark {
  
             BMark->name = strdup(name);
             descr.IMB_set_bmark(BMark, fn_ptr);
-            descr.helper_sync_legacy_globals(c_info, glob, BMark);
+            descr.helper_sync_legacy_globals_1(c_info, glob, BMark);
+            descr.helper_sync_legacy_globals_2(c_info, glob, BMark);
 
             scope = descr.helper_init_scope(c_info, BMark, glob);
 
             // This is to do when change NP
-            if (!IMB_valid(&c_info, BMark, glob.NP))
-                return;
-            IMB_init_communicator(&c_info, glob.NP);
+            //if (!IMB_valid(&c_info, BMark, glob.NP))
+            //    return;
+            //IMB_init_communicator(&c_info, glob.NP);
+
+            // FIXME glob.NP is used inside helper_init_scope, it's easy to mess it up
+            glob.NP = 0;
             initialized = true;
         }
         virtual void run(const std::pair<int, int> &p) {
@@ -73,7 +77,7 @@ class OriginalBenchmark : public Benchmark {
                 if (!IMB_valid(&c_info, BMark, glob.NP))
                     return;
                 IMB_init_communicator(&c_info, glob.NP);
-                glob.header = 1;
+                descr.helper_sync_legacy_globals_2(c_info, glob, BMark);
             }
             glob.size = size;
             BMODE = BMark->RUN_MODES;
