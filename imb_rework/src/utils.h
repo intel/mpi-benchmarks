@@ -1,4 +1,6 @@
 #pragma once 
+#include <algorithm>
+#include <string.h>
 
 namespace set_operations {
     template <typename T1, typename T2>

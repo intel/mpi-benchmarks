@@ -1,6 +1,7 @@
 #pragma once
 #include "smart_ptr.h"
 #include "scope.h"
+#include <iostream>
 
 class Benchmark {
     public:
@@ -24,7 +25,7 @@ class Benchmark {
 
 #define DEFINE_INHERITED(CLASS, SUITE_CLASS) virtual const std::string get_name() const { return name; } \
     virtual Benchmark *create_myself() const { return new CLASS; } \
-    CLASS() { SUITE_CLASS::register_elem(this); allocate_internals(); }
+    CLASS() { SUITE_CLASS::register_elem(this); this->allocate_internals(); }
 
 #define DECLARE_INHERITED(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME;
 

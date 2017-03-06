@@ -7,6 +7,7 @@ CFLAGS = -g -Wall -Wextra -pedantic -I. -DCOMM_EXPERIMENT=0
 
 MPI1=ON
 OSU=ON
+EXAMPLE=ON
 
 ifeq ($(MPI1),ON)
 include Makefile.legacy
@@ -14,6 +15,10 @@ endif
 ifeq ($(OSU),ON)
 include Makefile.OSU
 endif
+ifeq ($(EXAMPLE),ON)
+include Makefile.example
+endif
+
 
 CFLAGS += -Iyamlcpp/include -Iyamlcpp/test
 YAMLCPP_SRC = yamlcpp/src/aliasmanager.cpp \

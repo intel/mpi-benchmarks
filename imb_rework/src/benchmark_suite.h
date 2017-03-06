@@ -21,6 +21,7 @@
 
 template <benchmark_suite_t bs>
 class BenchmarkSuite : public BenchmarkSuiteBase {
+    protected:
         static std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> *pnames;
         static BenchmarkSuite<bs> *instance;
     public:   
@@ -41,8 +42,8 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
         }
 
-        virtual void declare_args(args_parser &parser) const; 
-        virtual bool prepare(const args_parser &parser, const std::set<std::string> &benchs); 
+        virtual void declare_args(args_parser &parser) const {} 
+        virtual bool prepare(const args_parser &parser, const std::set<std::string> &benchs) { return true; } 
         static void register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 
@@ -57,8 +58,9 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             if (pnames == NULL) {
                 pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
             }
-            if (pnames->find(name) == pnames->end())
+            if (pnames->find(name) == pnames->end()) 
                 (*pnames)[name] = elem;
+            
         }
         smart_ptr<Benchmark> do_create(const std::string &s) {
             if (pnames == NULL) {
@@ -70,6 +72,9 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             return smart_ptr<Benchmark>(elem->create_myself());
         }
         void do_get_full_list(std::set<std::string> &all_benchmarks) {
+            if (pnames == NULL) {
+                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
+            }
             std::insert_iterator<std::set<std::string> > insert(all_benchmarks, all_benchmarks.end());
             for (std::map<std::string, const Benchmark*>::iterator it = pnames->begin();
                  it != pnames->end();
@@ -78,7 +83,9 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
         }
     public:        
-        virtual void get_bench_list(std::set<std::string> &benchs, BenchListFilter filter = ALL_BENCHMARKS) const;
+        virtual void get_bench_list(std::set<std::string> &benchs, BenchListFilter filter = ALL_BENCHMARKS) const {
+            get_full_list(benchs); 
+        }
         virtual const std::string get_name() const;
  
         BenchmarkSuite() { }
@@ -87,3 +94,6 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         BenchmarkSuite &operator=(const BenchmarkSuite &) { return *this; }
         BenchmarkSuite(const BenchmarkSuite &) {}
 };
+
+#define DEFINE_SUITE(SUITE) std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> *SUITE::pnames = 0; \
+                            SUITE *SUITE::instance = 0;

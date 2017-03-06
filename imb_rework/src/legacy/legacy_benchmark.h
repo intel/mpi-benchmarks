@@ -36,7 +36,7 @@ class OriginalBenchmark : public Benchmark {
         LEGACY_GLOBALS glob;
     public:
         using Benchmark::scope;
-        virtual void allocate_iternals() { BMark[0].name = NULL; }
+        virtual void allocate_internals() { BMark[0].name = NULL; }
         virtual bool init_description();
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);

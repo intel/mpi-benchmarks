@@ -29,6 +29,10 @@ int main(int argc, char **argv)
 #ifdef OSU
     BenchmarkSuite<BS_OSU>::init();
 #endif    
+#ifdef EXAMPLE
+    BenchmarkSuite<BS_EXAMPLE>::init();
+#endif    
+
 
 
     MPI_Init(&argc, &argv);

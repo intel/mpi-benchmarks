@@ -2,6 +2,9 @@
 
 #include "benchmark_suite_base.h"
 
+//!!!
+#include <iostream>
+
 enum benchmark_suite_t { 
 #ifdef MPI1    
     BS_MPI1, 
@@ -11,8 +14,9 @@ enum benchmark_suite_t {
 #endif
 #ifdef OSU
     BS_OSU,
-#endif    
-    BS_DUMMY        
+#endif
+    BS_EXAMPLE, 
+    BS_GENERIC    
 };
 
 class BenchmarkSuitesCollection {
@@ -24,8 +28,10 @@ class BenchmarkSuitesCollection {
         if (pnames == NULL) {
             pnames = new std::map<const std::string, BenchmarkSuiteBase*>();
         }
-        if (pnames->find(name) == pnames->end())
+        if (pnames->find(name) == pnames->end()) {
             (*pnames)[name] = elem;
+            std::cout << ">> " << name << std::endl;
+        }
     }
     static void get_full_list(std::set<std::string> &all_benchmarks) {
         assert(pnames != NULL);

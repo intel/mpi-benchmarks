@@ -303,7 +303,13 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
     BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
         for (set<string>::iterator it = benchs.begin(); it != benchs.end();) {
+            std::cout << *it << std::endl;
             smart_ptr<Benchmark> b = get_instance().create(*it);
+            //assert(b.get() != NULL);
+            if (b.get() == NULL) {
+                ++it;
+                continue;
+            }
             if (!b->is_default()) {
                 benchs.erase(it++);
             }
