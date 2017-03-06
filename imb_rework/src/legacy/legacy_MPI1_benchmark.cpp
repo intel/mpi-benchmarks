@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <iostream>
-#include "orig_benchmark.h"
+#include "legacy_benchmark.h"
 
 extern "C" {
 #include "IMB_prototypes.h"

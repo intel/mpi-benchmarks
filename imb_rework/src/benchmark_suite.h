@@ -12,7 +12,7 @@
 
 #include "benchmark.h"
 #include "benchmark_suite_base.h"
-#include "benchmark_suites_list.h"
+#include "benchmark_suites_collection.h"
 #include "args_parser.h"
 
 #include "smart_ptr.h"
@@ -87,14 +87,3 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         BenchmarkSuite &operator=(const BenchmarkSuite &) { return *this; }
         BenchmarkSuite(const BenchmarkSuite &) {}
 };
-
-
-#define DEFINE_INHERITED(CLASS, SUITE_CLASS) virtual const std::string get_name() const { return name; } \
-    virtual Benchmark *create_myself() const { return new CLASS; }
-
-//    CLASS() { SUITE_CLASS::register_elem(this); } \
-//    virtual const string get_name() const { return name; } \
-//    virtual Benchmark *create_myself() const { return new CLASS; } \
-
-#define DECLARE_INHERITED(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME; 
-

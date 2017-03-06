@@ -6,17 +6,16 @@
 #include <algorithm>
 
 #include "benchmark_suite.h"
-#include "benchmark_suite_MPI1.h"
 #include "utils.h"
-
 #include "scope.h"
 
+#ifdef MPI1
+#include "legacy_MPI1_suite.h"
+#endif
 
 using namespace std;
 
 extern void check_parser();
-
-
 
 int main(int argc, char **argv)
 {
@@ -144,7 +143,7 @@ int main(int argc, char **argv)
             if (missing.size() != 0) {
                 cout << "Benchmarks not found:" << endl;
                 for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
-                    cout << ">> " << *it << endl;
+                    cout << *it << endl;
                 }
                 return 1;
             }

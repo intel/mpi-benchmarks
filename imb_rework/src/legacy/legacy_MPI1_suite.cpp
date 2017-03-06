@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <mpi.h>
-#include "benchmark_suite_MPI1.h"
+#include "legacy_MPI1_suite.h"
 #include "IMB_comm_info.h"
 
 #include "reworked_IMB_functions.h"
@@ -89,17 +89,7 @@ bool load_msg_sizes(const char *filename)
         return false;
     return true;
 }
-/*
-template <> void BenchmarkSuite<BS_MPI1>::init() {
-    set<string> benchs;
-    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
-    for (set<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
-        smart_ptr<Benchmark> b = get_instance().create(*it);
-        if (!b->init_description())
-            throw logic_error("BenchmarkSuite<BS_MPI1>: wrong description of one of benchmarks in suite");
-    }
-}
-*/
+
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
     parser.add_option_with_defaults<int>("npmin", 2).set_caption("NPmin");
     parser.add_option_with_defaults<int>("multi", -1).set_caption("MultiMode");
@@ -198,9 +188,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
             cmd_line_error = true;
         }
     }
-    // if (!parser.is_defaulted("off_cache")) {
-    //     
-    // }
     if (ITERATIONS.cache_size > 0.0)
         ITERATIONS.off_cache = 1;
 

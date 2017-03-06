@@ -6,7 +6,7 @@
 #include <map>
 #include <set>
 #include <iostream>
-#include "osu_benchmark.h"
+#include "OSU_benchmark.h"
 
 using namespace std;
 

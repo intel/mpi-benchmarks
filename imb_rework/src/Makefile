@@ -1,9 +1,19 @@
+all: libyaml-cpp.a imb
+
 #CFLAGS=-g -O0 -Wall -Wextra -pedantic
 CPP=mpiicpc
 CC=mpiicc
-CFLAGS = -DOSU -DMPI1 -g -Wall -Wextra -pedantic -I. -Ioriginal_imb/src -DCOMM_EXPERIMENT=0
+CFLAGS = -g -Wall -Wextra -pedantic -I. -DCOMM_EXPERIMENT=0
 
-CFLAGS += -Iosu/mpi/pt2pt/
+MPI1=ON
+OSU=ON
+
+ifeq ($(MPI1),ON)
+include Makefile.legacy
+endif
+ifeq ($(OSU),ON)
+include Makefile.OSU
+endif
 
 CFLAGS += -Iyamlcpp/include -Iyamlcpp/test
 YAMLCPP_SRC = yamlcpp/src/aliasmanager.cpp \
@@ -45,61 +55,20 @@ yamlcpp/test/old-api/spectests.cpp
 YAMLCPP_OBJ = $(YAMLCPP_SRC:.cpp=.o)
 YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
 
-IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp
+IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp scope.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
 
-BECHMARK_SUITE_SRC = orig_benchmark_MPI1.cpp osu_benchmark_pt2pt.cpp benchmark_suite_MPI1.cpp benchmark_suite_osu.cpp benchmark_suites_list.cpp scope.cpp
-LEGACY_SRC = original_imb/src/IMB_allgather.c \
-original_imb/src/IMB_allgatherv.c \
-original_imb/src/IMB_allreduce.c \
-original_imb/src/IMB_alltoall.c \
-original_imb/src/IMB_alltoallv.c \
-original_imb/src/IMB_bandwidth.c \
-original_imb/src/IMB_barrier.c \
-original_imb/src/IMB_bcast.c \
-original_imb/src/IMB_benchlist.c \
-original_imb/src/IMB_chk_diff.c \
-original_imb/src/IMB_cpu_exploit.c \
-original_imb/src/IMB_declare.c \
-original_imb/src/IMB_err_handler.c \
-original_imb/src/IMB_exchange.c \
-original_imb/src/IMB_gather.c \
-original_imb/src/IMB_gatherv.c \
-original_imb/src/IMB_g_info.c \
-original_imb/src/IMB_init.c \
-original_imb/src/IMB_init_transfer.c \
-original_imb/src/IMB_mem_manager.c \
-original_imb/src/IMB_output.c \
-original_imb/src/IMB_parse_name_mpi1.c \
-original_imb/src/IMB_pingping.c \
-original_imb/src/IMB_pingpong.c \
-original_imb/src/IMB_reduce.c \
-original_imb/src/IMB_reduce_scatter.c \
-original_imb/src/IMB_scatter.c \
-original_imb/src/IMB_scatterv.c \
-original_imb/src/IMB_sendrecv.c \
-original_imb/src/IMB_strgs.c \
-original_imb/src/IMB_utils.c \
-original_imb/src/IMB_warm_up.c
-LEGACY_OBJ=$(LEGACY_SRC:.c=.o)
+BECHMARK_SUITE_SRC += benchmark_suites_collection.cpp
 BECHMARK_SUITE_OBJ = $(BECHMARK_SUITE_SRC:.cpp=.o)
 
-HEADERS = args_parser.h \
+HEADERS += args_parser.h \
 benchmark.h \
 benchmark_suite_base.h \
 benchmark_suite.h \
-benchmark_suite_MPI1.h \
-benchmark_suites_list.h \
-orig_benchmark.h \
-osu_benchmark.h \
-reworked_IMB_functions.h \
+benchmark_suites_collection.h \
 smart_ptr.h \
 utils.h \
 scope.h
-
-#HEADERS = args_parser.h benchmark_suite.h benchmark_suite_MPI1.h benchmark_suites_list.h orig_benchmark.h smart_ptr.h reworked_IMB_functions.h utils.h
-
-all: libyaml-cpp.a imb
 
 libyaml-cpp.a: $(YAMLCPP_OBJ)
 	ar qc $@ $^
@@ -108,7 +77,7 @@ libyaml-cpp.a: $(YAMLCPP_OBJ)
 yamltest: $(YAMLCPP_TEST_OBJ) libyaml-cpp.a
 	$(CPP) $(CFLAGS) -o $@ $^
 
-imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(LEGACY_OBJ) libyaml-cpp.a
+imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) libyaml-cpp.a
 	$(CPP) $(CFLAGS) -o $@ $^
 
 %.o: %.cpp
@@ -118,10 +87,9 @@ imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(LEGACY_OBJ) libyaml-cpp.a
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(LEGACY_OBJ) imb yamltest libyaml-cpp.a
+	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) imb yamltest libyaml-cpp.a
 
 
 $(BECHMARK_SUITE_OBJ): $(HEADERS) Makefile
 $(IMB_OBJ): $(HEADERS) Makefile
 $(YAMLCPP_OBJ): Makefile
-$(LEGACY_OBJ): Makefile

@@ -1,6 +1,6 @@
 #pragma once
 #include "benchmark_suite.h"
-#include "benchmark_suite_MPI1.h"
+#include "legacy_MPI1_suite.h"
 //extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
@@ -36,6 +36,7 @@ class OriginalBenchmark : public Benchmark {
         LEGACY_GLOBALS glob;
     public:
         using Benchmark::scope;
+        virtual void allocate_iternals() { BMark[0].name = NULL; }
         virtual bool init_description();
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);
@@ -74,8 +75,10 @@ class OriginalBenchmark : public Benchmark {
                 return;
             if (np != glob.NP) {
                 glob.NP = np;
-                if (!IMB_valid(&c_info, BMark, glob.NP))
+                if (!IMB_valid(&c_info, BMark, glob.NP)) {
+                    descr.stop_iterations = true;
                     return;
+                }
                 IMB_init_communicator(&c_info, glob.NP);
                 descr.helper_sync_legacy_globals_2(c_info, glob, BMark);
             }
@@ -100,7 +103,7 @@ class OriginalBenchmark : public Benchmark {
         ~OriginalBenchmark() {
             free(BMark[0].name);
         } 
-        OriginalBenchmark<bs, fn_ptr>() { bs::register_elem(this); BMark[0].name = NULL; }
+        //OriginalBenchmark<bs, fn_ptr>() { bs::register_elem(this); BMark[0].name = NULL; }
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };
 
