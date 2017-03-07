@@ -30,9 +30,6 @@ args_parser::value &args_parser::value::operator=(const args_parser::value &othe
 }
 
 bool args_parser::value::parse(const char *sval, arg_t _type) {
-// TODO if duplicate options not allowed
-//    if (initialized)
-//        return false;
     type = _type;
     int res = 0;
     switch(type) {
@@ -121,35 +118,37 @@ void args_parser::option_vector::from_yaml(const YAML::Node& node)
     assert(val.size() >= vec_min && val.size() <= vec_max);
 }
 
+bool args_parser::option_scalar::do_parse(const char *sval) {
+    if (val.initialized && parser.is_flag_set(NODUPLICATE))
+        return false;
+    return val.parse(sval, type); 
+}
+
 bool args_parser::option_vector::do_parse(const char *const_sval) {
     bool res = true;
-    char *sval = strdup(const_sval);
-    try {
-        std::vector<int> positions;
-        for (char *s = sval; *s; s++) {
-            if (*s == vec_delimiter)
-                positions.push_back(s - sval);
-        }
-        size_t nelems = strlen(sval) ? positions.size() + 1 : 0;
-        if (nelems < (size_t)vec_min || nelems > (size_t)vec_max) {
+    string sval(const_sval);
+    std::vector<int> positions;
+    for (const char *s = sval.c_str(); *s; s++) {
+        if (*s == vec_delimiter)
+            positions.push_back(s - sval.c_str());
+    }
+    size_t nelems = sval.size() ? positions.size() + 1 : 0;
+    if (nelems < (size_t)vec_min || nelems > (size_t)vec_max) 
+        return false;
+    val.resize(std::max(nelems, val.size()));
+    if (nelems == 0) 
+        return true;
+    size_t i = 0, j = 0;
+    for (; i < positions.size(); i++) {
+        sval[positions[i]] = 0;
+        if (val[i].initialized && parser.is_flag_set(NODUPLICATE))
             return false;
-        }
-        val.resize(std::max(nelems, val.size()));
-        if (nelems == 0)
-            return true;
-        size_t i = 0, j = 0;
-        for (; i < positions.size(); i++) {
-            sval[positions[i]] = 0;
-            res = res && val[i].parse(sval + j, type);
-            j = positions[i] + 1;
-        }
-        res = res && val[i].parse(sval + j, type);
+        res = res && val[i].parse(sval.c_str() + j, type);
+        j = positions[i] + 1;
     }
-    catch(...) {
-        free(sval);
-        sval = NULL;
-    }
-    free(sval);
+    if (val[i].initialized && parser.is_flag_set(NODUPLICATE)) 
+        return false;
+    res = res && val[i].parse(sval.c_str() + j, type);
     return res;
 }
 
@@ -192,27 +191,27 @@ bool args_parser::get_value(string &arg, option &opt) {
 }
 
 void args_parser::print_err_required_arg(const option &arg) const {
-    if (!silent)
+    if (!is_flag_set(SILENT))
         cout << "ERROR: The required argument missing or can't be parsed: " << option_starter << arg.str << endl;
 }
 
 void args_parser::print_err_required_extra_arg() const {
-    if (!silent)
+    if (!is_flag_set(SILENT))
         cout << "ERROR: The required extra argument missing" << endl;
 }
 
 void args_parser::print_err_parse(const option &arg) const {
-    if (!silent)
+    if (!is_flag_set(SILENT))
         cout << "ERROR: Parse error on argument: " << option_starter << arg.str << endl;
 }
 
 void args_parser::print_err_parse_extra_args() const {
-    if (!silent)
+    if (!is_flag_set(SILENT))
         cout << "ERROR: Parse error on an extra argument" << endl;
 }
 
 void args_parser::print_err_extra_args() const {
-    if (!silent)
+    if (!is_flag_set(SILENT))
         cout << "ERROR: Some extra or unknown arguments or options" << endl;
 }
 
@@ -303,7 +302,7 @@ void args_parser::print_help() const {
     header += basename(argv[0]); 
     header += " ";
     size_t size = min(header.size(), (size_t)16);
-   bool is_first = true;
+    bool is_first = true;
     const string *pgroup;
     const smart_ptr<option> *poption;
     in_expected_args(FOREACH_FIRST, pgroup, poption);
@@ -389,8 +388,7 @@ bool args_parser::parse() {
             continue;
         }
         // help is hardcoded as and optional 1st arg
-        // TODO: change this to be optional
-        if (i == 1 && match(arg, string("help"))) {
+        if (i == 1 && match(arg, string("help")) && !is_flag_set(NOHELP)) {
             print_help();
             parse_result = false;
             help_printed = true;
@@ -468,13 +466,13 @@ bool args_parser::parse() {
         }
     }
     // if there are too many unexpected args, raise error
-    // TODO change this to be optional?
-    if (parse_result && unknown_args.size()) {
-        print_err_extra_args();
-        parse_result = false;
+    if (!is_flag_set(ALLOW_UNEXPECTED_ARGS)) {
+        if (parse_result && unknown_args.size()) {
+            print_err_extra_args();
+            parse_result = false;
+        }
     }
-    // TODO silent flag is a bit outstanding as for now, may be change to a more common flag scheme?
-    if (!parse_result && !silent && !help_printed)
+    if (!parse_result && !is_flag_set(SILENT) && !help_printed)
         print_help_advice();
     return parse_result;
 }

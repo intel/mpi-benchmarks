@@ -41,18 +41,21 @@ int main(int argc, char **argv)
         //args_parser parser(argc, argv, "--", '=');
         args_parser parser(argc, argv, "-", ' ');
 
+        parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
+
         parser.add_option_with_defaults<string>("input", "").
             set_caption("filename");
         parser.add_option_with_defaults_vec<string>("include").
             set_caption("benchmark[,benchmark,[...]");
         parser.add_option_with_defaults_vec<string>("exclude").
-            set_caption("benchmark[,benchmark,[...]");
+            set_caption("benchmark[,benchmark,[...] ...");
 
         // extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
         parser.add_option_with_defaults_vec<string>("(benchmarks)").
             set_caption("benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
+
 
         // bechmark suite related args
         BenchmarkSuitesCollection::declare_args(parser);
@@ -88,6 +91,7 @@ int main(int argc, char **argv)
         
         vector<string> requested_benchmarks, to_include, to_exclude;
         parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
+        parser.get_unknown_args(requested_benchmarks);
         parser.get_result_vec<string>("include", to_include);
         parser.get_result_vec<string>("exclude", to_exclude);
 
