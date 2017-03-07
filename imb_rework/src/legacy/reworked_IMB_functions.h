@@ -172,11 +172,11 @@ struct reworked_Bmark_descr {
             }
             int NP = max(1, min(ci_np, NP_min));
             bool do_it = true;
+            if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+                NP = min(2, ci_np);
+            }
             while (do_it) {
-                if (Bmark->RUN_MODES[0].type == SingleTransfer) {
-                    NP = min(2, ci_np);
-                }
-                //std::cout << ">> " << ci_np << " " << NP << std::endl;
+//                std::cout << ">> " << ci_np << " " << NP << std::endl;
                 scope.add_np(NP);
                 
                 // CALCULATE THE NUMBER OF PROCESSES FOR NEXT STEP

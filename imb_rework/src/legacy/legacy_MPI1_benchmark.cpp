@@ -33,6 +33,37 @@ LEGACY_BENCHMARK(IMB_pingpong, PingPong)
     return true;
 };
 
+void IMB_pingpong_specificsource(struct comm_info* c_info, int size,
+                                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
+    IMB_pingpong(c_info, size, ITERATIONS, RUN_MODE, time);
+}
+
+LEGACY_BENCHMARK(IMB_pingpong_specificsource, PingPongSpecificSource)
+{
+    descr.flags.insert(DEFAULT);
+    descr.flags.insert(SELECT_SOURCE);
+    descr.flags.insert(SINGLE_TRANSFER);
+    descr.flags.insert(SCALE_TIME_HALF);
+    descr.flags.insert(SENDBUF_SIZE_I);
+    descr.flags.insert(RECVBUF_SIZE_I);
+    return true;
+};
+
+void IMB_pingpong_anysource(struct comm_info* c_info, int size,
+                            struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
+    IMB_pingpong(c_info, size, ITERATIONS, RUN_MODE, time);
+}
+
+LEGACY_BENCHMARK(IMB_pingpong_anysource, PingPongAnySource)
+{
+    descr.flags.insert(DEFAULT);
+    descr.flags.insert(SINGLE_TRANSFER);
+    descr.flags.insert(SCALE_TIME_HALF);
+    descr.flags.insert(SENDBUF_SIZE_I);
+    descr.flags.insert(RECVBUF_SIZE_I);
+    return true;
+};
+
 LEGACY_BENCHMARK(IMB_pingping, PingPing)
 {
     descr.flags.insert(DEFAULT);
@@ -40,7 +71,35 @@ LEGACY_BENCHMARK(IMB_pingping, PingPing)
     descr.flags.insert(SINGLE_TRANSFER);
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
-    descr.comments.push_back("This is a pingpong benchmark bla bla bla...");
+    return true;
+};
+
+void IMB_pingping_specificsource(struct comm_info* c_info, int size,
+                                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
+    IMB_pingping(c_info, size, ITERATIONS, RUN_MODE, time);
+}
+
+LEGACY_BENCHMARK(IMB_pingping_specificsource, PingPingSpecificSource)
+{
+    descr.flags.insert(DEFAULT);
+    descr.flags.insert(SELECT_SOURCE);
+    descr.flags.insert(SINGLE_TRANSFER);
+    descr.flags.insert(SENDBUF_SIZE_I);
+    descr.flags.insert(RECVBUF_SIZE_I);
+    return true;
+};
+
+void IMB_pingping_anysource(struct comm_info* c_info, int size,
+                            struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
+    IMB_pingping(c_info, size, ITERATIONS, RUN_MODE, time);
+}
+
+LEGACY_BENCHMARK(IMB_pingping_anysource, PingPingAnySource)
+{
+    descr.flags.insert(DEFAULT);
+    descr.flags.insert(SINGLE_TRANSFER);
+    descr.flags.insert(SENDBUF_SIZE_I);
+    descr.flags.insert(RECVBUF_SIZE_I);
     return true;
 };
 
