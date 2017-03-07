@@ -9,10 +9,7 @@
 class Scope;
 
 struct ScopeIterator {
-    //ScopeIterator() : n(0) {}
     ScopeIterator(Scope &_scope, int _n) : scope(_scope), n(_n) { }
-
-    //vector<pair<int, int> > sequence;
     Scope &scope;
     int n;
     bool operator==(const ScopeIterator &other);

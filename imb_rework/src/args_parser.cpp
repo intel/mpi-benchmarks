@@ -358,6 +358,14 @@ vector<smart_ptr<args_parser::option> > &args_parser::get_extra_args_info(int &n
     return extra_args;
 }
 
+void args_parser::get_command_line(std::string &result) const {
+    for (int n = 0; n < argc; n++) {
+        result += argv[n];
+        if (n < argc-1)
+            result += " ";
+    }
+}
+
 bool args_parser::parse() {
     bool parse_result = true;
     bool help_printed = false;

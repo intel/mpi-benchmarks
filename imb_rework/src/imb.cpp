@@ -152,11 +152,17 @@ int main(int argc, char **argv)
                 return 1;
             }
         }
-
+        
+        // 1, Preparation phase on suite level
         if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
             cout << "One or more benchmark suites failed at preparation stage" << endl;
             return 1;
         }        
+
+        // 2. All benchmarks wrappers constructors, initializers and scope definition
+        typedef pair<smart_ptr<Benchmark>, smart_ptr<Scope> > item;
+        typedef vector<item> running_sequence;
+        running_sequence sequence;
         for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
@@ -165,12 +171,29 @@ int main(int argc, char **argv)
             }
             b->init();
             smart_ptr<Scope> scope = b->get_scope();            
-            for (Scope::iterator it = scope->begin(); it != scope->end(); ++it)
-                b->run(*it);
+            sequence.push_back(item(b, scope));
         }
+
+        // 3. Actual running cycle
+        for (running_sequence::iterator it = sequence.begin(); it != sequence.end(); ++it) {
+            smart_ptr<Benchmark> &b = it->first;
+            smart_ptr<Scope> &scope = it->second;
+            for (Scope::iterator s = scope->begin(); s != scope->end(); ++s)
+                b->run(*s);
+        }
+
+        // 4. Actual running cycle
+        for (running_sequence::iterator it = sequence.begin(); it != sequence.end(); ++it) {
+            smart_ptr<Benchmark> &b = it->first;
+            b->finalize();
+        }
+
+        // 5. Final steps on suite-level
+        BenchmarkSuitesCollection::finalize(actual_benchmark_list);
     }
     catch(exception &ex) {
         cout << "EXCEPTION: " << ex.what() << endl;
     }
+
     MPI_Finalize();
 }

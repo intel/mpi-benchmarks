@@ -1,10 +1,8 @@
 #pragma once
 #include "benchmark_suite.h"
 #include "legacy_MPI1_suite.h"
-//extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
-//}
 
 
 extern "C" {
@@ -103,7 +101,6 @@ class OriginalBenchmark : public Benchmark {
         ~OriginalBenchmark() {
             free(BMark[0].name);
         } 
-        //OriginalBenchmark<bs, fn_ptr>() { bs::register_elem(this); BMark[0].name = NULL; }
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };
 

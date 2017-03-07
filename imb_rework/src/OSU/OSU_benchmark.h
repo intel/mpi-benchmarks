@@ -9,7 +9,13 @@ template <class bs, osu_benchmark_func_t fn_ptr>
 class OSUBenchmark : public Benchmark {
     static const char *name;
     public:
-    virtual void allocate_internals() { }
+    virtual void init() {
+        NPLenCombinedScope *sc = new NPLenCombinedScope;
+        sc->add_len(0);
+        sc->add_np(0);
+        sc->commit();
+        scope = sc;
+    }
     virtual void run(const std::pair<int, int> &) { 
         char *argv = "";
         fn_ptr(1, &argv);

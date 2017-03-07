@@ -14,6 +14,8 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
 
 template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const std::set<std::string> &benchs);
 
+template <> void BenchmarkSuite<BS_MPI1>::finalize(const std::set<std::string> &benchs);
+
 template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(std::set<std::string> &benchmarks, 
                                                          BenchmarkSuiteBase::BenchListFilter filter) const;
 

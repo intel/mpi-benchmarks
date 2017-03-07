@@ -63,15 +63,17 @@ class ExampleBenchmark_2 : public Benchmark {
         MPI_Barrier(MPI_COMM_WORLD);
         results[p.second] = time;
     }
-    ~ExampleBenchmark_2() {
-        free(rbuf);
-        free(sbuf);
+    virtual void finalize() { 
         if (rank == 0) {
             for (std::map<int, double>::iterator it = results.begin();
                     it != results.end(); ++it) {
                 std::cout << "ExampleBenchmark_2: " << "len=" << it->first << " time=" << it->second << std::endl; 
             }
         }
+    }
+    ~ExampleBenchmark_2() {
+        free(rbuf);
+        free(sbuf);
     }
     DEFINE_INHERITED(ExampleBenchmark_2, BenchmarkSuite<BS_EXAMPLE>);
 };

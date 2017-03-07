@@ -28,10 +28,8 @@ class BenchmarkSuitesCollection {
         if (pnames == NULL) {
             pnames = new std::map<const std::string, BenchmarkSuiteBase*>();
         }
-        if (pnames->find(name) == pnames->end()) {
+        if (pnames->find(name) == pnames->end()) 
             (*pnames)[name] = elem;
-            std::cout << ">> " << name << std::endl;
-        }
     }
     static void get_full_list(std::set<std::string> &all_benchmarks) {
         assert(pnames != NULL);
@@ -63,7 +61,7 @@ class BenchmarkSuitesCollection {
                 }
         }
         return true;
-    }
+    }    
     static smart_ptr<Benchmark> create(const std::string &name) {
         assert(pnames != NULL);
         smart_ptr<Benchmark> b;
@@ -75,4 +73,10 @@ class BenchmarkSuitesCollection {
         }
         return b;
     }
+    static void finalize(const std::set<std::string> &benchs) {
+        assert(pnames != NULL);
+        for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
+             it != pnames->end(); ++it) 
+                it->second->finalize(benchs); 
+    }    
 };

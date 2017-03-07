@@ -13,10 +13,8 @@
 
 using namespace std;
 
-//#ifdef MPI1
 map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
 BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
-//#endif
 
 namespace NS_MPI1 {
     struct comm_info c_info;
@@ -275,7 +273,10 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         IMB_general_info();
         fprintf(unit,"\n\n# Calling sequence was: \n\n");
         // FIXME out real cmdline, extract from parser
-        fprintf(unit,"# ------------------- \n\n");
+//        fprintf(unit,"# ------------------- \n\n");
+        string cmd_line;
+        parser.get_command_line(cmd_line);
+        fprintf(unit, "# %s \n\n", cmd_line.c_str());
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");
         } else {
@@ -298,14 +299,25 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     return true;
 }
 
+template <> void BenchmarkSuite<BS_MPI1>::finalize(const set<string> &benchs) {
+    using namespace NS_MPI1;
+    for (set<string>::const_iterator it = benchs.begin(); it != benchs.end(); ++it) {
+        smart_ptr<Benchmark> b = get_instance().create(*it);
+        if (b.get() == NULL) 
+            continue;
+        // do nothing
+    }
+    if (c_info.w_rank == 0) {
+        fprintf(unit,"\n\n# All processes entering MPI_Finalize\n\n");
+    }
+}
+
 template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs, 
                                                          BenchmarkSuiteBase::BenchListFilter filter) const {
     BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
         for (set<string>::iterator it = benchs.begin(); it != benchs.end();) {
-            std::cout << *it << std::endl;
             smart_ptr<Benchmark> b = get_instance().create(*it);
-            //assert(b.get() != NULL);
             if (b.get() == NULL) {
                 ++it;
                 continue;

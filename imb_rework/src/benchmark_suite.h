@@ -44,6 +44,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
 
         virtual void declare_args(args_parser &parser) const {} 
         virtual bool prepare(const args_parser &parser, const std::set<std::string> &benchs) { return true; } 
+        virtual void finalize(const std::set<std::string> &benchs) { } 
         static void register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 

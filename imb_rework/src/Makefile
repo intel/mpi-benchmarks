@@ -6,8 +6,8 @@ CC=mpiicc
 CFLAGS = -g -Wall -Wextra -pedantic -I. -DCOMM_EXPERIMENT=0
 
 MPI1=ON
-OSU=ON
-EXAMPLE=ON
+OSU=OFF
+EXAMPLE=OFF
 
 ifeq ($(MPI1),ON)
 include Makefile.legacy

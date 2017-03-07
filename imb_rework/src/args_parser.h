@@ -173,6 +173,7 @@ class args_parser {
     void print_help_advice() const;
     void print_help() const;
     void print() const;
+    void get_command_line(std::string &) const;
     bool parse();
     template <typename T>
     option &add_required_option(const char *s);
