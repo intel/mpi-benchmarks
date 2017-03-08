@@ -20,6 +20,7 @@ namespace NS_MPI1 {
     struct comm_info c_info;
     struct iter_schedule ITERATIONS;
     struct LEGACY_GLOBALS glob;
+    bool prepared = false;
 }
 
 bool load_msg_sizes(const char *filename)
@@ -129,7 +130,9 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
                      inserter(intersection, intersection.begin()));
     if (intersection.size() == 0)
         return true;
- 
+
+    prepared = true;
+
     IMB_set_default(&c_info);
     IMB_init_pointers(&c_info);
 
@@ -180,6 +183,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
             ITERATIONS.cache_size = CACHE_SIZE;
         }
     } else {
+        assert(csize.size() == 2);
         ITERATIONS.cache_size = csize[0];
         ITERATIONS.cache_line_size = (int)csize[1];
         if (csize[1] != floor(csize[1])) {
@@ -301,6 +305,8 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
 
 template <> void BenchmarkSuite<BS_MPI1>::finalize(const set<string> &benchs) {
     using namespace NS_MPI1;
+    if (!prepared)
+        return;
     for (set<string>::const_iterator it = benchs.begin(); it != benchs.end(); ++it) {
         smart_ptr<Benchmark> b = get_instance().create(*it);
         if (b.get() == NULL) 

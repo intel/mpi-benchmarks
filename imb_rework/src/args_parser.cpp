@@ -132,29 +132,32 @@ bool args_parser::option_vector::do_parse(const char *const_sval) {
         if (*s == vec_delimiter)
             positions.push_back(s - sval.c_str());
     }
-    size_t nelems = sval.size() ? positions.size() + 1 : 0;
-    if (nelems < (size_t)vec_min || nelems > (size_t)vec_max) 
+    positions.push_back(sval.size());
+    size_t nelems = sval.size() ? positions.size() : 0;
+    size_t max_elem = num_already_initialized_elems + nelems;
+    if (max_elem < (size_t)vec_min || max_elem > (size_t)vec_max) 
         return false;
-    val.resize(std::max(nelems, val.size()));
+    val.resize(std::max(max_elem, val.size()));
     if (nelems == 0) 
         return true;
-    size_t i = 0, j = 0;
-    for (; i < positions.size(); i++) {
+    for (size_t i = 0, j = 0; i < positions.size(); i++) {
         sval[positions[i]] = 0;
-        if (val[i].initialized && parser.is_flag_set(NODUPLICATE))
+        int n = num_already_initialized_elems + i;
+        if (val[n].initialized && parser.is_flag_set(NODUPLICATE))
             return false;
-        res = res && val[i].parse(sval.c_str() + j, type);
+        res = res && val[n].parse(sval.c_str() + j, type);
         j = positions[i] + 1;
     }
-    if (val[i].initialized && parser.is_flag_set(NODUPLICATE)) 
-        return false;
-    res = res && val[i].parse(sval.c_str() + j, type);
+    num_already_initialized_elems += positions.size();
     return res;
 }
 
 void args_parser::option_vector::set_default_value() {
-    do_parse(vec_def.c_str());
-    defaulted = true;
+    if (num_already_initialized_elems == 0) {
+        do_parse(vec_def.c_str());
+        defaulted = true;
+        num_already_initialized_elems = 0;
+    }
 }
 
 bool args_parser::match(string &arg, string pattern) const {

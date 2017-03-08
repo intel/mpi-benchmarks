@@ -28,8 +28,9 @@ class BenchmarkSuitesCollection {
         if (pnames == NULL) {
             pnames = new std::map<const std::string, BenchmarkSuiteBase*>();
         }
-        if (pnames->find(name) == pnames->end()) 
+        if (pnames->find(name) == pnames->end()) {
             (*pnames)[name] = elem;
+        }
     }
     static void get_full_list(std::set<std::string> &all_benchmarks) {
         assert(pnames != NULL);

@@ -129,23 +129,14 @@ int main(int argc, char **argv)
             preprocess_list(all_benchmarks);
             preprocess_list(default_benchmarks);
 
-            if (to_include.size() != 0 || to_exclude.size() != 0) {
-                if (requested_benchmarks.size() != 0) {
-                    // FIXME we can actually work it out
-                    cout << "ERROR: can't combine -include and -exclude options with explicit benchmark list" << endl;
-                    return 1;
-                } else {
-                    combine(actual_benchmark_list, default_benchmarks);
-                    combine(actual_benchmark_list, to_include);
-                    exclude(actual_benchmark_list, to_exclude);
-               }
-            } else { 
-                if (requested_benchmarks.size() != 0) {
-                    combine(actual_benchmark_list, requested_benchmarks);
-                } else {
-                    combine(actual_benchmark_list, default_benchmarks);
-                }
+            if (requested_benchmarks.size() != 0) {
+                combine(to_include, requested_benchmarks);
+            } else {
+                combine(actual_benchmark_list, default_benchmarks);
             }
+            exclude(actual_benchmark_list, to_exclude);
+            combine(actual_benchmark_list, to_include);
+
             set<string> missing;
             diff(actual_benchmark_list, all_benchmarks, missing);
             if (missing.size() != 0) {

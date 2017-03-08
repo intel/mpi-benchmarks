@@ -12,10 +12,10 @@
 
 // TODO:
 // proposed moding to add:
-// SILENT -- no output
-// NOHELP -- don't detect help option
-// ALLOW_EXTRA -- don't regards extra args as an error
-// NODUPLICATE -- don't allow duplicate options
+// SILENT -- no output (DONE)
+// NOHELP -- don't detect help option (DONE)
+// ALLOW_UNEXPECTED_ARGS -- don't regards extra args as an error (DONE)
+// NODUPLICATE -- don't allow duplicate options (DONE)
 // NODEFAULTSDUMP -- don't put defaults into dump
 
 
@@ -31,7 +31,7 @@ class args_parser {
     args_parser(int &_argc, char **&_argv, const char *opt_st = "--", char opt_delim = '=', bool silnt = false) : argc(_argc), argv(_argv), option_starter(opt_st), option_delimiter(opt_delim),
                                              prev_option(NULL) {}
     typedef enum { STRING, INT, FLOAT, BOOL } arg_t;
-    typedef enum { ALLOW_UNEXPECTED_ARGS, SILENT, NOHELP, NODUPLICATE, NODEFAULTSDUMP } flag_t;
+    typedef enum { ALLOW_UNEXPECTED_ARGS, SILENT, NOHELP, NODUPLICATE /*, NODEFAULTSDUMP*/ } flag_t;
 
     class value {
         public:
@@ -66,7 +66,6 @@ class args_parser {
         bool defaulted;
         std::string caption;
         std::string description;
-//        option() {};
         option(args_parser &_parser, std::string _str, arg_t _type, bool _required) : parser(_parser), str(_str), 
                                                                type(_type), required(_required), 
                                                                defaultize_before_parsing(true), 
@@ -117,20 +116,19 @@ class args_parser {
         char vec_delimiter;
         int vec_min;
         int vec_max;
-        args_parser::value def;
+        int num_already_initialized_elems;
         std::vector<args_parser::value> val;
         std::string vec_def;
-//        option_vector() {};
         option_vector(args_parser &_parser, std::string _str, arg_t _type, 
                      char _vec_delimiter, int _vec_min, int _vec_max)  :
             option(_parser, _str, _type, true), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max)
-        { }
+        { num_already_initialized_elems = 0; }
         option_vector(args_parser &_parser, std::string _str, arg_t _type, 
                      char _vec_delimiter, int _vec_min, int _vec_max, 
                      const std::string &_vec_def)  :
             option(_parser, _str, _type, false), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max), 
             vec_def(_vec_def)
-        { }
+        { num_already_initialized_elems = 0; }
         virtual ~option_vector() {}
         virtual void print() const { 
             std::cout << str << ": ";
