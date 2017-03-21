@@ -5,6 +5,7 @@
 #include <set>
 #include <assert.h>
 #include <iostream>
+#include <algorithm>
 
 class Scope;
 
@@ -30,16 +31,33 @@ struct Scope {
     virtual void commit() { formed = true; }
 };
 
-struct VarLenLogScope : public Scope {
-    int first, last;
-    VarLenLogScope(int _first, int _last) : first(_first), last(_last) {
+struct VarLenScope : public Scope {
+    int first_log, last_log;
+    std::vector<int> lens;
+    VarLenScope(int _first, int _last) : first_log(_first), last_log(_last) {
+        for (int i = first_log; i <= last_log; i++) {
+            lens.push_back(1 << i);
+        }
         commit();
     }
+    VarLenScope(const std::vector<int> &alens) : lens(alens) {
+        commit();
+    }
+    VarLenScope(int *alens, size_t n) {
+        for (int i = 0; i < n; i++) {
+            lens.push_back(alens[i]);
+        }
+        commit();
+    }
+
     virtual void commit() {
-        for (int i = first; i <= last; i++) {
-            sequence.push_back(std::pair<int, int>(0, 1 << i));
+        for (int i = 0; i < lens.size(); i++) {
+            sequence.push_back(std::pair<int, int>(0, lens[i]));
         }
         formed = true;
+    }
+    int get_max_len() {
+        return *(std::max_element(lens.begin(), lens.end()));
     }
 };
 

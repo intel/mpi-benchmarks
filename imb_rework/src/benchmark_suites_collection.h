@@ -15,6 +15,10 @@ enum benchmark_suite_t {
 #ifdef OSU
     BS_OSU,
 #endif
+#ifdef MT
+    BS_MT,
+#endif
+
     BS_EXAMPLE, 
     BS_GENERIC    
 };

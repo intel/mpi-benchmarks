@@ -12,6 +12,9 @@
 #ifdef MPI1
 #include "legacy_MPI1_suite.h"
 #endif
+#ifdef MT
+#include "MT_suite.h"
+#endif
 
 using namespace std;
 
@@ -28,6 +31,9 @@ int main(int argc, char **argv)
 #endif
 #ifdef OSU
     BenchmarkSuite<BS_OSU>::init();
+#endif    
+#ifdef MT
+    MTBenchmarkSuite::init();
 #endif    
 #ifdef EXAMPLE
     BenchmarkSuite<BS_EXAMPLE>::init();
@@ -177,7 +183,7 @@ int main(int argc, char **argv)
                 b->run(*s);
         }
 
-        // 4. Actual running cycle
+        // 4. Finalize cycle
         for (running_sequence::iterator it = sequence.begin(); it != sequence.end(); ++it) {
             smart_ptr<Benchmark> &b = it->first;
             b->finalize();
