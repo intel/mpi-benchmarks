@@ -13,6 +13,6 @@ class MTBenchmarkSuite : public BenchmarkSuite<BS_MT> {
         using BenchmarkSuite<BS_MT>::declare_args;
         using BenchmarkSuite<BS_MT>::create;
         using BenchmarkSuite<BS_MT>::register_elem;
-        static void *get_internal_data_ptr(const std::string &key);
+        static void *get_internal_data_ptr(const std::string &key, int i = 0);
 };
 

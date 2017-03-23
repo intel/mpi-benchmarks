@@ -22,6 +22,7 @@ extern void check_parser();
 
 int main(int argc, char **argv)
 {
+    bool no_mpi_init_flag = true;
 #if 0
     check_parser();
 #endif    
@@ -41,7 +42,6 @@ int main(int argc, char **argv)
 
 
 
-    MPI_Init(&argc, &argv);
     try {
         //args_parser parser(argc, argv, "/", ':');
         //args_parser parser(argc, argv, "--", '=');
@@ -49,6 +49,8 @@ int main(int argc, char **argv)
 
         parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
 
+        parser.add_option_with_defaults<string>("thread_level", "single").
+            set_caption("single|funneled|serialized|multiple|nompinit");
         parser.add_option_with_defaults<string>("input", "").
             set_caption("filename");
         parser.add_option_with_defaults_vec<string>("include").
@@ -153,11 +155,36 @@ int main(int argc, char **argv)
                 return 1;
             }
         }
-        
+        string mpi_init_mode = parser.get_result<string>("thread_level");
+        int required_mode, provided_mode;
+        if (mpi_init_mode == "single") {
+            no_mpi_init_flag = false;
+            required_mode = MPI_THREAD_SINGLE;
+        } else if (mpi_init_mode == "funneled") {
+            no_mpi_init_flag = false;
+            required_mode = MPI_THREAD_FUNNELED;
+        } else if (mpi_init_mode == "serialized") {
+            no_mpi_init_flag = false;
+            required_mode = MPI_THREAD_SERIALIZED;
+        } else if (mpi_init_mode == "multiple") {
+            no_mpi_init_flag = false;
+            required_mode = MPI_THREAD_MULTIPLE;
+        } else if (mpi_init_mode == "nompiinit") {
+            ;
+        } else {
+            cout << "ERROR: wrong value of `thread_level' option" << endl;
+            return 1;
+        }
+        if (!no_mpi_init_flag) {
+            MPI_Init_thread(&argc, &argv, required_mode, &provided_mode);
+            if (required_mode != provided_mode) {
+                throw logic_error("can't setup a required MPI threading mode");
+            }
+        }
+ 
         // 1, Preparation phase on suite level
         if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
-            cout << "One or more benchmark suites failed at preparation stage" << endl;
-            return 1;
+            throw logic_error("One or more benchmark suites failed at preparation stage");
         }        
 
         // 2. All benchmarks wrappers constructors, initializers and scope definition
@@ -167,8 +194,7 @@ int main(int argc, char **argv)
         for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
-                cout << "ERROR: benchmark creator failed!" << endl;
-                return 1;
+                throw logic_error("benchmark creator failed!");
             }
             b->init();
             smart_ptr<Scope> scope = b->get_scope();            
@@ -195,6 +221,6 @@ int main(int argc, char **argv)
     catch(exception &ex) {
         cout << "EXCEPTION: " << ex.what() << endl;
     }
-
-    MPI_Finalize();
+    if (!no_mpi_init_flag)
+        MPI_Finalize();
 }
