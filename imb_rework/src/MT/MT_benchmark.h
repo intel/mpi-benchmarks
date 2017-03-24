@@ -6,7 +6,6 @@
 #include "benchmark_suite.h"
 
 #include "immb.h"
-//#include "immb_pattern.c"
 
 using namespace std;
 
@@ -42,10 +41,12 @@ class PingPongMT : public Benchmark {
         char *out = b[omp_get_thread_num()];
         fn_ptr(warmup, in, out, count, MPI_CHAR, comm, rank, size, 0, stride);
         if(input->barrier) {
-            MPI_Barrier(comm);
             if(input->global->mode_multiple) {
 #pragma omp barrier
-                MPI_Barrier(comm);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(input->global->mode_multiple) {
+#pragma omp barrier
             }
         }
         t = MPI_Wtime();
