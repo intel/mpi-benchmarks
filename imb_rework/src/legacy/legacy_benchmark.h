@@ -20,7 +20,7 @@ extern "C" { void IMB_Barrier(MPI_Comm comm); }
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
     protected:
-        static const char *name;
+        //static const char *name;
         static reworked_Bmark_descr descr;
         comm_info c_info;
         iter_schedule ITERATIONS;

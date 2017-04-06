@@ -24,7 +24,8 @@ class Benchmark {
         Benchmark(const Benchmark &) {}
 };
 
-#define DEFINE_INHERITED(CLASS, SUITE_CLASS) virtual const std::string get_name() const { return name; } \
+#define DEFINE_INHERITED(CLASS, SUITE_CLASS) static const char *name; \
+    virtual const std::string get_name() const { return name; } \
     virtual Benchmark *create_myself() const { return new CLASS; } \
     CLASS() { SUITE_CLASS::register_elem(this); this->allocate_internals(); }
 

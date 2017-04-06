@@ -7,8 +7,32 @@
 #include "MT_benchmark.h" 
 #include "MT_suite.h"
 
+#define WITH_VECTOR
+
 #define GLUE_TYPENAME2(A,B) A,B
 #define GLUE_TYPENAME3(A,B,C) A,B,C
+
+#define WRAP(NEWNAME, OLDNAME) int NEWNAME(int repeat, void *in, void *out, int count, MPI_Datatype type, \
+                                       MPI_Comm comm, int rank, int size, benchmark_data *data) { \
+                                    return OLDNAME(repeat, in, out, count, type, comm, rank, size, data); \
+}
+
+#define DECLARE_INHERITED_AGGREGATE2(BS, FUNC, NAME) template class AggregateMeasuringMT<BS, FUNC>; \
+    DECLARE_INHERITED(GLUE_TYPENAME3(AggregateMeasuringMT<BS, FUNC >), NAME) \
+    template <> void AggregateMeasuringMT<BS, FUNC >::init_flags() 
+
+#define DECLARE_INHERITED_AGGREGATE(BS, FUNC, NAME) template class AggregateMeasuringMT<BS, FUNC>; \
+    DECLARE_INHERITED(GLUE_TYPENAME2(AggregateMeasuringMT<BS, FUNC>), NAME) \
+    template <> void AggregateMeasuringMT<BS, FUNC >::init_flags() 
+
+#define DECLARE_INHERITED_SEPARATE2(BS, FUNC, NAME) template class SeparateMeasuringMT<BS, FUNC>; \
+    DECLARE_INHERITED(GLUE_TYPENAME3(SeparateMeasuringMT<BS, FUNC >), NAME) \
+    template <> void SeparateMeasuringMT<BS, FUNC >::init_flags() 
+
+#define DECLARE_INHERITED_SEPARATE(BS, FUNC, NAME) template class SeparateMeasuringMT<BS, FUNC>; \
+    DECLARE_INHERITED(GLUE_TYPENAME2(SeparateMeasuringMT<BS, FUNC>), NAME) \
+    template <> void SeparateMeasuringMT<BS, FUNC >::init_flags() 
+
 
 using namespace std;
 
@@ -26,46 +50,54 @@ inline bool set_stride(int rank, int size, int &stride, int &group)
 
 template <bool set_src, int tag>
 int immb_pt2pt(int repeat, void *in, void *out, int count, MPI_Datatype type,
-               MPI_Comm comm, int rank, int size, int root, int stride) {
+               MPI_Comm comm, int rank, int size, benchmark_data *data) {
 
     int group = 0;
+    int stride = data->pt2pt.stride;
     if (!set_stride(rank, size, stride, group))
         return 0;
     for (int i = 0; i < repeat; i++)
         if (group % 2 == 0) {
-            MPI_Send(in, count, type, rank+stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
-            MPI_Recv(out, count, type, set_src ? (rank+stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
+            MPI_Send(in, count, type, rank + stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
+            MPI_Recv(out, count, type, set_src ? (rank + stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
         } else {
-            MPI_Recv(out, count, type, set_src ? (rank-stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
-            MPI_Send(in, count, type, rank-stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
+            MPI_Recv(out, count, type, set_src ? (rank - stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
+            MPI_Send(in, count, type, rank - stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     return 1;
 }
 
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, 0>), PingPongMT) 
+{
+    flags.insert(PT2PT);
+}
 
-template class PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, 0> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, 0> >), PingPongMT)
+WRAP(immb_pt2pt_SSST, GLUE_TYPENAME2(immb_pt2pt<true, 0>))
+DECLARE_INHERITED_AGGREGATE(MTBenchmarkSuite, immb_pt2pt_SSST, PingPongMTSpecificSourceSpecificTag) {
+    flags.insert(PT2PT);
+}    
 
-//template class PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, 0> >;
-//DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, 0> >), PingPongMTSpecificSourceSpecificTag)
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, MPI_ANY_TAG>), PingPongMTSpecificSourceAnyTag)
+{
+    flags.insert(PT2PT);
+}
 
-template class PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, MPI_ANY_TAG> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_pt2pt<true, MPI_ANY_TAG> >), 
-                  PingPongMTSpecificSourceAnyTag)
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, 0>), PingPongMTAnySourceSpecificTag)
+{
+    flags.insert(PT2PT);
+}
 
-template class PingPongMT<MTBenchmarkSuite, immb_pt2pt<false, 0> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_pt2pt<false, 0> >), 
-                  PingPongMTAnySourceSpecificTag)
-
-template class PingPongMT<MTBenchmarkSuite, immb_pt2pt<false, MPI_ANY_TAG> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_pt2pt<false, MPI_ANY_TAG> >), 
-                  PingPongMTAnySourceAnyTag)
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, MPI_ANY_TAG>), PingPongMTAnySourceAnyTag)
+{
+    flags.insert(PT2PT);
+}
 
 template <bool set_src, int tag>
 int immb_ipt2pt(int repeat, void *in, void *out, int count, MPI_Datatype type,
-                MPI_Comm comm, int rank, int size, int root, int stride) {
+                MPI_Comm comm, int rank, int size, benchmark_data *data) {
     int group = 0;
-    if (!set_stride(rank, size, stride, group))
+    int stride = data->pt2pt.stride;
+    if (!set_stride(rank, size, data->pt2pt.stride, group))
         return 0;
     MPI_Request request;
     int dest = (group % 2 == 0 ? rank+stride : rank-stride);
@@ -77,33 +109,37 @@ int immb_ipt2pt(int repeat, void *in, void *out, int count, MPI_Datatype type,
     return 1;
 }
 
-template class PingPongMT<MTBenchmarkSuite, immb_ipt2pt<true, 0> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_ipt2pt<true, 0> >), PingPingMT)
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_ipt2pt<true, 0>), PingPingMT)
+{
+    flags.insert(PT2PT);
+}
 
 template <bool set_src, int tag>
 int immb_sendrecv(int repeat, void *in, void *out, int count, MPI_Datatype type,
-                  MPI_Comm comm, int rank, int size, int root, int stride) {
+                  MPI_Comm comm, int rank, int size, benchmark_data *data) {
     int dest = (rank + 1) % size;
     int src = (rank + size - 1) % size;
-    for (int i = 0; i < repeat; i++)
+    for (int i = 0; i < repeat; i++) {
         MPI_Sendrecv(in, count, type, dest, (tag == MPI_ANY_TAG ? 0 : tag),
                      out, count, type, set_src ? src : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);   
     }
     return 1;
 }
 
-template class PingPongMT<MTBenchmarkSuite, immb_sendrecv<true, 0> >;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_sendrecv<true, 0> >), SendRecvMT)
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<true, 0>), SendRecvMT)
+{
+    flags.insert(PT2PT);
+}
 
 int immb_exchange(int repeat, void *in, void *out, int count, MPI_Datatype type,
-                  MPI_Comm comm, int rank, int size, int root, int stride) {
+                  MPI_Comm comm, int rank, int size, benchmark_data *data) {
     int tag = 0;
     int right = rank + 1;
     int left = rank - 1;
     if (right == size) right = 0;
     if (left == -1) left = size - 1;
     MPI_Request requests[2];
-    for (int i = 0; i < repeat; i++)
+    for (int i = 0; i < repeat; i++) {
         MPI_Isend(in, count, type, left, tag, comm, &requests[0]);
         MPI_Isend(in, count, type, right, tag, comm, &requests[1]);
         MPI_Recv(out, count, type, left, tag, comm, MPI_STATUS_IGNORE);
@@ -113,14 +149,54 @@ int immb_exchange(int repeat, void *in, void *out, int count, MPI_Datatype type,
     return 1;
 }
 
-template class PingPongMT<MTBenchmarkSuite, immb_exchange>;
-DECLARE_INHERITED(GLUE_TYPENAME3(PingPongMT<MTBenchmarkSuite, immb_exchgange>), ExchangeMT)
+DECLARE_INHERITED_AGGREGATE(MTBenchmarkSuite, immb_exchange, ExchangeMT)
+{
+    flags.insert(PT2PT);
+    flags.insert(SEND_TO_TWO);
+}
+
+static const int MAX_WIN_SIZE = 10;
 
 template <bool set_src, int tag>    
 int immb_uniband(int repeat, void *in, void *out, int count, MPI_Datatype type,
-                 MPI_Comm comm, int rank, int size, int root, int stride) {
+                 MPI_Comm comm, int rank, int size, benchmark_data *data) {
     int group = 0;
-    if (!set_stride(rank, size, stride, group))
+    int stride = data->pt2pt.stride;
+    if (!set_stride(rank, size, data->pt2pt.stride, group))
+        return 0;
+    MPI_Request requests[MAX_WIN_SIZE];
+    char ack = 0;
+    int right = rank + stride;
+    int left = rank - stride;
+    for (int i = 0; i < repeat; i++) {
+        if (group % 2 == 0) {
+            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+                MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
+            }
+            MPI_Waitall(MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Recv(&ack, 1, MPI_CHAR, right, tag, comm, MPI_STATUS_IGNORE);
+        } else {
+            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+                MPI_Irecv(out, count, type, set_src ? left : MPI_ANY_SOURCE, tag, comm, &requests[w]);
+            }
+            MPI_Waitall(MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
+        }
+    }
+    return 1;
+}
+
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_uniband<true, 0>), UniBandMT)
+{
+    flags.insert(PT2PT);
+}
+
+template <bool set_src, int tag>    
+int immb_biband(int repeat, void *in, void *out, int count, MPI_Datatype type,
+                 MPI_Comm comm, int rank, int size, benchmark_data *data) {
+    int group = 0;
+    int stride = data->pt2pt.stride;
+    if (!set_stride(rank, size, data->pt2pt.stride, group))
         return 0;
     MPI_Request requests[2 * MAX_WIN_SIZE];
     char ack = 0;
@@ -135,7 +211,7 @@ int immb_uniband(int repeat, void *in, void *out, int count, MPI_Datatype type,
                 MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
             }
             MPI_Waitall(2 * MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
-            MPI_Recv(&ack, 1, MPI_CHAR, recv, tag, comm, MPI_STATUS_IGNORE);
+            MPI_Recv(&ack, 1, MPI_CHAR, right, tag, comm, MPI_STATUS_IGNORE);
         } else {
             for (int w = 0; w < MAX_WIN_SIZE; w++) {
                 MPI_Irecv(out, count, type, set_src ? left : MPI_ANY_SOURCE, tag, comm, &requests[w]);
@@ -144,9 +220,402 @@ int immb_uniband(int repeat, void *in, void *out, int count, MPI_Datatype type,
                 MPI_Isend(in, count, type, left, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
             }
             MPI_Waitall(2 * MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
-            MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm, MPI_STATUS_IGNORE);
+            MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     }
     return 1;
 }
 
+DECLARE_INHERITED_AGGREGATE2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true, 0>), BiBandMT)
+{
+    flags.insert(PT2PT);
+}
+
+#define IMMB_COLLECTIVE_BEGIN(NAME) int immb_##NAME(int repeat, void *in, void *out, int count, MPI_Datatype type, \
+               MPI_Comm comm, int rank, int size, benchmark_data *data, double *tsum, void (*bfn)()) { \
+    double t, sum = 0.0; \
+    for (int i = 0; i < repeat; i++) { \
+        t = MPI_Wtime(); 
+
+#define IMMB_COLLECTIVE_END(NAME)        t = MPI_Wtime() - t; \
+        sum += t; \
+        bfn(); \
+    } \
+    if (tsum != NULL)  { \
+        *tsum = sum; \
+    } \
+    return 1; \
+}
+
+
+IMMB_COLLECTIVE_BEGIN(bcast)
+    MPI_Bcast((data->collective.root == rank) ? in : out, count, type, data->collective.root, comm);
+IMMB_COLLECTIVE_END(bcast)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_bcast, BcastMT)
+{
+    flags.insert(COLLECTIVE);
+}
+
+
+IMMB_COLLECTIVE_BEGIN(reduce)
+    MPI_Reduce(in, out, count, type, MPI_SUM, data->collective.root, comm);
+IMMB_COLLECTIVE_END(reduce)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_reduce, ReduceMT)
+{
+    flags.insert(COLLECTIVE);
+}
+
+
+IMMB_COLLECTIVE_BEGIN(allreduce)
+    MPI_Allreduce(in, out, count, type, MPI_SUM, comm);
+IMMB_COLLECTIVE_END(allreduce)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_allreduce, AllReduceMT)
+{
+    flags.insert(COLLECTIVE);
+}
+
+
+IMMB_COLLECTIVE_BEGIN(scatter)
+    MPI_Scatter(in, count, type, out, count, type, data->collective.root, comm);
+IMMB_COLLECTIVE_END(scatter)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_scatter, ScatterMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(SEND_TO_ALL);
+}
+
+
+#ifdef WITH_VECTOR
+IMMB_COLLECTIVE_BEGIN(scatterv)
+    MPI_Scatterv(in, data->collective_vector.cnt, data->collective_vector.displs, type, out, count, type, data->collective.root, comm);
+IMMB_COLLECTIVE_END(scatterv)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_scatterv, ScattervMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(COLLECTIVE_VECTOR);
+    flags.insert(SEND_TO_ALL);
+}
+
+
+IMMB_COLLECTIVE_BEGIN(reduce_scatter)
+    MPI_Reduce_scatter(in, out, data->collective_vector.cnt, type, MPI_SUM, comm);
+IMMB_COLLECTIVE_END(reduce_scatter)
+   
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_reduce_scatter, ReduceScatterMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(COLLECTIVE_VECTOR);
+}
+#endif
+
+IMMB_COLLECTIVE_BEGIN(gather)
+    MPI_Gather(in, count, type, out, count, type, data->collective.root, comm);
+IMMB_COLLECTIVE_END(gather)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_gather, GatherMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(RECV_FROM_ALL);
+}
+
+
+#ifdef WITH_VECTOR
+IMMB_COLLECTIVE_BEGIN(gatherv)
+    MPI_Gatherv(in, count, type, out, data->collective_vector.cnt, data->collective_vector.displs, type, data->collective.root, comm);
+IMMB_COLLECTIVE_END(gatherv)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_gatherv, GathervMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(COLLECTIVE_VECTOR);
+    flags.insert(RECV_FROM_ALL);
+}
+#endif
+ 
+IMMB_COLLECTIVE_BEGIN(allgather)
+    MPI_Allgather(in, count, type, out, count, type, comm);
+IMMB_COLLECTIVE_END(allgather)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_allgather, AllgatherMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(RECV_FROM_ALL);
+}
+
+
+#ifdef WITH_VECTOR
+IMMB_COLLECTIVE_BEGIN(allgatherv)
+    MPI_Allgatherv(in, count, type, out, data->collective_vector.cnt, data->collective_vector.displs, type, comm);
+IMMB_COLLECTIVE_END(allgatherv)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_allgatherv, AllgathervMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(COLLECTIVE_VECTOR);
+    flags.insert(RECV_FROM_ALL);
+}
+#endif
+
+IMMB_COLLECTIVE_BEGIN(alltoall)
+    MPI_Alltoall(in, count, type, out, count, type, comm);
+IMMB_COLLECTIVE_END(alltoall)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_alltoall, AlltoallMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(SEND_TO_ALL);
+    flags.insert(RECV_FROM_ALL);
+}
+
+
+#ifdef WITH_VECTOR
+IMMB_COLLECTIVE_BEGIN(alltoallv)
+    MPI_Alltoallv(in,  data->collective_vector.cnt,  data->collective_vector.displs, type, out, data->collective_vector.cnt, data->collective_vector.displs, type, comm);
+IMMB_COLLECTIVE_END(alltoallv)
+
+DECLARE_INHERITED_SEPARATE(MTBenchmarkSuite, immb_alltoallv, AlltoallvMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(COLLECTIVE_VECTOR);
+    flags.insert(SEND_TO_ALL);
+    flags.insert(RECV_FROM_ALL);
+}
+#endif
+
+
+#if 0
+
+#include "ransac.cpp"
+#include <math.h>
+
+int immb_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
+               MPI_Comm comm, int rank, int size, int root, int stride, double *t_avg) {
+    double t, sum = 0.0;
+    for (int i = 0; i < repeat; i++) {
+        t = MPI_Wtime();
+        MPI_Bcast(in, count, type, 0, comm);
+        t = MPI_Wtime() - t;
+        sum += t;
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+    }
+    sum /= repeat;
+    *t_avg = sum;
+}
+
+#if 0    
+int get_token(double t)
+{
+  double result;
+  int n;
+  result = frexp(t , &n);
+  return (int)floor(result*1000.0) * 100 + abs(n);
+}
+#endif
+
+int immb_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
+               MPI_Comm comm, int rank, int size, int root, int stride) {
+    static int prev_count = 0;
+    double t, sum = 0.0;
+#if 0    
+    vector<double> times;
+    typedef pair<double, int> value;
+    times.resize(repeat);
+    map<int, value> times_map;
+#endif    
+    for (int i = 0; i < repeat; i++) {
+        t = MPI_Wtime();
+        MPI_Bcast(in, count, type, 0, comm);
+        t = MPI_Wtime() - t;
+        sum += t;
+#if 0        
+        times[i] = t*1000000.0
+        int token = get_token(t*1000000.0);
+        value old_val = times_map[token];
+        times_map[token] = value(t*1000000.0, old_val.second + 1); 
+#endif        
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+        MPI_Barrier(comm);
+    }
+    // FIXME!!! use this value
+    sum /= repeat;
+
+    if (prev_count == count /*&& repeat > 40*/) {
+    
+//        int instability_mark = 0;
+#if 0
+        // ransac
+        {
+            double avg = 0;
+            for (int i = 0; i < times.size(); i++) {
+                cout << "<< " << times[i] << endl;
+            }        
+            int niter = 0;
+            double threshold = (times[0]+times[2]+times[3]+times[4])/4.0/5.0;
+            Model<double> M = ransac<double, Model<double> >(times, max(threshold, 0.1), 0.99, niter);
+            if (niter > 50)
+                instability_mark++;
+            if (niter > 200) 
+                instability_mark++;
+            MPI_Reduce(&M.N, &avg, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            if (rank == 0) {
+                cout << ">> ransac: " << avg / size << endl;
+            }
+        }
+#endif        
+#if 0        
+        // simple avegare
+        {
+            double avg = 0;
+            Model<double> S(0); S.init(times);
+            MPI_Reduce(&S.N, &avg, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            if (rank == 0) {
+                cout << ">> avg: " << avg / size << endl;
+            }
+        }
+#endif        
+#if 0
+        // frequency-based
+        {
+            map<int, double> sorted;
+            for (map<int, value>::iterator it = times_map.begin(); it != times_map.end(); ++it) {
+                sorted[it->second.second] = it->second.first;
+            }
+            int prev = 0;
+            vector<double> top_vals;
+            vector<int> top_tokens;
+            vector<int> top_counts;
+            for (map<int, double>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it) {
+                if (it->first < prev*2/3) {
+                    break;
+                }
+                top_vals.push_back(it->second);
+                cout << ">>>> " << it->second << " " << it->first << endl;
+                top_tokens.push_back(get_token(it->second));
+                top_counts.push_back(it->first);
+                prev = it->first;
+                if (top_vals.size() > 5) 
+                    break;
+            }
+            if (top_vals.size() > 3) {
+                instability_mark++;
+            }
+            if (top_vals.size() > 5) {
+                instability_mark++;
+            }
+            if (top_vals.size() > 3) {
+                top_vals.resize(0);
+#if 0                
+                Model<double> S(0); S.init(times);
+                top_vals.resize(1);
+                top_vals[0] = S.N;
+                top_counts[0] = times.size()/2;
+                top_tokens[0] = get_token(S.N);
+#endif                
+            } else {
+                double min_val = 1e6;
+                int min_idx = 0;
+                for (int i = 0; i < top_vals.size(); i++) {
+                    if (top_vals[i] < min_val) {
+                        min_val = top_vals[i];
+                        min_idx = i;
+                    }
+                }
+                top_vals[0] = top_vals[min_idx];
+                top_counts[0] = top_counts[min_idx];
+                top_tokens[0] = top_tokens[min_idx];
+                top_vals.resize(1);
+            }
+            int tsize = top_vals.size();
+            top_tokens.resize(tsize);
+            top_counts.resize(tsize);
+
+            int all_instability_mark = 0;
+            MPI_Reduce(&instability_mark, &all_instability_mark, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+            if (rank == 0) {
+                cout << ">> instability: " << all_instability_mark << endl;
+            }
+
+            int all_tsize = 0;
+            vector<int> displs(size + 1, 0);
+            MPI_Scan(&tsize, &all_tsize, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+            MPI_Gather(&all_tsize, 1, MPI_INT, &displs[1], 1, MPI_INT, 0, MPI_COMM_WORLD);
+            if (rank == 0)
+                all_tsize = displs[size];
+            else 
+                all_tsize = 0;
+            vector<double> all_top_vals(all_tsize);
+            vector<int> all_top_tokens(all_tsize);
+            vector<int> all_top_counts(all_tsize);
+            vector<int> counts(size);
+            for (int i = 0; i < size; i++) {
+                counts[i] = displs[i+1] - displs[i];
+            }
+            MPI_Gatherv(&top_vals[0], tsize, MPI_DOUBLE, &all_top_vals[0], 
+                        &counts[0], &displs[0], MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Gatherv(&top_tokens[0], tsize, MPI_INT, &all_top_tokens[0], 
+                        &counts[0], &displs[0], MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Gatherv(&top_counts[0], tsize, MPI_INT, &all_top_counts[0], 
+                        &counts[0], &displs[0], MPI_INT, 0, MPI_COMM_WORLD);
+            if (rank == 0) {
+                double sum = 0, min_val = 1e6, max_val = -1e6;
+                int n = 0;
+                map<int, value> all_times_map;
+                for (int i = 0; i < all_tsize; i++) {
+                    cout << "@@ >> " << all_top_tokens[i] << " " << all_top_vals[i] << " " << all_top_counts[i] << endl;
+                    int token = all_top_tokens[i];                  
+                    value old_val = all_times_map[token];
+                    if (old_val.first != 0 && old_val.first != all_top_vals[0])
+                        cout << ">> OOOPS" << endl;
+                    old_val.first = all_top_vals[i];
+                    old_val.second += all_top_counts[i];
+                    all_times_map[token] = old_val;
+
+                    min_val = min(old_val.first, min_val);
+                    max_val = max(old_val.first, max_val);
+                    sum += old_val.first;
+                    n++;
+                }
+/*                
+                map<int, double> all_sorted;
+                for (map<int, value>::iterator it = all_times_map.begin(); it != all_times_map.end(); ++it) {
+                    all_sorted[it->second.second] = it->second.first;
+                }
+                //double sum = 0;
+                //int n = 0, i = 0;
+                for (map<int, double>::reverse_iterator it = all_sorted.rbegin(); it != all_sorted.rend(); ++it) {
+                    cout << "@@ " << it->second << " " << it->first << endl;
+                    sum += it->second;
+                    n++;
+                    //sum += it->second * it->first;
+                    //n += it->first;
+//                    if (++i > 8)
+//                        break;
+                }
+*/              
+//                if (n > 1) { sum -= max_val; n--; }
+                cout << ">> freq: " << sum / n << endl;
+                cout << ">> minmax: " << min_val << " " << max_val << endl;
+            }
+        }
+#endif        
+    }
+    prev_count = count;
+    return 1;
+}
+
+template class PingPongMT<MTBenchmarkSuite, immb_bcast>;
+DECLARE_INHERITED(GLUE_TYPENAME2(PingPongMT<MTBenchmarkSuite, immb_bcast>), BcastMT)
+
+#endif

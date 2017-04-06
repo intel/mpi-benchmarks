@@ -8,7 +8,7 @@
 using namespace std;
 
 class ExampleBenchmark_1 : public Benchmark {
-    static const char *name;
+    //static const char *name;
     public:
     virtual void init() {
         VarLenLogScope *sc = new VarLenLogScope(0, 22);

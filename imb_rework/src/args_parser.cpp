@@ -162,9 +162,11 @@ void args_parser::option_vector::set_default_value() {
 
 bool args_parser::match(string &arg, string pattern) const {
     if (strncmp(arg.c_str(), option_starter, strlen(option_starter)))
-       return false;
+        return false;
     if (strncmp(arg.c_str() + strlen(option_starter), pattern.c_str(), pattern.size()))
-       return false;
+        return false;
+    if (option_delimiter == ' ' && *(arg.c_str() + strlen(option_starter) + pattern.size()) != 0)
+        return false;
     return true;
 }
 

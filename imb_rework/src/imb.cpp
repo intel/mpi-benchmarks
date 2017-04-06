@@ -23,6 +23,7 @@ extern void check_parser();
 int main(int argc, char **argv)
 {
     bool no_mpi_init_flag = true;
+    int rank = 0, size = 0;
 #if 0
     check_parser();
 #endif    
@@ -177,6 +178,8 @@ int main(int argc, char **argv)
         }
         if (!no_mpi_init_flag) {
             MPI_Init_thread(&argc, &argv, required_mode, &provided_mode);
+            MPI_Comm_size(MPI_COMM_WORLD, &size);
+            MPI_Comm_rank(MPI_COMM_WORLD, &rank);
             if (required_mode != provided_mode) {
                 throw logic_error("can't setup a required MPI threading mode");
             }
@@ -219,7 +222,8 @@ int main(int argc, char **argv)
         BenchmarkSuitesCollection::finalize(actual_benchmark_list);
     }
     catch(exception &ex) {
-        cout << "EXCEPTION: " << ex.what() << endl;
+        if (!no_mpi_init_flag && rank == 0)
+            cout << "EXCEPTION: " << ex.what() << endl;
     }
     if (!no_mpi_init_flag)
         MPI_Finalize();

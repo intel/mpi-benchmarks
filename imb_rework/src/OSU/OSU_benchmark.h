@@ -7,7 +7,7 @@ typedef int (*osu_benchmark_func_t)(int argc, char **argv);
 
 template <class bs, osu_benchmark_func_t fn_ptr>
 class OSUBenchmark : public Benchmark {
-    static const char *name;
+    //static const char *name;
     public:
     virtual void init() {
         NPLenCombinedScope *sc = new NPLenCombinedScope;
