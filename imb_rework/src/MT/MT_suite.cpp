@@ -86,7 +86,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
         input[thread_num].global->mode_multiple = mode_multiple;
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
-        input[thread_num].barrier = parser.get_result<int>("barrier");
+        input[thread_num].barrier = parser.get_result<bool>("barrier") ? 1 : 0;
     }
     return true;
 }
