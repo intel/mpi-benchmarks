@@ -7,8 +7,9 @@ set format x "%L"
 set format y "%.0f%%"
 set grid
 unset label
+set for [i=1:5] linetype i dt i
 set style line 1  linecolor rgb "#0060ad"  linewidth 2.000 dashtype 1 pointtype 7 pointsize 1.500 pointinterval -1
-set style line 2  linecolor rgb "black"  linewidth 4.000 dashtype 5 pointtype 5 pointsize default pointinterval 0
+set style line 2  linecolor rgb "black"  linewidth 4.000 dashtype 3 pointtype 5 pointsize default pointinterval 0
 set logscale x 2
 set pointsize 1
 set pointintervalbox 3

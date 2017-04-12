@@ -12,10 +12,10 @@
 #define GLUE_TYPENAME2(A,B) A,B
 #define GLUE_TYPENAME3(A,B,C) A,B,C
 
-#define WRAP(NEWNAME, OLDNAME) int NEWNAME(int repeat, void *in, void *out, int count, MPI_Datatype type, \
+#define WRAP(NEWNAME, OLDNAME) int NEWNAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \
                                        MPI_Comm comm, int rank, int size, input_benchmark_data *idata, \
                                         output_benchmark_data *odata) { \
-                                    return OLDNAME(repeat, in, out, count, type, comm, rank, size, idata, odata); \
+                                    return OLDNAME(repeat, skip, in, out, count, type, comm, rank, size, idata, odata); \
 }
 
 #define DECLARE_INHERITED_BENCHMARKMT2(BS, FUNC, NAME) template class BenchmarkMT<BS, FUNC>; \
@@ -41,7 +41,7 @@ inline bool set_stride(int rank, int size, int &stride, int &group)
 }
 
 template <bool set_src, int tag>
-int immb_pt2pt(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                output_benchmark_data *odata) {
 
@@ -86,7 +86,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false
 }
 
 template <bool set_src, int tag>
-int immb_ipt2pt(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                 MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                 output_benchmark_data *odata) {
     int group = 0;
@@ -109,7 +109,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_ipt2pt<true
 }
 
 template <bool set_src, int tag>
-int immb_sendrecv(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     int dest = (rank + 1) % size;
@@ -126,7 +126,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<tr
     flags.insert(PT2PT);
 }
 
-int immb_exchange(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     int tag = 0;
@@ -154,7 +154,7 @@ DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_exchange, ExchangeMT)
 static const int MAX_WIN_SIZE = 10;
 
 template <bool set_src, int tag>    
-int immb_uniband(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -189,7 +189,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_uniband<tru
 }
 
 template <bool set_src, int tag>    
-int immb_biband(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -229,16 +229,19 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true
     flags.insert(PT2PT);
 }
 
-#define IMMB_COLLECTIVE_BEGIN(NAME) int immb_##NAME(int repeat, void *in, void *out, int count, MPI_Datatype type, \
+#define IMMB_COLLECTIVE_BEGIN(NAME) int immb_##NAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata, output_benchmark_data *odata) { \
     double t, sum = 0.0; \
-    for (int i = 0; i < repeat; i++) { \
+    for (int i = 0; i < repeat+skip; i++) { \
         t = MPI_Wtime(); 
 
 // NOTE: bfn is a barrier function pointer to call        
 #define IMMB_COLLECTIVE_END(NAME)        t = MPI_Wtime() - t; \
-        sum += t; \
-        assert(idata->barrier.fn_ptr != 0); \
+        if (i > skip) sum += t; \
+        idata->barrier.fn_ptr(); \
+        idata->barrier.fn_ptr(); \
+        idata->barrier.fn_ptr(); \
+        idata->barrier.fn_ptr(); \
         idata->barrier.fn_ptr(); \
     } \
     if (odata->timing.time_ptr != NULL)  { \

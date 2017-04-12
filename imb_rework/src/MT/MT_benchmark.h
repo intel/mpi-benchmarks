@@ -18,6 +18,28 @@ void simple_barrier()
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
+void special_barrier()
+{
+    int size = 0;
+    int rank = 0;
+
+    int mask = 0x1;
+    int dst,src;
+
+    int tmp = 0;
+
+    MPI_Comm_size(MPI_COMM_WORLD, &size );
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank );
+
+    for( ; mask < size; mask <<=1 ) {
+        dst = (rank + mask) % size;
+        src = (rank - mask + size) % size;
+        MPI_Sendrecv( &tmp, 0, MPI_BYTE, dst, 1010,
+                      &tmp, 0, MPI_BYTE, src, 1010,
+                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+}
+
 void omp_aware_barrier()
 {
 #pragma omp barrier    
@@ -53,7 +75,7 @@ struct output_benchmark_data {
     } timing;
 };
 
-typedef int (*mt_benchmark_func_t)(int repeat, void *in, void *out, int count,
+typedef int (*mt_benchmark_func_t)(int repeat, int skip, void *in, void *out, int count,
                                    MPI_Datatype type, MPI_Comm comm, int ranks, int size, 
                                    input_benchmark_data *data, output_benchmark_data *odata);
 
@@ -101,7 +123,7 @@ class BenchmarkMT : public Benchmark {
             if(input->global->mode_multiple) {
                 bfn = omp_aware_barrier;
             } else {
-                bfn = simple_barrier;
+                bfn = special_barrier;
             }
         } else {
             bfn = no_barrier;
@@ -114,16 +136,16 @@ class BenchmarkMT : public Benchmark {
                     idata_local.collective_vector.displs[i] = count * i;
                 }
             }
-            odata_local.timing.time_ptr = NULL;
-            fn_ptr(warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+            //odata_local.timing.time_ptr = NULL;
+            //fn_ptr(warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
             odata_local.timing.time_ptr = &t;
-            result = fn_ptr(repeat, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+            result = fn_ptr(repeat, warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
         } else {
             odata_local.timing.time_ptr = NULL;
-            fn_ptr(warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+            fn_ptr(warmup, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
             bfn();
             t = MPI_Wtime();
-            result = fn_ptr(repeat, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+            result = fn_ptr(repeat, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
             t = MPI_Wtime()-t;
         }
         if (!result)
