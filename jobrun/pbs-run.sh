@@ -2,7 +2,12 @@
 
 cd $PBS_O_WORKDIR
 
-exec 1>output.$PBS_JOBID
+export JOBRUN_JOBID=`echo $PBS_JOBID | awk -F. '{print $1}'`
+export JOBRUN_NP=$PBS_NP
+export JOBRUN_PPN=$PBS_NUM_PPN
+export JOBRUN_NODELIST=`echo $NODELIST | sed 's/^,//'`
+
+exec 1>output.$JOBRUN_JOBID
 exec 2>&1
 
 hostname
@@ -17,10 +22,7 @@ fi
 for n in `sort < $PBS_NODEFILE | uniq`; do NODELIST="$NODELIST,$n:$PBS_NUM_PPN"; done
 echo ">>> Nodelist " `echo $NODELIST | sed 's/^,//'`
 
-export JOBRUN_NP=$PBS_NP
-export JOBRUN_PPN=$PBS_NUM_PPN
 export JOBRUN_NODELIST=`echo $NODELIST | sed 's/^,//'`
-export JOBRUN_JOBID=`echo $PBS_JOBID | awk -F. '{print $1}'`
 
 set -x
 . $1

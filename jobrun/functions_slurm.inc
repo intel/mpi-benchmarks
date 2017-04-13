@@ -1,11 +1,11 @@
 jobctl_check_job_status() {
-    qstr=`bjobs $jobid_short 2>&1 | grep "^$jobid_short"`
+    qstr=`squeue -p "$QUEUE" 2>&1 | grep "$jobid_short"`
     if [ -z "$qstr" -a ! -f "$FILE_OUT" ]; then
         echo "JOB DISAPPEARED!"
         jobstatus="NONE"
         return
     fi
-    jobstatus=`echo $qstr | awk '{print $3}'`
+    jobstatus=`echo $qstr | awk '{print $5}'`
     if [ "$jobstatus" == "" ]; then
 	    echo "JOB DISAPPEARED!"
   	    jobstatus="NONE"
@@ -13,21 +13,15 @@ jobctl_check_job_status() {
     fi
     if [ "$jobstatus" != "$oldjobstatus" ]; then echo "Job status: $jobstatus"; fi
     oldjobstatus=$jobstatus
-    if [ "$jobstatus" != "RUN" -a "$jobstatus" != "PEND" -a "$jobstatus" != "EXIT" -a "$jobstatus" != "DONE" ]; then
-	    echo ">> qstat out: $qstr"
-	    jobstatus="NONE"
+    if [ "$jobstatus" != "R" -a "$jobstatus" != "PD" -a "$jobstatus" != "CG" ]; then
+        echo ">> squeue out: $qstr"
+        jobstatus="NONE"
     fi
-    if [ "$jobstatus" == "RUN" ]; then
-	jobstatus="R"
+    if [ "$jobstatus" == "CG" ]; then
+	    jobstatus="E"
     fi
-    if [ "$jobstatus" == "PEND" ]; then
-	jobstatus="P"
-    fi
-    if [ "$jobstatus" == "EXIT" ]; then
-	jobstatus="C"
-    fi
-    if [ "$jobstatus" == "DONE" ]; then
-	jobstatus="C"
+    if [ "$jobstatus" == "PD" ]; then
+	    jobstatus="Q"
     fi
 }
 
@@ -38,48 +32,41 @@ jobctl_check_job_done() {
 
 jobctl_cancel() {
 	if [ "$jobid" != "" -a "$jobcancelled" == "" ]; then
-        	bkill $jobid
+        	scancel $jobid
 		jobcancelled="$jobid"
 	fi
 }
 
 jobctl_submit() {
-        OUTFILE=`mktemp -u .out.XXXXXXX`
-        rm -f "$OUTFILE"
+    OUTFILE=`mktemp -u .out.XXXXXXX`
+    rm -f "$OUTFILE"
 
-        LSF_FILE=`mktemp -u submit.XXXXXXX.lsf`
+    n=$(expr "$NNODES" \* "$PPN")
+    sbatch --time=${TIME_LIMIT} -D "$PWD" -N "$NNODES" -n "$n" -p "$QUEUE" "slurm-run.sh" "$RUN_SH" "$BINARY_TO_RUN" "$ARGS" 2>&1 | tee "$OUTFILE"
+    grep "Batch job submission failed" "$OUTFILE" && exit 0
 
-        echo "lsf-run.sh" \"$RUN_SH\" \"$BINARY_TO_RUN\" \"$ARGS\" >> $LSF_FILE
-	if [ "$NODETYPE" != "" ]; then
-        	WITH_NODETYPE="select[$NODETYPE]"
-	fi
-        n=$(expr "$NNODES" \* "$PPN")
-	bsub -q "$QUEUE" -l NMIWATCHDOG_OFF=1 -n $n -R "{$WITH_NODETYPE span[ptile=$PPN]}" -W 00:$TIME_LIMIT -o output.%J "$PWD/lsf-run.sh" "$RUN_SH" "$BINARY_TO_RUN" $ARGS 2>&1 > "$OUTFILE"
-   
-        grep -q "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"
-        if [ $? != "0" ]; then rm -f "$OUTFILE"; exit 0; fi
+    grep -q "Submitted batch job " "$OUTFILE"
+    if [ $? != "0" ]; then rm -f "$OUTFILE"; exit 0; fi
 
-	qstr=`grep "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"`
-        jobid=`echo $qstr | awk -F '[<>]' '{print $2}'`
-        jobid_short=$jobid
-        rm -f "$OUTFILE"
-	echo $qstr
+    qstr=`grep "Submitted batch job " "$OUTFILE"`
+    jobid=`echo $qstr | cut -d ' ' -f 4`
+    jobid_short=$jobid
+    rm -f "$OUTFILE"
 }
 
 jobctl_set_paths() {
-        SCRATCH_PWD="$PWD"
-        SCRATCH_HOME="$HOME"
+    SCRATCH_PWD=`echo $PWD | sed "s!$HOME!$HOME/_scratch/!"`
+    SCRATCH_HOME="$HOME/_scratch"
 }
 
 jobctl_set_outfiles() {
-        FILE_OUT=$SCRATCH_PWD/output.$jobid
+    FILE_OUT=$SCRATCH_PWD/slurm-$jobid.out
 }
 
 jobctl_move_outfiles() {
-        if [ -f "$FILE_OUT" -a "$jobid" != "" ]; then
+    if [ -f "$FILE_OUT" -a "$jobid" != "" ]; then
         mkdir -p $SCRATCH_PWD/results.$jobid_short
         mv $FILE_OUT $SCRATCH_PWD/results.$jobid_short
-        mv $LSF_FILE $SCRATCH_PWD/results.$jobid_short
         RES=`ls -1 $SCRATCH_PWD/out.$jobid_short* 2> /dev/null`
         if [ ! -z "$RES" ]; then
             mv $SCRATCH_PWD/out.$jobid_short* $SCRATCH_PWD/results.$jobid_short
@@ -93,8 +80,8 @@ jobctl_move_outfiles() {
             mv  $SCRATCH_HOME/stack.* $SCRATCH_PWD/results.$jobid
         fi
         rm -f __old.out __tmp __nodelist __benchmark __diff.out
-        echo "Results collected:" $SCRATCH_PWD/results.$jobid_short
-        fi
+	echo "Results collected:" $SCRATCH_PWD/results.$jobid_short
+    fi
 }
 
 jobctl_cleanup() {

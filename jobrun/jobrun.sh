@@ -1,13 +1,15 @@
 #!/bin/sh
 #set -x
 
-if [ -z "$1" -o -z "$2" -o -z "$3" ]; then echo "Usage: " `basename $0` "NUM_NODES PROC_PER_NODE [args]"; exit 1; fi
+if [ -z "$1" -o -z "$2" ]; then echo "Usage: " `basename $0` "NUM_NODES PROC_PER_NODE [args]"; exit 1; fi
 
 NNODES=$1
 PPN=$2
 n=`expr $NNODES \* $PPN`
 
 ARGS="$3"
+
+JOBRUN_DIRNAME=`dirname $0`
 
 # All these options can be overriden by run.options script
 QUEUE=compute
@@ -24,7 +26,7 @@ trap jobctl_cleanup INT TERM
 
 echo "QUEUE=${QUEUE}; TIME_LIMIT=${TIME_LIMIT}; RUN_SH=${RUN_SH}; NNODES=${NNODES}; PPN=${PPN}"
 echo "INIT_COMMANDS: $INIT_COMMANDS"
-echo "RUN.SH: " `cat $RUN_SH`
+echo "RUN.SH: " `cat $RUN_SH | awk 'BEGIN{ORS="; "} { print; }'`
 
 if [ ! -z "$INIT_COMMANDS" ]; then
     eval "$INIT_COMMANDS"
@@ -40,7 +42,7 @@ if [ "$BAD_HOSTS_FILE" != "" -a -f "$BAD_HOSTS_FILE" ]; then
 fi
 
 
- 
+#set -x 
 jobctl_submit
 jobctl_set_paths
 jobctl_set_outfiles
@@ -48,7 +50,7 @@ jobctl_set_outfiles
 ncancel="0"
 while [ ! -f "$FILE_OUT" ]; do
     jobctl_check_job_status
-    if [ "$jobstatus" == "NONE" ]; then exit 1; fi
+    if [ "$jobstatus" == "NONE" ]; then echo "No job, sorry"; exit 1; fi
     if [ "$jobstatus" == "C" ]; then 
 	if [ "$ncancel" -gt "5" ]; then break; fi
 	ncancel=`expr $ncancel \+ 1`
@@ -112,9 +114,9 @@ do
     fi
     jobctl_check_job_status
 #       if [ "$jobstatus" != "R" ]; then no_newstr="0"; fi
-    if [ "$jobstatus" == "NONE" ]; then break; fi
-    if [ "$jobstatus" == "C" ]; then break; fi
-    if [ "$jobstatus" == "E" ]; then break; fi
+    if [ "$jobstatus" == "NONE" ]; then jobctl_check_job_done; break; fi
+    if [ "$jobstatus" == "C" ]; then jobctl_check_job_done; break; fi
+    if [ "$jobstatus" == "E" ]; then jobctl_check_job_done; break; fi
     cp "$FILE_OUT" __old.out
     sleep 1
 done

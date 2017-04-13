@@ -37,12 +37,11 @@ jobctl_submit() {
 
     PBS_FILE=`mktemp -u submit.XXXXXXX.pbs`
 
-    echo "$PWD/pbs-run.sh" \"$RUN_SH\" \"$BINARY_TO_RUN\" \"$ARGS\" >> $PBS_FILE
+    echo "$JOBRUN_DIRNAME/pbs-run.sh" \"$RUN_SH\" \"$BINARY_TO_RUN\" \"$ARGS\" >> $PBS_FILE
     if [ "$NODETYPE" != "" ]; then
         WITH_NODETYPE=":$NODETYPE"
     fi
-# n=$(expr "$NNODES" \* "$PPN")
-	qsub -k n -l "nodes=$NNODES:ppn=$PPN$WITH_NODETYPE,walltime=00:$TIME_LIMIT:00" -q "$QUEUE" "$PBS_FILE" 2>&1 | tee "$OUTFILE"
+	qsub -l "nodes=$NNODES:ppn=$PPN$WITH_NODETYPE,walltime=00:$TIME_LIMIT:00" -q "$QUEUE" "$PBS_FILE" 2>&1 | tee "$OUTFILE"
     
     grep -q "^[0-9]*\.$QUEUE_SUFFIX$" "$OUTFILE"
     if [ $? != "0" ]; then rm -f "$OUTFILE"; exit 0; fi
@@ -51,7 +50,6 @@ jobctl_submit() {
     export jobid
     jobid_short=`echo $jobid | awk -F. '{ print $1 }'`
     export jobid_short
-    rm -f "$OUTFILE"
     sleep 2
 }
 
@@ -61,7 +59,7 @@ jobctl_set_paths() {
 }
 
 jobctl_set_outfiles() {
-    FILE_OUT=$SCRATCH_PWD/output.$jobid
+    FILE_OUT=output.$jobid_short
 }
 
 jobctl_move_outfiles() {
@@ -83,6 +81,7 @@ jobctl_move_outfiles() {
     fi
     rm -f __old.out __tmp __nodelist __benchmark __diff.out
     rm -f $PBS_FILE.o* $PBS_FILE.e*
+    echo "Results collected:" $SCRATCH_PWD/results.$jobid_short
     fi
 }
 

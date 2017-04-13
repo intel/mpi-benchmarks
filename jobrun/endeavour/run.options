@@ -8,11 +8,13 @@ BINARY_TO_BACKTRACE="$BINARY_TO_RUN"
 INIT_COMMANDS=
 #INJOB_INIT_COMMANDS='source /p/pdsd/opt/EM64T-LIN/intel/compilers_and_libraries_2017.1.132/linux/mpi/intel64/bin/mpivars.sh; source /p/pdsd/opt/EM64T-LIN/intel/itac_2017/intel64/bin/itacvars.sh'
 INJOB_INIT_COMMANDS='source /opt/intel/compiler/2017u1/bin/compilervars.sh intel64; source /opt/intel/impi/latest/impi/2017.2.174/bin64/mpivars.sh'
-HANGUP_TIME=
-BAD_HOSTS_FILE=
-BENCHMARK_TIME=
-BENCHMARK_TIME_STRING_CMD=
-BENCHMARK_TIME_EXTRACT_CMD=
 
-RUN_SH=./run-impi.sh
-. ./functions_lsf.inc
+#HANGUP_TIME=
+
+#BAD_HOSTS_FILE=
+#BENCHMARK_TIME=
+#BENCHMARK_TIME_STRING_CMD=
+#BENCHMARK_TIME_EXTRACT_CMD=
+
+RUN_SH=$JOBRUN_DIRNAME/run-impi.sh
+. $JOBRUN_DIRNAME/functions_lsf.inc
