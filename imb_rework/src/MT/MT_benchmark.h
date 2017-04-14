@@ -7,11 +7,49 @@
 
 #include "immb.h"
 
+#define MALLOC_OPT 3
+
 using namespace std;
 
 #define GLUE_TYPENAME(A,B) A,B
 #define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
+
+#if MALLOC_OPT == 3
+template <typename T>
+class Allocator {
+    protected:
+    std::vector<T *> original_ptrs;
+    public:
+    virtual T *Alloc(size_t size) = 0;
+    Allocator() {}
+    virtual ~Allocator() { 
+        for (size_t i = 0; i < original_ptrs.size(); i++) { 
+            free(original_ptrs[i]); 
+        } 
+    }
+    private:
+    Allocator &operator=(const Allocator &) { return *this; }
+    Allocator(const Allocator &) {}
+};
+
+template <typename T>
+class AlignedAllocator : public Allocator<T> {
+    public:
+    size_t align;
+    AlignedAllocator(size_t _align = 1) : align(_align) { }
+    virtual T *Alloc(size_t size) {
+        //size_t aligned_size = (size + align - 1) & ~(align - 1);
+        //assert(aligned_size >= size);
+        size_t size_with_spare_space = size + align;
+        T *ptr = (T *)malloc(size_with_spare_space);
+        Allocator<T>::original_ptrs.push_back(ptr);
+        size_t diff = align - ((size_t)(ptr) % (size_t)align);
+        return ptr + diff;
+    }
+    virtual ~AlignedAllocator() {};
+};
+#endif
 
 void simple_barrier()
 {
@@ -180,9 +218,27 @@ class BenchmarkMT : public Benchmark {
         else if (flags.count(RECV_FROM_TWO))
             size_b *= 2;
 
+#if MALLOC_OPT == 1        
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             a.push_back((char *)malloc(size_a));
             b.push_back((char *)malloc(size_b));
+        }
+#elif MALLOC_OPT == 2
+        a.resize(num_threads);
+        b.resize(num_threads);
+#pragma omp parallel
+        {
+            a[omp_thread_num()] = (char *)malloc(size_a);
+            b[omp_thread_num()] = (char *)malloc(size_b);
+        }
+#elif MALLOC_OPT == 3
+        AlignedAllocator<char> allocator(64);
+        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+            a.push_back((char *)allocator.Alloc(size_a));
+            b.push_back((char *)allocator.Alloc(size_b));
+        }
+#endif        
+        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             idata.push_back((input_benchmark_data *)malloc(sizeof(input_benchmark_data)));
             odata.push_back((output_benchmark_data *)malloc(sizeof(output_benchmark_data)));
             if (flags.count(COLLECTIVE_VECTOR)) {
@@ -232,9 +288,13 @@ class BenchmarkMT : public Benchmark {
     }
     virtual void finalize() {
         free(input);
+#if MALLOC_OPT != 3
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             free(a[thread_num]);
             free(b[thread_num]);
+        }
+#endif
+        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             if (flags.count(COLLECTIVE_VECTOR)) {
                free(idata[thread_num]->collective_vector.cnt);
                free(idata[thread_num]->collective_vector.displs);
