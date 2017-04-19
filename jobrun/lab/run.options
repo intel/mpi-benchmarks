@@ -1,12 +1,12 @@
-QUEUE=compute
-#QUEUE_SUFFIX=
+QUEUE=workq
+QUEUE_SUFFIX="nnlmpiknf03.inn.intel.com"
 #NODETYPE=
 TIME_LIMIT=10
 BINARY_TO_RUN=./hello
 JOB_NAME="$BINARY_TO_RUN"
 #BINARY_TO_BACKTRACE="$BINARY_TO_RUN"
 INIT_COMMANDS=
-INJOB_INIT_COMMANDS=
+INJOB_INIT_COMMANDS='source /p/pdsd/opt/EM64T-LIN/intel/compilers_and_libraries_2017.1.132/linux/mpi/intel64/bin/mpivars.sh; source /p/pdsd/opt/EM64T-LIN/intel/itac_2017/intel64/bin/itacvars.sh'
 
 #HANGUP_TIME=
 
@@ -16,4 +16,4 @@ INJOB_INIT_COMMANDS=
 #BENCHMARK_TIME_EXTRACT_CMD=
 
 RUN_SH=$JOBRUN_DIRNAME/run-impi.sh
-. $JOBRUN_DIRNAME/functions_slurm.inc
+. $JOBRUN_DIRNAME/functions_pbs.inc

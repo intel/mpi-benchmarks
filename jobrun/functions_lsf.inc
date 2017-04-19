@@ -44,39 +44,39 @@ jobctl_cancel() {
 }
 
 jobctl_submit() {
-        OUTFILE=`mktemp -u .out.XXXXXXX`
-        rm -f "$OUTFILE"
+    OUTFILE=`mktemp -u .out.XXXXXXX`
+    rm -f "$OUTFILE"
 
-        LSF_FILE=`mktemp -u submit.XXXXXXX.lsf`
+    LSF_FILE=`mktemp -u submit.XXXXXXX.lsf`
 
-        echo "lsf-run.sh" \"$RUN_SH\" \"$BINARY_TO_RUN\" \"$ARGS\" >> $LSF_FILE
-	if [ "$NODETYPE" != "" ]; then
-        	WITH_NODETYPE="select[$NODETYPE]"
-	fi
-        n=$(expr "$NNODES" \* "$PPN")
-	bsub -q "$QUEUE" -l NMIWATCHDOG_OFF=1 -n $n -R "{$WITH_NODETYPE span[ptile=$PPN]}" -W 00:$TIME_LIMIT -o output.%J "$PWD/lsf-run.sh" "$RUN_SH" "$BINARY_TO_RUN" $ARGS 2>&1 > "$OUTFILE"
+    echo "lsf-run.sh" \"$OPTSFILE\" \"$ARGS\" >> $LSF_FILE
+    if [ "$NODETYPE" != "" ]; then
+        WITH_NODETYPE="select[$NODETYPE]"
+    fi
+    n=$(expr "$NNODES" \* "$PPN")
+    bsub -q "$QUEUE" -l NMIWATCHDOG_OFF=1 -n $n -R "{$WITH_NODETYPE span[ptile=$PPN]}" -W 00:$TIME_LIMIT -o output.%J "$PWD/lsf-run.sh" "$RUN_SH" "$BINARY_TO_RUN" $ARGS 2>&1 > "$OUTFILE"
    
-        grep -q "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"
-        if [ $? != "0" ]; then rm -f "$OUTFILE"; exit 0; fi
+    grep -q "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"
+    if [ $? != "0" ]; then rm -f "$OUTFILE"; exit 0; fi
 
-	qstr=`grep "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"`
-        jobid=`echo $qstr | awk -F '[<>]' '{print $2}'`
-        jobid_short=$jobid
-        rm -f "$OUTFILE"
-	echo $qstr
+    qstr=`grep "^Job <[0-9]*> is submitted to queue <" "$OUTFILE"`
+    jobid=`echo $qstr | awk -F '[<>]' '{print $2}'`
+    jobid_short=$jobid
+    rm -f "$OUTFILE"
+    echo $qstr
 }
 
 jobctl_set_paths() {
-        SCRATCH_PWD="$PWD"
-        SCRATCH_HOME="$HOME"
+    SCRATCH_PWD="$PWD"
+    SCRATCH_HOME="$HOME"
 }
 
 jobctl_set_outfiles() {
-        FILE_OUT=$SCRATCH_PWD/output.$jobid
+    FILE_OUT=$SCRATCH_PWD/output.$jobid
 }
 
 jobctl_move_outfiles() {
-        if [ -f "$FILE_OUT" -a "$jobid" != "" ]; then
+    if [ -f "$FILE_OUT" -a "$jobid" != "" ]; then
         mkdir -p $SCRATCH_PWD/results.$jobid_short
         mv $FILE_OUT $SCRATCH_PWD/results.$jobid_short
         mv $LSF_FILE $SCRATCH_PWD/results.$jobid_short
@@ -94,7 +94,7 @@ jobctl_move_outfiles() {
         fi
         rm -f __old.out __tmp __nodelist __benchmark __diff.out
         echo "Results collected:" $SCRATCH_PWD/results.$jobid_short
-        fi
+    fi
 }
 
 jobctl_cleanup() {

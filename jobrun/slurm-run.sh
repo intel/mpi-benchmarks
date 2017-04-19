@@ -3,9 +3,11 @@
 #exec 1>output.$LSF_JOBID
 exec 2>&1
 
-if [ -f ./run.options ]; then
-. ./run.options
+if [ -f "$1" ]; then
+. "$1"
 fi
+
+shift
 
 if [ "$INJOB_INIT_COMMANDS" != "" ]; then
 	eval "$INJOB_INIT_COMMANDS"
@@ -60,7 +62,7 @@ export JOBRUN_JOBID=$SLURM_JOBID
 
 
 set -x
-. $1
+. "$RUN_SH"
 set +x
 
 echo "Exiting..."

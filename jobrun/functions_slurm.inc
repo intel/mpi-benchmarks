@@ -42,7 +42,7 @@ jobctl_submit() {
     rm -f "$OUTFILE"
 
     n=$(expr "$NNODES" \* "$PPN")
-    sbatch --time=${TIME_LIMIT} -D "$PWD" -N "$NNODES" -n "$n" -p "$QUEUE" "slurm-run.sh" "$RUN_SH" "$BINARY_TO_RUN" "$ARGS" 2>&1 | tee "$OUTFILE"
+    sbatch --time=${TIME_LIMIT} -D "$PWD" -N "$NNODES" -n "$n" -p "$QUEUE" "slurm-run.sh" "$OPTSFILE" "$ARGS" 2>&1 | tee "$OUTFILE"
     grep "Batch job submission failed" "$OUTFILE" && exit 0
 
     grep -q "Submitted batch job " "$OUTFILE"

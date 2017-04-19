@@ -3,13 +3,50 @@
 
 if [ -z "$1" -o -z "$2" ]; then echo "Usage: " `basename $0` "NUM_NODES PROC_PER_NODE [args]"; exit 1; fi
 
-NNODES=$1
-PPN=$2
+#set -x 
+NNODES=1
+PPN=1
+OPTSFILE=./run.options
+ARGS=""
+#SUBSTITUTED_BINARY_TO_RUN=
+
+while getopts ":n:p:o:" opt; do
+  case $opt in
+    n)
+      echo "-n was triggered, Parameter: $OPTARG" >&2
+      NNODES=$OPTARG
+      ;;
+    p)
+      echo "-p was triggered, Parameter: $OPTARG" >&2
+      PPN=$OPTARG
+      ;;
+    o)
+      echo "-o was triggered, Parameter: $OPTARG" >&2
+      OPTSFILE=$OPTARG
+      ;;
+    a)
+      echo "-a was triggered, Parameter: $OPTARG" >&2
+      ARGS="$OPTARG"
+      ;;
+
+#    e)
+#      echo "-e was triggered, Parameter: $OPTARG" >&2
+#      SUBSTUTUTED_BINARY_TO_RUN=$OPTARG
+#      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
 n=`expr $NNODES \* $PPN`
 
-ARGS="$3"
-
-JOBRUN_DIRNAME=`dirname $0`
+JOBRUN_DIRNAME=$(cd $(dirname "$0") && pwd -P)
 
 # All these options can be overriden by run.options script
 QUEUE=compute
@@ -18,9 +55,11 @@ RUN_SH=./run.sh
 INIT_COMMANDS=""
 BINARY_TO_RUN="test"
 
-if [ -f ./run.options ]; then
-    . ./run.options
+if [ -f "$OPTSFILE" ]; then
+    . "$OPTSFILE"
 fi
+
+#if [ -z "$SUBSTITUTED_BINARY_TO_RUN" ]; then ; fi
 
 trap jobctl_cleanup INT TERM
 
@@ -40,7 +79,6 @@ if [ "$BAD_HOSTS_FILE" != "" -a -f "$BAD_HOSTS_FILE" ]; then
 		if [ -z "$EXCLUDE_HOSTS" ]; then EXCLUDE_HOSTS="$h"; fi
 	done < "$BAD_HOSTS_FILE"
 fi
-
 
 #set -x 
 jobctl_submit

@@ -37,7 +37,7 @@ jobctl_submit() {
 
     PBS_FILE=`mktemp -u submit.XXXXXXX.pbs`
 
-    echo "$JOBRUN_DIRNAME/pbs-run.sh" \"$RUN_SH\" \"$BINARY_TO_RUN\" \"$ARGS\" >> $PBS_FILE
+    echo "$JOBRUN_DIRNAME/pbs-run.sh" \"$OPTSFILE\" \"$ARGS\" >> $PBS_FILE
     if [ "$NODETYPE" != "" ]; then
         WITH_NODETYPE=":$NODETYPE"
     fi
