@@ -8,7 +8,7 @@
 #include "benchmark_suite.h"
 
 
-// FIXME code duplication
+// FIXME!! code duplication
 /* convenience macros and functions working with input parameters */
 #define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
 #define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
@@ -19,12 +19,9 @@
 #define _ARRAY_CHECK(_array) (_array##i >= _array##n)
 
 typedef struct _immb_local_t {
-    int warmup;
-    int repeat;
-    int barrier;
-    _ARRAY_DECL(comm, MPI_Comm);
-    _ARRAY_DECL(count, int);
-    _ARRAY_DECL(pattern, char*);
+        int warmup;
+            int repeat;
+                _ARRAY_DECL(comm, MPI_Comm);
 } immb_local_t;
 
 
@@ -115,18 +112,8 @@ typedef void (*barrier_func_t)();
 
 struct input_benchmark_data {
     struct {
-        int root;
-    } collective;
-    struct {
         int stride;
     } pt2pt;
-    struct {
-        int *cnt;
-        int *displs;
-    } collective_vector;
-    struct {
-        barrier_func_t fn_ptr;
-    } barrier;
 };
 
 struct output_benchmark_data {
@@ -135,22 +122,15 @@ struct output_benchmark_data {
     } timing;
 };
 
-typedef int (*mt_benchmark_func_t)(int repeat, int skip, void *in, void *out, int count,
+typedef int (*halo_benchmark_func_t)(int repeat, int skip, void *in, void *out, int count,
                                    MPI_Datatype type, MPI_Comm comm, int ranks, int size, 
                                    input_benchmark_data *data, output_benchmark_data *odata);
 
-template <class bs, mt_benchmark_func_t fn_ptr>
-class BenchmarkMT : public Benchmark {
+template <class bs, halo_benchmark_func_t fn_ptr>
+class BenchmarkHALO : public Benchmark {
     public:    
     enum Flags {
-        COLLECTIVE,
-        PT2PT,
-        SEPARATE_MEASURING,
-        COLLECTIVE_VECTOR,
-        SEND_TO_ALL,
-        RECV_FROM_ALL,
-        SEND_TO_TWO,
-        RECV_FROM_TWO
+        DUMMY
     };
     std::set<Flags> flags; 
     std::vector<char *> a;
@@ -176,38 +156,12 @@ class BenchmarkMT : public Benchmark {
         char *out = b[omp_get_thread_num()];
         input_benchmark_data &idata_local = *idata[omp_get_thread_num()];
         output_benchmark_data &odata_local = *odata[omp_get_thread_num()];
-        idata_local.collective.root = 0;
         idata_local.pt2pt.stride = stride;
-        barrier_func_t bfn;
-        if(input->barrier) {
-            if(mode_multiple) {
-                bfn = omp_aware_barrier;
-            } else {
-                bfn = special_barrier;
-            }
-        } else {
-            bfn = no_barrier;
-        }
-        if (flags.count(SEPARATE_MEASURING)) {
-            idata_local.barrier.fn_ptr = bfn;
-            if (flags.count(COLLECTIVE_VECTOR)) {
-                for (int i = 0; i < size; i++) {
-                    idata_local.collective_vector.cnt[i] = count;
-                    idata_local.collective_vector.displs[i] = count * i;
-                }
-            }
-            //odata_local.timing.time_ptr = NULL;
-            //fn_ptr(warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
-            odata_local.timing.time_ptr = &t;
-            result = fn_ptr(repeat, warmup, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
-        } else {
-            odata_local.timing.time_ptr = NULL;
-            fn_ptr(warmup, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
-            bfn();
-            t = MPI_Wtime();
-            result = fn_ptr(repeat, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
-            t = MPI_Wtime()-t;
-        }
+        odata_local.timing.time_ptr = NULL;
+        fn_ptr(warmup, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+        t = MPI_Wtime();
+        result = fn_ptr(repeat, 0, in, out, count, MPI_CHAR, comm, rank, size, &idata_local, &odata_local);
+        t = MPI_Wtime()-t;
         if (!result)
             t = 0;
         return;
@@ -221,7 +175,8 @@ class BenchmarkMT : public Benchmark {
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             GET_GLOBAL_VEC(immb_local_t, input[thread_num], thread_num);
         }
-        VarLenScope *sc = new VarLenScope(input[0].count, input[0].countn);
+        int c[1] = {1024};
+        VarLenScope *sc = new VarLenScope(c, 1);
         scope = sc;
 
         MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -231,14 +186,6 @@ class BenchmarkMT : public Benchmark {
         size_t maxlen = sc->get_max_len();
         size_t size_a = sizeof(char)*maxlen;
         size_t size_b = sizeof(char)*maxlen;
-        if (flags.count(SEND_TO_ALL))
-            size_a *= world_size;
-        else if (flags.count(SEND_TO_TWO))
-            size_a *= 2;
-        if (flags.count(RECV_FROM_ALL))
-            size_b *= world_size;
-        else if (flags.count(RECV_FROM_TWO))
-            size_b *= 2;
 
 #if MALLOC_OPT == 1        
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
@@ -263,10 +210,6 @@ class BenchmarkMT : public Benchmark {
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             idata.push_back((input_benchmark_data *)malloc(sizeof(input_benchmark_data)));
             odata.push_back((output_benchmark_data *)malloc(sizeof(output_benchmark_data)));
-            if (flags.count(COLLECTIVE_VECTOR)) {
-                idata[idata.size()-1]->collective_vector.cnt = (int *)malloc(world_size * sizeof(int));
-                idata[idata.size()-1]->collective_vector.displs = (int *)malloc(world_size * sizeof(int));
-            }        
         }
    }
     virtual void run(const std::pair<int, int> &p) { 
@@ -316,13 +259,7 @@ class BenchmarkMT : public Benchmark {
             free(b[thread_num]);
         }
 #endif
-        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            if (flags.count(COLLECTIVE_VECTOR)) {
-               free(idata[thread_num]->collective_vector.cnt);
-               free(idata[thread_num]->collective_vector.displs);
-            }
-        }
     }
-    DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkMT<bs, fn_ptr>), bs);
+    DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkHALO<bs, fn_ptr>), bs);
 };
 

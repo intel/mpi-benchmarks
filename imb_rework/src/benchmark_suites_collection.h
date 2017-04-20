@@ -18,6 +18,9 @@ enum benchmark_suite_t {
 #ifdef MT
     BS_MT,
 #endif
+#ifdef HALO
+    BS_HALO,
+#endif
 
     BS_EXAMPLE, 
     BS_GENERIC    

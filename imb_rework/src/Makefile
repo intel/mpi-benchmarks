@@ -9,6 +9,7 @@ MPI1=ON
 MT=ON
 OSU=OFF
 EXAMPLE=OFF
+HALO=ON
 
 ifeq ($(MPI1),ON)
 include Makefile.legacy
@@ -19,6 +20,10 @@ endif
 ifeq ($(MT),ON)
 include Makefile.MT
 endif
+ifeq ($(HALO),ON)
+include Makefile.HALO
+endif
+
 ifeq ($(EXAMPLE),ON)
 include Makefile.example
 endif

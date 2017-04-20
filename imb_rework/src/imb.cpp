@@ -15,6 +15,9 @@
 #ifdef MT
 #include "MT_suite.h"
 #endif
+#ifdef HALO
+#include "halo_suite.h"
+#endif
 
 using namespace std;
 
@@ -37,6 +40,10 @@ int main(int argc, char **argv)
 #ifdef MT
     MTBenchmarkSuite::init();
 #endif    
+#ifdef HALO
+    HALOBenchmarkSuite::init();
+#endif    
+
 #ifdef EXAMPLE
     BenchmarkSuite<BS_EXAMPLE>::init();
 #endif    
