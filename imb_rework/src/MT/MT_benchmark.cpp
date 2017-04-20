@@ -235,9 +235,8 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true
     for (int i = 0; i < repeat+skip; i++) { \
         t = MPI_Wtime(); 
 
-// NOTE: bfn is a barrier function pointer to call        
 #define IMMB_COLLECTIVE_END(NAME)        t = MPI_Wtime() - t; \
-        if (i > skip) sum += t; \
+        if (i >= skip) sum += t; \
         idata->barrier.fn_ptr(); \
         idata->barrier.fn_ptr(); \
         idata->barrier.fn_ptr(); \
