@@ -1,3 +1,5 @@
+#include <mpi.h>
+#include <omp.h>
 #include <set>
 #include <vector>
 #include <string>
@@ -7,8 +9,6 @@
 #include "utils.h"
 
 #include "MT_suite.h"
-
-#include "immb.h"
 
 static MPI_Comm immb_convert_comm(const char *str, int mode_multiple, int thread_num) {
     MPI_Comm comm = strcmp(str, "world") ? MPI_COMM_NULL : MPI_COMM_WORLD, new_comm;
@@ -26,6 +26,23 @@ static MPI_Comm immb_convert_comm(const char *str, int mode_multiple, int thread
     return comm;
 }
 
+/* convenience macros and functions working with input parameters */
+#define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
+#define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
+#define _ARRAY_FREE(_array) free(_array)
+#define _ARRAY_FOR(_array,_i,_action) for(_i=0;_i<_array##n;_i++) {_action;}
+#define _ARRAY_NEXT(_array) if(++_array##i >= _array##n) _array##i = 0; else return 1
+#define _ARRAY_THIS(_array) (_array[_array##i])
+#define _ARRAY_CHECK(_array) (_array##i >= _array##n)
+
+typedef struct _immb_local_t {
+    int warmup;
+    int repeat;
+    int barrier;
+    _ARRAY_DECL(comm, MPI_Comm);
+    _ARRAY_DECL(count, int);
+    _ARRAY_DECL(pattern, char*);
+} immb_local_t;
 
 
 using namespace std;
@@ -82,8 +99,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
                 input[thread_num].count[i] = cnt[i];
             }
         }
-        input[thread_num].global = (immb_global_t *)malloc(sizeof(immb_global_t));
-        input[thread_num].global->mode_multiple = mode_multiple;
+//        input[thread_num].global = (immb_global_t *)malloc(sizeof(immb_global_t));
+//        input[thread_num].global->mode_multiple = mode_multiple;
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
         input[thread_num].barrier = parser.get_result<bool>("barrier") ? 1 : 0;
