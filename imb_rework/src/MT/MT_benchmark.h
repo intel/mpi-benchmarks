@@ -29,7 +29,7 @@ typedef struct _immb_local_t {
 
 
 
-#define MALLOC_OPT 3
+#define MALLOC_OPT 4
 
 using namespace std;
 
@@ -37,7 +37,7 @@ using namespace std;
 #define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
 
-#if MALLOC_OPT == 3
+#if MALLOC_OPT == 3 || MALLOC_OPT == 4
 template <typename T>
 class Allocator {
     protected:
@@ -127,17 +127,33 @@ struct input_benchmark_data {
     struct {
         barrier_func_t fn_ptr;
     } barrier;
+    struct {
+        bool check;
+    } checks;
 };
 
 struct output_benchmark_data {
     struct {
         double *time_ptr;
     } timing;
+    struct {
+        int failures;
+    } checks;
 };
 
 typedef int (*mt_benchmark_func_t)(int repeat, int skip, void *in, void *out, int count,
                                    MPI_Datatype type, MPI_Comm comm, int ranks, int size, 
                                    input_benchmark_data *data, output_benchmark_data *odata);
+
+/* testing convenience macros */
+#define INIT_ARRAY(cond,arr,val) if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size; i++) ((char *)arr)[i] = (val); }
+#define CHECK_ARRAY(cond,arr,val) \
+        if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size; i++) if( ((char *)arr)[i] != (val) ) { \
+                    if (0) \
+                        fprintf(stderr,"Rank %d tid (%d ???) FAILED at index %d: got %d, expected %d\n", \
+                                                    rank, 0, i, ((char *)arr)[i], (val)); \
+                    odata->checks.failures++; \
+                } }
 
 template <class bs, mt_benchmark_func_t fn_ptr>
 class BenchmarkMT : public Benchmark {
@@ -178,6 +194,7 @@ class BenchmarkMT : public Benchmark {
         output_benchmark_data &odata_local = *odata[omp_get_thread_num()];
         idata_local.collective.root = 0;
         idata_local.pt2pt.stride = stride;
+        idata_local.checks.check = true;
         barrier_func_t bfn;
         if(input->barrier) {
             if(mode_multiple) {
@@ -188,6 +205,7 @@ class BenchmarkMT : public Benchmark {
         } else {
             bfn = no_barrier;
         }
+        odata_local.checks.failures = 0;
         if (flags.count(SEPARATE_MEASURING)) {
             idata_local.barrier.fn_ptr = bfn;
             if (flags.count(COLLECTIVE_VECTOR)) {
@@ -254,10 +272,18 @@ class BenchmarkMT : public Benchmark {
             b[omp_thread_num()] = (char *)malloc(size_b);
         }
 #elif MALLOC_OPT == 3
-        AlignedAllocator<char> allocator(64);
+        static AlignedAllocator<char> allocator(64);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             a.push_back((char *)allocator.Alloc(size_a));
             b.push_back((char *)allocator.Alloc(size_b));
+        }
+#elif MALLOC_OPT == 4
+        static AlignedAllocator<char> allocator(64);
+        char *a_base = (char *)allocator.Alloc(size_a * num_threads);
+        char *b_base = (char *)allocator.Alloc(size_b * num_threads);
+        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+            a.push_back(a_base + (size_t)thread_num * size_a);
+            b.push_back(b_base + (size_t)thread_num * size_b);
         }
 #endif        
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
@@ -310,7 +336,7 @@ class BenchmarkMT : public Benchmark {
     }
     virtual void finalize() {
         free(input);
-#if MALLOC_OPT != 3
+#if MALLOC_OPT != 3 && MALLOC_OPT != 4
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             free(a[thread_num]);
             free(b[thread_num]);

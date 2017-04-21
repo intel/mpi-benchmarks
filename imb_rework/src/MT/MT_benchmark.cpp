@@ -44,19 +44,25 @@ template <bool set_src, int tag>
 int immb_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                output_benchmark_data *odata) {
-
     int group = 0;
     int stride = idata->pt2pt.stride;
     if (!set_stride(rank, size, stride, group))
         return 0;
+    INIT_ARRAY(true, in, (rank+1)*i);
+    INIT_ARRAY(true, out, -1);
+    int pair = -1;
     for (int i = 0; i < repeat; i++)
         if (group % 2 == 0) {
-            MPI_Send(in, count, type, rank + stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
-            MPI_Recv(out, count, type, set_src ? (rank + stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
+            pair = rank + stride;
+            MPI_Send(in, count, type, pair, (tag == MPI_ANY_TAG ? 0 : tag), comm);
+            MPI_Recv(out, count, type, set_src ? pair : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
         } else {
-            MPI_Recv(out, count, type, set_src ? (rank - stride) : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
-            MPI_Send(in, count, type, rank - stride, (tag == MPI_ANY_TAG ? 0 : tag), comm);
+            pair = rank - stride;
+            MPI_Recv(out, count, type, set_src ? pair : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
+            MPI_Send(in, count, type, pair, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(true, out, (pair+1)*i);
     return 1;
 }
 
@@ -93,6 +99,8 @@ int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
     int stride = idata->pt2pt.stride;
     if (!set_stride(rank, size, idata->pt2pt.stride, group))
         return 0;
+    INIT_ARRAY(true, in, (rank+1)*i);
+    INIT_ARRAY(true, out, -1);
     MPI_Request request;
     int dest = (group % 2 == 0 ? rank+stride : rank-stride);
     for (int i = 0; i < repeat; i++) {
@@ -100,6 +108,8 @@ int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
         MPI_Recv(out, count, type, set_src ? dest : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);
         MPI_Wait(&request, MPI_STATUS_IGNORE);
     }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(true, out, (dest+1)*i);
     return 1;
 }
 
@@ -112,12 +122,16 @@ template <bool set_src, int tag>
 int immb_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
+    INIT_ARRAY(true, in, (rank+1)*i);
+    INIT_ARRAY(true, out, -1);
     int dest = (rank + 1) % size;
     int src = (rank + size - 1) % size;
     for (int i = 0; i < repeat; i++) {
         MPI_Sendrecv(in, count, type, dest, (tag == MPI_ANY_TAG ? 0 : tag),
                      out, count, type, set_src ? src : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);   
     }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(true, out, (src+1)*i);
     return 1;
 }
 
@@ -129,6 +143,10 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<tr
 int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
+    int type_size = 0;
+    MPI_Type_size(type, &type_size);
+    INIT_ARRAY(true, in, (rank+1)*i);
+    INIT_ARRAY(true, out, -1);
     int tag = 0;
     int right = rank + 1;
     int left = rank - 1;
@@ -139,16 +157,19 @@ int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Data
         MPI_Isend(in, count, type, left, tag, comm, &requests[0]);
         MPI_Isend(in, count, type, right, tag, comm, &requests[1]);
         MPI_Recv(out, count, type, left, tag, comm, MPI_STATUS_IGNORE);
-        MPI_Recv(out, count, type, right, tag, comm, MPI_STATUS_IGNORE);
+        MPI_Recv((char *)out + count * type_size, count, type, right, tag, comm, MPI_STATUS_IGNORE);
         MPI_Waitall(2, requests, MPI_STATUSES_IGNORE);
     }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(true, out, (left+1)*i);
+    CHECK_ARRAY(true, out+count, (right+1)*i);
     return 1;
 }
 
 DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_exchange, ExchangeMT)
 {
     flags.insert(PT2PT);
-    flags.insert(SEND_TO_TWO);
+    flags.insert(RECV_FROM_TWO);
 }
 
 static const int MAX_WIN_SIZE = 10;
@@ -163,12 +184,14 @@ int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datat
         return 0;
     MPI_Request requests[MAX_WIN_SIZE];
     char ack = 0;
+    INIT_ARRAY(true, in, (rank+1)*i);
+    INIT_ARRAY(true, out, -1);
     int right = rank + stride;
     int left = rank - stride;
     for (int i = 0; i < repeat; i++) {
         if (group % 2 == 0) {
             for (int w = 0; w < MAX_WIN_SIZE; w++) {
-                MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
+                MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w]);
             }
             MPI_Waitall(MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, right, tag, comm, MPI_STATUS_IGNORE);
@@ -180,6 +203,8 @@ int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datat
             MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(group % 2 == 1, out, (left+1)*i);
     return 1;
 }
 
@@ -198,6 +223,8 @@ int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
         return 0;
     MPI_Request requests[2 * MAX_WIN_SIZE];
     char ack = 0;
+    INIT_ARRAY(1, in, (rank+1)*i);
+    INIT_ARRAY(1, out, -1);
     int right = rank + stride;
     int left = rank - stride;
     for (int i = 0; i < repeat; i++) {
@@ -221,6 +248,9 @@ int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
             MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     }
+    CHECK_ARRAY(true, in, (rank+1)*i);
+    CHECK_ARRAY(group % 2 == 0, out, (right+1)*i);
+    CHECK_ARRAY(group % 2 == 1, out, (left+1)*i);
     return 1;
 }
 

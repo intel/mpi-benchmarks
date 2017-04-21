@@ -52,7 +52,7 @@ namespace NS_HALO {
     int stride;
     int num_threads;
     vector<int> sizes;
-    vector<string> comm_opts;
+//    vector<string> comm_opts;
 };
 
 map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_HALO>::pnames = 0;
@@ -81,10 +81,10 @@ template <> bool BenchmarkSuite<BS_HALO>::prepare(const args_parser &parser, con
     input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         {
-            size_t n = comm_opts.size();
+            size_t n = 1; //comm_opts.size();
             _ARRAY_ALLOC(input[thread_num].comm, MPI_Comm, n);
             for (size_t i = 0; i < n; i++) {
-                input[thread_num].comm[i] = immb_convert_comm(comm_opts[i].c_str(), mode_multiple, thread_num);
+                input[thread_num].comm[i] = immb_convert_comm("world", mode_multiple, thread_num);
             }
         }
         input[thread_num].warmup = parser.get_result<int>("warmup");

@@ -26,7 +26,7 @@ typedef struct _immb_local_t {
 
 
 
-#define MALLOC_OPT 3
+#define MALLOC_OPT 4
 
 using namespace std;
 
@@ -34,7 +34,7 @@ using namespace std;
 #define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
 
-#if MALLOC_OPT == 3
+#if MALLOC_OPT == 3 ||  MALLOC_OPT == 4
 template <typename T>
 class Allocator {
     protected:
@@ -169,7 +169,6 @@ class BenchmarkHALO : public Benchmark {
     virtual void init() {
         init_flags();
         GET_GLOBAL(int, mode_multiple);
-        GET_GLOBAL(int, stride);
         GET_GLOBAL(int, num_threads);
         input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
@@ -184,8 +183,8 @@ class BenchmarkHALO : public Benchmark {
 
         // get longest element from sequence
         size_t maxlen = sc->get_max_len();
-        size_t size_a = sizeof(char)*maxlen;
-        size_t size_b = sizeof(char)*maxlen;
+        size_t size_a = sizeof(char) * maxlen;
+        size_t size_b = sizeof(char) * maxlen;
 
 #if MALLOC_OPT == 1        
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
@@ -201,10 +200,18 @@ class BenchmarkHALO : public Benchmark {
             b[omp_thread_num()] = (char *)malloc(size_b);
         }
 #elif MALLOC_OPT == 3
-        AlignedAllocator<char> allocator(64);
+        static AlignedAllocator<char> allocator(64);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             a.push_back((char *)allocator.Alloc(size_a));
             b.push_back((char *)allocator.Alloc(size_b));
+        }
+#elif MALLOC_OPT == 4
+        static AlignedAllocator<char> allocator(64);
+        char *a_base = (char *)allocator.Alloc(size_a * num_threads);
+        char *b_base = (char *)allocator.Alloc(size_b * num_threads);
+        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+            a.push_back(a_base + (size_t)thread_num * size_a);
+            b.push_back(b_base + (size_t)thread_num * size_b);
         }
 #endif        
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
