@@ -26,27 +26,6 @@ static MPI_Comm immb_convert_comm(const char *str, int mode_multiple, int thread
     return comm;
 }
 
-// FIXME code duplication
-
-/* convenience macros and functions working with input parameters */
-#define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
-#define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
-#define _ARRAY_FREE(_array) free(_array)
-#define _ARRAY_FOR(_array,_i,_action) for(_i=0;_i<_array##n;_i++) {_action;}
-#define _ARRAY_NEXT(_array) if(++_array##i >= _array##n) _array##i = 0; else return 1
-#define _ARRAY_THIS(_array) (_array[_array##i])
-#define _ARRAY_CHECK(_array) (_array##i >= _array##n)
-
-typedef struct _immb_local_t {
-    int warmup;
-    int repeat;
-    int barrier;
-    _ARRAY_DECL(comm, MPI_Comm);
-    _ARRAY_DECL(count, int);
-    _ARRAY_DECL(pattern, char*);
-} immb_local_t;
-
-
 using namespace std;
 
 namespace NS_MT {
@@ -56,6 +35,9 @@ namespace NS_MT {
     int num_threads;
     vector<int> cnt;
     vector<string> comm_opts;
+    int malloc_align;
+    malopt_t malloc_option;
+    barropt_t barrier_option;
 };
 
 map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MT>::pnames = 0;
@@ -67,10 +49,14 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<int>("stride", 0);
     parser.add_option_with_defaults<int>("warmup",  100);
     parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults<bool>("barrier", true);
+    parser.add_option_with_defaults<string>("barrier", "on");
     parser.add_option_with_defaults_vec<string>("comm", "world");
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
+    parser.add_option_with_defaults<int>("malloc_align", 64);
+    parser.add_option_with_defaults<string>("malloc_algo", "serial").
+        set_caption("serial|continous|parallel");
+    
 }
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &benchs) {
@@ -79,6 +65,31 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     parser.get_result_vec<int>("count", cnt);
     mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
     stride = parser.get_result<int>("stride");
+    
+    string barrier_type = parser.get_result<string>("barrier");
+    if (barrier_type == "off") barrier_option = BARROPT_NOBARRIER;
+    else if (barrier_type == "on") barrier_option = BARROPT_NORMAL;
+    else if (barrier_type == "special") barrier_option = BARROPT_SPECIAL;
+    else {
+        // FIXME get rid of cout some way!
+        cout << "Wrong barrier option value" << endl;
+        return false;
+    }
+
+    malloc_align = parser.get_result<int>("malloc_align");
+
+    string malloc_algo = parser.get_result<string>("malloc_algo");
+    if (malloc_algo == "serial") malloc_option = MALOPT_SERIAL;
+    else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
+    else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
+    else {
+        // FIXME get rid of cout some way!
+        cout << "Wrong malloc_algo option value" << endl;
+        return false;
+    }
+    if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
+        malloc_option = MALOPT_SERIAL;
+    }
     num_threads = 1;
     if (mode_multiple) {
 #pragma omp parallel default(shared)
@@ -101,11 +112,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
                 input[thread_num].count[i] = cnt[i];
             }
         }
-//        input[thread_num].global = (immb_global_t *)malloc(sizeof(immb_global_t));
-//        input[thread_num].global->mode_multiple = mode_multiple;
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
-        input[thread_num].barrier = parser.get_result<bool>("barrier") ? 1 : 0;
     }
     return true;
 }
@@ -125,6 +133,9 @@ void *MTBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "num_threads") return &num_threads;
     if (key == "mode_multiple") return &mode_multiple;
     if (key == "stride") return &stride;
+    if (key == "malloc_align") return &malloc_align;
+    if (key == "malloc_option") return &malloc_option;
+    if (key == "barrier_option") return &barrier_option;
     assert(false);
     return 0;
 }

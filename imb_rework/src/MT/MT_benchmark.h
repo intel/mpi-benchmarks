@@ -7,27 +7,7 @@
 #include "benchmark.h"
 #include "benchmark_suite.h"
 
-
-// FIXME code duplication
-/* convenience macros and functions working with input parameters */
-#define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
-#define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
-#define _ARRAY_FREE(_array) free(_array)
-#define _ARRAY_FOR(_array,_i,_action) for(_i=0;_i<_array##n;_i++) {_action;}
-#define _ARRAY_NEXT(_array) if(++_array##i >= _array##n) _array##i = 0; else return 1
-#define _ARRAY_THIS(_array) (_array[_array##i])
-#define _ARRAY_CHECK(_array) (_array##i >= _array##n)
-
-typedef struct _immb_local_t {
-    int warmup;
-    int repeat;
-    int barrier;
-    _ARRAY_DECL(comm, MPI_Comm);
-    _ARRAY_DECL(count, int);
-    _ARRAY_DECL(pattern, char*);
-} immb_local_t;
-
-
+#include "MT_suite.h"
 
 #define MALLOC_OPT 4
 
@@ -37,7 +17,7 @@ using namespace std;
 #define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
 
-#if MALLOC_OPT == 3 || MALLOC_OPT == 4
+//#if MALLOC_OPT == 3 || MALLOC_OPT == 4
 template <typename T>
 class Allocator {
     protected:
@@ -71,9 +51,8 @@ class AlignedAllocator : public Allocator<T> {
     }
     virtual ~AlignedAllocator() {};
 };
-#endif
 
-static void simple_barrier()
+static void normal_barrier()
 {
     MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -100,10 +79,11 @@ static void special_barrier()
     }
 }
 
-static void omp_aware_barrier()
+template <void (bfn)()>
+void omp_aware_barrier()
 {
-#pragma omp barrier    
-    MPI_Barrier(MPI_COMM_WORLD);
+#pragma omp barrier 
+    bfn();   
 #pragma omp barrier    
 }
 
@@ -177,6 +157,9 @@ class BenchmarkMT : public Benchmark {
     int mode_multiple;
     int stride;
     int num_threads;
+    barropt_t barrier_option;
+    malopt_t malloc_option;
+    int malloc_align;
     double time_avg, time_min, time_max;
     int world_rank, world_size;
     public:
@@ -196,6 +179,25 @@ class BenchmarkMT : public Benchmark {
         idata_local.pt2pt.stride = stride;
         idata_local.checks.check = true;
         barrier_func_t bfn;
+        switch (barrier_option) {
+            case BARROPT_NOBARRIER: bfn = no_barrier; break;
+            case BARROPT_NORMAL: 
+                if (mode_multiple) {
+                    bfn = omp_aware_barrier<normal_barrier>;
+                } else {
+                    bfn = normal_barrier;
+                }
+                break;
+            case BARROPT_SPECIAL:
+                if (mode_multiple) {
+                    bfn = omp_aware_barrier<special_barrier>;
+                } else {
+                    bfn = special_barrier;
+                }
+                break;
+            default: assert(0);
+        }
+/*
         if(input->barrier) {
             if(mode_multiple) {
                 bfn = omp_aware_barrier;
@@ -205,6 +207,7 @@ class BenchmarkMT : public Benchmark {
         } else {
             bfn = no_barrier;
         }
+*/
         odata_local.checks.failures = 0;
         if (flags.count(SEPARATE_MEASURING)) {
             idata_local.barrier.fn_ptr = bfn;
@@ -235,6 +238,9 @@ class BenchmarkMT : public Benchmark {
         GET_GLOBAL(int, mode_multiple);
         GET_GLOBAL(int, stride);
         GET_GLOBAL(int, num_threads);
+        GET_GLOBAL(int, malloc_align);
+        GET_GLOBAL(malopt_t, malloc_option);
+        GET_GLOBAL(barropt_t, barrier_option);
         input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             GET_GLOBAL_VEC(immb_local_t, input[thread_num], thread_num);
@@ -258,11 +264,34 @@ class BenchmarkMT : public Benchmark {
         else if (flags.count(RECV_FROM_TWO))
             size_b *= 2;
 
-#if MALLOC_OPT == 1        
-        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            a.push_back((char *)malloc(size_a));
-            b.push_back((char *)malloc(size_b));
+        static AlignedAllocator<char> allocator(malloc_align);
+        if (malloc_option == MALOPT_SERIAL) {
+            for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+                a.push_back((char *)allocator.Alloc(size_a));
+                b.push_back((char *)allocator.Alloc(size_b));
+//              a.push_back((char *)malloc(size_a));
+//              b.push_back((char *)malloc(size_b));
+            }
+        } else if (malloc_option == MALOPT_PARALLEL) {
+            a.resize(num_threads);
+            b.resize(num_threads);
+#pragma omp parallel
+            {
+#pragma omp critical
+                {
+                    a[omp_get_thread_num()] = (char *)allocator.Alloc(size_a);
+                    b[omp_get_thread_num()] = (char *)allocator.Alloc(size_b);
+                }
+            }
+        } else if (malloc_option == MALOPT_CONTINOUS) {
+            char *a_base = (char *)allocator.Alloc(size_a * num_threads);
+            char *b_base = (char *)allocator.Alloc(size_b * num_threads);
+            for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+                a.push_back(a_base + (size_t)thread_num * size_a);
+                b.push_back(b_base + (size_t)thread_num * size_b);
+            }
         }
+/*
 #elif MALLOC_OPT == 2
         a.resize(num_threads);
         b.resize(num_threads);
@@ -285,7 +314,8 @@ class BenchmarkMT : public Benchmark {
             a.push_back(a_base + (size_t)thread_num * size_a);
             b.push_back(b_base + (size_t)thread_num * size_b);
         }
-#endif        
+#endif   
+   */     
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             idata.push_back((input_benchmark_data *)malloc(sizeof(input_benchmark_data)));
             odata.push_back((output_benchmark_data *)malloc(sizeof(output_benchmark_data)));
