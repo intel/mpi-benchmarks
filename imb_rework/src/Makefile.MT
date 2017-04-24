@@ -1,5 +1,5 @@
 CFLAGS += -DMT
-CFLAGS += -IMT -IMT/mpi-mt
+CFLAGS += -IMT
 CFLAGS += -qopenmp
 
 BECHMARK_SUITE_SRC += MT/MT_suite.cpp MT/MT_benchmark.cpp

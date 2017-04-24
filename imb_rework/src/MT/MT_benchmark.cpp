@@ -97,7 +97,7 @@ int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
                 output_benchmark_data *odata) {
     int group = 0;
     int stride = idata->pt2pt.stride;
-    if (!set_stride(rank, size, idata->pt2pt.stride, group))
+    if (!set_stride(rank, size, stride, group))
         return 0;
     INIT_ARRAY(true, in, (rank+1)*i);
     INIT_ARRAY(true, out, -1);
@@ -180,7 +180,7 @@ int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datat
                  output_benchmark_data *odata) {
     int group = 0;
     int stride = idata->pt2pt.stride;
-    if (!set_stride(rank, size, idata->pt2pt.stride, group))
+    if (!set_stride(rank, size, stride, group))
         return 0;
     MPI_Request requests[MAX_WIN_SIZE];
     char ack = 0;
@@ -219,7 +219,7 @@ int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
                  output_benchmark_data *odata) {
     int group = 0;
     int stride = idata->pt2pt.stride;
-    if (!set_stride(rank, size, idata->pt2pt.stride, group))
+    if (!set_stride(rank, size, stride, group))
         return 0;
     MPI_Request requests[2 * MAX_WIN_SIZE];
     char ack = 0;
