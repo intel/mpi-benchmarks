@@ -69,26 +69,61 @@ int immb_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatyp
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, 0>), PingPongMT) 
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 WRAP(immb_pt2pt_SSST, GLUE_TYPENAME2(immb_pt2pt<true, 0>))
 DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_pt2pt_SSST, PingPongMTSpecificSourceSpecificTag) {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }    
 
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, MPI_ANY_TAG>), PingPongMTSpecificSourceAnyTag)
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, 0>), PingPongMTAnySourceSpecificTag)
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, MPI_ANY_TAG>), PingPongMTAnySourceAnyTag)
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 template <bool set_src, int tag>
@@ -116,6 +151,12 @@ int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_ipt2pt<true, 0>), PingPingMT)
 {
     flags.insert(PT2PT);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 template <bool set_src, int tag>
@@ -138,6 +179,13 @@ int immb_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Data
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<true, 0>), SendRecvMT)
 {
     flags.insert(PT2PT);
+    flags.insert(SCALE_BW_TWICE);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
 int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
@@ -169,10 +217,17 @@ int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Data
 DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_exchange, ExchangeMT)
 {
     flags.insert(PT2PT);
-    flags.insert(RECV_FROM_TWO);
+    flags.insert(RECV_FROM_2);
+    flags.insert(SCALE_BW_FOUR);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
 }
 
-static const int MAX_WIN_SIZE = 10;
+static const int MAX_WIN_SIZE = 100;
 
 template <bool set_src, int tag>    
 int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
@@ -211,6 +266,11 @@ int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datat
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_uniband<true, 0>), UniBandMT)
 {
     flags.insert(PT2PT);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
+    flags.insert(OUT_MSGRATE);
 }
 
 template <bool set_src, int tag>    
@@ -257,6 +317,13 @@ int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
 DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true, 0>), BiBandMT)
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_2);
+    flags.insert(SCALE_BW_TWICE);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_AVG);
+    flags.insert(OUT_BW);
+    flags.insert(OUT_MSGRATE);
 }
 
 #define IMMB_COLLECTIVE_BEGIN(NAME) int immb_##NAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \

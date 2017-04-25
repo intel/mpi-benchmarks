@@ -44,10 +44,11 @@ class AlignedAllocator : public Allocator<T> {
         //size_t aligned_size = (size + align - 1) & ~(align - 1);
         //assert(aligned_size >= size);
         size_t size_with_spare_space = size + align;
-        T *ptr = (T *)malloc(size_with_spare_space);
+        char *ptr = (char *)malloc(size_with_spare_space);
+        memset(ptr, 0, size_with_spare_space);
         Allocator<T>::original_ptrs.push_back(ptr);
         size_t diff = align - ((size_t)(ptr) % (size_t)align);
-        return ptr + diff;
+        return (T *)(ptr + diff);
     }
     virtual ~AlignedAllocator() {};
 };
@@ -99,6 +100,8 @@ struct input_benchmark_data {
     } collective;
     struct {
         int stride;
+        bool anysource;
+        bool anytag;
     } pt2pt;
     struct {
         int *cnt;
@@ -135,6 +138,33 @@ typedef int (*mt_benchmark_func_t)(int repeat, int skip, void *in, void *out, in
                     odata->checks.failures++; \
                 } }
 
+template <typename T>
+string out_field(T val);
+
+template <>
+string out_field<double>(double val) { 
+    char s[15];
+    snprintf(s, 14, "% 13.2f", val);
+    s[14] = 0;
+    return string(s);
+}
+template <>
+string out_field<const char *>(const char *val) { 
+    char s[15];
+    snprintf(s, 14, "% 13s", val);
+    s[14] = 0;
+    return string(s);
+}
+
+template <>
+string out_field<int>(int val) { 
+    char s[15];
+    snprintf(s, 14, "% 13d", val);
+    s[14] = 0;
+    return string(s);
+}
+
+
 template <class bs, mt_benchmark_func_t fn_ptr>
 class BenchmarkMT : public Benchmark {
     public:    
@@ -145,8 +175,20 @@ class BenchmarkMT : public Benchmark {
         COLLECTIVE_VECTOR,
         SEND_TO_ALL,
         RECV_FROM_ALL,
-        SEND_TO_TWO,
-        RECV_FROM_TWO
+        SEND_TO_2,
+        RECV_FROM_2,
+        TIME_DIVIDE_BY_2,
+        TIME_DIVIDE_BY_4,
+        TIME_DIVIDE_BY_100,
+        SCALE_BW_TWICE,
+        SCALE_BW_FOUR,
+        OUT_BYTES,
+        OUT_REPEAT,
+        OUT_TIME_MIN,
+        OUT_TIME_MAX,
+        OUT_TIME_AVG,
+        OUT_BW,
+        OUT_MSGRATE
     };
     std::set<Flags> flags; 
     std::vector<char *> a;
@@ -177,7 +219,8 @@ class BenchmarkMT : public Benchmark {
         output_benchmark_data &odata_local = *odata[omp_get_thread_num()];
         idata_local.collective.root = 0;
         idata_local.pt2pt.stride = stride;
-        idata_local.checks.check = true;
+        // FIXME cmdline opt
+        idata_local.checks.check = false;
         barrier_func_t bfn;
         switch (barrier_option) {
             case BARROPT_NOBARRIER: bfn = no_barrier; break;
@@ -257,11 +300,11 @@ class BenchmarkMT : public Benchmark {
         size_t size_b = sizeof(char)*maxlen;
         if (flags.count(SEND_TO_ALL))
             size_a *= world_size;
-        else if (flags.count(SEND_TO_TWO))
+        else if (flags.count(SEND_TO_2))
             size_a *= 2;
         if (flags.count(RECV_FROM_ALL))
             size_b *= world_size;
-        else if (flags.count(RECV_FROM_TWO))
+        else if (flags.count(RECV_FROM_2))
             size_b *= 2;
 
         static AlignedAllocator<char> allocator(malloc_align);
@@ -269,8 +312,6 @@ class BenchmarkMT : public Benchmark {
             for (int thread_num = 0; thread_num < num_threads; thread_num++) {
                 a.push_back((char *)allocator.Alloc(size_a));
                 b.push_back((char *)allocator.Alloc(size_b));
-//              a.push_back((char *)malloc(size_a));
-//              b.push_back((char *)malloc(size_b));
             }
         } else if (malloc_option == MALOPT_PARALLEL) {
             a.resize(num_threads);
@@ -324,9 +365,10 @@ class BenchmarkMT : public Benchmark {
                 idata[idata.size()-1]->collective_vector.displs = (int *)malloc(world_size * sizeof(int));
             }        
         }
-   }
+  }
     virtual void run(const std::pair<int, int> &p) { 
-        double t, tavg = 0, tmin = 0, tmax = 0; 
+        static int ninvokations = 0;
+        double t, tavg = 0, tmin = 1e6, tmax = 0; 
         int nresults = 0;
         if (mode_multiple) {
         #pragma omp parallel default(shared)
@@ -357,9 +399,44 @@ class BenchmarkMT : public Benchmark {
         time_min /= (double)input[0].repeat;
         time_max /= (double)input[0].repeat;
         if (world_rank == 0) {
-            if (nresults)
-                printf("pattern: %s, count: %d, time: %f usec\n",
-                       get_name().c_str(), p.second, 1.e6 * time_avg);
+            double divider = 1.0, bw_multiplier = 1.0;
+            if (flags.count(TIME_DIVIDE_BY_2) != 0) divider *= 2.0;
+            if (flags.count(TIME_DIVIDE_BY_4) != 0) divider *= 4.0;
+            if (flags.count(TIME_DIVIDE_BY_100) != 0) divider *= 100.0;
+            if (flags.count(SCALE_BW_TWICE) != 0) bw_multiplier *= 2.0;
+            if (flags.count(SCALE_BW_FOUR) != 0) bw_multiplier *= 4.0;
+
+            time_avg /= divider;
+            time_min /= divider;
+            time_max /= divider;
+            if (nresults) {
+                if (ninvokations++ == 0) {
+                    cout << endl;
+                    cout << "#-----------------------------------------------------------------------------" << endl;
+                    cout << "# Benchmarking " << get_name() << endl;
+                    cout << "# #processes = " << nresults << endl;
+                    cout << "#-----------------------------------------------------------------------------" << endl;
+ 
+                    if (flags.count(OUT_BYTES)) cout << out_field("#bytes"); //"#bytes";
+                    if (flags.count(OUT_REPEAT)) cout << out_field("#repetitions");
+                    if (flags.count(OUT_TIME_MIN)) cout << out_field("t_min[usec]");
+                    if (flags.count(OUT_TIME_MAX)) cout << out_field("t_max[usec]");
+                    if (flags.count(OUT_TIME_AVG)) cout << out_field("t_avg[usec]");
+                    if (flags.count(OUT_BW)) cout << out_field("Mbytes/sec");
+                    if (flags.count(OUT_MSGRATE)) cout << out_field("Msg/sec");
+                    cout << endl;
+                }
+                if (flags.count(OUT_BYTES)) cout << out_field(p.second);
+                if (flags.count(OUT_REPEAT)) cout << out_field(input[0].repeat);
+                if (flags.count(OUT_TIME_MIN)) cout << out_field(1e6 * time_min);
+                if (flags.count(OUT_TIME_MAX)) cout << out_field(1e6 * time_max);
+                if (flags.count(OUT_TIME_AVG)) cout << out_field(1e6 * time_avg);
+                if (flags.count(OUT_BW)) cout << out_field((double)p.second * bw_multiplier / time_avg / 1e6);
+                if (flags.count(OUT_MSGRATE)) cout << out_field(1.0 / time_avg);
+                cout << endl;
+//                printf("pattern: %s, count: %d, time: %f usec\n",
+//                       get_name().c_str(), p.second, 1.e6 * time_avg);
+            }
             else
                 printf("No successful executions\n");
         }
