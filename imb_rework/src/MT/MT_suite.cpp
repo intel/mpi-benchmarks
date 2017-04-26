@@ -33,11 +33,15 @@ namespace NS_MT {
     int mode_multiple;
     int stride;
     int num_threads;
+    int rank;
+    bool prepared = false;
     vector<int> cnt;
     vector<string> comm_opts;
     int malloc_align;
     malopt_t malloc_option;
     barropt_t barrier_option;
+    bool do_checks;
+    MPI_Datatype datatype;
 };
 
 map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MT>::pnames = 0;
@@ -56,7 +60,8 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<int>("malloc_align", 64);
     parser.add_option_with_defaults<string>("malloc_algo", "serial").
         set_caption("serial|continous|parallel");
-    
+    parser.add_option_with_defaults<bool>("check", false);
+    parser.add_option_with_defaults<string>("datatype", "int");
 }
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &benchs) {
@@ -90,6 +95,24 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
         malloc_option = MALOPT_SERIAL;
     }
+
+    do_checks = parser.get_result<bool>("check");
+
+    string dt = parser.get_result<string>("datatype");
+    if (dt == "int") datatype = MPI_INT;
+    else if (dt == "char") datatype = MPI_CHAR;
+    else {
+        // FIXME get rid of cout some way!
+        cout << "Unknown data type in datatype option" << endl;
+        return false;
+    }
+
+    if (do_checks && datatype != MPI_INT) {
+        // FIXME get rid of cout some way!
+        cout << "Only int data type is supported with check option" << endl;
+        return false;
+    }
+    
     num_threads = 1;
     if (mode_multiple) {
 #pragma omp parallel default(shared)
@@ -115,6 +138,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
     }
+    prepared = true;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     return true;
 }
 
@@ -124,6 +149,8 @@ template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &benchs) {
         _ARRAY_FREE(input[thread_num].comm);
         _ARRAY_FREE(input[thread_num].count);
     }
+    if (prepared && rank == 0)
+        cout << endl;
 }
 
 
@@ -136,6 +163,8 @@ void *MTBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "malloc_align") return &malloc_align;
     if (key == "malloc_option") return &malloc_option;
     if (key == "barrier_option") return &barrier_option;
+    if (key == "do_checks") return &do_checks;
+    if (key == "datatype") return &datatype;
     assert(false);
     return 0;
 }

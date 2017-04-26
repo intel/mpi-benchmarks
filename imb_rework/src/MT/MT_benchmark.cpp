@@ -26,6 +26,17 @@
     DECLARE_INHERITED(GLUE_TYPENAME2(BenchmarkMT<BS, FUNC>), NAME) \
     template <> void BenchmarkMT<BS, FUNC >::init_flags() 
 
+
+/* testing convenience macros */
+#define INIT_ARRAY(cond,arr,val) if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size / sizeof(int); i++) ((int *)(arr))[i] = (int)(val); }
+#define CHECK_ARRAY(cond,arr,val) \
+        if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size / sizeof(int); i++) if( ((int *)(arr))[i] != (int)(val) ) { \
+                    if (0) \
+                        fprintf(stderr,"Rank %d tid (%d ???) FAILED at index %d: got %d, expected %d\n", \
+                                                    rank, 0, i, ((int *)(arr))[i], (int)(val)); \
+                    odata->checks.failures++; \
+                } }
+
 using namespace std;
 
 inline bool set_stride(int rank, int size, int &stride, int &group)
@@ -41,7 +52,7 @@ inline bool set_stride(int rank, int size, int &stride, int &group)
 }
 
 template <bool set_src, int tag>
-int immb_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                output_benchmark_data *odata) {
     int group = 0;
@@ -66,7 +77,7 @@ int immb_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatyp
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, 0>), PingPongMT) 
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<true, 0>), PingPongMT) 
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -78,8 +89,8 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true,
     flags.insert(OUT_BW);
 }
 
-WRAP(immb_pt2pt_SSST, GLUE_TYPENAME2(immb_pt2pt<true, 0>))
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_pt2pt_SSST, PingPongMTSpecificSourceSpecificTag) {
+WRAP(mt_pt2pt_SSST, GLUE_TYPENAME2(mt_pt2pt<true, 0>))
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_pt2pt_SSST, PingPongMTSpecificSourceSpecificTag) {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
     flags.insert(OUT_BYTES);
@@ -90,7 +101,7 @@ DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_pt2pt_SSST, PingPongMTSpeci
     flags.insert(OUT_BW);
 }    
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true, MPI_ANY_TAG>), PingPongMTSpecificSourceAnyTag)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<true, MPI_ANY_TAG>), PingPongMTSpecificSourceAnyTag)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -102,7 +113,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<true,
     flags.insert(OUT_BW);
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, 0>), PingPongMTAnySourceSpecificTag)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<false, 0>), PingPongMTAnySourceSpecificTag)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -114,7 +125,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false
     flags.insert(OUT_BW);
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false, MPI_ANY_TAG>), PingPongMTAnySourceAnyTag)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<false, MPI_ANY_TAG>), PingPongMTAnySourceAnyTag)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -127,7 +138,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_pt2pt<false
 }
 
 template <bool set_src, int tag>
-int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                 MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                 output_benchmark_data *odata) {
     int group = 0;
@@ -148,7 +159,7 @@ int immb_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_ipt2pt<true, 0>), PingPingMT)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_ipt2pt<true, 0>), PingPingMT)
 {
     flags.insert(PT2PT);
     flags.insert(OUT_BYTES);
@@ -160,7 +171,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_ipt2pt<true
 }
 
 template <bool set_src, int tag>
-int immb_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     INIT_ARRAY(true, in, (rank+1)*i);
@@ -176,7 +187,7 @@ int immb_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Data
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<true, 0>), SendRecvMT)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_sendrecv<true, 0>), SendRecvMT)
 {
     flags.insert(PT2PT);
     flags.insert(SCALE_BW_TWICE);
@@ -188,11 +199,12 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_sendrecv<tr
     flags.insert(OUT_BW);
 }
 
-int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     int type_size = 0;
     MPI_Type_size(type, &type_size);
+    void *out2 = (char *)out + count * type_size;
     INIT_ARRAY(true, in, (rank+1)*i);
     INIT_ARRAY(true, out, -1);
     int tag = 0;
@@ -205,16 +217,16 @@ int immb_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Data
         MPI_Isend(in, count, type, left, tag, comm, &requests[0]);
         MPI_Isend(in, count, type, right, tag, comm, &requests[1]);
         MPI_Recv(out, count, type, left, tag, comm, MPI_STATUS_IGNORE);
-        MPI_Recv((char *)out + count * type_size, count, type, right, tag, comm, MPI_STATUS_IGNORE);
+        MPI_Recv(out2, count, type, right, tag, comm, MPI_STATUS_IGNORE);
         MPI_Waitall(2, requests, MPI_STATUSES_IGNORE);
     }
     CHECK_ARRAY(true, in, (rank+1)*i);
     CHECK_ARRAY(true, out, (left+1)*i);
-    CHECK_ARRAY(true, out+count, (right+1)*i);
+    CHECK_ARRAY(true, out2, (right+1)*i);
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_exchange, ExchangeMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_exchange, ExchangeMT)
 {
     flags.insert(PT2PT);
     flags.insert(RECV_FROM_2);
@@ -230,7 +242,7 @@ DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_exchange, ExchangeMT)
 static const int MAX_WIN_SIZE = 100;
 
 template <bool set_src, int tag>    
-int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -263,9 +275,10 @@ int immb_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datat
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_uniband<true, 0>), UniBandMT)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_uniband<true, 0>), UniBandMT)
 {
     flags.insert(PT2PT);
+    flags.insert(TIME_DIVIDE_BY_100);
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
@@ -274,7 +287,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_uniband<tru
 }
 
 template <bool set_src, int tag>    
-int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_biband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -314,11 +327,11 @@ int immb_biband(int repeat, int skip, void *in, void *out, int count, MPI_Dataty
     return 1;
 }
 
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true, 0>), BiBandMT)
+DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_biband<true, 0>), BiBandMT)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
-    flags.insert(SCALE_BW_TWICE);
+    flags.insert(TIME_DIVIDE_BY_100);
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
@@ -326,13 +339,14 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true
     flags.insert(OUT_MSGRATE);
 }
 
-#define IMMB_COLLECTIVE_BEGIN(NAME) int immb_##NAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \
-               MPI_Comm comm, int rank, int size, input_benchmark_data *idata, output_benchmark_data *odata) { \
+#define MT_COLLECTIVE_BEGIN(NAME) int mt_##NAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \
+               MPI_Comm comm, int rank, int size, input_benchmark_data *idata, output_benchmark_data *odata) 
+#define MT_CYCLE_BEGIN \
     double t, sum = 0.0; \
     for (int i = 0; i < repeat+skip; i++) { \
         t = MPI_Wtime(); 
 
-#define IMMB_COLLECTIVE_END(NAME)        t = MPI_Wtime() - t; \
+#define MT_CYCLE_END        t = MPI_Wtime() - t; \
         if (i >= skip) sum += t; \
         idata->barrier.fn_ptr(); \
         idata->barrier.fn_ptr(); \
@@ -343,168 +357,246 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(immb_biband<true
     if (odata->timing.time_ptr != NULL)  { \
         *(odata->timing.time_ptr) = sum; \
     } \
-    return 1; \
+
+
+MT_COLLECTIVE_BEGIN(bcast) {
+    INIT_ARRAY((idata->collective.root == rank), in, i);
+    INIT_ARRAY((idata->collective.root != rank), out, -1);
+    MT_CYCLE_BEGIN
+        MPI_Bcast((idata->collective.root == rank) ? in : out, count, type, idata->collective.root, comm);
+    MT_CYCLE_END
+    CHECK_ARRAY((idata->collective.root != rank), out, i);
+    return 1;
 }
 
-
-IMMB_COLLECTIVE_BEGIN(bcast)
-    MPI_Bcast((idata->collective.root == rank) ? in : out, count, type, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(bcast)
-
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_bcast, BcastMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_bcast, BcastMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+
 }
 
 
-IMMB_COLLECTIVE_BEGIN(reduce)
-    MPI_Reduce(in, out, count, type, MPI_SUM, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(reduce)
+MT_COLLECTIVE_BEGIN(reduce) {
+    INIT_ARRAY(1, in, (rank+1)*i);
+    INIT_ARRAY(1, out, -1);
+    MT_CYCLE_BEGIN
+        MPI_Reduce(in, out, count, type, MPI_SUM, idata->collective.root, comm);
+    MT_CYCLE_END
+    CHECK_ARRAY((idata->collective.root == rank), out, size*(size+1)*i/2);
+    return 1;
+}
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_reduce, ReduceMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_reduce, ReduceMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(SEPARATE_MEASURING);    
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+}
+
+
+MT_COLLECTIVE_BEGIN(allreduce) {
+    INIT_ARRAY(1, in, (rank+1)*i);
+    INIT_ARRAY(1, out, -1);
+    MT_CYCLE_BEGIN
+        MPI_Allreduce(in, out, count, type, MPI_SUM, comm);
+    MT_CYCLE_END
+    CHECK_ARRAY(true, out, size*(size+1)*i/2);
+    return 1;
+}
+
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_allreduce, AllReduceMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
-
-IMMB_COLLECTIVE_BEGIN(allreduce)
-    MPI_Allreduce(in, out, count, type, MPI_SUM, comm);
-IMMB_COLLECTIVE_END(allreduce)
-
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_allreduce, AllReduceMT)
-{
-    flags.insert(COLLECTIVE);
-    flags.insert(SEPARATE_MEASURING);
-}
-
-
-IMMB_COLLECTIVE_BEGIN(scatter)
+#if 0
+MT_COLLECTIVE_BEGIN(scatter)
     MPI_Scatter(in, count, type, out, count, type, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(scatter)
+MT_COLLECTIVE_END(scatter)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_scatter, ScatterMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_scatter, ScatterMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(SEND_TO_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
 
 #ifdef WITH_VECTOR
-IMMB_COLLECTIVE_BEGIN(scatterv)
+MT_COLLECTIVE_BEGIN(scatterv)
     MPI_Scatterv(in, idata->collective_vector.cnt, idata->collective_vector.displs, type, out, count, type, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(scatterv)
+MT_COLLECTIVE_END(scatterv)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_scatterv, ScattervMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_scatterv, ScattervMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(COLLECTIVE_VECTOR);
     flags.insert(SEND_TO_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
 
-IMMB_COLLECTIVE_BEGIN(reduce_scatter)
+MT_COLLECTIVE_BEGIN(reduce_scatter)
     MPI_Reduce_scatter(in, out, idata->collective_vector.cnt, type, MPI_SUM, comm);
-IMMB_COLLECTIVE_END(reduce_scatter)
+MT_COLLECTIVE_END(reduce_scatter)
    
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_reduce_scatter, ReduceScatterMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_reduce_scatter, ReduceScatterMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(COLLECTIVE_VECTOR);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 #endif
 
-IMMB_COLLECTIVE_BEGIN(gather)
+MT_COLLECTIVE_BEGIN(gather)
     MPI_Gather(in, count, type, out, count, type, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(gather)
+MT_COLLECTIVE_END(gather)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_gather, GatherMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_gather, GatherMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
 
 #ifdef WITH_VECTOR
-IMMB_COLLECTIVE_BEGIN(gatherv)
+MT_COLLECTIVE_BEGIN(gatherv)
     MPI_Gatherv(in, count, type, out, idata->collective_vector.cnt, idata->collective_vector.displs, type, idata->collective.root, comm);
-IMMB_COLLECTIVE_END(gatherv)
+MT_COLLECTIVE_END(gatherv)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_gatherv, GathervMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_gatherv, GathervMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(COLLECTIVE_VECTOR);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 #endif
  
-IMMB_COLLECTIVE_BEGIN(allgather)
+MT_COLLECTIVE_BEGIN(allgather)
     MPI_Allgather(in, count, type, out, count, type, comm);
-IMMB_COLLECTIVE_END(allgather)
+MT_COLLECTIVE_END(allgather)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_allgather, AllgatherMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_allgather, AllgatherMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
 
 #ifdef WITH_VECTOR
-IMMB_COLLECTIVE_BEGIN(allgatherv)
+MT_COLLECTIVE_BEGIN(allgatherv)
     MPI_Allgatherv(in, count, type, out, idata->collective_vector.cnt, idata->collective_vector.displs, type, comm);
-IMMB_COLLECTIVE_END(allgatherv)
+MT_COLLECTIVE_END(allgatherv)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_allgatherv, AllgathervMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_allgatherv, AllgathervMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(COLLECTIVE_VECTOR);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 #endif
 
-IMMB_COLLECTIVE_BEGIN(alltoall)
+MT_COLLECTIVE_BEGIN(alltoall)
     MPI_Alltoall(in, count, type, out, count, type, comm);
-IMMB_COLLECTIVE_END(alltoall)
+MT_COLLECTIVE_END(alltoall)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_alltoall, AlltoallMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_alltoall, AlltoallMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(SEND_TO_ALL);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 
 
 #ifdef WITH_VECTOR
-IMMB_COLLECTIVE_BEGIN(alltoallv)
+MT_COLLECTIVE_BEGIN(alltoallv)
     MPI_Alltoallv(in,  idata->collective_vector.cnt,  idata->collective_vector.displs, type, out, idata->collective_vector.cnt, idata->collective_vector.displs, type, comm);
-IMMB_COLLECTIVE_END(alltoallv)
+MT_COLLECTIVE_END(alltoallv)
 
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, immb_alltoallv, AlltoallvMT)
+DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_alltoallv, AlltoallvMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
     flags.insert(COLLECTIVE_VECTOR);
     flags.insert(SEND_TO_ALL);
     flags.insert(RECV_FROM_ALL);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
 }
 #endif
 
+#endif
 
 #if 0
 
 #include "ransac.cpp"
 #include <math.h>
 
-int immb_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int mt_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, int root, int stride, double *t_avg) {
     double t, sum = 0.0;
     for (int i = 0; i < repeat; i++) {
@@ -532,7 +624,7 @@ int get_token(double t)
 }
 #endif
 
-int immb_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
+int mt_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, int root, int stride) {
     static int prev_count = 0;
     double t, sum = 0.0;
@@ -726,7 +818,7 @@ int immb_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
     return 1;
 }
 
-template class PingPongMT<MTBenchmarkSuite, immb_bcast>;
-DECLARE_INHERITED(GLUE_TYPENAME2(PingPongMT<MTBenchmarkSuite, immb_bcast>), BcastMT)
+template class PingPongMT<MTBenchmarkSuite, mt_bcast>;
+DECLARE_INHERITED(GLUE_TYPENAME2(PingPongMT<MTBenchmarkSuite, mt_bcast>), BcastMT)
 
 #endif
