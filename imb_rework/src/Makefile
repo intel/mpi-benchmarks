@@ -5,28 +5,30 @@ CPP=mpiicpc
 CC=mpiicc
 CFLAGS = -g -Wall -Wextra -pedantic -I. -DCOMM_EXPERIMENT=0
 
-MPI1=ON
-MT=ON
-OSU=OFF
-EXAMPLE=OFF
-HALO=ON
+#MPI1=OFF
+#MT=ON
+#OSU=OFF
+#EXAMPLE=OFF
+#HALO=OFF
 
-ifeq ($(MPI1),ON)
-include Makefile.legacy
-endif
-ifeq ($(OSU),ON)
-include Makefile.OSU
-endif
-ifeq ($(MT),ON)
-include Makefile.MT
-endif
-ifeq ($(HALO),ON)
-include Makefile.HALO
-endif
+include */Makefile.*.mk
 
-ifeq ($(EXAMPLE),ON)
-include Makefile.example
-endif
+#ifeq ($(MPI1),ON)
+#include Makefile.legacy
+#endif
+#ifeq ($(OSU),ON)
+#include Makefile.OSU
+#endif
+#ifeq ($(MT),ON)
+#include Makefile.MT
+#endif
+#ifeq ($(HALO),ON)
+#include Makefile.HALO
+#endif
+#
+#ifeq ($(EXAMPLE),ON)
+#include Makefile.example
+#endif
 
 
 CFLAGS += -Iyamlcpp/include -Iyamlcpp/test

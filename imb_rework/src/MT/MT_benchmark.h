@@ -333,7 +333,7 @@ class BenchmarkMT : public Benchmark {
         }
   }
     virtual void run(const std::pair<int, int> &p) { 
-        static int ninvokations = 0;
+        static int ninvocations = 0;
         double t, tavg = 0, tmin = 1e6, tmax = 0; 
         int nresults = 0;
         if (mode_multiple) {
@@ -376,7 +376,7 @@ class BenchmarkMT : public Benchmark {
             time_min /= divider;
             time_max /= divider;
             if (nresults) {
-                if (ninvokations++ == 0) {
+                if (ninvocations++ == 0) {
                     cout << endl;
                     cout << "#-----------------------------------------------------------------------------" << endl;
                     cout << "# Benchmarking " << get_name() << endl;

@@ -276,8 +276,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     if (c_info.w_rank == 0 ) {
         IMB_general_info();
         fprintf(unit,"\n\n# Calling sequence was: \n\n");
-        // FIXME out real cmdline, extract from parser
-//        fprintf(unit,"# ------------------- \n\n");
         string cmd_line;
         parser.get_command_line(cmd_line);
         fprintf(unit, "# %s \n\n", cmd_line.c_str());

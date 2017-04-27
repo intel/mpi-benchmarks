@@ -53,7 +53,8 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<int>("stride", 0);
     parser.add_option_with_defaults<int>("warmup",  100);
     parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults<string>("barrier", "on");
+    parser.add_option_with_defaults<string>("barrier", "on").
+        set_caption("on|off|special");
     parser.add_option_with_defaults_vec<string>("comm", "world");
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
@@ -61,7 +62,8 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<string>("malloc_algo", "serial").
         set_caption("serial|continous|parallel");
     parser.add_option_with_defaults<bool>("check", false);
-    parser.add_option_with_defaults<string>("datatype", "int");
+    parser.add_option_with_defaults<string>("datatype", "int").
+        set_caption("int|char");
 }
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &benchs) {
@@ -140,6 +142,17 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     }
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    cout << "#------------------------------------------------------------" << endl;
+    cout << "#    Intel (R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
+    cout << "#------------------------------------------------------------" << endl;
+    cout << "#" << endl;
+    cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << endl;
+    cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << endl;
+    cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << endl;
+    cout << "#" << endl;
+    cout << "#" << endl;
+
     return true;
 }
 

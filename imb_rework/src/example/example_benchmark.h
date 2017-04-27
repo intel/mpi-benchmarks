@@ -4,14 +4,14 @@
 
 #include "benchmark.h"
 #include "benchmark_suite.h"
+#include "scope.h"
 
 using namespace std;
 
 class ExampleBenchmark_1 : public Benchmark {
-    //static const char *name;
     public:
     virtual void init() {
-        VarLenLogScope *sc = new VarLenLogScope(0, 22);
+        VarLenScope *sc = new VarLenScope(0, 22);
         scope = sc;
     }
     virtual void run(const std::pair<int, int> &p) { 
@@ -21,13 +21,12 @@ class ExampleBenchmark_1 : public Benchmark {
 };
 
 class ExampleBenchmark_2 : public Benchmark {
-    static const char *name;
     std::map<int, double> results;
     char *sbuf, *rbuf;
     int np, rank;
     public:
     virtual void init() {
-        VarLenLogScope *sc = new VarLenLogScope(0, 22);
+        VarLenScope *sc = new VarLenScope(0, 22);
         scope = sc;
         rbuf = (char *)malloc(1 << 22);
         sbuf = (char *)malloc(1 << 22);
