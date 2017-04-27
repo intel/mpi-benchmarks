@@ -143,15 +143,17 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    cout << "#------------------------------------------------------------" << endl;
-    cout << "#    Intel (R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
-    cout << "#------------------------------------------------------------" << endl;
-    cout << "#" << endl;
-    cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << endl;
-    cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << endl;
-    cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << endl;
-    cout << "#" << endl;
-    cout << "#" << endl;
+    if (rank == 0) {
+        cout << "#------------------------------------------------------------" << endl;
+        cout << "#    Intel (R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
+        cout << "#------------------------------------------------------------" << endl;
+        cout << "#" << endl;
+        cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << endl;
+        cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << endl;
+        cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << endl;
+        cout << "#" << endl;
+        cout << "#" << endl;
+    }
 
     return true;
 }

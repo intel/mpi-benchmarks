@@ -401,8 +401,16 @@ class BenchmarkMT : public Benchmark {
                 if (flags.count(OUT_MSGRATE)) cout << out_field((int)(1.0 / time_avg));
                 cout << endl;
             }
-            else
-                printf("No successful executions\n");
+            else {
+                if (ninvocations++ == 0) {
+                    cout << endl;
+                    cout << "#-----------------------------------------------------------------------------" << endl;
+                    cout << "# Benchmarking " << get_name() << endl;
+                    cout << "# NO SUCCESSFUL EXECUTIONS" << endl;
+                    cout << "#-----------------------------------------------------------------------------" << endl;
+                    cout << endl;
+                }
+            }
         }
     }
     virtual void finalize() {
