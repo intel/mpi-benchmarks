@@ -74,7 +74,7 @@ using namespace std;
 
 extern void check_parser();
 
-int main(int argc, char **argv)
+int main(int argc, char * *argv)
 {
     bool no_mpi_init_flag = true;
     int rank = 0, size = 0;
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
             return 1;
         }
         if (!no_mpi_init_flag) {
-            MPI_Init_thread(&argc, &argv, required_mode, &provided_mode);
+            MPI_Init_thread(&argc, (char ***)&argv, required_mode, &provided_mode);
             MPI_Comm_size(MPI_COMM_WORLD, &size);
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
             if (required_mode != provided_mode) {

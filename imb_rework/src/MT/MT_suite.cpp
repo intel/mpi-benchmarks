@@ -93,10 +93,10 @@ namespace NS_MT {
     barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
-};
+}
 
-map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MT>::pnames = 0;
-BenchmarkSuite<BS_MT> *BenchmarkSuite<BS_MT>::instance = 0;
+template <> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MT>::pnames = 0;
+template <> BenchmarkSuite<BS_MT> *BenchmarkSuite<BS_MT>::instance = 0;
 
 template <> const std::string BenchmarkSuite<BS_MT>::get_name() const { return "IMB-MT"; }
 
@@ -117,7 +117,7 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
         set_caption("int|char");
 }
 
-template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &benchs) {
+template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &) {
     using namespace NS_MT;
     parser.get_result_vec<string>("comm", comm_opts);
     parser.get_result_vec<int>("count", cnt);
@@ -209,7 +209,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &benchs) {
+template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &) {
     using namespace NS_MT;
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         _ARRAY_FREE(input[thread_num].comm);

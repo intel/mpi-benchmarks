@@ -19,7 +19,7 @@ template <> void BenchmarkSuite<BS_MPI1>::finalize(const std::set<std::string> &
 template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(std::set<std::string> &benchmarks, 
                                                          BenchmarkSuiteBase::BenchListFilter filter) const;
 
-template <> const std::string BenchmarkSuite<BS_MPI1>::get_name() const { return "IMB-MPI1"; };
+//template <> const std::string BenchmarkSuite<BS_MPI1>::get_name() const { return "IMB-MPI1"; };
 
 class OriginalBenchmarkSuite_MPI1 : public BenchmarkSuite<BS_MPI1> {
     public:

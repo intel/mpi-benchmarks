@@ -55,8 +55,8 @@ namespace NS_HALO {
 //    vector<string> comm_opts;
 };
 
-map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_HALO>::pnames = 0;
-BenchmarkSuite<BS_HALO> *BenchmarkSuite<BS_HALO>::instance = 0;
+template<> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_HALO>::pnames = 0;
+template<> BenchmarkSuite<BS_HALO> *BenchmarkSuite<BS_HALO>::instance = 0;
 
 template <> const std::string BenchmarkSuite<BS_HALO>::get_name() const { return "IMB-HALO"; }
 

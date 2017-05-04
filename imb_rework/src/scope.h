@@ -95,14 +95,14 @@ struct VarLenScope : public Scope {
         commit();
     }
     VarLenScope(int *alens, size_t n) {
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < n; i++) {
             lens.push_back(alens[i]);
         }
         commit();
     }
 
     virtual void commit() {
-        for (int i = 0; i < lens.size(); i++) {
+        for (size_t i = 0; i < lens.size(); i++) {
             sequence.push_back(std::pair<int, int>(0, lens[i]));
         }
         formed = true;

@@ -77,7 +77,7 @@ class args_parser {
     const static int version;
 
     public:
-    args_parser(int &_argc, char **&_argv, const char *opt_st = "--", char opt_delim = '=', bool silnt = false) : argc(_argc), argv(_argv), option_starter(opt_st), option_delimiter(opt_delim),
+    args_parser(int &_argc, char * *&_argv, const char *opt_st = "--", char opt_delim = '=') : argc(_argc), argv(_argv), option_starter(opt_st), option_delimiter(opt_delim),
                                              prev_option(NULL) {}
     typedef enum { STRING, INT, FLOAT, BOOL } arg_t;
     typedef enum { ALLOW_UNEXPECTED_ARGS, SILENT, NOHELP, NODUPLICATE /*, NODEFAULTSDUMP*/ } flag_t;
@@ -265,20 +265,19 @@ class args_parser {
 };
 
 template <typename T> args_parser::arg_t get_arg_t();
-template <> args_parser::arg_t get_arg_t<int>() { return args_parser::INT; }
-template <> args_parser::arg_t get_arg_t<float>() { return args_parser::FLOAT; }
-template <> args_parser::arg_t get_arg_t<std::string>() { return args_parser::STRING; }
-template <> args_parser::arg_t get_arg_t<bool>() { return args_parser::BOOL; }
+//template <> args_parser::arg_t get_arg_t<int>() { return args_parser::INT; }
+//template <> args_parser::arg_t get_arg_t<float>() { return args_parser::FLOAT; }
+//template <> args_parser::arg_t get_arg_t<std::string>() { return args_parser::STRING; }
+//template <> args_parser::arg_t get_arg_t<bool>() { return args_parser::BOOL; }
 
 template <typename T> T get_val(const args_parser::value &v);
-template <> int get_val<int>(const args_parser::value &v) { return v.i; }
-template <> float get_val<float>(const args_parser::value &v) { return v.f; }
-template <> bool get_val<bool>(const args_parser::value &v) { return v.b; }
-template <> std::string get_val<std::string>(const args_parser::value &v) { return v.str; }
+//template <> int get_val<int>(const args_parser::value &v) { return v.i; }
+//template <> float get_val<float>(const args_parser::value &v) { return v.f; }
+//template <> bool get_val<bool>(const args_parser::value &v) { return v.b; }
+//template <> std::string get_val<std::string>(const args_parser::value &v) { return v.str; }
 
 template <typename T>
 void vresult_to_vector(const std::vector<args_parser::value> &in, std::vector<T> &out) {
-    args_parser::arg_t t = get_arg_t<T>();
     for (size_t i = 0; i < in.size(); i++)
         out.push_back(get_val<T>(in[i]));
 }

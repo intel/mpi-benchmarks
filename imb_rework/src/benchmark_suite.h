@@ -69,7 +69,6 @@ goods and services.
 #include "smart_ptr.h"
 #include "utils.h"
 
-
 template <benchmark_suite_t bs>
 class BenchmarkSuite : public BenchmarkSuiteBase {
     protected:
@@ -93,9 +92,9 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
         }
 
-        virtual void declare_args(args_parser &parser) const {} 
-        virtual bool prepare(const args_parser &parser, const std::set<std::string> &benchs) { return true; } 
-        virtual void finalize(const std::set<std::string> &benchs) { } 
+        virtual void declare_args(args_parser &) const {} 
+        virtual bool prepare(const args_parser &, const std::set<std::string> &) { return true; } 
+        virtual void finalize(const std::set<std::string> &) { } 
         static void register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 
@@ -136,6 +135,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         }
     public:        
         virtual void get_bench_list(std::set<std::string> &benchs, BenchListFilter filter = ALL_BENCHMARKS) const {
+            UNUSED(filter);
             get_full_list(benchs); 
         }
         virtual const std::string get_name() const;

@@ -70,20 +70,20 @@ goods and services.
 }
 
 #define DECLARE_INHERITED_BENCHMARKMT2(BS, FUNC, NAME) template class BenchmarkMT<BS, FUNC>; \
-    DECLARE_INHERITED(GLUE_TYPENAME3(BenchmarkMT<BS, FUNC >), NAME) \
+    DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME3(BenchmarkMT<BS, FUNC >), NAME) \
     template <> void BenchmarkMT<BS, FUNC >::init_flags() 
 
 #define DECLARE_INHERITED_BENCHMARKMT(BS, FUNC, NAME) template class BenchmarkMT<BS, FUNC>; \
-    DECLARE_INHERITED(GLUE_TYPENAME2(BenchmarkMT<BS, FUNC>), NAME) \
+    DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME2(BenchmarkMT<BS, FUNC>), NAME) \
     template <> void BenchmarkMT<BS, FUNC >::init_flags() 
 
 
 /* testing convenience macros */
-#define INIT_ARRAY(cond,arr,val) if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size / sizeof(int); i++) ((int *)(arr))[i] = (int)(val); }
+#define INIT_ARRAY(cond,arr,val) if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (size_t i = 0; i < count * type_size / sizeof(int); i++) ((int *)(arr))[i] = (int)(val); }
 #define CHECK_ARRAY(cond,arr,val) \
-        if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (int i = 0; i < count * type_size / sizeof(int); i++) if( ((int *)(arr))[i] != (int)(val) ) { \
+        if (idata->checks.check && (cond)) { int type_size; MPI_Type_size(type, &type_size); for (size_t i = 0; i < count * type_size / sizeof(int); i++) if( ((int *)(arr))[i] != (int)(val) ) { \
                     if (0) \
-                        fprintf(stderr,"Rank %d tid (%d ???) FAILED at index %d: got %d, expected %d\n", \
+                        fprintf(stderr,"Rank %d tid (%d---?) FAILED at index %ld: got %d, expected %d\n", \
                                                     rank, 0, i, ((int *)(arr))[i], (int)(val)); \
                     odata->checks.failures++; \
                 } }
@@ -103,7 +103,7 @@ inline bool set_stride(int rank, int size, int &stride, int &group)
 }
 
 template <bool set_src, int tag>
-int mt_pt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_pt2pt(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                output_benchmark_data *odata) {
     int group = 0;
@@ -189,7 +189,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<false, 
 }
 
 template <bool set_src, int tag>
-int mt_ipt2pt(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_ipt2pt(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                 MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                 output_benchmark_data *odata) {
     int group = 0;
@@ -222,7 +222,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_ipt2pt<true, 
 }
 
 template <bool set_src, int tag>
-int mt_sendrecv(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_sendrecv(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     INIT_ARRAY(true, in, (rank+1)*i);
@@ -250,7 +250,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_sendrecv<true
     flags.insert(OUT_BW);
 }
 
-int mt_exchange(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_exchange(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
     int type_size = 0;
@@ -293,7 +293,7 @@ DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_exchange, ExchangeMT)
 static const int MAX_WIN_SIZE = 100;
 
 template <bool set_src, int tag>    
-int mt_uniband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -338,7 +338,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_uniband<true,
 }
 
 template <bool set_src, int tag>    
-int mt_biband(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type,
+int mt_biband(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                  output_benchmark_data *odata) {
     int group = 0;
@@ -411,6 +411,7 @@ DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_biband<true, 
 
 
 MT_COLLECTIVE_BEGIN(bcast) {
+    UNUSED(size);
     INIT_ARRAY((idata->collective.root == rank), in, i);
     INIT_ARRAY((idata->collective.root != rank), out, -1);
     MT_CYCLE_BEGIN
@@ -869,7 +870,7 @@ int mt_bcast(int repeat, void *in, void *out, int count, MPI_Datatype type,
     return 1;
 }
 
-template class PingPongMT<MTBenchmarkSuite, mt_bcast>;
-DECLARE_INHERITED(GLUE_TYPENAME2(PingPongMT<MTBenchmarkSuite, mt_bcast>), BcastMT)
+//template class PingPongMT<MTBenchmarkSuite, mt_bcast>;
+//DECLARE_INHERITED(GLUE_TYPENAME2(PingPongMT<MTBenchmarkSuite, mt_bcast>), BcastMT)
 
 #endif

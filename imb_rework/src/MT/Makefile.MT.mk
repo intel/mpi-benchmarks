@@ -1,6 +1,7 @@
-CFLAGS += -DMT
-CFLAGS += -IMT
-CFLAGS += -qopenmp
+CPPFLAGS += -DMT
+CPPFLAGS += -IMT
+CXXFLAGS += -fopenmp
+#CXXFLAGS += -qopenmp
 
 BECHMARK_SUITE_SRC += MT/MT_suite.cpp MT/MT_benchmark.cpp
 

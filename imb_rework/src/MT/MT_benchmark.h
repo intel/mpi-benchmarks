@@ -116,12 +116,12 @@ class AlignedAllocator : public Allocator<T> {
     virtual ~AlignedAllocator() {};
 };
 
-static void normal_barrier()
+void normal_barrier()
 {
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
-static void special_barrier()
+void special_barrier()
 {
     int size = 0;
     int rank = 0;
@@ -151,7 +151,7 @@ void omp_aware_barrier()
 #pragma omp barrier    
 }
 
-static void no_barrier()
+void no_barrier()
 {
 }
 

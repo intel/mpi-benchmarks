@@ -23,7 +23,7 @@
 //    template <> void BenchmarkHALO<BS, FUNC >::init_flags() 
 
 #define DECLARE_INHERITED_BENCHMARKHALO(BS, FUNC, NAME) template class BenchmarkHALO<BS, FUNC>; \
-    DECLARE_INHERITED(GLUE_TYPENAME2(BenchmarkHALO<BS, FUNC>), NAME) \
+    DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME2(BenchmarkHALO<BS, FUNC>), NAME) \
     template <> void BenchmarkHALO<BS, FUNC >::init_flags() 
 
 using namespace std;

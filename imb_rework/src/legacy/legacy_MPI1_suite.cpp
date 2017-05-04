@@ -13,8 +13,10 @@
 
 using namespace std;
 
-map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
-BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
+template<> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
+template<> BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
+
+template <> const std::string BenchmarkSuite<BS_MPI1>::get_name() const { return "IMB-MPI1"; };
 
 namespace NS_MPI1 {
     struct comm_info c_info;
@@ -117,7 +119,7 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
 template <typename T>
 void preprocess_list(T &list) {
     T tmp;
-    transform(list.begin(), list.end(), inserter(tmp, tmp.end()), to_lower);
+    transform(list.begin(), list.end(), inserter(tmp, tmp.end()), tolower);
     list = tmp;
 }
 

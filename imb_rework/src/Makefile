@@ -1,37 +1,21 @@
 all: libyaml-cpp.a imb
 
-#CFLAGS=-g -O0 -Wall -Wextra -pedantic
-CPP=mpiicpc
+CXX=mpiicpc
 CC=mpiicc
-CFLAGS = -g -Wall -Wextra -pedantic -I. -DCOMM_EXPERIMENT=0
+CPPFLAGS += -I.
+CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 
-#MPI1=OFF
-#MT=ON
-#OSU=OFF
-#EXAMPLE=OFF
-#HALO=OFF
+#CXX=mpicxx
+#CC=mpicc
+#CPPFLAGS += -I.
+#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+#CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+
 
 include */Makefile.*.mk
 
-#ifeq ($(MPI1),ON)
-#include Makefile.legacy
-#endif
-#ifeq ($(OSU),ON)
-#include Makefile.OSU
-#endif
-#ifeq ($(MT),ON)
-#include Makefile.MT
-#endif
-#ifeq ($(HALO),ON)
-#include Makefile.HALO
-#endif
-#
-#ifeq ($(EXAMPLE),ON)
-#include Makefile.example
-#endif
-
-
-CFLAGS += -Iyamlcpp/include -Iyamlcpp/test
+CPPFLAGS += -Iyamlcpp/include -Iyamlcpp/test
 YAMLCPP_SRC = yamlcpp/src/aliasmanager.cpp \
 yamlcpp/src/binary.cpp \
 yamlcpp/src/conversion.cpp \
@@ -91,16 +75,16 @@ libyaml-cpp.a: $(YAMLCPP_OBJ)
 	ranlib $@
 
 yamltest: $(YAMLCPP_TEST_OBJ) libyaml-cpp.a
-	$(CPP) $(CFLAGS) -o $@ $^
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 
 imb: $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) libyaml-cpp.a
-	$(CPP) $(CFLAGS) -o $@ $^
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) imb yamltest libyaml-cpp.a

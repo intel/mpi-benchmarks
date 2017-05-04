@@ -16,6 +16,6 @@ using namespace std;
 #define MPI_Finalize() ;
 #include "osu/mpi/pt2pt/osu_bw.c"
 template class OSUBenchmark<BenchmarkSuite<BS_OSU>, osu_bw>;
-DECLARE_INHERITED(GLUE_TYPENAME(OSUBenchmark<BenchmarkSuite<BS_OSU>, osu_bw>), osu_bw)
+DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OSUBenchmark<BenchmarkSuite<BS_OSU>, osu_bw>), osu_bw)
 
 #endif

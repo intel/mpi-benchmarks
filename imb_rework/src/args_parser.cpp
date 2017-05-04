@@ -166,7 +166,7 @@ void args_parser::option_vector::to_yaml(YAML::Emitter& out) const { out << val;
 void args_parser::option_vector::from_yaml(const YAML::Node& node) 
 {
     node >> val;
-    assert(val.size() >= vec_min && val.size() <= vec_max);
+    assert(val.size() >= (size_t)vec_min && val.size() <= (size_t)vec_max);
 }
 
 bool args_parser::option_scalar::do_parse(const char *sval) {
@@ -389,7 +389,7 @@ void args_parser::print() const {
 const vector<smart_ptr<args_parser::option> > &args_parser::get_extra_args_info(int &num_extra_args, int &num_required_extra_args) const {
     const vector<smart_ptr<option> > &extra_args = expected_args.find("EXTRA_ARGS")->second;
     bool required_args_ended = false;
-    for (int j = 0; j < extra_args.size(); j++) {
+    for (size_t j = 0; j < extra_args.size(); j++) {
         if (extra_args[j]->required) {
             if (required_args_ended)
                 throw logic_error("args_parser: all required extra args must precede non-required args");
@@ -405,7 +405,7 @@ const vector<smart_ptr<args_parser::option> > &args_parser::get_extra_args_info(
 
 vector<smart_ptr<args_parser::option> > &args_parser::get_extra_args_info(int &num_extra_args, int &num_required_extra_args) {
     vector<smart_ptr<option> > &extra_args = expected_args["EXTRA_ARGS"];
-    for (int j = 0; j < extra_args.size(); j++) {
+    for (size_t j = 0; j < extra_args.size(); j++) {
         if (extra_args[j]->required)
             num_required_extra_args++;
     } 
@@ -488,7 +488,7 @@ bool args_parser::parse() {
         parse_result = false;
     } else {
         int num_processed_extra_args = 0;
-        for (int j = 0; j < extra_args.size(); j++) {
+        for (size_t j = 0; j < extra_args.size(); j++) {
             if (j >= unknown_args.size())
                break;
             if (match(unknown_args[j], "")) 
@@ -503,7 +503,7 @@ bool args_parser::parse() {
             }
             num_processed_extra_args++;
         }
-        assert(num_processed_extra_args <= unknown_args.size());
+        assert((size_t)num_processed_extra_args <= unknown_args.size());
         unknown_args.erase(unknown_args.begin(), unknown_args.begin() + num_processed_extra_args);
     }
 
@@ -668,3 +668,14 @@ ostream &operator<<(ostream &s, const args_parser::value &val) {
     }
     return s;
 }
+
+template <> args_parser::arg_t get_arg_t<int>() { return args_parser::INT; }
+template <> args_parser::arg_t get_arg_t<float>() { return args_parser::FLOAT; }
+template <> args_parser::arg_t get_arg_t<std::string>() { return args_parser::STRING; }
+template <> args_parser::arg_t get_arg_t<bool>() { return args_parser::BOOL; }
+
+template <> int get_val<int>(const args_parser::value &v) { return v.i; }
+template <> float get_val<float>(const args_parser::value &v) { return v.f; }
+template <> bool get_val<bool>(const args_parser::value &v) { return v.b; }
+template <> std::string get_val<std::string>(const args_parser::value &v) { return v.str; }
+

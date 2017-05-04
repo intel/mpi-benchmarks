@@ -52,6 +52,8 @@ goods and services.
 #include "scope.h"
 #include <iostream>
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 class Benchmark {
     public:
         Benchmark() : initialized(false) {}
@@ -80,3 +82,4 @@ class Benchmark {
 
 #define DECLARE_INHERITED(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME;
 
+#define DECLARE_INHERITED_TEMPLATE(CLASS, NAME) namespace { CLASS elem_ ## NAME; } template<> const char *CLASS::name = #NAME;

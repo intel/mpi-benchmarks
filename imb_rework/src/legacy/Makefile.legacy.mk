@@ -1,5 +1,5 @@
-CFLAGS += -DMPI1
-CFLAGS += -Ilegacy -Ilegacy/imb/src
+CPPFLAGS += -DMPI1
+CPPFLAGS += -Ilegacy -Ilegacy/imb/src
 
 BECHMARK_SUITE_SRC += legacy/legacy_MPI1_suite.cpp legacy/legacy_MPI1_benchmark.cpp
 LEGACY_SRC = legacy/imb/src/IMB_allgather.c \

@@ -1,5 +1,5 @@
-CFLAGS += -DEXAMPLE
-CFLAGS += -Iexample 
+CPPFLAGS += -DEXAMPLE
+CPPFLAGS += -Iexample 
 
 BECHMARK_SUITE_SRC += example/example_suite.cpp example/example_benchmark.cpp
 

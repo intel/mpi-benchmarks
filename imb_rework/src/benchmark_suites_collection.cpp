@@ -62,8 +62,8 @@ using namespace std;
 
 map<const string, BenchmarkSuiteBase*> *BenchmarkSuitesCollection::pnames = NULL;
 
-map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_GENERIC>::pnames = 0;
-BenchmarkSuite<BS_GENERIC> *BenchmarkSuite<BS_GENERIC>::instance = 0;
+template <> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_GENERIC>::pnames = 0;
+template <> BenchmarkSuite<BS_GENERIC> *BenchmarkSuite<BS_GENERIC>::instance = 0;
 
 template <> const std::string BenchmarkSuite<BS_GENERIC>::get_name() const { return "__(generic)__"; }
 

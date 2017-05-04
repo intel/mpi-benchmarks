@@ -17,9 +17,9 @@ extern "C" {
 using namespace std;
 
 #define LEGACY_BENCHMARK(LEGACY_BMRK_FN, LEGACY_BMRK_NAME) template class OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>; \
-DECLARE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>), LEGACY_BMRK_NAME) \
-reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr; \
-bool OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::init_description() 
+DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>), LEGACY_BMRK_NAME) \
+template<> reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr  = {}; \
+template<> bool OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::init_description() 
 
 LEGACY_BENCHMARK(IMB_pingpong, PingPong)
 {
@@ -190,6 +190,8 @@ LEGACY_BENCHMARK(IMB_allgatherv, Allgatherv)
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     return true;
 };
+
+//template<> reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_gather>::descr = {};
 
 LEGACY_BENCHMARK(IMB_gather, Gather)
 {
