@@ -52,8 +52,7 @@ namespace NS_HALO {
     int stride;
     int num_threads;
     vector<int> sizes;
-//    vector<string> comm_opts;
-};
+}
 
 template<> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_HALO>::pnames = 0;
 template<> BenchmarkSuite<BS_HALO> *BenchmarkSuite<BS_HALO>::instance = 0;
@@ -68,7 +67,7 @@ template <> void BenchmarkSuite<BS_HALO>::declare_args(args_parser &parser) cons
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
 }
 
-template <> bool BenchmarkSuite<BS_HALO>::prepare(const args_parser &parser, const set<string> &benchs) {
+template <> bool BenchmarkSuite<BS_HALO>::prepare(const args_parser &parser, const set<string> &) {
     using namespace NS_HALO;
     parser.get_result_vec<int>("size", sizes);
     mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
@@ -93,7 +92,7 @@ template <> bool BenchmarkSuite<BS_HALO>::prepare(const args_parser &parser, con
     return true;
 }
 
-template <> void BenchmarkSuite<BS_HALO>::finalize(const set<string> &benchs) {
+template <> void BenchmarkSuite<BS_HALO>::finalize(const set<string> &) {
     using namespace NS_HALO;
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         _ARRAY_FREE(input[thread_num].comm);

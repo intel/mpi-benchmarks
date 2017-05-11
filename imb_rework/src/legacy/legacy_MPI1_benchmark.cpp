@@ -18,7 +18,7 @@ using namespace std;
 
 #define LEGACY_BENCHMARK(LEGACY_BMRK_FN, LEGACY_BMRK_NAME) template class OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>; \
 DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>), LEGACY_BMRK_NAME) \
-template<> reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr  = {}; \
+template<> reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr =  {}; \
 template<> bool OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::init_description() 
 
 LEGACY_BENCHMARK(IMB_pingpong, PingPong)
@@ -31,7 +31,7 @@ LEGACY_BENCHMARK(IMB_pingpong, PingPong)
     descr.flags.insert(RECVBUF_SIZE_I);
     descr.comments.push_back("This is a pingpong benchmark bla bla bla...");
     return true;
-};
+}
 
 void IMB_pingpong_specificsource(struct comm_info* c_info, int size,
                                  struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
@@ -47,7 +47,7 @@ LEGACY_BENCHMARK(IMB_pingpong_specificsource, PingPongSpecificSource)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 void IMB_pingpong_anysource(struct comm_info* c_info, int size,
                             struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
@@ -62,7 +62,7 @@ LEGACY_BENCHMARK(IMB_pingpong_anysource, PingPongAnySource)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_pingping, PingPing)
 {
@@ -72,7 +72,7 @@ LEGACY_BENCHMARK(IMB_pingping, PingPing)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 void IMB_pingping_specificsource(struct comm_info* c_info, int size,
                                  struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
@@ -87,7 +87,7 @@ LEGACY_BENCHMARK(IMB_pingping_specificsource, PingPingSpecificSource)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 void IMB_pingping_anysource(struct comm_info* c_info, int size,
                             struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time) {
@@ -101,7 +101,7 @@ LEGACY_BENCHMARK(IMB_pingping_anysource, PingPingAnySource)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_sendrecv, Sendrecv)
 {
@@ -111,7 +111,7 @@ LEGACY_BENCHMARK(IMB_sendrecv, Sendrecv)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_exchange, Exchange)
 {
@@ -121,7 +121,7 @@ LEGACY_BENCHMARK(IMB_exchange, Exchange)
     descr.flags.insert(SENDBUF_SIZE_2I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_allreduce, Allreduce)
 {
@@ -131,7 +131,7 @@ LEGACY_BENCHMARK(IMB_allreduce, Allreduce)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_reduce, Reduce)
 {
@@ -142,7 +142,7 @@ LEGACY_BENCHMARK(IMB_reduce, Reduce)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
 {
@@ -152,7 +152,7 @@ LEGACY_BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_bcast, Bcast)
 {
@@ -162,7 +162,7 @@ LEGACY_BENCHMARK(IMB_bcast, Bcast)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_barrier, Barrier)
 {
@@ -171,7 +171,7 @@ LEGACY_BENCHMARK(IMB_barrier, Barrier)
     descr.flags.insert(SENDBUF_SIZE_0);
     descr.flags.insert(RECVBUF_SIZE_0);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_allgather, Allgather)
 {
@@ -180,7 +180,7 @@ LEGACY_BENCHMARK(IMB_allgather, Allgather)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_allgatherv, Allgatherv)
 {
@@ -189,9 +189,7 @@ LEGACY_BENCHMARK(IMB_allgatherv, Allgatherv)
     descr.flags.insert(SENDBUF_SIZE_I);
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     return true;
-};
-
-//template<> reworked_Bmark_descr OriginalBenchmark<OriginalBenchmarkSuite_MPI1, IMB_gather>::descr = {};
+}
 
 LEGACY_BENCHMARK(IMB_gather, Gather)
 {
@@ -201,7 +199,7 @@ LEGACY_BENCHMARK(IMB_gather, Gather)
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     descr.flags.insert(HAS_ROOT);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_gatherv, Gatherv)
 {
@@ -211,7 +209,7 @@ LEGACY_BENCHMARK(IMB_gatherv, Gatherv)
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     descr.flags.insert(HAS_ROOT);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_scatter, Scatter)
 {
@@ -221,7 +219,7 @@ LEGACY_BENCHMARK(IMB_scatter, Scatter)
     descr.flags.insert(RECVBUF_SIZE_I);
     descr.flags.insert(HAS_ROOT);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_scatterv, Scatterv)
 {
@@ -231,7 +229,7 @@ LEGACY_BENCHMARK(IMB_scatterv, Scatterv)
     descr.flags.insert(RECVBUF_SIZE_I);
     descr.flags.insert(HAS_ROOT);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_alltoall, Alltoall)
 {
@@ -240,7 +238,7 @@ LEGACY_BENCHMARK(IMB_alltoall, Alltoall)
     descr.flags.insert(SENDBUF_SIZE_NP_I);
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_alltoallv, Alltoallv)
 {
@@ -249,7 +247,7 @@ LEGACY_BENCHMARK(IMB_alltoallv, Alltoallv)
     descr.flags.insert(SENDBUF_SIZE_NP_I);
     descr.flags.insert(RECVBUF_SIZE_NP_I);
     return true;
-};
+}
 
 LEGACY_BENCHMARK(IMB_uni_bandwidth, Uniband)
 {

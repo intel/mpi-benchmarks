@@ -24,6 +24,7 @@ struct LEGACY_GLOBALS {
     double time[MAX_TIME_ID];
 };
 
+#define REWORKED_BMARK_DESCR_INITIALIZER { }
 struct reworked_Bmark_descr {
     typedef std::set<descr_t> descr_set;
     descr_set flags;
@@ -44,7 +45,8 @@ struct reworked_Bmark_descr {
                 return ParallelTransferMsgRate;
             case SYNC:
                 return Sync;
-
+            default: 
+                return BTYPE_INVALID;
         }
         return BTYPE_INVALID;
     }
@@ -66,6 +68,8 @@ struct reworked_Bmark_descr {
                 return np * i;
             case RECVBUF_SIZE_0:
                 return 0;
+            default:
+                throw std::logic_error("descr2len: unknown len");
         }
         throw std::logic_error("descr2len: unknown len");
         return 0;
@@ -361,7 +365,7 @@ struct reworked_Bmark_descr {
 // -------------------------------------------------------------------------------------
         if (s_alloc > 0  && r_alloc > 0) {
             if (ITERATIONS->use_off_cache) {
-                IMB_alloc_buf(c_info, "IMB_init_buffers_iter 1", s_alloc, r_alloc);
+                IMB_alloc_buf(c_info, (char *)"IMB_init_buffers_iter 1", s_alloc, r_alloc);
                 IMB_set_buf(c_info, c_info->rank, 0, s_len-1, 0, r_len-1);
 
                 for (irep = 1; irep < ITERATIONS->s_cache_iter; irep++) {
@@ -546,7 +550,7 @@ struct Bench *Bmark) {
 //            stop_iterations = true;
     }
 
-    void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &glob, 
+    void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &, 
                            Bench *Bmark, iter_schedule &ITERATIONS) {
         if (!Bmark->sample_failure) {
             time_limit[1] = 0;
