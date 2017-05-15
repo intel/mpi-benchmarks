@@ -50,16 +50,19 @@ goods and services.
 */
 
 #include <mpi.h>
-#include "args_parser.h"
-#include "smart_ptr.h"
 #include <stdexcept>
 #include <fstream>
 #include <algorithm>
 
-#include "benchmark_suite.h"
+#include "smart_ptr.h"
+#include "args_parser.h"
+#include "benchmark.h"
+#include "benchmark_suites_collection.h"
 #include "utils.h"
 #include "scope.h"
+#include "benchmark_suite.h"
 
+/*
 #ifdef MPI1
 #include "legacy_MPI1_suite.h"
 #endif
@@ -69,6 +72,7 @@ goods and services.
 #ifdef HALO
 #include "halo_suite.h"
 #endif
+*/
 
 using namespace std;
 
@@ -78,30 +82,20 @@ int main(int argc, char * *argv)
 {
     bool no_mpi_init_flag = true;
     int rank = 0, size = 0;
+
+    // Some unit tests for args parser
 #if 0
     check_parser();
 #endif    
 
-#ifdef MPI1    
-    OriginalBenchmarkSuite_MPI1::init();
-#endif
-#ifdef OSU
-    BenchmarkSuite<BS_OSU>::init();
-#endif    
-#ifdef MT
-    MTBenchmarkSuite::init();
-#endif    
-#ifdef HALO
-    HALOBenchmarkSuite::init();
-#endif    
-
-#ifdef EXAMPLE
-    BenchmarkSuite<BS_EXAMPLE>::init();
-#endif    
-
-
-
+    
     try {
+        // Allow very first init steps for each suite -- each benchmark
+        // is allowed to init flags and do other fundamental things before MPI_Init and
+        // even args parsing
+        BenchmarkSuitesCollection::init_registered_suites();
+
+        // Do basic initialisation of exapected args
         //args_parser parser(argc, argv, "/", ':');
         //args_parser parser(argc, argv, "--", '=');
         args_parser parser(argc, argv, "-", ' ');
@@ -117,14 +111,14 @@ int main(int argc, char * *argv)
         parser.add_option_with_defaults_vec<string>("exclude").
             set_caption("benchmark[,benchmark,[...] ...");
 
-        // extra non-option arguments 
+        // Extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
         parser.add_option_with_defaults_vec<string>("(benchmarks)").
             set_caption("benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
 
 
-        // bechmark suite related args
+        // Now fill in bechmark suite related args
         BenchmarkSuitesCollection::declare_args(parser);
 
         // "system" option args to do special things, not dumped to files
@@ -158,30 +152,31 @@ int main(int argc, char * *argv)
         
         vector<string> requested_benchmarks, to_include, to_exclude;
         parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
+        // FIXME!!! separate unknown args to unknown option args and unknown free args
         parser.get_unknown_args(requested_benchmarks);
         parser.get_result_vec<string>("include", to_include);
         parser.get_result_vec<string>("exclude", to_exclude);
 
         string filename = parser.get_result<string>("input");
         if (filename != "") {
-            int n_cases = 0;
             FILE *t = fopen(filename.c_str(), "r");
             if (t == NULL) {
                 cout << "ERROR: can't open a file given in -input option" << endl;
                 return 1;
             }
-            char inp_line[72], nam[32];
-            while (fgets(inp_line, 72, t)) {
-                if (inp_line[0] != '#' && strlen(inp_line) - 1) {
-                    sscanf(inp_line, "%32s", nam);
-                    n_cases++;
-                    requested_benchmarks.push_back(nam);
+            char input_line[72+1], name[32+1];
+            while (fgets(input_line, 72, t)) {
+                if (input_line[0] != '#' && strlen(input_line) > 0) {
+                    sscanf(input_line, "%32s", name);
+                    requested_benchmarks.push_back(name);
                 }
             }
             fclose(t);
         }
 
 
+        // Complete benchmark list filling in: combine -input, -include, -exclude options,
+        // make sure all requested benchmarks are found
         set<string> default_benchmarks, all_benchmarks;
         set<string> actual_benchmark_list;
         BenchmarkSuitesCollection::get_full_list(all_benchmarks);
@@ -214,6 +209,8 @@ int main(int argc, char * *argv)
                 return 1;
             }
         }
+
+        // Do aproppriate MPI_Init call
         string mpi_init_mode = parser.get_result<string>("thread_level");
         int required_mode, provided_mode;
         if (mpi_init_mode == "single") {
@@ -243,6 +240,9 @@ int main(int argc, char * *argv)
             }
         }
  
+        //---------------------------------------------------------------------
+        // ACTUAL BENCHMARKING
+        //
         // 1, Preparation phase on suite level
         if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
             throw logic_error("One or more benchmark suites failed at preparation stage");

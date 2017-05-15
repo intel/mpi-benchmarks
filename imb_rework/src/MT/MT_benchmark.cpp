@@ -49,14 +49,18 @@ goods and services.
  ***************************************************************************
 */
 
+#include <mpi.h>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
 #include <iostream>
 
-#include "MT_benchmark.h" 
+#include "benchmark_suites_collection.h"
+#include "utils.h"
+#include "benchmark_suite.h"
 #include "MT_suite.h"
+#include "MT_benchmark.h" 
 
 #define WITH_VECTOR
 

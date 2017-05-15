@@ -53,7 +53,7 @@ goods and services.
 
 #include "benchmark_suite_base.h"
 
-//!!!
+//!!! to remove
 #include <iostream>
 
 enum benchmark_suite_t { 
@@ -69,11 +69,6 @@ enum benchmark_suite_t {
 #ifdef MT
     BS_MT,
 #endif
-#ifdef HALO
-    BS_HALO,
-#endif
-
-    BS_EXAMPLE, 
     BS_GENERIC    
 };
 
@@ -102,6 +97,14 @@ class BenchmarkSuitesCollection {
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
             it->second->get_bench_list(default_benchmarks, BenchmarkSuiteBase::DEFAULT_BENCHMARKS);
+        }
+    }
+    static void init_registered_suites() {
+       assert(pnames != NULL);
+        for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
+             it != pnames->end(); ++it) {
+                it->second->init();
+                std::cout << "Benchmark suite '" << it->second->get_name() << "' registered" << std::endl;
         }
     }
     static void declare_args(args_parser &parser) {

@@ -54,26 +54,20 @@ goods and services.
 #include <set>
 #include <map>
 #include <assert.h>
-#include "benchmark_suite.h"
 #include "benchmark_suites_collection.h"
 #include "utils.h"
+#include "benchmark_suite.h"
 
 using namespace std;
 
 map<const string, BenchmarkSuiteBase*> *BenchmarkSuitesCollection::pnames = NULL;
 
-template <> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_GENERIC>::pnames = 0;
-template <> BenchmarkSuite<BS_GENERIC> *BenchmarkSuite<BS_GENERIC>::instance = 0;
+DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, __generic__)
 
-template <> const std::string BenchmarkSuite<BS_GENERIC>::get_name() const { return "__(generic)__"; }
-
-
-struct DummyBenchmarkSuite : public BenchmarkSuite<BS_GENERIC> {
-    DummyBenchmarkSuite() { BenchmarkSuitesCollection::register_elem(this); }
-    const std::string get_name() const { return "__(dummy)__"; }
-};
-
-// dummy suite for the case there is no other suites registered
-namespace { DummyBenchmarkSuite dummy_benchmark_suite; }
-
-
+namespace { 
+    struct Dummy : public Benchmark {
+        void run(const std::pair<int, int> &) {}
+        DEFINE_INHERITED(Dummy, BenchmarkSuite<BS_GENERIC>)
+    };
+    DECLARE_INHERITED(Dummy, Dummy)
+}

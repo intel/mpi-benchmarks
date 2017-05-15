@@ -50,7 +50,7 @@ goods and services.
 */
 
 #pragma once
-
+/*
 #include <vector>
 #include <string>
 #include <map>
@@ -68,11 +68,13 @@ goods and services.
 
 #include "smart_ptr.h"
 #include "utils.h"
-
+*/
 template <benchmark_suite_t bs>
 class BenchmarkSuite : public BenchmarkSuiteBase {
+    public:
+        typedef std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> pnames_t;
     protected:
-        static std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> *pnames;
+        static pnames_t *pnames;
         static BenchmarkSuite<bs> *instance;
     public:   
         static BenchmarkSuite<bs> &get_instance() { 
@@ -82,7 +84,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
             return *instance; 
         }
-        static void init() {
+        virtual void init() {
             std::set<std::string> benchs;
             get_full_list(benchs);
             for (std::set<std::string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
@@ -107,7 +109,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             std::string name = elem->get_name();
             assert(name != "(none)");
             if (pnames == NULL) {
-                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
+                pnames = new pnames_t();
             }
             if (pnames->find(name) == pnames->end()) 
                 (*pnames)[name] = elem;
@@ -115,7 +117,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         }
         smart_ptr<Benchmark> do_create(const std::string &s) {
             if (pnames == NULL) {
-                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
+                pnames = new pnames_t();
             }
             const Benchmark *elem = (*pnames)[s];
             if (elem == NULL)
@@ -124,7 +126,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         }
         void do_get_full_list(std::set<std::string> &all_benchmarks) {
             if (pnames == NULL) {
-                pnames = new std::map<std::string, const Benchmark*, set_operations::case_insens_cmp>();
+                pnames = new pnames_t();
             }
             std::insert_iterator<std::set<std::string> > insert(all_benchmarks, all_benchmarks.end());
             for (std::map<std::string, const Benchmark*>::iterator it = pnames->begin();
@@ -147,5 +149,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         BenchmarkSuite(const BenchmarkSuite &) {}
 };
 
-#define DEFINE_SUITE(SUITE) std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> *SUITE::pnames = 0; \
-                            SUITE *SUITE::instance = 0;
+#define DECLARE_BENCHMARK_SUITE_STUFF(SUITE, NAME) \
+template<> BenchmarkSuite<SUITE>::pnames_t *BenchmarkSuite<SUITE>::pnames = 0; \
+template<> BenchmarkSuite<SUITE> *BenchmarkSuite<SUITE>::instance = 0; \
+template <> const std::string BenchmarkSuite<SUITE>::get_name() const { return #NAME; }

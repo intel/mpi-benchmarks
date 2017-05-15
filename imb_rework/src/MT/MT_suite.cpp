@@ -56,6 +56,9 @@ goods and services.
 #include <string>
 #include <map>
 #include "benchmark.h"
+#include "args_parser.h"
+#include "utils.h"
+#include "benchmark_suites_collection.h"
 #include "benchmark_suite.h"
 #include "utils.h"
 

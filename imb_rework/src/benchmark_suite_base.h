@@ -59,6 +59,7 @@ class Benchmark;
 
 struct BenchmarkSuiteBase {
     enum BenchListFilter { ALL_BENCHMARKS, DEFAULT_BENCHMARKS };
+    virtual void init() {}
     virtual void declare_args(args_parser &) const {};
     virtual bool prepare(const args_parser &, const std::set<std::string> &) { return true; }
     virtual void finalize(const std::set<std::string> &) { }

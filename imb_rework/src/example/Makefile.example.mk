@@ -1,7 +1,4 @@
 CPPFLAGS += -DEXAMPLE
 CPPFLAGS += -Iexample 
 
-BECHMARK_SUITE_SRC += example/example_suite.cpp example/example_benchmark.cpp
-
-HEADERS += example/example_benchmark.h
-
+BECHMARK_SUITE_SRC += example/example_benchmark.cpp

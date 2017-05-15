@@ -1,8 +1,8 @@
 CPPFLAGS += -DHALO
 CPPFLAGS += -Ihalo
-CXXFLAGS += -qopenmp
+CXXFLAGS += -fopenmp
 
 BECHMARK_SUITE_SRC += halo/halo_suite.cpp halo/halo_benchmark.cpp
 
-HEADERS += halo/halo_benchmark.h
+HEADERS += halo/MT_benchmark.h
 

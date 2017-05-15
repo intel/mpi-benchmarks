@@ -1,8 +1,6 @@
 #pragma once
 
 #ifdef MPI1
-
-#include "benchmark_suite.h"
 extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"

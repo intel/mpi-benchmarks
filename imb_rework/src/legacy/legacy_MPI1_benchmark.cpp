@@ -6,6 +6,11 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include "smart_ptr.h"
+#include "benchmark_suites_collection.h"
+#include "utils.h"
+#include "benchmark_suite.h"
+#include "legacy_MPI1_suite.h"
 #include "legacy_benchmark.h"
 
 extern "C" {

@@ -57,8 +57,8 @@ goods and services.
 class Benchmark {
     public:
         Benchmark() : initialized(false) {}
-        virtual const std::string get_name() const = 0;
-        virtual Benchmark* create_myself() const = 0;
+        virtual const std::string get_name() const { return std::string(""); }
+        virtual Benchmark* create_myself() const { return NULL; }
         virtual void allocate_internals() {}
         virtual bool init_description() { return true; }
         virtual void init() { } 

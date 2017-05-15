@@ -1,6 +1,9 @@
 #pragma once
-#include "benchmark_suite.h"
-#include "legacy_MPI1_suite.h"
+#include <map>
+//#include "becnhmark_suites_collection.h"
+//#include "utils.h"
+//#include "benchmark_suite.h"
+//#include "legacy_MPI1_suite.h"
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
 

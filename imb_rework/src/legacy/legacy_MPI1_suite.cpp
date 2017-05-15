@@ -3,13 +3,18 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <map>
 #include <algorithm>
 #include <mpi.h>
+#include "args_parser.h"
+#include "benchmark_suites_collection.h"
+#include "utils.h"
+#include "benchmark_suite.h"
 #include "legacy_MPI1_suite.h"
+
 #include "IMB_comm_info.h"
 
 #include "reworked_IMB_functions.h"
-#include "utils.h"
 
 using namespace std;
 
