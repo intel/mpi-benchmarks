@@ -66,6 +66,7 @@ using namespace std;
 #define GLUE_TYPENAME(A,B) A,B
 #define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
+#define GET_GLOBAL_DEEPCOPY(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); NAME = *p; }
 
 /*
 template <typename T>
@@ -82,7 +83,7 @@ MPI_Datatype get_mpi_datatype<int>() {
 }
 */
 
-#include "MT/MT_types.h"
+#include "MT_types.h"
 
 /*
 // FIXME code duplication
@@ -244,7 +245,7 @@ template <> string out_field<const char *>(const char *val) { return do_format<1
 template <> string out_field<unsigned long>(unsigned long val) { return do_format<14>("% 13ul", val); }
 
 template <class bs, mt_benchmark_func_t fn_ptr>
-class BenchmarkMT : public Benchmark {
+class BenchmarkMTBase : public Benchmark {
     public:    
     enum Flags {
         COLLECTIVE,
@@ -286,7 +287,7 @@ class BenchmarkMT : public Benchmark {
     double time_avg, time_min, time_max;
     int world_rank, world_size;
     public:
-    virtual void init_flags();
+    virtual void init_flags() {}
     virtual void run_instance(immb_local_t *input, int count, double &t, int &result) {
         MPI_Comm comm = _ARRAY_THIS(input->comm);
         int warmup = input->warmup, repeat = input->repeat;
@@ -508,6 +509,11 @@ class BenchmarkMT : public Benchmark {
             }
         }
     }
+//    DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkMT<bs, fn_ptr>), bs);
+};
+template <class bs, mt_benchmark_func_t fn_ptr>
+class BenchmarkMT : public BenchmarkMTBase<bs, fn_ptr> {
+    public:
+    virtual void init_flags();
     DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkMT<bs, fn_ptr>), bs);
 };
-

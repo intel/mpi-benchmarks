@@ -1,3 +1,4 @@
+#include <mpi.h>
 #include <vector>
 #include <string>
 #include <map>
@@ -13,13 +14,15 @@
 #define GLUE_TYPENAME2(A,B) A,B
 #define GLUE_TYPENAME3(A,B,C) A,B,C
 
+#include "halo_benchmark.h"
 
 using namespace std;
 
 namespace ndim_halo_benchmark {
 
-    #include "MT_benchmark.h" 
+DECLARE_INHERITED_TEMPLATE(HaloBenchmark<HALOBenchmarkSuite>, simple_halo)
     
+/*    
     inline bool set_stride(int rank, int size, int &stride, int &group)
     {
         if (stride == 0)
@@ -57,5 +60,5 @@ namespace ndim_halo_benchmark {
         flags.insert(PT2PT);
         flags.insert(OUT_BYTES);
     }
-
+*/
 }

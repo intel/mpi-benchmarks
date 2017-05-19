@@ -80,6 +80,17 @@ struct Scope {
     ScopeIterator begin();
     ScopeIterator end();
     virtual void commit() { formed = true; }
+    int get_max_len() { 
+        assert(formed);  
+        std::vector<int> lens;
+        for (std::vector<std::pair<int, int> >::iterator it = sequence.begin();
+                it != sequence.end(); it++) {
+            lens.push_back(it->second);
+        }
+        if (lens.size() == 0)
+            return 0;    
+        return *(std::max_element(lens.begin(), lens.end()));
+    }
 };
 
 struct VarLenScope : public Scope {
@@ -107,11 +118,11 @@ struct VarLenScope : public Scope {
         }
         formed = true;
     }
-    int get_max_len() {
-        if (lens.size() == 0)
-            return 0;
-        return *(std::max_element(lens.begin(), lens.end()));
-    }
+//    int get_max_len() {
+//        if (lens.size() == 0)
+//            return 0;
+//        return *(std::max_element(lens.begin(), lens.end()));
+//    }
 };
 
 struct NPLenCombinedScope : public Scope {

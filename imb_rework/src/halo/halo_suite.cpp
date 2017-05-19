@@ -11,6 +11,8 @@
 
 #include "halo_suite.h"
 
+#include "layout.h"
+
 namespace ndim_halo_benchmark {
 
 static MPI_Comm immb_convert_comm(const char *, int mode_multiple, int thread_num) {
@@ -30,10 +32,11 @@ static MPI_Comm immb_convert_comm(const char *, int mode_multiple, int thread_nu
 }
 
 
+#include "MT_types.h"
 
 // FIXME code duplication
-
-/* convenience macros and functions working with input parameters */
+/*
+// convenience macros and functions working with input parameters 
 #define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
 #define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
 #define _ARRAY_FREE(_array) free(_array)
@@ -60,7 +63,7 @@ enum barropt_t {
     BARROPT_NORMAL,
     BARROPT_SPECIAL
 };
-
+*/
 
 using namespace std;
 
@@ -69,7 +72,7 @@ namespace NS_HALO {
     int mode_multiple;
     int stride;
     int num_threads;
-    int rank;
+    int rank, nranks;
     bool prepared = false;
     vector<int> cnt;
     int malloc_align;
@@ -77,14 +80,13 @@ namespace NS_HALO {
     barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
+    int ndims;
+    unsigned *mysubs;
+    Layout L_global;
 //------------
 }
 
 DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, ndim_halo_benchmark)
-
-//template<> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_GENERIC>::pnames = 0;
-//template<> BenchmarkSuite<BS_GENERIC> *BenchmarkSuite<BS_GENERIC>::instance = 0;
-//template <> const std::string BenchmarkSuite<BS_GENERIC>::get_name() const { return "IMB-HALO"; }
 
 template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
     parser.add_option_with_defaults<int>("stride", 0);
@@ -183,6 +185,60 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     }
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nranks);
+
+    Layout &L = L_global;
+    if (L.nranks() > nranks) {
+        // FIXME get rid of cout some way!
+        cout << "Not enough ranks, " << L.nranks() << " min. required" << endl;
+        return false;
+    }
+
+    if (rank == 0)
+        L.prlayout();
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    ndims = L.ndims();
+    //unsigned int mysubs[ndims];
+    mysubs = (unsigned int *)malloc(ndims * sizeof(unsigned int));
+    L.ranktosubs(rank, mysubs);
+    L_global = L;
+/*    
+    //printf("%d: %d: ", rank, L.substorank(mysubs)); L.prsubs("mysubs", mysubs);
+    enum { UP=0, DN }; const int ndirs = 2;
+    enum { SEND=0, RECV }; const int nsr = 2;
+    void *buffs[ndims][ndirs][nsr];
+    for (int i = 0; i < ndims; ++i)
+    for (int j = SEND; j <= RECV; ++j)
+    for (int k = UP; k <= DN; ++k) {
+        // aligned malloc of multiple of 2MiB is likely to get us a 2M huge page
+        const int twomb = 2*1024*1024;
+        size_t s = (L.size(i) + twomb - 1) & ~(twomb-1);
+        buffs[i][j][k] = _mm_malloc(s, twomb);
+        assert(buffs[i][j][k]);
+        memset(buffs[i][j][k], rank, s);
+    }
+    int partner[ndims][ndirs];
+    // construct the partners
+    for (int dim = 0; dim < ndims; ++dim) {
+        unsigned int partnersubs[ndims];
+        for (int i = 0; i < ndims; ++i) partnersubs[i] = mysubs[i];
+        partnersubs[dim] = (mysubs[dim]+1)%L.ranksperdim(dim);
+        partner[dim][UP] = L.substorank(partnersubs);
+        partnersubs[dim] = (L.ranksperdim(dim)+mysubs[dim]-1)%L.ranksperdim(dim);
+        partner[dim][DN] = L.substorank(partnersubs);
+    }
+
+    #if 1
+    for (int kk = 0; kk < nranks; ++kk) {
+        if (kk == rank)
+        for (int i = 0; i < ndims; ++i)
+        for (int j = 0; j < ndirs; ++j) {
+            printf("dim %d dir %c %d <=> %d\n", i, "UD"[j], rank, partner[i][j]);
+        }
+    }
+    #endif
+*/
     return true;
 }
 
@@ -192,7 +248,6 @@ template <> void BenchmarkSuite<BS_GENERIC>::finalize(const set<string> &) {
         _ARRAY_FREE(input[thread_num].comm);
     }
 }
-
 
 void *HALOBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     using namespace NS_HALO;
@@ -206,6 +261,12 @@ void *HALOBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "barrier_option") return &barrier_option;
     if (key == "do_checks") return &do_checks;
     if (key == "datatype") return &datatype;
+
+    if (key == "ndims") return &ndims;
+    if (key == "mysubs[i]") return &mysubs[i];
+    if (key == "L") return &L_global;
+    if (key == "rank") return &rank;
+    if (key == "nranks") return &nranks;
     assert(false);
     return 0;
 }
