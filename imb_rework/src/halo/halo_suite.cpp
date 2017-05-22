@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <math.h>
 #include "benchmark.h"
 #include "benchmark_suites_collection.h"
 #include "utils.h"
@@ -11,7 +12,7 @@
 
 #include "halo_suite.h"
 
-#include "layout.h"
+//#include "layout.h"
 
 namespace ndim_halo_benchmark {
 
@@ -32,38 +33,22 @@ static MPI_Comm immb_convert_comm(const char *, int mode_multiple, int thread_nu
 }
 
 
+template <typename integer>
+integer gcd(integer a, integer b) {
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    if (a == 0) return b;
+    while (b != 0) {
+        integer remainder = a % b;
+        a = b;
+        b = remainder;
+    }
+    return a;
+}
+
+
+
 #include "MT_types.h"
-
-// FIXME code duplication
-/*
-// convenience macros and functions working with input parameters 
-#define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
-#define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
-#define _ARRAY_FREE(_array) free(_array)
-#define _ARRAY_FOR(_array,_i,_action) for(_i=0;_i<_array##n;_i++) {_action;}
-#define _ARRAY_NEXT(_array) if(++_array##i >= _array##n) _array##i = 0; else return 1
-#define _ARRAY_THIS(_array) (_array[_array##i])
-#define _ARRAY_CHECK(_array) (_array##i >= _array##n)
-
-typedef struct _immb_local_t {
-    int warmup;
-    int repeat;
-    _ARRAY_DECL(comm, MPI_Comm);
-    _ARRAY_DECL(count, int);
-} immb_local_t;
-
-enum malopt_t {
-    MALOPT_SERIAL,
-    MALOPT_CONTINOUS,
-    MALOPT_PARALLEL
-};
-
-enum barropt_t {
-    BARROPT_NOBARRIER,
-    BARROPT_NORMAL,
-    BARROPT_SPECIAL
-};
-*/
 
 using namespace std;
 
@@ -80,10 +65,62 @@ namespace NS_HALO {
     barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
-    int ndims;
-    unsigned *mysubs;
-    Layout L_global;
-//------------
+    int required_nranks, ndims;
+    std::vector<int> ranksperdim;
+    std::vector<int> mults;
+    std::vector<unsigned int> mysubs;
+    static void prvals(const std::vector<int> &arr)
+    {
+        for (int i = 0; i < ndims-1; ++i)
+            printf("%d.", arr[i]);
+        printf("%d", arr[ndims-1]);
+    }
+    static void prlayout()
+    {
+        printf("%d dims, %d ranks, layout: ", ndims, required_nranks);
+        prvals(ranksperdim);
+        printf("\nmults: ");
+        prvals(mults);
+        printf("\n");
+    }
+    static void prsubs(const char *name, const std::vector<unsigned int> &subs)
+    {
+        printf("%s:", name);
+        for (int i = 0; i < ndims; ++i)
+            printf(" %d", subs[i]);
+        printf("\n");
+    }
+    static void fill_in(std::vector<int> &topo)
+    {
+        ndims = topo.size();
+        ranksperdim = topo;
+        {
+            int n = 0;
+            for (int i = 0; i < ndims; ++i) {
+                n = gcd(n, topo[i]);
+            }
+            printf("n=%d\n", n);
+            assert(n > 0);
+            for (int i = 0; i < ndims; ++i) {
+                ranksperdim[i] = topo[i] / n;
+            }
+        }
+        required_nranks = 1;
+        for (int i = 0; i < ndims; ++i)
+            required_nranks *= ranksperdim[i];
+        if (nranks / required_nranks >= (1<<ndims)) {
+            int mult = (int)(pow(nranks, 1.0/ndims));
+            for (int i = 0; i < ndims; ++i)
+                ranksperdim[i] *= mult;
+            required_nranks = 1;
+            for (int i = 0; i < ndims; ++i)
+                required_nranks *= ranksperdim[i];
+        }
+        mults.resize(ndims);
+        mults[ndims - 1] = 1;
+        for (int i = ndims - 2; i >= 0; --i)
+            mults[i] = mults[i + 1] * ranksperdim[i + 1];
+    }
 }
 
 DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, ndim_halo_benchmark)
@@ -98,18 +135,16 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add_option_with_defaults<int>("malloc_align", 64);
-    parser.add_option_with_defaults<string>("malloc_algo", "serial").
-        set_caption("serial|continous|parallel");
     parser.add_option_with_defaults<bool>("check", false);
     parser.add_option_with_defaults<string>("datatype", "int").
         set_caption("int|char");
 
     parser.add_option_with_defaults_vec<int>("topo", "1", '.');
-    parser.add_option_with_defaults_vec<int>("size", "1,2,4,8").
-        set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
 }
 
 template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const set<string> &) {
+
+    //-- FIXME its a copy-paste of MT code, invent the way to reuse it
     using namespace NS_HALO;
 
     parser.get_result_vec<int>("count", cnt);
@@ -183,62 +218,30 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
     }
-    prepared = true;
+
+    std::vector<int> topo;
+    parser.get_result_vec<int>("topo", topo);
+
+    // -- HALO specific part
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &nranks);
 
-    Layout &L = L_global;
-    if (L.nranks() > nranks) {
+    fill_in(topo);
+
+    //Layout &L = L_global;
+    if (required_nranks > nranks) {
         // FIXME get rid of cout some way!
-        cout << "Not enough ranks, " << L.nranks() << " min. required" << endl;
+        cout << "Not enough ranks, " << required_nranks << " min. required" << endl;
         return false;
     }
 
     if (rank == 0)
-        L.prlayout();
+        prlayout();
     MPI_Barrier(MPI_COMM_WORLD);
 
-    ndims = L.ndims();
-    //unsigned int mysubs[ndims];
-    mysubs = (unsigned int *)malloc(ndims * sizeof(unsigned int));
-    L.ranktosubs(rank, mysubs);
-    L_global = L;
-/*    
-    //printf("%d: %d: ", rank, L.substorank(mysubs)); L.prsubs("mysubs", mysubs);
-    enum { UP=0, DN }; const int ndirs = 2;
-    enum { SEND=0, RECV }; const int nsr = 2;
-    void *buffs[ndims][ndirs][nsr];
-    for (int i = 0; i < ndims; ++i)
-    for (int j = SEND; j <= RECV; ++j)
-    for (int k = UP; k <= DN; ++k) {
-        // aligned malloc of multiple of 2MiB is likely to get us a 2M huge page
-        const int twomb = 2*1024*1024;
-        size_t s = (L.size(i) + twomb - 1) & ~(twomb-1);
-        buffs[i][j][k] = _mm_malloc(s, twomb);
-        assert(buffs[i][j][k]);
-        memset(buffs[i][j][k], rank, s);
-    }
-    int partner[ndims][ndirs];
-    // construct the partners
-    for (int dim = 0; dim < ndims; ++dim) {
-        unsigned int partnersubs[ndims];
-        for (int i = 0; i < ndims; ++i) partnersubs[i] = mysubs[i];
-        partnersubs[dim] = (mysubs[dim]+1)%L.ranksperdim(dim);
-        partner[dim][UP] = L.substorank(partnersubs);
-        partnersubs[dim] = (L.ranksperdim(dim)+mysubs[dim]-1)%L.ranksperdim(dim);
-        partner[dim][DN] = L.substorank(partnersubs);
-    }
-
-    #if 1
-    for (int kk = 0; kk < nranks; ++kk) {
-        if (kk == rank)
-        for (int i = 0; i < ndims; ++i)
-        for (int j = 0; j < ndirs; ++j) {
-            printf("dim %d dir %c %d <=> %d\n", i, "UD"[j], rank, partner[i][j]);
-        }
-    }
-    #endif
-*/
+//    mysubs.resize(ndims);
+//    ranktosubs(rank, mysubs);
+    prepared = true;
     return true;
 }
 
@@ -263,8 +266,10 @@ void *HALOBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "datatype") return &datatype;
 
     if (key == "ndims") return &ndims;
-    if (key == "mysubs[i]") return &mysubs[i];
-    if (key == "L") return &L_global;
+    if (key == "required_nranks") return &required_nranks;
+    if (key == "ranksperdim") return &ranksperdim;
+    if (key == "mults") return &mults;
+//  e if (key == "L") return &L_global;
     if (key == "rank") return &rank;
     if (key == "nranks") return &nranks;
     assert(false);
