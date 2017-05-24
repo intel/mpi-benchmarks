@@ -1,8 +1,6 @@
 #pragma once
 #include <mpi.h>
 
-//#include "layout.h"
-
 namespace ndim_halo_benchmark {
 
 #include "MT_benchmark.h"
@@ -10,12 +8,8 @@ namespace ndim_halo_benchmark {
 int dummy_func(int, int, void *, void *, int, MPI_Datatype, MPI_Comm, 
                int, int, input_benchmark_data *, output_benchmark_data *) { return 0; }
 
-//int substorank(const std::vector<unsigned int> &subs);
-//void ranktosubs(int rank, std::vector<unsigned int> &subs);
-//void prlayout();
-
 template <class bs>
-class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_func> {
+class HaloBenchmark : public Benchmark { 
     public:    
     MPI_Datatype datatype;
     size_t datatype_size;
@@ -108,9 +102,9 @@ class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_fu
         mysubs.resize(ndims);
         ranktosubs(rank, mysubs);
         
-        for (int i = 0; i < ndims; ++i) printf(">> mysubs[i]=%d\n", mysubs[i]);
+//        for (int i = 0; i < ndims; ++i) printf(">> mysubs[i]=%d\n", mysubs[i]);
 
-        prlayout();
+//        prlayout();
 
         buffs.resize(ndims);
         for (int i = 0; i < ndims; i++) {
@@ -139,15 +133,15 @@ class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_fu
             for (int i = 0; i < ndims; ++i) partnersubs[i] = mysubs[i];
             partnersubs[dim] = (mysubs[dim]+1)%ranksperdim[dim];
             partner[dim][UP] = substorank(partnersubs);
-            printf(">> partnersubs[%d]=%d, partner[%d][UP]=%d\n",
-                dim, partnersubs[dim], dim, partner[dim][UP]);
+//            printf(">> partnersubs[%d]=%d, partner[%d][UP]=%d\n",
+//                dim, partnersubs[dim], dim, partner[dim][UP]);
             partnersubs[dim] = (ranksperdim[dim]+mysubs[dim]-1)%ranksperdim[dim];
             partner[dim][DN] = substorank(partnersubs);
-            printf(">> partnersubs[%d]=%d, partner[%d][DN]=%d\n",
-                dim, partnersubs[dim], dim, partner[dim][DN]);
+//            printf(">> partnersubs[%d]=%d, partner[%d][DN]=%d\n",
+//                dim, partnersubs[dim], dim, partner[dim][DN]);
 
         }
-        #if 1
+        #if 0
         for (int i = 0; i < ndims; ++i) {
             for (int j = 0; j < ndirs; ++j) {
                 printf("dim %d dir %c %d <=> %d\n", i, "UD"[j], rank, partner[i][j]);
@@ -191,21 +185,23 @@ class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_fu
             {
                 double t_mp;
                 int result;
-                run_instance(&input[omp_get_thread_num()], chunks[omp_get_thread_num()], t_mp, result);
+                size_t total_count;
+                run_instance(&input[omp_get_thread_num()], chunks[omp_get_thread_num()], t_mp, result, total_count);
             #pragma omp critical
                 {
                     tmax = max(tmax, t_mp);
                     tmin = min(tmin, t_mp);
                     tavg = tavg + t_mp;
                     nresults += result;
-                    transferred_bytes += (double)(result * chunks[omp_get_thread_num()].count * datatype_size);
+                    transferred_bytes += (double)(total_count * datatype_size);
                 }
             }
         } else {
             chunk_t the_only_chunk = { 0, p.second };
-            run_instance(&input[0], the_only_chunk, t, nresults);
+            size_t total_count;
+            run_instance(&input[0], the_only_chunk, t, nresults, total_count);
             tavg = tmax = tmin = t;
-            transferred_bytes = (double)(nresults * p.second * datatype_size);
+            transferred_bytes = (double)(total_count * datatype_size);
         }
         MPI_Allreduce(&tavg, &time_avg, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(&tmin, &time_min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
@@ -222,19 +218,20 @@ class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_fu
                 if (ninvocations++ == 0) {
                     std::cout << std::endl;
                     std::cout << "# Benchmarking " << get_name() << std::endl;
-                    std::cout << time_avg << " " << transferred_bytes / time_avg / 1e6 << std::endl;
                 }
+                std::cout << p.second << " " << time_avg / 1e-6 << "(usec) " << transferred_bytes / time_avg / 1e6 << "(Mb/s)" << std::endl;
+                
             }
         }
     }
-    virtual void run_instance(immb_local_t *input, chunk_t chunk, double &t, int &result) {
+    virtual void run_instance(immb_local_t *input, chunk_t chunk, double &t, int &result, size_t &total_count) {
         MPI_Comm comm = _ARRAY_THIS(input->comm);
         MPI_Status status;
         t = 0;
         result = 0;
         if (rank >= required_nranks)
             return;
-        t = MPI_Wtime();
+//        t = MPI_Wtime();
 #if 0        
         for (int iter = 0; iter < parent::input->repeat; ++iter) {
             for (int i = 0; i < ndims; ++i) {
@@ -254,40 +251,45 @@ class HaloBenchmark : public Benchmark { //: public BenchmarkMTBase<bs, dummy_fu
 #else
         int recvoffs = 0;
         const int maxreqs = 4 * ndims;
+        int nreqs = 0;
         MPI_Request reqs[maxreqs];
-        for (int iter = 0; iter < input->repeat; ++iter) {
-            int nreqs = 0;
+        for (int iter = 0; iter < input->warmup + input->repeat; ++iter) {
+            if (iter == input->warmup) {
+                t = MPI_Wtime();
+            }
+            nreqs = 0;
             for (int i = 0; i < ndims; ++i) {
                 if (ranksperdim[i] == 1) 
                     continue;
                 MPI_Irecv(buffs[i][UP][RECV] + chunk.offset, chunk.count, datatype, 
                           partner[i][DN], 1, comm, &reqs[nreqs++]);
-                result++;
-                printf(">> Irecv: %d->%d\n", partner[i][DN], rank);
+//                printf(">> Irecv: %d->%d count=%d\n", partner[i][DN], rank, chunk.count);
             
                 MPI_Irecv(buffs[i][DN][RECV] + chunk.offset, chunk.count, datatype, 
                           partner[i][UP], 1, comm, &reqs[nreqs++]);
-                result++;
-                printf(">> Irecv: %d->%d\n", partner[i][UP], rank);
+//                printf(">> Irecv: %d->%d\n", partner[i][UP], rank);
             }
             for (int i = 0; i < ndims; ++i) {
                 if (ranksperdim[i] == 1)
                     continue;
                 MPI_Isend(buffs[i][UP][SEND] + chunk.offset, chunk.count, datatype, 
                           partner[i][UP], 1, comm, &reqs[nreqs++]);
-                result++;
-                printf(">> Isend: %d->%d\n", rank, partner[i][UP]);
+//                printf(">> Isend: %d->%d\n", rank, partner[i][UP]);
 
                 MPI_Isend(buffs[i][DN][SEND] + chunk.offset, chunk.count, datatype, 
                           partner[i][DN], 1, comm, &reqs[nreqs++]);
-                result++;
-                printf(">> Isend: %d->%d\n", rank, partner[i][DN]);
+//                printf(">> Isend: %d->%d\n", rank, partner[i][DN]);
             }
             assert(nreqs <= maxreqs);
+            result = 1;
+            total_count = nreqs * 
             MPI_Waitall(nreqs, reqs, MPI_STATUSES_IGNORE);
         }
+        result = 1;
+        total_count = (size_t)nreqs * (size_t)chunk.count;
 #endif        
         t = MPI_Wtime() - t;
+//        printf("\n\n>>>>> %d: %g bytes, %g sec, %g GB/sec\n\n", rank, (double)total_count, t, (total_count*1e-9)/t);
     }
     virtual void finalize() {
         if (rank >= required_nranks)

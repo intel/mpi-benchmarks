@@ -99,7 +99,7 @@ namespace NS_HALO {
             for (int i = 0; i < ndims; ++i) {
                 n = gcd(n, topo[i]);
             }
-            printf("n=%d\n", n);
+//            printf("n=%d\n", n);
             assert(n > 0);
             for (int i = 0; i < ndims; ++i) {
                 ranksperdim[i] = topo[i] / n;
@@ -235,8 +235,8 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
         return false;
     }
 
-    if (rank == 0)
-        prlayout();
+//    if (rank == 0)
+//        prlayout();
     MPI_Barrier(MPI_COMM_WORLD);
 
 //    mysubs.resize(ndims);
