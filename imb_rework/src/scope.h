@@ -91,6 +91,7 @@ struct Scope {
             return 0;    
         return *(std::max_element(lens.begin(), lens.end()));
     }
+    virtual ~Scope() {};
 };
 
 struct VarLenScope : public Scope {
@@ -118,11 +119,7 @@ struct VarLenScope : public Scope {
         }
         formed = true;
     }
-//    int get_max_len() {
-//        if (lens.size() == 0)
-//            return 0;
-//        return *(std::max_element(lens.begin(), lens.end()));
-//    }
+    virtual ~VarLenScope() {};
 };
 
 struct NPLenCombinedScope : public Scope {
@@ -142,5 +139,6 @@ struct NPLenCombinedScope : public Scope {
             }
         }
     }
+    virtual ~NPLenCombinedScope() {};
 };
 

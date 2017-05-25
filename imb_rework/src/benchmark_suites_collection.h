@@ -104,7 +104,7 @@ class BenchmarkSuitesCollection {
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
                 it->second->init();
-                std::cout << "Benchmark suite '" << it->second->get_name() << "' registered" << std::endl;
+//                std::cout << "Benchmark suite '" << it->second->get_name() << "' registered" << std::endl;
         }
     }
     static void declare_args(args_parser &parser) {

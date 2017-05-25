@@ -101,10 +101,6 @@ class HaloBenchmark : public Benchmark {
         std::vector<unsigned int> mysubs;
         mysubs.resize(ndims);
         ranktosubs(rank, mysubs);
-        
-//        for (int i = 0; i < ndims; ++i) printf(">> mysubs[i]=%d\n", mysubs[i]);
-
-//        prlayout();
 
         buffs.resize(ndims);
         for (int i = 0; i < ndims; i++) {
@@ -133,12 +129,8 @@ class HaloBenchmark : public Benchmark {
             for (int i = 0; i < ndims; ++i) partnersubs[i] = mysubs[i];
             partnersubs[dim] = (mysubs[dim]+1)%ranksperdim[dim];
             partner[dim][UP] = substorank(partnersubs);
-//            printf(">> partnersubs[%d]=%d, partner[%d][UP]=%d\n",
-//                dim, partnersubs[dim], dim, partner[dim][UP]);
             partnersubs[dim] = (ranksperdim[dim]+mysubs[dim]-1)%ranksperdim[dim];
             partner[dim][DN] = substorank(partnersubs);
-//            printf(">> partnersubs[%d]=%d, partner[%d][DN]=%d\n",
-//                dim, partnersubs[dim], dim, partner[dim][DN]);
 
         }
         #if 0
@@ -176,12 +168,15 @@ class HaloBenchmark : public Benchmark {
         MPI_Type_size(datatype, &idts);
         size_t datatype_size = (size_t)idts;
 
+        int actual_nthreads = 0;
         if (mode_multiple) {
             std::vector<chunk_t> chunks;
             split_into_chunks(p.second, num_threads, chunks);
-            int nthreads = chunks.size();
+            // NOTE: actual_nthreads might appear smaller than num_threads for small message
+            // sizes!
+            actual_nthreads = chunks.size();
             
-        #pragma omp parallel default(shared) num_threads(nthreads)
+        #pragma omp parallel default(shared) num_threads(actual_nthreads)
             {
                 double t_mp;
                 int result;
@@ -217,9 +212,12 @@ class HaloBenchmark : public Benchmark {
             if (nresults) {
                 if (ninvocations++ == 0) {
                     std::cout << std::endl;
-                    std::cout << "# Benchmarking " << get_name() << std::endl;
+                    std::cout << "# Benchmarking " << get_name() << 
+                        " (processes: " << nresults << "; threads: " << actual_nthreads <<
+                        "; dimensions: " << ndims << ")" << std::endl;
                 }
-                std::cout << p.second << " " << time_avg / 1e-6 << "(usec) " << transferred_bytes / time_avg / 1e6 << "(Mb/s)" << std::endl;
+                int ntimes = transferred_bytes / (p.second * datatype_size);
+                std::cout << p.second * datatype_size << "(x" << ntimes << ")(bytes) " << time_avg / 1e-6 << "(usec) " << transferred_bytes / time_avg / 1e6 << "(Mb/s)" << std::endl;
                 
             }
         }
@@ -231,8 +229,13 @@ class HaloBenchmark : public Benchmark {
         result = 0;
         if (rank >= required_nranks)
             return;
-//        t = MPI_Wtime();
+
+        int idts;
+        MPI_Type_size(datatype, &idts);
+        size_t datatype_size = (size_t)idts;
+        
 #if 0        
+        t = MPI_Wtime();
         for (int iter = 0; iter < parent::input->repeat; ++iter) {
             for (int i = 0; i < ndims; ++i) {
                 printf("MPI_Sendrecv(size=%u, send_to=%d, recv_from=%d);\n",
@@ -261,22 +264,22 @@ class HaloBenchmark : public Benchmark {
             for (int i = 0; i < ndims; ++i) {
                 if (ranksperdim[i] == 1) 
                     continue;
-                MPI_Irecv(buffs[i][UP][RECV] + chunk.offset, chunk.count, datatype, 
+                MPI_Irecv((char *)buffs[i][UP][RECV] + chunk.offset * datatype_size, chunk.count, datatype, 
                           partner[i][DN], 1, comm, &reqs[nreqs++]);
 //                printf(">> Irecv: %d->%d count=%d\n", partner[i][DN], rank, chunk.count);
             
-                MPI_Irecv(buffs[i][DN][RECV] + chunk.offset, chunk.count, datatype, 
+                MPI_Irecv((char *)buffs[i][DN][RECV] + chunk.offset * datatype_size, chunk.count, datatype, 
                           partner[i][UP], 1, comm, &reqs[nreqs++]);
 //                printf(">> Irecv: %d->%d\n", partner[i][UP], rank);
             }
             for (int i = 0; i < ndims; ++i) {
                 if (ranksperdim[i] == 1)
                     continue;
-                MPI_Isend(buffs[i][UP][SEND] + chunk.offset, chunk.count, datatype, 
+                MPI_Isend((char *)buffs[i][UP][SEND] + chunk.offset * datatype_size, chunk.count, datatype, 
                           partner[i][UP], 1, comm, &reqs[nreqs++]);
 //                printf(">> Isend: %d->%d\n", rank, partner[i][UP]);
 
-                MPI_Isend(buffs[i][DN][SEND] + chunk.offset, chunk.count, datatype, 
+                MPI_Isend((char *)buffs[i][DN][SEND] + chunk.offset * datatype_size, chunk.count, datatype, 
                           partner[i][DN], 1, comm, &reqs[nreqs++]);
 //                printf(">> Isend: %d->%d\n", rank, partner[i][DN]);
             }

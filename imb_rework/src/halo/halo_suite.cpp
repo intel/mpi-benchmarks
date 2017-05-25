@@ -5,14 +5,13 @@
 #include <string>
 #include <map>
 #include <math.h>
+#include <stdio.h>
 #include "benchmark.h"
 #include "benchmark_suites_collection.h"
 #include "utils.h"
 #include "args_parser.h"
 
 #include "halo_suite.h"
-
-//#include "layout.h"
 
 namespace ndim_halo_benchmark {
 
@@ -61,8 +60,8 @@ namespace NS_HALO {
     bool prepared = false;
     vector<int> cnt;
     int malloc_align;
-    malopt_t malloc_option;
-    barropt_t barrier_option;
+//    malopt_t malloc_option;
+//    barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
     int required_nranks, ndims;
@@ -99,7 +98,6 @@ namespace NS_HALO {
             for (int i = 0; i < ndims; ++i) {
                 n = gcd(n, topo[i]);
             }
-//            printf("n=%d\n", n);
             assert(n > 0);
             for (int i = 0; i < ndims; ++i) {
                 ranksperdim[i] = topo[i] / n;
@@ -129,13 +127,10 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
     parser.add_option_with_defaults<int>("stride", 0);
     parser.add_option_with_defaults<int>("warmup",  100);
     parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults<string>("barrier", "on").
-        set_caption("on|off|special");
-    parser.add_option_with_defaults_vec<string>("comm", "world");
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add_option_with_defaults<int>("malloc_align", 64);
-    parser.add_option_with_defaults<bool>("check", false);
+//    parser.add_option_with_defaults<bool>("check", false);
     parser.add_option_with_defaults<string>("datatype", "int").
         set_caption("int|char");
 
@@ -143,40 +138,15 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
 }
 
 template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const set<string> &) {
-
-    //-- FIXME its a copy-paste of MT code, invent the way to reuse it
     using namespace NS_HALO;
 
     parser.get_result_vec<int>("count", cnt);
     mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
     stride = parser.get_result<int>("stride");
 
-    string barrier_type = parser.get_result<string>("barrier");
-    if (barrier_type == "off") barrier_option = BARROPT_NOBARRIER;
-    else if (barrier_type == "on") barrier_option = BARROPT_NORMAL;
-    else if (barrier_type == "special") barrier_option = BARROPT_SPECIAL;
-    else {
-        // FIXME get rid of cout some way!
-        cout << "Wrong barrier option value" << endl;
-        return false;
-    }
-
     malloc_align = parser.get_result<int>("malloc_align");
 
-    string malloc_algo = parser.get_result<string>("malloc_algo");
-    if (malloc_algo == "serial") malloc_option = MALOPT_SERIAL;
-    else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
-    else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
-    else {
-        // FIXME get rid of cout some way!
-        cout << "Wrong malloc_algo option value" << endl;
-        return false;
-    }
-    if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
-        malloc_option = MALOPT_SERIAL;
-    }
-
-    do_checks = parser.get_result<bool>("check");
+//    do_checks = parser.get_result<bool>("check");
 
     string dt = parser.get_result<string>("datatype");
     if (dt == "int") datatype = MPI_INT;
@@ -187,11 +157,11 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
         return false;
     }
 
-    if (do_checks && datatype != MPI_INT) {
-        // FIXME get rid of cout some way!
-        cout << "Only int data type is supported with check option" << endl;
-        return false;
-    }
+//    if (do_checks && datatype != MPI_INT) {
+//        // FIXME get rid of cout some way!
+//        cout << "Only int data type is supported with check option" << endl;
+//        return false;
+//    }
 
     num_threads = 1;
     if (mode_multiple) {
@@ -228,19 +198,14 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
 
     fill_in(topo);
 
-    //Layout &L = L_global;
     if (required_nranks > nranks) {
         // FIXME get rid of cout some way!
         cout << "Not enough ranks, " << required_nranks << " min. required" << endl;
         return false;
     }
 
-//    if (rank == 0)
-//        prlayout();
     MPI_Barrier(MPI_COMM_WORLD);
 
-//    mysubs.resize(ndims);
-//    ranktosubs(rank, mysubs);
     prepared = true;
     return true;
 }
@@ -258,18 +223,17 @@ void *HALOBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "input[thread_num]") return &input[i];
     if (key == "num_threads") return &num_threads;
     if (key == "mode_multiple") return &mode_multiple;
-    if (key == "stride") return &stride;
+//    if (key == "stride") return &stride;
     if (key == "malloc_align") return &malloc_align;
-    if (key == "malloc_option") return &malloc_option;
-    if (key == "barrier_option") return &barrier_option;
-    if (key == "do_checks") return &do_checks;
+//    if (key == "malloc_option") return &malloc_option;
+//    if (key == "barrier_option") return &barrier_option;
+//    if (key == "do_checks") return &do_checks;
     if (key == "datatype") return &datatype;
 
     if (key == "ndims") return &ndims;
     if (key == "required_nranks") return &required_nranks;
     if (key == "ranksperdim") return &ranksperdim;
     if (key == "mults") return &mults;
-//  e if (key == "L") return &L_global;
     if (key == "rank") return &rank;
     if (key == "nranks") return &nranks;
     assert(false);

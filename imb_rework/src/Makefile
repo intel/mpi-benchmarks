@@ -1,16 +1,16 @@
 all: libyaml-cpp.a imb
 
-#CXX=mpiicpc
-#CC=mpiicc
-#CPPFLAGS += -I.
-#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
-#CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
-
-CXX=mpicxx
-CC=mpicc
+CXX=mpiicpc
+CC=mpiicc
 CPPFLAGS += -I.
 CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+
+#CXX=mpicxx
+#CC=mpicc
+#CPPFLAGS += -I.
+#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+#CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 
 
 include */Makefile.*.mk

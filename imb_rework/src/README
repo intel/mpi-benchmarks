@@ -1,0 +1,100 @@
+This IMB-MT package includes PingPongMT, PingPingMT, SendRecvMT, ExchangeMT, UniBandMT, BiBandMT p2p benchmarks, BcastMT, ReduceMT, AllreduceMT collective benchmarks.
+
+This package additionally contains Simple_Halo H-dimentional halo exchange benchmark partially based on ideas from newbench.cc benchmark code by Lawrence Meadows.
+
+I. USAGE.
+
+1. P2P and Collvetive benchmakrs.
+Usage: imb [-thread_level single|funneled|serialized|multiple|nompinit:STRING]
+           [-input filename:STRING]
+           [-include benchmark[,benchmark,[...]]
+           [-exclude benchmark[,benchmark,[...] ...]
+           [-stride INT]
+           [-warmup INT]
+           [-repeat INT]
+           [-barrier on|off|special:STRING]
+           [-count INT]
+           [-malloc_align INT]
+           [-malloc_algo serial|continous|parallel:STRING]
+           [-check BOOL]
+           [-datatype int|char:STRING]
+           [-dump config.yaml:STRING]
+           [-load config.yaml:STRING]
+           [benchmark[,benchmark,[...]]]
+
+-stride: for p2p benchmarks, sets up the distance between two communicating ranks in each pair. Default value is 1. 
+For example, PingPongMT with default stride=1 launches simultaneous p2p communications for pairs: (0,1), (2,3),…
+With stride=2: (0,2), (1,3),…
+With stride=4: (0,4), (1,5),…
+
+-warmup: number of benchmark cycles not included in time counting
+
+-repeat: number of counted benchmark cycles
+
+-barrier: 'on' = use MPI_Barrier when time is measured, 'off' = don't use any barrier, 'special' = use specialized implementation of barrier instead of MPI_Barrier()
+
+-count: lengths of messages, can be a comma-separated list. Lengths are not in bytes, but in number of MPI_datatype variables in a sequence.
+
+-malloc_align: constant for manual alignments of allocated buffers, in bytes. 64 is defaults and is OK for most cases
+
+-malloc_algo: experiments with different ways to allocate memory in multithreaded environment, default is 'serial', is OK for most cases
+
+-check: 'on' to turn on correctness control with arithmetical checking data in output buffers
+
+-datatype: int|char - MPI_Datatype for messages. 'int' is default and is required for -check option. 'char' might be more handy for scripts
+
+-thread_level: which parameter to give to the MPI_Init_thread call. 'multiple' is necessary for multithreaded test mode. OMP_NUM_THREADS environment variable then will control the number of threads forked in each rank. Without 'multiple' benchmarks functionality is almost fully equivalent of IMB-MPI1 benchmarks, and output numbers must be the same.
+
+NOTE: each thread will deal with a buffer of size 'count*sizeof(datatype)'. The ranks buffer is not divided between the threads, each thread has its own full-size buffer. So, pingpong with 2 ranks, 2 threads will transfer twice as much data as pingpong with 2 ranks, 1 thread.
+
+2. Simle_Halo benchmark.
+Usage: imb [-thread_level single|funneled|serialized|multiple|nompinit:STRING]
+           [-input filename:STRING]
+           [-include benchmark[,benchmark,[...]]
+           [-exclude benchmark[,benchmark,[...] ...]
+           [-warmup INT]
+           [-repeat INT]
+           [-count INT]
+           [-malloc_align INT]
+           [-datatype int|char:STRING]
+           [-topo N[.M[.K[...]]]]
+           [-dump config.yaml:STRING]
+           [-load config.yaml:STRING]
+           [benchmark[,benchmark,[...]]]
+
+-warmup, -repeat, -count, -malloc_align, -datatype options have the same meaning as for P2P
+and Collective benchmarks.
+
+-topo: describes the communication topology. Sets up the number of dimensions, like: '-topo N.M' for 2D commuication pattern, '-topo N.M.K' for 3D pattern and so on. The numbers N, M, K,... describe the proportion of ranks in each direction. For simple 4D communication pattern with equal amount of ranks in each direction: '-topo 1.1.1.1'. 2D pattern with 2 times more ranks in 2nd dimension: '-topo 1.2'. The option '-topo 2.2' is regarded equal to '-topo 1.1'. The exact amount of ranks in each dimension is calculated automatically depending on number of ranks in a session. For example, 'mpirun -np 16 ./imb simple_halo -topo 1.1.1.1' is for 4D communication pattern with 2 ranks in each dimension.
+
+II. COMPILATION.
+
+Use GNU make to build this benchmark. Makefile supposes mpiicpc compiler as an MPI C++ compiler. One can edit Makefile to change the default setting.
+NOTE: check that mpiicpc compiler driver is a proper executable from Multi-EP package
+
+III. EXECUTION ENVIRONMENT.
+
+To run the benchmark in multithreaded mode, use the script like this:
+
+export MPIR_CVAR_OFI_USE_PROVIDER=psm2
+export I_MPI_THREAD_SPLIT=1
+export I_MPI_THREAD_RUNTIME=openmp
+export MPIR_CVAR_CH4_OFI_MAX_ENDPOINTS=16
+export MPIR_CVAR_CH4_OFI_ENABLE_SCALABLE_ENDPOINTS=1
+OMP_NUM_THREADS=4 mpirun -n 2 -ppn 1 -hosts <hostnames> ./imb bibandmt -thread_level multiple -count 1024 -datatype char -repeat 100 -warmup 10
+
+Use 'ldd ./imb' command to make sure that libmpi.so.0, libfabric.so.1, libpsm2.so.2 dynamic references are resolved properly at runtime.
+
+'-thread_level multiple' is required for multithreaded more executions, otherwise single-threaded versions of benchmarks are executed.
+
+OMP_NUM_THREADS variable is the only way to control the amount of threads to be used by benchmark.
+
+
+
+
+
+
+
+
+
+

@@ -54,12 +54,10 @@ goods and services.
 #include <omp.h>
 
 #include <string.h>
+#include <stdio.h>
 #include <iostream>
 
 #include "benchmark.h"
-//#include "benchmark_suite.h"
-
-//#include "MT_suite.h"
 
 using namespace std;
 
@@ -68,54 +66,8 @@ using namespace std;
 #define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
 #define GET_GLOBAL_DEEPCOPY(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); NAME = *p; }
 
-/*
-template <typename T>
-MPI_Datatype get_mpi_datatype();
-
-template <>
-MPI_Datatype get_mpi_datatype<char>() {
-    return MPI_CHAR;
-}
-
-template <>
-MPI_Datatype get_mpi_datatype<int>() {
-    return MPI_INT;
-}
-*/
 
 #include "MT_types.h"
-
-/*
-// FIXME code duplication
-
-// convenience macros and functions working with input parameters 
-#define _ARRAY_DECL(_array,_type) _type *_array; int _array##n; int _array##i
-#define _ARRAY_ALLOC(_array,_type,_size) _array##i=0; _array=(_type*)malloc((_array##n=_size)*sizeof(_type))
-#define _ARRAY_FREE(_array) free(_array)
-#define _ARRAY_FOR(_array,_i,_action) for(_i=0;_i<_array##n;_i++) {_action;}
-#define _ARRAY_NEXT(_array) if(++_array##i >= _array##n) _array##i = 0; else return 1
-#define _ARRAY_THIS(_array) (_array[_array##i])
-#define _ARRAY_CHECK(_array) (_array##i >= _array##n)
-
-typedef struct _immb_local_t {
-    int warmup;
-    int repeat;
-    _ARRAY_DECL(comm, MPI_Comm);
-    _ARRAY_DECL(count, int);
-} immb_local_t;
-
-enum malopt_t {
-    MALOPT_SERIAL,
-    MALOPT_CONTINOUS,
-    MALOPT_PARALLEL
-};
-
-enum barropt_t {
-    BARROPT_NOBARRIER,
-    BARROPT_NORMAL,
-    BARROPT_SPECIAL
-};
-*/
 
 template <typename T>
 class Allocator {
@@ -479,12 +431,14 @@ class BenchmarkMTBase : public Benchmark {
                     if (flags.count(OUT_MSGRATE)) cout << out_field("Msg/sec");
                     cout << endl;
                 }
-                if (flags.count(OUT_BYTES)) cout << out_field(p.second * datatype_size);
+                // NOTE: since we do weak scalability measurements, multiply the amount of data
+                size_t real_size = p.second * datatype_size * num_threads;
+                if (flags.count(OUT_BYTES)) cout << out_field(real_size);
                 if (flags.count(OUT_REPEAT)) cout << out_field(input[0].repeat);
                 if (flags.count(OUT_TIME_MIN)) cout << out_field(1e6 * time_min);
                 if (flags.count(OUT_TIME_MAX)) cout << out_field(1e6 * time_max);
                 if (flags.count(OUT_TIME_AVG)) cout << out_field(1e6 * time_avg);
-                if (flags.count(OUT_BW)) cout << out_field((double)p.second * bw_multiplier / time_avg / 1e6);
+                if (flags.count(OUT_BW)) cout << out_field((double)real_size * bw_multiplier / time_avg / 1e6);
                 if (flags.count(OUT_MSGRATE)) cout << out_field((int)(1.0 / time_avg));
                 cout << endl;
             }
@@ -509,7 +463,6 @@ class BenchmarkMTBase : public Benchmark {
             }
         }
     }
-//    DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkMT<bs, fn_ptr>), bs);
 };
 template <class bs, mt_benchmark_func_t fn_ptr>
 class BenchmarkMT : public BenchmarkMTBase<bs, fn_ptr> {

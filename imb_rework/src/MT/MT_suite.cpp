@@ -55,6 +55,7 @@ goods and services.
 #include <vector>
 #include <string>
 #include <map>
+#include <stdio.h>
 #include "benchmark.h"
 #include "args_parser.h"
 #include "utils.h"
