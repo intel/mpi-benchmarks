@@ -243,10 +243,14 @@ template <bool set_src, int tag>
 int mt_sendrecv(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
+    int group = 0;
+    int stride = idata->pt2pt.stride;
+    if (!set_stride(rank, size, stride, group))
+            return 0;
     INIT_ARRAY(true, in, (rank+1)*i);
     INIT_ARRAY(true, out, -1);
-    int dest = (rank + 1) % size;
-    int src = (rank + size - 1) % size;
+    int dest = (rank + stride) % size;
+    int src = (rank + size - stride) % size;
     for (int i = 0; i < repeat; i++) {
         MPI_Sendrecv(in, count, type, dest, (tag == MPI_ANY_TAG ? 0 : tag),
                      out, count, type, set_src ? src : MPI_ANY_SOURCE, tag, comm, MPI_STATUS_IGNORE);   
@@ -270,19 +274,26 @@ template <> void BenchmarkMT<MTBenchmarkSuite, mt_sendrecv<true, 0> >::init_flag
     flags.insert(OUT_BW);
 }
 
+void *increment_ptr(void *p, int count, MPI_Datatype type)
+{
+    int type_size = 0;
+    MPI_Type_size(type, &type_size);
+    return (char *)out + count * type_size;
+}
+
 int mt_exchange(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                   MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
                   output_benchmark_data *odata) {
-    int type_size = 0;
-    MPI_Type_size(type, &type_size);
-    void *out2 = (char *)out + count * type_size;
+    int group = 0;
+    int stride = idata->pt2pt.stride;
+    if (!set_stride(rank, size, stride, group))
+            return 0;
+    void *out2 = increment_ptr(out, count, type);
     INIT_ARRAY(true, in, (rank+1)*i);
     INIT_ARRAY(true, out, -1);
     int tag = 0;
-    int right = rank + 1;
-    int left = rank - 1;
-    if (right == size) right = 0;
-    if (left == -1) left = size - 1;
+    int right = (rank + stride) % size;
+    int left = (rank + size - stride) % size;
     MPI_Request requests[2];
     for (int i = 0; i < repeat; i++) {
         MPI_Isend(in, count, type, left, tag, comm, &requests[0]);
