@@ -168,7 +168,7 @@ class HaloBenchmark : public Benchmark {
         MPI_Type_size(datatype, &idts);
         size_t datatype_size = (size_t)idts;
 
-        int actual_nthreads = 0;
+        int actual_nthreads = 1;
         if (mode_multiple) {
             std::vector<chunk_t> chunks;
             split_into_chunks(p.second, num_threads, chunks);
@@ -213,7 +213,7 @@ class HaloBenchmark : public Benchmark {
                 if (ninvocations++ == 0) {
                     std::cout << std::endl;
                     std::cout << "# Benchmarking " << get_name() << 
-                        " (processes: " << nresults << "; threads: " << actual_nthreads <<
+                        " (processes: " << nresults / actual_nthreads << "; threads: " << actual_nthreads <<
                         "; dimensions: " << ndims << ")" << std::endl;
                 }
                 int ntimes = transferred_bytes / (p.second * datatype_size);
