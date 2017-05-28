@@ -1,10 +1,10 @@
 This IMB-MT package includes PingPongMT, PingPingMT, SendRecvMT, ExchangeMT, UniBandMT, BiBandMT p2p benchmarks, BcastMT, ReduceMT, AllreduceMT collective benchmarks.
 
-This package additionally contains Simple_Halo H-dimentional halo exchange benchmark partially based on ideas from newbench.cc benchmark code by Lawrence Meadows.
+This package additionally contains 'simple_halo' N-dimentional halo exchange benchmark partially based on ideas from newbench.cc benchmark code by Lawrence Meadows.
 
 I. USAGE.
 
-1. P2P and Collvetive benchmakrs.
+1. P2P and Collective benchmarks.
 Usage: imb [-thread_level single|funneled|serialized|multiple|nompinit:STRING]
            [-input filename:STRING]
            [-include benchmark[,benchmark,[...]]
@@ -23,9 +23,10 @@ Usage: imb [-thread_level single|funneled|serialized|multiple|nompinit:STRING]
            [benchmark[,benchmark,[...]]]
 
 -stride: for p2p benchmarks, sets up the distance between two communicating ranks in each pair. Default value is 1. 
-For example, PingPongMT with default stride=1 launches simultaneous p2p communications for pairs: (0,1), (2,3),…
-With stride=2: (0,2), (1,3),…
-With stride=4: (0,4), (1,5),…
+For example, PingPongMT with default stride=1 launches simultaneous p2p communications for pairs: (0,1), (2,3),...
+With stride=2: (0,2), (1,3),...
+With stride=4: (0,4), (1,5),...
+The distance which is equal to PPN value is useful for inter-node only communations benchmarking.
 
 -warmup: number of benchmark cycles not included in time counting
 
@@ -35,7 +36,7 @@ With stride=4: (0,4), (1,5),…
 
 -count: lengths of messages, can be a comma-separated list. Lengths are not in bytes, but in number of MPI_datatype variables in a sequence.
 
--malloc_align: constant for manual alignments of allocated buffers, in bytes. 64 is defaults and is OK for most cases
+-malloc_align: constant for manual alignments of allocated buffers, in bytes. 64 is default and is OK for most cases
 
 -malloc_algo: experiments with different ways to allocate memory in multithreaded environment, default is 'serial', is OK for most cases
 
@@ -45,9 +46,9 @@ With stride=4: (0,4), (1,5),…
 
 -thread_level: which parameter to give to the MPI_Init_thread call. 'multiple' is necessary for multithreaded test mode. OMP_NUM_THREADS environment variable then will control the number of threads forked in each rank. Without 'multiple' benchmarks functionality is almost fully equivalent of IMB-MPI1 benchmarks, and output numbers must be the same.
 
-NOTE: each thread will deal with a buffer of size 'count*sizeof(datatype)'. The ranks buffer is not divided between the threads, each thread has its own full-size buffer. So, pingpong with 2 ranks, 2 threads will transfer twice as much data as pingpong with 2 ranks, 1 thread.
+NOTE: each thread will deal with a buffer of size 'count*sizeof(datatype)'. The rank's buffer is not shared among the threads, but each thread has its own full-size buffer. So, pingpong with 2 ranks, 2 threads will transfer twice as much data as pingpong with 2 ranks, 1 thread.
 
-2. Simle_Halo benchmark.
+2. simle_halo benchmark.
 Usage: imb [-thread_level single|funneled|serialized|multiple|nompinit:STRING]
            [-input filename:STRING]
            [-include benchmark[,benchmark,[...]]
@@ -85,16 +86,7 @@ OMP_NUM_THREADS=4 mpirun -n 2 -ppn 1 -hosts <hostnames> ./imb bibandmt -thread_l
 
 Use 'ldd ./imb' command to make sure that libmpi.so.0, libfabric.so.1, libpsm2.so.2 dynamic references are resolved properly at runtime.
 
-'-thread_level multiple' is required for multithreaded more executions, otherwise single-threaded versions of benchmarks are executed.
+'-thread_level multiple' is required for multithreaded mode executions, otherwise single-threaded versions of benchmarks are executed.
 
 OMP_NUM_THREADS variable is the only way to control the amount of threads to be used by benchmark.
-
-
-
-
-
-
-
-
-
 
