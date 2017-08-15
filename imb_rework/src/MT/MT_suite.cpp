@@ -200,7 +200,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
 
     if (rank == 0) {
         cout << "#------------------------------------------------------------" << endl;
-        cout << "#    Intel (R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
+        cout << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
         cout << "#------------------------------------------------------------" << endl;
         cout << "#" << endl;
         cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << endl;
