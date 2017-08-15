@@ -278,7 +278,7 @@ void *increment_ptr(void *p, int count, MPI_Datatype type)
 {
     int type_size = 0;
     MPI_Type_size(type, &type_size);
-    return (char *)out + count * type_size;
+    return (char *)p + count * type_size;
 }
 
 int mt_exchange(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
