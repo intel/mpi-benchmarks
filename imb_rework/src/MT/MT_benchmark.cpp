@@ -355,8 +355,8 @@ DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_uniband<
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
-    flags.insert(OUT_BW);
-    flags.insert(OUT_MSGRATE);
+    flags.insert(OUT_BW_CUMULATIVE);
+    flags.insert(OUT_MSGRATE_CUMMULATIVE);
 }
 
 template <bool set_src, int tag>    
@@ -408,8 +408,8 @@ DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_biband<t
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
-    flags.insert(OUT_BW);
-    flags.insert(OUT_MSGRATE);
+    flags.insert(OUT_BW_CUMULATIVE);
+    flags.insert(OUT_MSGRATE_CUMMULATIVE);
 }
 #define MT_COLLECTIVE_BEGIN(NAME) int mt_##NAME(int repeat, int skip, void *in, void *out, int count, MPI_Datatype type, \
                MPI_Comm comm, int rank, int size, input_benchmark_data *idata, output_benchmark_data *odata) 
