@@ -23,7 +23,7 @@ extern "C" { void IMB_Barrier(MPI_Comm comm); }
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
     protected:
-        static reworked_Bmark_descr descr;
+        static reworked_Bmark_descr *descr;
         comm_info c_info;
         iter_schedule ITERATIONS;
         MODES BMODE;
@@ -36,7 +36,11 @@ class OriginalBenchmark : public Benchmark {
         LEGACY_GLOBALS glob;
     public:
         using Benchmark::scope;
-        virtual void allocate_internals() { BMark[0].name = NULL; }
+        virtual void allocate_internals() { 
+            BMark[0].name = NULL;
+            if (descr == NULL) 
+                descr = new reworked_Bmark_descr;
+        }
         virtual bool init_description();
         virtual void init() {
             MPI_Comm_size(MPI_COMM_WORLD, &FULL_NP);
@@ -51,11 +55,11 @@ class OriginalBenchmark : public Benchmark {
             assert(FULL_NP == c_info.w_num_procs);
  
             BMark->name = strdup(name);
-            descr.IMB_set_bmark(BMark, fn_ptr);
-            descr.helper_sync_legacy_globals_1(c_info, glob, BMark);
-            descr.helper_sync_legacy_globals_2(c_info, glob, BMark);
+            descr->IMB_set_bmark(BMark, fn_ptr);
+            descr->helper_sync_legacy_globals_1(c_info, glob, BMark);
+            descr->helper_sync_legacy_globals_2(c_info, glob, BMark);
 
-            scope = descr.helper_init_scope(c_info, BMark, glob);
+            scope = descr->helper_init_scope(c_info, BMark, glob);
 
             // This is to do when change NP
             //if (!IMB_valid(&c_info, BMark, glob.NP))
@@ -71,22 +75,22 @@ class OriginalBenchmark : public Benchmark {
             int np = p.first; 
             if (!initialized)
                 return;
-            if (descr.stop_iterations)
+            if (descr->stop_iterations)
                 return;
             if (np != glob.NP) {
                 glob.NP = np;
                 if (!IMB_valid(&c_info, BMark, glob.NP)) {
-                    descr.stop_iterations = true;
+                    descr->stop_iterations = true;
                     return;
                 }
                 IMB_init_communicator(&c_info, glob.NP);
-                descr.helper_sync_legacy_globals_2(c_info, glob, BMark);
+                descr->helper_sync_legacy_globals_2(c_info, glob, BMark);
             }
             glob.size = size;
             BMODE = BMark->RUN_MODES;
-            descr.IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, size);
-            descr.helper_time_check(c_info, glob, BMark, ITERATIONS);
-            bool failed = (descr.stop_iterations || (BMark->sample_failure));
+            descr->IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, size);
+            descr->helper_time_check(c_info, glob, BMark, ITERATIONS);
+            bool failed = (descr->stop_iterations || (BMark->sample_failure));
             if (!failed) {
                 IMB_warm_up(&c_info, BMark, &ITERATIONS, glob.iter);
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
@@ -98,10 +102,12 @@ class OriginalBenchmark : public Benchmark {
             glob.iter++;
         }
         virtual bool is_default() {
-            return descr.is_default();
+            return descr->is_default();
         }
         ~OriginalBenchmark() {
             free(BMark[0].name);
+            delete descr;
+            descr = NULL;
         } 
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };

@@ -63,19 +63,14 @@ goods and services.
 #include "benchmark_suite.h"
 #include "utils.h"
 
+#include "MT_types.h"
 #include "MT_suite.h"
 
-static MPI_Comm immb_convert_comm(const char *str, int mode_multiple, int thread_num) {
-    MPI_Comm comm = strcmp(str, "world") ? MPI_COMM_NULL : MPI_COMM_WORLD, new_comm;
+static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
+{
+    MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
     if(mode_multiple) {
-        MPI_Info info;
-        char ep_idx[128];
-        sprintf(ep_idx, "%d", thread_num);
-        MPI_Info_create(&info);
-        MPI_Info_set(info, "ep_idx", ep_idx);
         MPI_Comm_dup(comm, &new_comm);
-        MPI_Comm_set_info(new_comm, info);
-        MPI_Info_free(&info);
         return new_comm;
     }
     return comm;
@@ -84,7 +79,7 @@ static MPI_Comm immb_convert_comm(const char *str, int mode_multiple, int thread
 using namespace std;
 
 namespace NS_MT {
-    immb_local_t *input;
+    thread_local_data_t *input;
     int mode_multiple;
     int stride;
     int num_threads;
@@ -99,10 +94,8 @@ namespace NS_MT {
     MPI_Datatype datatype;
 }
 
-template <> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MT>::pnames = 0;
-template <> BenchmarkSuite<BS_MT> *BenchmarkSuite<BS_MT>::instance = 0;
 
-template <> const std::string BenchmarkSuite<BS_MT>::get_name() const { return "IMB-MT"; }
+DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, "IMB-MT")
 
 template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const {
     parser.add_option_with_defaults<int>("stride", 0);
@@ -110,7 +103,7 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<int>("repeat", 1000);
     parser.add_option_with_defaults<string>("barrier", "on").
         set_caption("on|off|special");
-    parser.add_option_with_defaults_vec<string>("comm", "world");
+//    parser.add_option_with_defaults_vec<string>("comm", "world");
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add_option_with_defaults<int>("malloc_align", 64);
@@ -123,7 +116,7 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &) {
     using namespace NS_MT;
-    parser.get_result_vec<string>("comm", comm_opts);
+//    parser.get_result_vec<string>("comm", comm_opts);
     parser.get_result_vec<int>("count", cnt);
     mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
     stride = parser.get_result<int>("stride");
@@ -176,28 +169,14 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
 #pragma omp master        
         num_threads = omp_get_num_threads();
     } 
-    input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
+    input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-        {
-            size_t n = comm_opts.size();
-            _ARRAY_ALLOC(input[thread_num].comm, MPI_Comm, n);
-            for (size_t i = 0; i < n; i++) {
-                input[thread_num].comm[i] = immb_convert_comm(comm_opts[i].c_str(), mode_multiple, thread_num);
-            }
-        }
-        {
-            size_t n = cnt.size();
-            _ARRAY_ALLOC(input[thread_num].count, int, n);
-            for (size_t i = 0; i < n; i++) {
-                input[thread_num].count[i] = cnt[i];
-            }
-        }
+        input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
         input[thread_num].warmup = parser.get_result<int>("warmup");
         input[thread_num].repeat = parser.get_result<int>("repeat");
     }
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
     if (rank == 0) {
         cout << "#------------------------------------------------------------" << endl;
         cout << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
@@ -209,16 +188,11 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
         cout << "#" << endl;
         cout << "#" << endl;
     }
-
     return true;
 }
 
 template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &) {
     using namespace NS_MT;
-    for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-        _ARRAY_FREE(input[thread_num].comm);
-        _ARRAY_FREE(input[thread_num].count);
-    }
     if (prepared && rank == 0)
         cout << endl;
 }
@@ -235,6 +209,7 @@ void *MTBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
     if (key == "barrier_option") return &barrier_option;
     if (key == "do_checks") return &do_checks;
     if (key == "datatype") return &datatype;
+    if (key == "count") return &cnt;
     assert(false);
     return 0;
 }

@@ -82,5 +82,8 @@ class Benchmark {
 
 #define DECLARE_INHERITED(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME;
 
-//#define DECLARE_INHERITED_TEMPLATE(CLASS, NAME) namespace { CLASS elem_ ## NAME; } template<> const char *CLASS::name = #NAME;
+#ifdef __GNUC__ 
+#define DECLARE_INHERITED_TEMPLATE(CLASS, NAME) namespace { CLASS elem_ ## NAME; } template<> const char *CLASS::name = #NAME;
+#else
 #define DECLARE_INHERITED_TEMPLATE(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME;
+#endif

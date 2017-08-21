@@ -13,7 +13,8 @@ class HaloBenchmark : public Benchmark {
     public:    
     MPI_Datatype datatype;
     size_t datatype_size;
-    immb_local_t *input;
+    thread_local_data_t *input;
+    std::vector<int> count;
     int mode_multiple;
     int num_threads;
     int malloc_align;
@@ -75,12 +76,14 @@ class HaloBenchmark : public Benchmark {
         GET_GLOBAL(int, num_threads);
         GET_GLOBAL(int, malloc_align);
         GET_GLOBAL(MPI_Datatype, datatype);
+        GET_GLOBAL_DEEPCOPY(std::vector<int>, count);
 
-        input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
+        input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            GET_GLOBAL_VEC(immb_local_t, input[thread_num], thread_num);
+            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
         }
-        VarLenScope *sc = new VarLenScope(input[0].count, input[0].countn);
+
+        VarLenScope *sc = new VarLenScope(count);
         scope = sc;
 
         size_t maxlen = scope->get_max_len();
@@ -222,8 +225,8 @@ class HaloBenchmark : public Benchmark {
             }
         }
     }
-    virtual void run_instance(immb_local_t *input, chunk_t chunk, double &t, int &result, size_t &total_count) {
-        MPI_Comm comm = _ARRAY_THIS(input->comm);
+    virtual void run_instance(thread_local_data_t *input, chunk_t chunk, double &t, int &result, size_t &total_count) {
+        MPI_Comm comm = input->comm;
         MPI_Status status;
         t = 0;
         result = 0;

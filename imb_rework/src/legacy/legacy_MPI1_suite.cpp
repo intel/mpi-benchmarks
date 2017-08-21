@@ -18,10 +18,7 @@
 
 using namespace std;
 
-template<> map<string, const Benchmark*, set_operations::case_insens_cmp> *BenchmarkSuite<BS_MPI1>::pnames = 0;
-template<> BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance = 0;
-
-template <> const std::string BenchmarkSuite<BS_MPI1>::get_name() const { return "IMB-MPI1"; }
+DECLARE_BENCHMARK_SUITE_STUFF(BS_MPI1, "IMB-MPI1")
 
 namespace NS_MPI1 {
     struct comm_info c_info;

@@ -24,8 +24,8 @@ struct LEGACY_GLOBALS {
     double time[MAX_TIME_ID];
 };
 
-#define REWORKED_BMARK_DESCR_INITIALIZER { }
 struct reworked_Bmark_descr {
+    reworked_Bmark_descr() : stop_iterations(false), sample_time(0) {}
     typedef std::set<descr_t> descr_set;
     descr_set flags;
     std::vector<std::string> comments; 

@@ -228,7 +228,8 @@ class BenchmarkMTBase : public Benchmark {
     std::vector<void *> b;
     std::vector<input_benchmark_data *> idata;
     std::vector<output_benchmark_data *> odata;
-    immb_local_t *input;
+    thread_local_data_t *input;
+    std::vector<int> count;
     int mode_multiple;
     int stride;
     int num_threads;
@@ -240,8 +241,8 @@ class BenchmarkMTBase : public Benchmark {
     int world_rank, world_size;
     public:
     virtual void init_flags() {}
-    virtual void run_instance(immb_local_t *input, int count, double &t, int &result) {
-        MPI_Comm comm = _ARRAY_THIS(input->comm);
+    virtual void run_instance(thread_local_data_t *input, int count, double &t, int &result) {
+        MPI_Comm comm = input->comm;
         int warmup = input->warmup, repeat = input->repeat;
         if (repeat <= 0) return;
         int rank, size;
@@ -311,14 +312,15 @@ class BenchmarkMTBase : public Benchmark {
         GET_GLOBAL(barropt_t, barrier_option);
         GET_GLOBAL(bool, do_checks);
         GET_GLOBAL(MPI_Datatype, datatype);
+        GET_GLOBAL_DEEPCOPY(vector<int>, count);
         int idts;
         MPI_Type_size(datatype, &idts);
         datatype_size = idts;
-        input = (immb_local_t *)malloc(sizeof(immb_local_t) * num_threads);
+        input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            GET_GLOBAL_VEC(immb_local_t, input[thread_num], thread_num);
+            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
         }
-        VarLenScope *sc = new VarLenScope(input[0].count, input[0].countn);
+        VarLenScope *sc = new VarLenScope(count);
         scope = sc;
 
         MPI_Comm_size(MPI_COMM_WORLD, &world_size);
