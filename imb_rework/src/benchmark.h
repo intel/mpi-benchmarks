@@ -62,7 +62,7 @@ class Benchmark {
         virtual void allocate_internals() {}
         virtual bool init_description() { return true; }
         virtual void init() { } 
-        virtual void run(const std::pair<int, int> &) = 0;
+        virtual void run(const scope_item &) = 0;
         virtual void finalize() { }
         virtual bool is_default() { return true; }
         smart_ptr<Scope> get_scope() { if (scope.get() == NULL) { scope.assign(new Scope); scope->commit(); } return scope; }

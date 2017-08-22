@@ -18,7 +18,7 @@ using namespace std;
 // Registration is done by rather ugly direct register_elem() call from a constructor
 class ExampleBenchmark_1 : public Benchmark 
 {
-    virtual void run(const std::pair<int, int> &) { std::cout << "Hello from example 1"; }
+    virtual void run(const scope_item &) { std::cout << "Hello from example 1"; }
 };
 
 class BenchmarkSuiteExample1 : public BenchmarkSuiteBase
@@ -32,7 +32,7 @@ class BenchmarkSuiteExample1 : public BenchmarkSuiteBase
             BenchmarkSuitesCollection::register_elem(instance);
         }
     }
-    ~BenchmarkSuiteExample1() {
+    virtual ~BenchmarkSuiteExample1() {
         if (instance != NULL) {
             BenchmarkSuiteExample1 *to_delete;
             to_delete = instance;
@@ -82,8 +82,8 @@ namespace example_suite2 {
             VarLenScope *sc = new VarLenScope(0, 22);
             scope = sc;
         }
-        virtual void run(const std::pair<int, int> &p) { 
-            cout << get_name() << ": Hello, world! size=" << p.second << endl;
+        virtual void run(const scope_item &item) { 
+            cout << get_name() << ": Hello, world! size=" << item.len << endl;
         }
         DEFINE_INHERITED(ExampleBenchmark_2, BenchmarkSuite<BS_GENERIC>);
     };
@@ -102,7 +102,7 @@ namespace example_suite2 {
             rbuf = (char *)malloc(1 << 22);
             sbuf = (char *)malloc(1 << 22);
         }
-        virtual void run(const std::pair<int, int> &p) { 
+        virtual void run(const scope_item &item) { 
             MPI_Comm_size(MPI_COMM_WORLD, &np);
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
             if (np < 2) {
@@ -116,22 +116,22 @@ namespace example_suite2 {
             if (rank == 0) {
                 t1 = MPI_Wtime();
                 for(int i = 0; i < ncycles; i++) {
-                    MPI_Send((char*)sbuf, p.second, MPI_BYTE, 1, tag, MPI_COMM_WORLD);
-                    MPI_Recv((char*)rbuf, p.second, MPI_BYTE, 1, MPI_ANY_TAG, MPI_COMM_WORLD, &stat);
+                    MPI_Send((char*)sbuf, item.len, MPI_BYTE, 1, tag, MPI_COMM_WORLD);
+                    MPI_Recv((char*)rbuf, item.len, MPI_BYTE, 1, MPI_ANY_TAG, MPI_COMM_WORLD, &stat);
                 }
                 t2 = MPI_Wtime();
                 time = (t2 - t1) / ncycles;
             } else if (rank == 1) {
                 t1 = MPI_Wtime();
                 for(int i = 0; i < ncycles; i++) {
-                    MPI_Recv((char*)rbuf, p.second, MPI_BYTE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &stat);
-                    MPI_Send((char*)sbuf, p.second, MPI_BYTE, 0, tag, MPI_COMM_WORLD);
+                    MPI_Recv((char*)rbuf, item.len, MPI_BYTE, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &stat);
+                    MPI_Send((char*)sbuf, item.len, MPI_BYTE, 0, tag, MPI_COMM_WORLD);
                 }
                 t2 = MPI_Wtime();
                 time = (t2 - t1) / ncycles;
             } 
             MPI_Barrier(MPI_COMM_WORLD);
-            results[p.second] = time;
+            results[item.len] = time;
         }
         virtual void finalize() { 
             if (rank == 0) {
@@ -141,7 +141,7 @@ namespace example_suite2 {
                 }
             }
         }
-        ~ExampleBenchmark_3() {
+        virtual ~ExampleBenchmark_3() {
             free(rbuf);
             free(sbuf);
         }

@@ -70,9 +70,9 @@ class OriginalBenchmark : public Benchmark {
             glob.NP = 0;
             initialized = true;
         }
-        virtual void run(const std::pair<int, int> &p) {
-            int size = p.second;
-            int np = p.first; 
+        virtual void run(const scope_item &item) {
+            int size = item.len;
+            int np = item.np; 
             if (!initialized)
                 return;
             if (descr->stop_iterations)

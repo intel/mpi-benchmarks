@@ -66,7 +66,7 @@ DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, __generic__)
 
 namespace { 
     struct Dummy : public Benchmark {
-        void run(const std::pair<int, int> &) {}
+        void run(const scope_item &) {}
         DEFINE_INHERITED(Dummy, BenchmarkSuite<BS_GENERIC>)
     };
     DECLARE_INHERITED(Dummy, Dummy)

@@ -58,7 +58,17 @@ goods and services.
 #include <iostream>
 #include <algorithm>
 
+#include "any.h"
+
 class Scope;
+
+struct scope_item { 
+    int np; 
+    int len; 
+    any extra_fields;
+    scope_item(int _len) : np(0), len(_len) { }
+    scope_item(int _np, int _len) : np(_np), len(_len) { }
+};
 
 struct ScopeIterator {
     ScopeIterator(Scope &_scope, int _n) : scope(_scope), n(_n) { }
@@ -68,7 +78,7 @@ struct ScopeIterator {
     bool operator!=(const ScopeIterator &other);
     ScopeIterator &operator++();
     ScopeIterator operator++(int);
-    std::pair<int, int> operator*();
+    scope_item operator*();
 };
 
 struct Scope {
@@ -76,16 +86,16 @@ struct Scope {
     typedef ScopeIterator iterator;
     Scope() : formed(false) {}
     bool formed;
-    std::vector<std::pair<int, int> > sequence;
+    std::vector<scope_item> sequence;
     ScopeIterator begin();
     ScopeIterator end();
     virtual void commit() { formed = true; }
     int get_max_len() { 
         assert(formed);  
         std::vector<int> lens;
-        for (std::vector<std::pair<int, int> >::iterator it = sequence.begin();
+        for (std::vector<scope_item>::iterator it = sequence.begin();
                 it != sequence.end(); it++) {
-            lens.push_back(it->second);
+            lens.push_back(it->len);
         }
         if (lens.size() == 0)
             return 0;    
@@ -115,7 +125,7 @@ struct VarLenScope : public Scope {
 
     virtual void commit() {
         for (size_t i = 0; i < lens.size(); i++) {
-            sequence.push_back(std::pair<int, int>(0, lens[i]));
+            sequence.push_back(scope_item(lens[i]));
         }
         formed = true;
     }
@@ -135,7 +145,7 @@ struct NPLenCombinedScope : public Scope {
         assert(nps.size() != 0);
         for (size_t i = 0; i < nps.size(); i++) {
             for (size_t j = 0; j < lens.size(); j++) {
-                sequence.push_back(std::pair<int, int>(nps[i], lens[j]));
+                sequence.push_back(scope_item(nps[i], lens[j]));
             }
         }
     }

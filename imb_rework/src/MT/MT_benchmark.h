@@ -373,7 +373,7 @@ class BenchmarkMTBase : public Benchmark {
             }        
         }
   }
-    virtual void run(const std::pair<int, int> &p) { 
+    virtual void run(const scope_item &item) { 
         static int ninvocations = 0;
         double t, tavg = 0, tmin = 1e6, tmax = 0; 
         int nresults = 0;
@@ -382,7 +382,7 @@ class BenchmarkMTBase : public Benchmark {
             {
                 double t_mp;
                 int result;
-                run_instance(&input[omp_get_thread_num()], p.second, t_mp, result);
+                run_instance(&input[omp_get_thread_num()], item.len, t_mp, result);
             #pragma omp critical
                 {
                     tmax = max(tmax, t_mp);
@@ -392,7 +392,7 @@ class BenchmarkMTBase : public Benchmark {
                 }
             }
         } else {
-            run_instance(&input[0], p.second, t, nresults);
+            run_instance(&input[0], item.len, t, nresults);
             tavg = tmax = tmin = t;
         }
         MPI_Allreduce(&tavg, &time_avg, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -434,7 +434,7 @@ class BenchmarkMTBase : public Benchmark {
                     cout << endl;
                 }
                 // NOTE: since we do weak scalability measurements, multiply the amount of data
-                size_t real_size = p.second * datatype_size * num_threads;
+                size_t real_size = item.len * datatype_size * num_threads;
                 if (flags.count(OUT_BYTES)) cout << out_field(real_size);
                 if (flags.count(OUT_REPEAT)) cout << out_field(input[0].repeat);
                 if (flags.count(OUT_TIME_MIN)) cout << out_field(1e6 * time_min);

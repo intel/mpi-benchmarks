@@ -160,7 +160,7 @@ class HaloBenchmark : public Benchmark {
             base_off += (chunks[i].count = base + (i<rest?1:0)); 
         }
     }
-    virtual void run(const std::pair<int, int> &p) {
+    virtual void run(const scope_item &item) {
         static int ninvocations = 0;
         double t, tavg = 0, tmin = 1e6, tmax = 0;
         int nresults = 0;
@@ -174,7 +174,7 @@ class HaloBenchmark : public Benchmark {
         int actual_nthreads = 1;
         if (mode_multiple) {
             std::vector<chunk_t> chunks;
-            split_into_chunks(p.second, num_threads, chunks);
+            split_into_chunks(item.len, num_threads, chunks);
             // NOTE: actual_nthreads might appear smaller than num_threads for small message
             // sizes!
             actual_nthreads = chunks.size();
@@ -195,7 +195,7 @@ class HaloBenchmark : public Benchmark {
                 }
             }
         } else {
-            chunk_t the_only_chunk = { 0, p.second };
+            chunk_t the_only_chunk = { 0, item.len };
             size_t total_count;
             run_instance(&input[0], the_only_chunk, t, nresults, total_count);
             tavg = tmax = tmin = t;
@@ -219,8 +219,8 @@ class HaloBenchmark : public Benchmark {
                         " (processes: " << nresults / actual_nthreads << "; threads: " << actual_nthreads <<
                         "; dimensions: " << ndims << ")" << std::endl;
                 }
-                int ntimes = transferred_bytes / (p.second * datatype_size);
-                std::cout << p.second * datatype_size << "(x" << ntimes << ")(bytes) " << time_avg / 1e-6 << "(usec) " << transferred_bytes / time_avg / 1e6 << "(Mb/s)" << std::endl;
+                int ntimes = transferred_bytes / (item.len * datatype_size);
+                std::cout << item.len * datatype_size << "(x" << ntimes << ")(bytes) " << time_avg / 1e-6 << "(usec) " << transferred_bytes / time_avg / 1e6 << "(Mb/s)" << std::endl;
                 
             }
         }

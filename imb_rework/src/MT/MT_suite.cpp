@@ -68,6 +68,7 @@ goods and services.
 
 static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
+    UNUSED(thread_num);
     MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
     if(mode_multiple) {
         MPI_Comm_dup(comm, &new_comm);
