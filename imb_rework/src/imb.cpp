@@ -102,19 +102,15 @@ int main(int argc, char * *argv)
 
         parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
 
-        parser.add_option_with_defaults<string>("thread_level", "single").
+        parser.add<string>("thread_level", "single").
             set_caption("single|funneled|serialized|multiple|nompinit");
-        parser.add_option_with_defaults<string>("input", "").
-            set_caption("filename");
-        parser.add_option_with_defaults_vec<string>("include").
-            set_caption("benchmark[,benchmark,[...]");
-        parser.add_option_with_defaults_vec<string>("exclude").
-            set_caption("benchmark[,benchmark,[...] ...");
+        parser.add<string>("input", "").set_caption("filename");
+        parser.add_vector<string>("include", "").set_caption("benchmark[,benchmark,[...]");
+        parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...] ...");
 
         // Extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
-        parser.add_option_with_defaults_vec<string>("(benchmarks)").
-            set_caption("benchmark[,benchmark,[...]]"); 
+        parser.add_vector<string>("(benchmarks)", "").set_caption("benchmark[,benchmark,[...]]"); 
         parser.set_default_current_group();
 
 
@@ -123,17 +119,15 @@ int main(int argc, char * *argv)
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
-        parser.add_option_with_defaults<string>("dump", "").
-            set_caption("config.yaml");
-        parser.add_option_with_defaults<string>("load", "").
-            set_caption("config.yaml");
+        parser.add<string>("dump", "").set_caption("config.yaml");
+        parser.add<string>("load", "").set_caption("config.yaml");
         parser.set_default_current_group();
          
         if (!parser.parse()) {
             return 1;
         }
         string infile;  
-        infile = parser.get_result<string>("load");
+        infile = parser.get<string>("load");
         if (infile != "") {
             ifstream in(infile.c_str(), ios_base::in);
             parser.load(in);
@@ -142,7 +136,7 @@ int main(int argc, char * *argv)
             }
         }
         string outfile;  
-        outfile = parser.get_result<string>("dump");
+        outfile = parser.get<string>("dump");
         if (outfile != "") {
             string out;
             out = parser.dump();
@@ -151,13 +145,13 @@ int main(int argc, char * *argv)
         }
         
         vector<string> requested_benchmarks, to_include, to_exclude;
-        parser.get_result_vec<string>("(benchmarks)", requested_benchmarks);
+        parser.get<string>("(benchmarks)", requested_benchmarks);
         // FIXME!!! separate unknown args to unknown option args and unknown free args
         parser.get_unknown_args(requested_benchmarks);
-        parser.get_result_vec<string>("include", to_include);
-        parser.get_result_vec<string>("exclude", to_exclude);
+        parser.get<string>("include", to_include);
+        parser.get<string>("exclude", to_exclude);
 
-        string filename = parser.get_result<string>("input");
+        string filename = parser.get<string>("input");
         if (filename != "") {
             FILE *t = fopen(filename.c_str(), "r");
             if (t == NULL) {
@@ -211,7 +205,7 @@ int main(int argc, char * *argv)
         }
 
         // Do aproppriate MPI_Init call
-        string mpi_init_mode = parser.get_result<string>("thread_level");
+        string mpi_init_mode = parser.get<string>("thread_level");
         int required_mode, provided_mode;
         if (mpi_init_mode == "single") {
             no_mpi_init_flag = false;

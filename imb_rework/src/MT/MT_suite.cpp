@@ -84,28 +84,25 @@ namespace NS_MT {
 DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, "IMB-MT")
 
 template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const {
-    parser.add_option_with_defaults<int>("stride", 0);
-    parser.add_option_with_defaults<int>("warmup",  100);
-    parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults<std::string>("barrier", "on").
-        set_caption("on|off|special");
-    parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
+    parser.add<int>("stride", 0);
+    parser.add<int>("warmup",  100);
+    parser.add<int>("repeat", 1000);
+    parser.add<std::string>("barrier", "on").set_caption("on|off|special");
+    parser.add_vector<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-    parser.add_option_with_defaults<int>("malloc_align", 64);
-    parser.add_option_with_defaults<std::string>("malloc_algo", "serial").
-        set_caption("serial|continous|parallel");
-    parser.add_option_with_defaults<bool>("check", false);
-    parser.add_option_with_defaults<std::string>("datatype", "int").
-        set_caption("int|char");
+    parser.add<int>("malloc_align", 64);
+    parser.add<std::string>("malloc_algo", "serial").set_caption("serial|continous|parallel");
+    parser.add<bool>("check", false);
+    parser.add<std::string>("datatype", "int").set_caption("int|char");
 }
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::set<std::string> &) {
     using namespace NS_MT;
-    parser.get_result_vec<int>("count", count);
-    mode_multiple = (parser.get_result<std::string>("thread_level") == "multiple");
-    stride = parser.get_result<int>("stride");
+    parser.get<int>("count", count);
+    mode_multiple = (parser.get<std::string>("thread_level") == "multiple");
+    stride = parser.get<int>("stride");
     
-    std::string barrier_type = parser.get_result<std::string>("barrier");
+    std::string barrier_type = parser.get<std::string>("barrier");
     if (barrier_type == "off") barrier_option = BARROPT_NOBARRIER;
     else if (barrier_type == "on") barrier_option = BARROPT_NORMAL;
     else if (barrier_type == "special") barrier_option = BARROPT_SPECIAL;
@@ -115,9 +112,9 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
         return false;
     }
 
-    malloc_align = parser.get_result<int>("malloc_align");
+    malloc_align = parser.get<int>("malloc_align");
 
-    std::string malloc_algo = parser.get_result<std::string>("malloc_algo");
+    std::string malloc_algo = parser.get<std::string>("malloc_algo");
     if (malloc_algo == "serial") malloc_option = MALOPT_SERIAL;
     else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
     else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
@@ -130,9 +127,9 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
         malloc_option = MALOPT_SERIAL;
     }
 
-    do_checks = parser.get_result<bool>("check");
+    do_checks = parser.get<bool>("check");
 
-    std::string dt = parser.get_result<std::string>("datatype");
+    std::string dt = parser.get<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
@@ -156,8 +153,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     input.resize(num_threads);
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
-        input[thread_num].warmup = parser.get_result<int>("warmup");
-        input[thread_num].repeat = parser.get_result<int>("repeat");
+        input[thread_num].warmup = parser.get<int>("warmup");
+        input[thread_num].repeat = parser.get<int>("repeat");
     }
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

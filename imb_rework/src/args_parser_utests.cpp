@@ -170,8 +170,8 @@ void basic_scalar_check(T val) {
     for (int mode = 1; mode <= 3; mode++) {
         int nargs = make_args_scalar<T>(argv, "aaa", mode, val);
         CheckParser p;
-        p.init(nargs, (char * *)argv, mode).add_required_option<T>("aaa").set_caption("bbb");
-        T result = p.run().get_result<T>("aaa");
+        p.init(nargs, (char * *)argv, mode).add<T>("aaa").set_caption("bbb");
+        T result = p.run().get<T>("aaa");
         assert(result == val && p.result && !p.except);
     }
 }
@@ -182,9 +182,9 @@ void basic_vector_check(T val1, T val2) {
     for (int mode = 1; mode <= 3; mode++) {
         int nargs = make_args_vector<T>(argv, "aaa", mode, val1, val2);
         CheckParser p;
-        p.init(nargs,  (char * *)argv, mode).add_required_option_vec<T>("aaa", ',').set_caption("bbb");
+        p.init(nargs,  (char * *)argv, mode).add_vector<T>("aaa", ',').set_caption("bbb");
         vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
+        p.run().get<T>("aaa", result);
         assert(result.size() == 2 && result[0] == val1 && result[1] == val2 && p.result && !p.except);
     }
 }
@@ -195,8 +195,8 @@ void default_scalar_check(T def) {
     for (int mode = 1; mode <= 3; mode++) {
         argv[0] = "check";
         CheckParser p;
-        p.init(1,  (char * *)argv, mode).add_option_with_defaults<T>("aaa", def).set_caption("bbb");
-        T res = p.run().get_result<T>("aaa");
+        p.init(1,  (char * *)argv, mode).add<T>("aaa", def).set_caption("bbb");
+        T res = p.run().get<T>("aaa");
         assert(res == def && p.result && !p.except);
     }
 }
@@ -207,9 +207,9 @@ void default_vector_check(const char *def, size_t n) {
     for (int mode = 1; mode <= 3; mode++) {
         argv[0] = "check";
         CheckParser p;
-        p.init(1,  (char * *)argv, mode).add_option_with_defaults_vec<T>("aaa", def).set_caption("bbb");
+        p.init(1,  (char * *)argv, mode).add_vector<T>("aaa", def).set_caption("bbb");
         vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
+        p.run().get<T>("aaa", result);
         assert(result.size() == n && p.result && !p.except);
     }
 }
@@ -221,9 +221,9 @@ void default_vector_check_ext(const char *def, const char *sval, size_t n, T val
         argv[0] = "check";
         int nargs = make_args<string>(1, argv, "aaa", sval, mode) + 1;
         CheckParser p;
-        p.init(nargs,  (char * *)argv, mode).add_option_with_defaults_vec<T>("aaa", def).set_caption("bbb");
+        p.init(nargs,  (char * *)argv, mode).add_vector<T>("aaa", def).set_caption("bbb");
         vector<T> result;
-        p.run().get_result_vec<T>("aaa", result);
+        p.run().get<T>("aaa", result);
         assert(result.size() == n && p.result && !p.except);
         assert(result[0] == val1 && result[1] == val2);
     }

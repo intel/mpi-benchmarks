@@ -98,26 +98,25 @@ bool load_msg_sizes(const char *filename)
 }
 
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
-    parser.add_option_with_defaults<int>("npmin", 2).set_caption("NPmin");
-    parser.add_option_with_defaults<int>("multi", -1).set_caption("MultiMode");
-    parser.add_option_with_defaults_vec<float>("off_cache", "-1.0,0.0", ',', 1, 2).
-        set_caption("cache_size[,cache_line_size]").
-        set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-    parser.add_option_with_defaults_vec<int>("iter", "1000,40,100", ',', 1, 3).
-        set_caption("msgspersample[,overall_vol[,msgs_nonaggr]]");
-    parser.add_option_with_defaults<string>("iter_policy", "dynamic").
-        set_caption("iter_policy");
-    parser.add_option_with_defaults<float>("time", 10.0f).set_caption("max_runtime per sample");
-    parser.add_option_with_defaults<float>("mem", 1.0f).
-        set_caption("max. per process memory for overall message buffers");
-    parser.add_option_with_defaults<string>("msglen", "").set_caption("Lengths_file");
-    parser.add_option_with_defaults_vec<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ");
-    parser.add_option_with_defaults_vec<int>("msglog", "0:22", ':', 1, 2).
-        set_caption("min_msglog:max_msglog").
-        set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-    parser.add_option_with_defaults<bool>("root_shift", false).set_caption("on or off");
-    parser.add_option_with_defaults<bool>("sync", true).set_caption("on or off");
-    parser.add_option_with_defaults<bool>("imb_barrier", false).set_caption("on or off");
+    parser.add<int>("npmin", 2).set_caption("NPmin");
+    parser.add<int>("multi", -1).set_caption("MultiMode");
+    parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
+           set_caption("cache_size[,cache_line_size]").
+           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
+    parser.add_vector<int>("iter", "1000,40,100", ',', 1, 3).
+           set_caption("msgspersample[,overall_vol[,msgs_nonaggr]]");
+    parser.add<string>("iter_policy", "dynamic").set_caption("iter_policy");
+    parser.add<float>("time", 10.0f).set_caption("max_runtime per sample");
+    parser.add<float>("mem", 1.0f).
+           set_caption("max. per process memory for overall message buffers");
+    parser.add<string>("msglen", "").set_caption("Lengths_file");
+    parser.add_vector<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ");
+    parser.add_vector<int>("msglog", "0:22", ':', 1, 2).
+           set_caption("min_msglog:max_msglog").
+           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
+    parser.add<bool>("root_shift", false).set_caption("on or off");
+    parser.add<bool>("sync", true).set_caption("on or off");
+    parser.add<bool>("imb_barrier", false).set_caption("on or off");
 }
 
 #define BASIC_INPUT_EXPERIMENT 1
@@ -173,17 +172,17 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     bool cmd_line_error = false;
 
     // npmin
-    glob.NP_min = parser.get_result<int>("npmin");
+    glob.NP_min = parser.get<int>("npmin");
     if (glob.NP_min <= 0) {
         cmd_line_error = true;
     }
 
     // multi
-    c_info.group_mode = parser.get_result<int>("multi");
+    c_info.group_mode = parser.get<int>("multi");
 
     // off_cache
     vector<float> csize;
-    parser.get_result_vec<float>("off_cache", csize);
+    parser.get<float>("off_cache", csize);
     if (csize.size() == 1) {
         ITERATIONS.cache_size = csize[0];
         ITERATIONS.cache_line_size = CACHE_LINE_SIZE;
@@ -203,27 +202,27 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
 
     // iter
     vector<int> given_iter;
-    parser.get_result_vec<int>("iter", given_iter);
+    parser.get<int>("iter", given_iter);
     ITERATIONS.msgspersample = given_iter[0];
     ITERATIONS.overall_vol = given_iter[1] * 1024 * 1024;
     ITERATIONS.msgs_nonaggr = given_iter[2];
 
     // iter_policy
-    string given_iter_policy = parser.get_result<string>("iter_policy");
+    string given_iter_policy = parser.get<string>("iter_policy");
     if (given_iter_policy == "dynamic") { ITERATIONS.iter_policy = imode_dynamic; }
     if (given_iter_policy == "off") { ITERATIONS.iter_policy = imode_off; }
     if (given_iter_policy == "multiple_np") { ITERATIONS.iter_policy = imode_multiple_np; }
     if (given_iter_policy == "auto") { ITERATIONS.iter_policy = imode_auto; }
 
     // time
-    ITERATIONS.secs = parser.get_result<float>("time");
+    ITERATIONS.secs = parser.get<float>("time");
 
     // mem
-    c_info.max_mem = parser.get_result<float>("mem");
+    c_info.max_mem = parser.get<float>("mem");
 
     // map
     vector<int> given_map;
-    parser.get_result_vec<int>("map", given_map);
+    parser.get<int>("map", given_map);
     c_info.px = given_map[0];
     c_info.py = given_map[1];
     if (c_info.px * c_info.py > c_info.w_num_procs) {
@@ -231,7 +230,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
     // msglen
-    string given_msglen_filename = parser.get_result<string>("msglen");
+    string given_msglen_filename = parser.get<string>("msglen");
     if (given_msglen_filename != "") {
         if (!load_msg_sizes(given_msglen_filename.c_str())) {
             cout << "Sizes File " << given_msglen_filename << " invalid or doesnt exist" << endl;
@@ -241,7 +240,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
 
     // msglog
     vector<int> given_msglog;
-    parser.get_result_vec<int>("msglog", given_msglog);
+    parser.get<int>("msglog", given_msglog);
     if (given_msglog.size() == 1) {
         c_info.max_msg_log = c_info.min_msg_log = given_msglog[0];
     } else {
@@ -257,13 +256,13 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         cmd_line_error = true;
     
     // root_shift
-    c_info.root_shift = (parser.get_result<bool>("root_shift") ? 1 : 0);
+    c_info.root_shift = (parser.get<bool>("root_shift") ? 1 : 0);
 
     // sync
-    c_info.sync = (parser.get_result<bool>("sync") ? 1 : 0);
+    c_info.sync = (parser.get<bool>("sync") ? 1 : 0);
 
     // imb_barrier
-    IMB_internal_barrier = (parser.get_result<bool>("imb_barrier") ? 1 : 0);
+    IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
     if (cmd_line_error)
         return false;

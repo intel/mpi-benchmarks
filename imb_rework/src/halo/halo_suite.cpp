@@ -106,31 +106,31 @@ namespace NS_HALO {
 DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, ndim_halo_benchmark)
 
 template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
-    parser.add_option_with_defaults<int>("stride", 0);
-    parser.add_option_with_defaults<int>("warmup",  100);
-    parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
+    parser.add<int>("stride", 0);
+    parser.add<int>("warmup",  100);
+    parser.add<int>("repeat", 1000);
+    parser.add_vector<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-    parser.add_option_with_defaults<int>("malloc_align", 64);
-//    parser.add_option_with_defaults<bool>("check", false);
-    parser.add_option_with_defaults<std::string>("datatype", "int").
+    parser.add<int>("malloc_align", 64);
+//    parser.add<bool>("check", false);
+    parser.add<std::string>("datatype", "int").
         set_caption("int|char");
 
-    parser.add_option_with_defaults_vec<int>("topo", "1", '.');
+    parser.add_vector<int>("topo", "1", '.');
 }
 
 template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::set<std::string> &) {
     using namespace NS_HALO;
 
-    parser.get_result_vec<int>("count", count);
-    mode_multiple = (parser.get_result<std::string>("thread_level") == "multiple");
-    stride = parser.get_result<int>("stride");
+    parser.get<int>("count", count);
+    mode_multiple = (parser.get<std::string>("thread_level") == "multiple");
+    stride = parser.get<int>("stride");
 
-    malloc_align = parser.get_result<int>("malloc_align");
+    malloc_align = parser.get<int>("malloc_align");
 
-//    do_checks = parser.get_result<bool>("check");
+//    do_checks = parser.get<bool>("check");
 
-    std::string dt = parser.get_result<std::string>("datatype");
+    std::string dt = parser.get<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
@@ -155,12 +155,12 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     input.resize(num_threads);    
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
-        input[thread_num].warmup = parser.get_result<int>("warmup");
-        input[thread_num].repeat = parser.get_result<int>("repeat");
+        input[thread_num].warmup = parser.get<int>("warmup");
+        input[thread_num].repeat = parser.get<int>("repeat");
     }
 
     std::vector<int> topo;
-    parser.get_result_vec<int>("topo", topo);
+    parser.get<int>("topo", topo);
 
     // -- HALO specific part
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

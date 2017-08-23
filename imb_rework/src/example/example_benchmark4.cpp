@@ -24,11 +24,11 @@ namespace example_suite4 {
     // - get_parameter() overloaded virtual function implements the high-level interface 
     // to pass parameters from a suite to a benchmark
     template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
-        parser.add_option_with_defaults_vec<int>("len", "1,2,4,8").
+        parser.add_vector<int>("len", "1,2,4,8").
                      set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-        parser.add_option_with_defaults<string>("datatype", "int").
+        parser.add<string>("datatype", "int").
                      set_caption("int|char");
-        parser.add_option_with_defaults<int>("ncycles", 1000);
+        parser.add<int>("ncycles", 1000);
     }
     
     vector<int> len;
@@ -36,8 +36,8 @@ namespace example_suite4 {
     int ncycles;
 
     template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const set<string> &) {
-        parser.get_result_vec<int>("len", len);
-        string dt = parser.get_result<string>("datatype");
+        parser.get<int>("len", len);
+        string dt = parser.get<string>("datatype");
         if (dt == "int") datatype = MPI_INT;
         else if (dt == "char") datatype = MPI_CHAR;
         else {
@@ -45,7 +45,7 @@ namespace example_suite4 {
             cout << "Unknown data type in datatype option" << endl;
             return false;
         }
-        ncycles = parser.get_result<int>("ncycles");
+        ncycles = parser.get<int>("ncycles");
         return true;       
     }
 
