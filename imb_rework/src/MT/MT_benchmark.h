@@ -304,7 +304,6 @@ class BenchmarkMTBase : public Benchmark {
     }
     virtual void init() {
         init_flags();
-        //input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
         GET_GLOBAL(vector<thread_local_data_t>, input);
         GET_GLOBAL(int, mode_multiple);
         GET_GLOBAL(int, stride);
@@ -318,9 +317,6 @@ class BenchmarkMTBase : public Benchmark {
         int idts;
         MPI_Type_size(datatype, &idts);
         datatype_size = idts;
-//        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-//            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
-//        }
         VarLenScope *sc = new VarLenScope(count);
         scope = sc;
 

@@ -29,6 +29,7 @@ namespace example_suite1 {
     class ExampleBenchmark_2 : public Benchmark {
         public:
         virtual void run(const scope_item &item) { 
+            UNUSED(item);
             cout << get_name() << ": Hello, world from example1" << endl;
         }
         DEFINE_INHERITED(ExampleBenchmark_2, BenchmarkSuite<BS_GENERIC>);

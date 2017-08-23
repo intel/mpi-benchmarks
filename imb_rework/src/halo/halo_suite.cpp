@@ -15,16 +15,6 @@ namespace ndim_halo_benchmark {
 
 #include "benchmark_suite.h"
 
-static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
-{
-    UNUSED(thread_num);
-    MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
-    if(mode_multiple) {
-        MPI_Comm_dup(comm, &new_comm);
-        return new_comm;
-    }
-    return comm;
-}
 
 template <typename integer>
 integer gcd(integer a, integer b) {
@@ -39,20 +29,16 @@ integer gcd(integer a, integer b) {
     return a;
 }
 
-
-
 #include "MT_types.h"
 
-using namespace std;
-
 namespace NS_HALO {
-    vector<thread_local_data_t> input;
+    std::vector<thread_local_data_t> input;
     int mode_multiple;
     int stride;
     int num_threads;
     int rank, nranks;
     bool prepared = false;
-    vector<int> cnt;
+    std::vector<int> count;
     int malloc_align;
 //    malopt_t malloc_option;
 //    barropt_t barrier_option;
@@ -127,35 +113,35 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add_option_with_defaults<int>("malloc_align", 64);
 //    parser.add_option_with_defaults<bool>("check", false);
-    parser.add_option_with_defaults<string>("datatype", "int").
+    parser.add_option_with_defaults<std::string>("datatype", "int").
         set_caption("int|char");
 
     parser.add_option_with_defaults_vec<int>("topo", "1", '.');
 }
 
-template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const set<string> &) {
+template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::set<std::string> &) {
     using namespace NS_HALO;
 
-    parser.get_result_vec<int>("count", cnt);
-    mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
+    parser.get_result_vec<int>("count", count);
+    mode_multiple = (parser.get_result<std::string>("thread_level") == "multiple");
     stride = parser.get_result<int>("stride");
 
     malloc_align = parser.get_result<int>("malloc_align");
 
 //    do_checks = parser.get_result<bool>("check");
 
-    string dt = parser.get_result<string>("datatype");
+    std::string dt = parser.get_result<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
         // FIXME get rid of cout some way!
-        cout << "Unknown data type in datatype option" << endl;
+        std::cout << "Unknown data type in datatype option" << std::endl;
         return false;
     }
 
 //    if (do_checks && datatype != MPI_INT) {
 //        // FIXME get rid of cout some way!
-//        cout << "Only int data type is supported with check option" << endl;
+//        std::cout << "Only int data type is supported with check option" << std::endl;
 //        return false;
 //    }
 
@@ -184,7 +170,7 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
 
     if (required_nranks > nranks && rank == 0) {
         // FIXME get rid of cout some way!
-        cout << "Not enough ranks, " << required_nranks << " min. required" << endl;
+        std::cout << "Not enough ranks, " << required_nranks << " min. required" << std::endl;
         return false;
     }
 
@@ -194,23 +180,27 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     return true;
 }
 
-template<> any BenchmarkSuite<BS_GENERIC>::get_parameter(const string &key) {
+#define HANDLE_PARAMETER(TYPE, NAME) if (key == #NAME) { \
+                                        result = smart_ptr< TYPE >(&NAME); \
+                                        result.detach_ptr(); }
+
+
+template<> any BenchmarkSuite<BS_GENERIC>::get_parameter(const std::string &key) {
     using namespace NS_HALO;
     assert(prepared);
     any result;
-    if (key == "input") { result = smart_ptr<vector<thread_local_data_t> >(&input); result.detach_ptr(); }
-    if (key == "num_threads") { result = smart_ptr<int>(&num_threads); result.detach_ptr(); }
-    if (key == "mode_multiple") { result = smart_ptr<int>(&mode_multiple); result.detach_ptr(); }
-    if (key == "malloc_align") { result = smart_ptr<int>(&malloc_align); result.detach_ptr(); }
-    if (key == "datatype") { result = smart_ptr<MPI_Datatype>(&datatype); result.detach_ptr(); }
-
-    if (key == "ndims") { result = smart_ptr<int>(&ndims); result.detach_ptr(); }
-    if (key == "required_nranks") { result = smart_ptr<int>(&required_nranks); result.detach_ptr(); }
-    if (key == "ranksperdim") { result = smart_ptr<vector<int> >(&ranksperdim); result.detach_ptr(); }
-    if (key == "mults") { result = smart_ptr<vector<int> >(&mults); result.detach_ptr(); }
-    if (key == "rank") { result = smart_ptr<int>(&rank); result.detach_ptr(); }
-    if (key == "nranks") { result = smart_ptr<int>(&nranks); result.detach_ptr(); }
-    if (key == "count") { result = smart_ptr<vector<int> >(&cnt); result.detach_ptr(); }
+    HANDLE_PARAMETER(std::vector<thread_local_data_t>, input);
+    HANDLE_PARAMETER(int, num_threads);   
+    HANDLE_PARAMETER(int, mode_multiple);
+    HANDLE_PARAMETER(int, malloc_align);
+    HANDLE_PARAMETER(MPI_Datatype, datatype);
+    HANDLE_PARAMETER(int, ndims);
+    HANDLE_PARAMETER(int, required_nranks);
+    HANDLE_PARAMETER(std::vector<int>, ranksperdim);
+    HANDLE_PARAMETER(std::vector<int>, mults);
+    HANDLE_PARAMETER(int, rank);
+    HANDLE_PARAMETER(int, nranks);
+    HANDLE_PARAMETER(std::vector<int>, count);
     return result;
 }
 

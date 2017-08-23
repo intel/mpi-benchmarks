@@ -65,19 +65,6 @@ goods and services.
 
 #include "MT_types.h"
 
-static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
-{
-    UNUSED(thread_num);
-    MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
-    if(mode_multiple) {
-        MPI_Comm_dup(comm, &new_comm);
-        return new_comm;
-    }
-    return comm;
-}
-
-using namespace std;
-
 namespace NS_MT {
     std::vector<thread_local_data_t> input;
     int mode_multiple;
@@ -85,8 +72,7 @@ namespace NS_MT {
     int num_threads;
     int rank;
     bool prepared = false;
-    vector<int> cnt;
-    vector<string> comm_opts;
+    std::vector<int> count;
     int malloc_align;
     malopt_t malloc_option;
     barropt_t barrier_option;
@@ -101,45 +87,43 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add_option_with_defaults<int>("stride", 0);
     parser.add_option_with_defaults<int>("warmup",  100);
     parser.add_option_with_defaults<int>("repeat", 1000);
-    parser.add_option_with_defaults<string>("barrier", "on").
+    parser.add_option_with_defaults<std::string>("barrier", "on").
         set_caption("on|off|special");
-//    parser.add_option_with_defaults_vec<string>("comm", "world");
     parser.add_option_with_defaults_vec<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add_option_with_defaults<int>("malloc_align", 64);
-    parser.add_option_with_defaults<string>("malloc_algo", "serial").
+    parser.add_option_with_defaults<std::string>("malloc_algo", "serial").
         set_caption("serial|continous|parallel");
     parser.add_option_with_defaults<bool>("check", false);
-    parser.add_option_with_defaults<string>("datatype", "int").
+    parser.add_option_with_defaults<std::string>("datatype", "int").
         set_caption("int|char");
 }
 
-template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const set<string> &) {
+template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::set<std::string> &) {
     using namespace NS_MT;
-//    parser.get_result_vec<string>("comm", comm_opts);
-    parser.get_result_vec<int>("count", cnt);
-    mode_multiple = (parser.get_result<string>("thread_level") == "multiple");
+    parser.get_result_vec<int>("count", count);
+    mode_multiple = (parser.get_result<std::string>("thread_level") == "multiple");
     stride = parser.get_result<int>("stride");
     
-    string barrier_type = parser.get_result<string>("barrier");
+    std::string barrier_type = parser.get_result<std::string>("barrier");
     if (barrier_type == "off") barrier_option = BARROPT_NOBARRIER;
     else if (barrier_type == "on") barrier_option = BARROPT_NORMAL;
     else if (barrier_type == "special") barrier_option = BARROPT_SPECIAL;
     else {
         // FIXME get rid of cout some way!
-        cout << "Wrong barrier option value" << endl;
+        std::cout << "Wrong barrier option value" << std::endl;
         return false;
     }
 
     malloc_align = parser.get_result<int>("malloc_align");
 
-    string malloc_algo = parser.get_result<string>("malloc_algo");
+    std::string malloc_algo = parser.get_result<std::string>("malloc_algo");
     if (malloc_algo == "serial") malloc_option = MALOPT_SERIAL;
     else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
     else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
     else {
         // FIXME get rid of cout some way!
-        cout << "Wrong malloc_algo option value" << endl;
+        std::cout << "Wrong malloc_algo option value" << std::endl;
         return false;
     }
     if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
@@ -148,18 +132,18 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
 
     do_checks = parser.get_result<bool>("check");
 
-    string dt = parser.get_result<string>("datatype");
+    std::string dt = parser.get_result<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
         // FIXME get rid of cout some way!
-        cout << "Unknown data type in datatype option" << endl;
+        std::cout << "Unknown data type in datatype option" << std::endl;
         return false;
     }
 
     if (do_checks && datatype != MPI_INT) {
         // FIXME get rid of cout some way!
-        cout << "Only int data type is supported with check option" << endl;
+        std::cout << "Only int data type is supported with check option" << std::endl;
         return false;
     }
     
@@ -169,7 +153,6 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
 #pragma omp master        
         num_threads = omp_get_num_threads();
     } 
-    //input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
     input.resize(num_threads);
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
@@ -179,39 +162,43 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        cout << "#------------------------------------------------------------" << endl;
-        cout << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << endl;
-        cout << "#------------------------------------------------------------" << endl;
-        cout << "#" << endl;
-        cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << endl;
-        cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << endl;
-        cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << endl;
-        cout << "#" << endl;
-        cout << "#" << endl;
+        std::cout << "#------------------------------------------------------------" << std::endl;
+        std::cout << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << std::endl;
+        std::cout << "#------------------------------------------------------------" << std::endl;
+        std::cout << "#" << std::endl;
+        std::cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << std::endl;
+        std::cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << std::endl;
+        std::cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << std::endl;
+        std::cout << "#" << std::endl;
+        std::cout << "#" << std::endl;
     }
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &) {
+template <> void BenchmarkSuite<BS_MT>::finalize(const std::set<std::string> &) {
     using namespace NS_MT;
     if (prepared && rank == 0)
-        cout << endl;
+        std::cout << std::endl;
 }
 
-template <> any BenchmarkSuite<BS_MT>::get_parameter(const string &key)
+#define HANDLE_PARAMETER(TYPE, NAME) if (key == #NAME) { \
+                                        result = smart_ptr< TYPE >(&NAME); \
+                                        result.detach_ptr(); }
+
+template <> any BenchmarkSuite<BS_MT>::get_parameter(const std::string &key)
 {
     using namespace NS_MT;
     any result;
-    if (key == "input") { result = smart_ptr<vector<thread_local_data_t> >(&input); result.detach_ptr(); }
-    if (key == "num_threads") { result = smart_ptr<int>(&num_threads);  result.detach_ptr(); }
-    if (key == "mode_multiple") { result = smart_ptr<int>(&mode_multiple); result.detach_ptr(); }
-    if (key == "stride") { result = smart_ptr<int>(&stride); result.detach_ptr(); }
-    if (key == "malloc_align") { result = smart_ptr<int>(&malloc_align); result.detach_ptr(); }
-    if (key == "malloc_option") { result = smart_ptr<malopt_t>(&malloc_option); result.detach_ptr(); }
-    if (key == "barrier_option") { result = smart_ptr<barropt_t>(&barrier_option); result.detach_ptr(); }
-    if (key == "do_checks") { result = smart_ptr<bool>(&do_checks); result.detach_ptr(); }
-    if (key == "datatype") { result = smart_ptr<MPI_Datatype>(&datatype); result.detach_ptr(); }
-    if (key == "count") { result = smart_ptr<vector<int> >(&cnt); result.detach_ptr(); }
+    HANDLE_PARAMETER(std::vector<thread_local_data_t>, input);    
+    HANDLE_PARAMETER(int, num_threads);
+    HANDLE_PARAMETER(int, mode_multiple);
+    HANDLE_PARAMETER(int, stride);
+    HANDLE_PARAMETER(int, malloc_align);
+    HANDLE_PARAMETER(malopt_t, malloc_option);
+    HANDLE_PARAMETER(barropt_t, barrier_option);
+    HANDLE_PARAMETER(bool, do_checks);
+    HANDLE_PARAMETER(MPI_Datatype, datatype);
+    HANDLE_PARAMETER(std::vector<int>, count);
     return result;
 }
 

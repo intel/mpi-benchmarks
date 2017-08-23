@@ -343,12 +343,17 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
     }
 }
 
+#define HANDLE_PARAMETER(TYPE, NAME) if (key == #NAME) { \
+                                        result = smart_ptr< TYPE >(&NAME); \
+                                        result.detach_ptr(); }
+
+
 template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
     using namespace NS_MPI1;
     any result;
-    if (key == "c_info") { result = any(smart_ptr<comm_info>(&c_info)); result.detach_ptr(); }
-    if (key == "ITERATIONS") { result = any(smart_ptr<iter_schedule>(&ITERATIONS)); result.detach_ptr(); }
-    if (key == "glob") { result = any(smart_ptr<LEGACY_GLOBALS>(&glob)); result.detach_ptr(); }
+    HANDLE_PARAMETER(comm_info, c_info);
+    HANDLE_PARAMETER(iter_schedule, ITERATIONS);
+    HANDLE_PARAMETER(LEGACY_GLOBALS, glob);
     return result;
 }
 
