@@ -40,4 +40,8 @@ HEADERS += legacy/legacy_MPI1_suite.h \
 legacy/legacy_benchmark.h \
 legacy/reworked_IMB_functions.h
 
-$(LEGACY_OBJ): Makefile
+$(BECHMARK_SUITE_SRC): test_header_presence
+$(LEGACY_SRC): test_header_presence
+
+test_header_presence:
+	test -f legacy/imb/src/IMB_benchmark.h || echo "ERROR: legacy/imb must be a symlink to leagcy IMB source code tree" && false
