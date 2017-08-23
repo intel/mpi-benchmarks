@@ -36,8 +36,7 @@ legacy/imb/src/IMB_utils.c \
 legacy/imb/src/IMB_warm_up.c
 LEGACY_OBJ=$(LEGACY_SRC:.c=.o)
 ADDITIONAL_OBJ += $(LEGACY_OBJ)
-HEADERS += legacy/legacy_MPI1_suite.h \
-legacy/legacy_benchmark.h \
+HEADERS += legacy/legacy_benchmark.h \
 legacy/reworked_IMB_functions.h
 
 $(BECHMARK_SUITE_SRC): test_header_presence

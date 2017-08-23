@@ -13,7 +13,7 @@ class HaloBenchmark : public Benchmark {
     public:    
     MPI_Datatype datatype;
     size_t datatype_size;
-    thread_local_data_t *input;
+    std::vector<thread_local_data_t> input;
     std::vector<int> count;
     int mode_multiple;
     int num_threads;
@@ -72,16 +72,17 @@ class HaloBenchmark : public Benchmark {
 
 
     virtual void init() {
+        GET_GLOBAL(vector<thread_local_data_t>, input);
         GET_GLOBAL(int, mode_multiple);
         GET_GLOBAL(int, num_threads);
         GET_GLOBAL(int, malloc_align);
         GET_GLOBAL(MPI_Datatype, datatype);
-        GET_GLOBAL_DEEPCOPY(std::vector<int>, count);
+        GET_GLOBAL(std::vector<int>, count);
 
-        input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
-        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
-        }
+//        input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+//        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+//            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
+//        }
 
         VarLenScope *sc = new VarLenScope(count);
         scope = sc;
@@ -96,8 +97,8 @@ class HaloBenchmark : public Benchmark {
         GET_GLOBAL(int, nranks);
         GET_GLOBAL(int, ndims);
         GET_GLOBAL(int, required_nranks);
-        GET_GLOBAL_DEEPCOPY(std::vector<int>, ranksperdim);
-        GET_GLOBAL_DEEPCOPY(std::vector<int>, mults);
+        GET_GLOBAL(std::vector<int>, ranksperdim);
+        GET_GLOBAL(std::vector<int>, mults);
 
         if (rank >= required_nranks)
             return;

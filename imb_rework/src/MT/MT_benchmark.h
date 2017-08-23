@@ -62,9 +62,9 @@ goods and services.
 using namespace std;
 
 #define GLUE_TYPENAME(A,B) A,B
-#define GET_GLOBAL_VEC(TYPE, NAME, i) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME, i); memcpy(&NAME, p, sizeof(TYPE)); }
-#define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
-#define GET_GLOBAL_DEEPCOPY(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); NAME = *p; }
+#define GET_GLOBAL(TYPE, NAME) { TYPE *p = suite->get_parameter(#NAME).as<TYPE>(); \
+                                 assert(p != NULL); \
+                                 NAME = *p; }
 
 
 #include "MT_types.h"
@@ -228,7 +228,7 @@ class BenchmarkMTBase : public Benchmark {
     std::vector<void *> b;
     std::vector<input_benchmark_data *> idata;
     std::vector<output_benchmark_data *> odata;
-    thread_local_data_t *input;
+    std::vector<thread_local_data_t> input;
     std::vector<int> count;
     int mode_multiple;
     int stride;
@@ -304,6 +304,8 @@ class BenchmarkMTBase : public Benchmark {
     }
     virtual void init() {
         init_flags();
+        //input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+        GET_GLOBAL(vector<thread_local_data_t>, input);
         GET_GLOBAL(int, mode_multiple);
         GET_GLOBAL(int, stride);
         GET_GLOBAL(int, num_threads);
@@ -312,14 +314,13 @@ class BenchmarkMTBase : public Benchmark {
         GET_GLOBAL(barropt_t, barrier_option);
         GET_GLOBAL(bool, do_checks);
         GET_GLOBAL(MPI_Datatype, datatype);
-        GET_GLOBAL_DEEPCOPY(vector<int>, count);
+        GET_GLOBAL(vector<int>, count);
         int idts;
         MPI_Type_size(datatype, &idts);
         datatype_size = idts;
-        input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
-        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
-            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
-        }
+//        for (int thread_num = 0; thread_num < num_threads; thread_num++) {
+//            GET_GLOBAL_VEC(thread_local_data_t, input[thread_num], thread_num);
+//        }
         VarLenScope *sc = new VarLenScope(count);
         scope = sc;
 
@@ -457,7 +458,6 @@ class BenchmarkMTBase : public Benchmark {
         }
     }
     virtual void finalize() {
-        free(input);
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             if (flags.count(COLLECTIVE_VECTOR)) {
                free(idata[thread_num]->collective_vector.cnt);

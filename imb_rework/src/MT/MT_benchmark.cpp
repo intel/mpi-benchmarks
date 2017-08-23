@@ -60,7 +60,6 @@ goods and services.
 #include "utils.h"
 #include "benchmark_suite.h"
 #include "MT_types.h"
-#include "MT_suite.h"
 #include "MT_benchmark.h" 
 
 #define WITH_VECTOR
@@ -136,7 +135,7 @@ int mt_pt2pt(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
 //template class BenchmarkMT<MTBenchmarkSuite, mt_pt2pt<true, 0> >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_pt2pt<true, 0> > elem_aaa; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_pt2pt<true, 0> >::name = "PingPongMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_pt2pt<true, 0> >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_pt2pt<true, 0>), PingPongMT) 
+DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_pt2pt<true, 0>), PingPongMT) 
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -229,7 +228,7 @@ int mt_ipt2pt(int repeat, int, void *in, void *out, int count, MPI_Datatype type
 //template class BenchmarkMT<MTBenchmarkSuite, mt_ipt2pt<true, 0> >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_ipt2pt<true, 0> > elem_PingPingMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_ipt2pt<true, 0> >::name = "PingPingMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_ipt2pt<true, 0> >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_ipt2pt<true, 0>), PingPingMT)
+DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_ipt2pt<true, 0>), PingPingMT)
 {
     flags.insert(PT2PT);
     flags.insert(OUT_BYTES);
@@ -263,7 +262,7 @@ int mt_sendrecv(int repeat, int, void *in, void *out, int count, MPI_Datatype ty
 //template class BenchmarkMT<MTBenchmarkSuite, mt_sendrecv<true, 0> >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_sendrecv<true, 0> > elem_SendRecvMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_sendrecv<true, 0> >::name = "SendRecvMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_sendrecv<true, 0> >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_sendrecv<true, 0>), SendRecvMT)
+DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_sendrecv<true, 0>), SendRecvMT)
 {
     flags.insert(PT2PT);
     flags.insert(SCALE_BW_TWICE);
@@ -312,7 +311,7 @@ int mt_exchange(int repeat, int, void *in, void *out, int count, MPI_Datatype ty
 //template class BenchmarkMT<MTBenchmarkSuite, mt_exchange >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_exchange > elem_ExchangeMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_exchange >::name = "ExchangeMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_exchange >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_exchange, ExchangeMT)
+DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_exchange, ExchangeMT)
 {
     flags.insert(PT2PT);
     flags.insert(RECV_FROM_2);
@@ -364,7 +363,7 @@ int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype typ
 //template class BenchmarkMT<MTBenchmarkSuite, mt_uniband<true, 0> >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_uniband<true, 0> > elem_UnibandMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_uniband<true, 0> >::name = "UnibandMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_uniband<true, 0> >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_uniband<true, 0>), UniBandMT)
+DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_uniband<true, 0>), UniBandMT)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_100);
@@ -419,7 +418,7 @@ int mt_biband(int repeat, int, void *in, void *out, int count, MPI_Datatype type
 //template class BenchmarkMT<MTBenchmarkSuite, mt_biband<true, 0> >;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_biband<true, 0> > elem_BibandMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_biband<true, 0> >::name = "BibandMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_biband<true, 0> >::init_flags()
-DECLARE_INHERITED_BENCHMARKMT2(MTBenchmarkSuite, GLUE_TYPENAME2(mt_biband<true, 0>), BiBandMT)
+DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_biband<true, 0>), BiBandMT)
 {
     flags.insert(PT2PT);
     flags.insert(TIME_DIVIDE_BY_2);
@@ -464,7 +463,7 @@ MT_COLLECTIVE_BEGIN(bcast) {
 //template class BenchmarkMT<MTBenchmarkSuite, mt_bcast>;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_bcast> elem_BcastMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_bcast>::name = "BcastMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_bcast>::init_flags()
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_bcast, BcastMT)
+DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_bcast, BcastMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
@@ -490,7 +489,7 @@ MT_COLLECTIVE_BEGIN(reduce) {
 //template class BenchmarkMT<MTBenchmarkSuite, mt_reduce>;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_reduce> elem_ReduceMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_reduce>::name = "ReduceMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_reduce>::init_flags()
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_reduce, ReduceMT)
+DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_reduce, ReduceMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);    
@@ -515,7 +514,7 @@ MT_COLLECTIVE_BEGIN(allreduce) {
 //template class BenchmarkMT<MTBenchmarkSuite, mt_allreduce>;
 //namespace { BenchmarkMT<MTBenchmarkSuite, mt_allreduce> elem_AllreduceMT; } template<> const char *BenchmarkMT<MTBenchmarkSuite, mt_allreduce>::name = "AllreduceMT";
 //template <> void BenchmarkMT<MTBenchmarkSuite, mt_allreduce>::init_flags()
-DECLARE_INHERITED_BENCHMARKMT(MTBenchmarkSuite, mt_allreduce, AllReduceMT)
+DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_allreduce, AllReduceMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);

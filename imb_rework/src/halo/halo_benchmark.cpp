@@ -7,7 +7,6 @@
 
 #include "benchmark_suites_collection.h"
 #include "utils.h"
-#include "halo_suite.h"
 
 #define WITH_VECTOR
 
@@ -19,7 +18,8 @@
 using namespace std;
 
 namespace ndim_halo_benchmark {
+#include "benchmark_suite.h"    
 
-DECLARE_INHERITED_TEMPLATE(HaloBenchmark<HALOBenchmarkSuite>, simple_halo)
+DECLARE_INHERITED_TEMPLATE(HaloBenchmark<BenchmarkSuite<BS_GENERIC> >, simple_halo)
     
 }

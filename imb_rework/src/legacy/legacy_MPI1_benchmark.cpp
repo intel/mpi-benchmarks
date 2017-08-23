@@ -10,10 +10,11 @@
 #include "benchmark_suites_collection.h"
 #include "utils.h"
 #include "benchmark_suite.h"
-#include "legacy_MPI1_suite.h"
 #include "legacy_benchmark.h"
 
 extern "C" {
+#include "IMB_benchmark.h"
+#include "IMB_comm_info.h"
 #include "IMB_prototypes.h"
 }
 

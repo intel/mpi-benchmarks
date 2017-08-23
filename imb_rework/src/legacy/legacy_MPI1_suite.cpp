@@ -11,9 +11,12 @@
 #include "utils.h"
 #include "any.h"
 #include "benchmark_suite.h"
-#include "legacy_MPI1_suite.h"
 
+extern "C" {
+#include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
+#include "IMB_prototypes.h"
+}
 
 #include "reworked_IMB_functions.h"
 

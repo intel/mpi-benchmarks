@@ -64,7 +64,6 @@ goods and services.
 #include "utils.h"
 
 #include "MT_types.h"
-#include "MT_suite.h"
 
 static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
@@ -80,7 +79,7 @@ static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 using namespace std;
 
 namespace NS_MT {
-    thread_local_data_t *input;
+    std::vector<thread_local_data_t> input;
     int mode_multiple;
     int stride;
     int num_threads;
@@ -170,7 +169,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
 #pragma omp master        
         num_threads = omp_get_num_threads();
     } 
-    input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+    //input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+    input.resize(num_threads);
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
         input[thread_num].warmup = parser.get_result<int>("warmup");
@@ -198,20 +198,20 @@ template <> void BenchmarkSuite<BS_MT>::finalize(const set<string> &) {
         cout << endl;
 }
 
-
-void *MTBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
+template <> any BenchmarkSuite<BS_MT>::get_parameter(const string &key)
+{
     using namespace NS_MT;
-    if (key == "input[thread_num]") return &input[i];
-    if (key == "num_threads") return &num_threads;
-    if (key == "mode_multiple") return &mode_multiple;
-    if (key == "stride") return &stride;
-    if (key == "malloc_align") return &malloc_align;
-    if (key == "malloc_option") return &malloc_option;
-    if (key == "barrier_option") return &barrier_option;
-    if (key == "do_checks") return &do_checks;
-    if (key == "datatype") return &datatype;
-    if (key == "count") return &cnt;
-    assert(false);
-    return 0;
+    any result;
+    if (key == "input") { result = smart_ptr<vector<thread_local_data_t> >(&input); result.detach_ptr(); }
+    if (key == "num_threads") { result = smart_ptr<int>(&num_threads);  result.detach_ptr(); }
+    if (key == "mode_multiple") { result = smart_ptr<int>(&mode_multiple); result.detach_ptr(); }
+    if (key == "stride") { result = smart_ptr<int>(&stride); result.detach_ptr(); }
+    if (key == "malloc_align") { result = smart_ptr<int>(&malloc_align); result.detach_ptr(); }
+    if (key == "malloc_option") { result = smart_ptr<malopt_t>(&malloc_option); result.detach_ptr(); }
+    if (key == "barrier_option") { result = smart_ptr<barropt_t>(&barrier_option); result.detach_ptr(); }
+    if (key == "do_checks") { result = smart_ptr<bool>(&do_checks); result.detach_ptr(); }
+    if (key == "datatype") { result = smart_ptr<MPI_Datatype>(&datatype); result.detach_ptr(); }
+    if (key == "count") { result = smart_ptr<vector<int> >(&cnt); result.detach_ptr(); }
+    return result;
 }
 

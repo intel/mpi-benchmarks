@@ -6,14 +6,14 @@
 #include <map>
 #include <math.h>
 #include <stdio.h>
+#include "utils.h"
 #include "benchmark.h"
 #include "benchmark_suites_collection.h"
-#include "utils.h"
 #include "args_parser.h"
 
-#include "halo_suite.h"
-
 namespace ndim_halo_benchmark {
+
+#include "benchmark_suite.h"
 
 static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
@@ -46,7 +46,7 @@ integer gcd(integer a, integer b) {
 using namespace std;
 
 namespace NS_HALO {
-    thread_local_data_t *input;
+    vector<thread_local_data_t> input;
     int mode_multiple;
     int stride;
     int num_threads;
@@ -165,7 +165,8 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
 #pragma omp master
         num_threads = omp_get_num_threads();
     }
-    input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+//    input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
+    input.resize(num_threads);    
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
         input[thread_num].warmup = parser.get_result<int>("warmup");
@@ -193,25 +194,24 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     return true;
 }
 
-void *HALOBenchmarkSuite::get_internal_data_ptr(const std::string &key, int i) {
+template<> any BenchmarkSuite<BS_GENERIC>::get_parameter(const string &key) {
     using namespace NS_HALO;
     assert(prepared);
-    if (key == "input[thread_num]") return &input[i];
-    if (key == "num_threads") return &num_threads;
-    if (key == "mode_multiple") return &mode_multiple;
-    if (key == "malloc_align") return &malloc_align;
-//    if (key == "do_checks") return &do_checks;
-    if (key == "datatype") return &datatype;
+    any result;
+    if (key == "input") { result = smart_ptr<vector<thread_local_data_t> >(&input); result.detach_ptr(); }
+    if (key == "num_threads") { result = smart_ptr<int>(&num_threads); result.detach_ptr(); }
+    if (key == "mode_multiple") { result = smart_ptr<int>(&mode_multiple); result.detach_ptr(); }
+    if (key == "malloc_align") { result = smart_ptr<int>(&malloc_align); result.detach_ptr(); }
+    if (key == "datatype") { result = smart_ptr<MPI_Datatype>(&datatype); result.detach_ptr(); }
 
-    if (key == "ndims") return &ndims;
-    if (key == "required_nranks") return &required_nranks;
-    if (key == "ranksperdim") return &ranksperdim;
-    if (key == "mults") return &mults;
-    if (key == "rank") return &rank;
-    if (key == "nranks") return &nranks;
-    if (key == "count") return &cnt;
-    assert(false);
-    return 0;
+    if (key == "ndims") { result = smart_ptr<int>(&ndims); result.detach_ptr(); }
+    if (key == "required_nranks") { result = smart_ptr<int>(&required_nranks); result.detach_ptr(); }
+    if (key == "ranksperdim") { result = smart_ptr<vector<int> >(&ranksperdim); result.detach_ptr(); }
+    if (key == "mults") { result = smart_ptr<vector<int> >(&mults); result.detach_ptr(); }
+    if (key == "rank") { result = smart_ptr<int>(&rank); result.detach_ptr(); }
+    if (key == "nranks") { result = smart_ptr<int>(&nranks); result.detach_ptr(); }
+    if (key == "count") { result = smart_ptr<vector<int> >(&cnt); result.detach_ptr(); }
+    return result;
 }
 
 }
