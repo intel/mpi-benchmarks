@@ -9,6 +9,7 @@
 #include "args_parser.h"
 #include "benchmark_suites_collection.h"
 #include "utils.h"
+#include "any.h"
 #include "benchmark_suite.h"
 #include "legacy_MPI1_suite.h"
 
@@ -339,14 +340,14 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
     }
 }
 
-void *OriginalBenchmarkSuite_MPI1::get_internal_data_ptr(const std::string &key) {
+template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
     using namespace NS_MPI1;
-    if (key == "c_info") return &c_info;
-    if (key == "ITERATIONS") return &ITERATIONS;
-    if (key == "glob") return &glob;
-    return 0;
+    any result;
+    if (key == "c_info") { result = any(smart_ptr<comm_info>(&c_info)); result.detach_ptr(); }
+    if (key == "ITERATIONS") { result = any(smart_ptr<iter_schedule>(&ITERATIONS)); result.detach_ptr(); }
+    if (key == "glob") { result = any(smart_ptr<LEGACY_GLOBALS>(&glob)); result.detach_ptr(); }
+    return result;
 }
-
 
 #endif
 

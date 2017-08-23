@@ -66,5 +66,6 @@ struct BenchmarkSuiteBase {
     virtual void get_bench_list(std::set<std::string> &, BenchListFilter filter = ALL_BENCHMARKS) const { UNUSED(filter); }
     virtual smart_ptr<Benchmark> create(const std::string &) { return smart_ptr<Benchmark>(); }
     virtual const std::string get_name() const = 0;
+    virtual any get_parameter(const std::string &key) { UNUSED(key); return any(); }
 };
 

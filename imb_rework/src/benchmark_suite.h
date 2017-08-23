@@ -50,25 +50,10 @@ goods and services.
 */
 
 #pragma once
-/*
-#include <vector>
-#include <string>
-#include <map>
-#include <memory>
-#include <assert.h>
-#include <stdexcept>
-#include <iostream>
-#include <algorithm>
-#include <string.h>
-
-#include "benchmark.h"
-#include "benchmark_suite_base.h"
-#include "benchmark_suites_collection.h"
-#include "args_parser.h"
 
 #include "smart_ptr.h"
-#include "utils.h"
-*/
+#include "any.h"
+
 template <benchmark_suite_t bs>
 class BenchmarkSuite : public BenchmarkSuiteBase {
     public:
@@ -97,11 +82,12 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         virtual void declare_args(args_parser &) const {} 
         virtual bool prepare(const args_parser &, const std::set<std::string> &) { return true; } 
         virtual void finalize(const std::set<std::string> &) { } 
-        static void register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); }
+        static BenchmarkSuite<bs> *register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); return instance; }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 
         }
         virtual smart_ptr<Benchmark> create(const std::string &s) { return get_instance().do_create(s); }
+        virtual any get_parameter(const std::string &key) { UNUSED(key); return any(); }
         
     protected:
         void do_register_elem(const Benchmark *elem) {

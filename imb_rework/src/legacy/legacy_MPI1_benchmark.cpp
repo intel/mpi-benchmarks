@@ -21,10 +21,10 @@ extern "C" {
 
 using namespace std;
 
-#define LEGACY_BENCHMARK(LEGACY_BMRK_FN, LEGACY_BMRK_NAME) template class OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>; \
-DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>), LEGACY_BMRK_NAME) \
-template<> reworked_Bmark_descr *OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::descr = NULL; \
-template<> bool OriginalBenchmark<OriginalBenchmarkSuite_MPI1, LEGACY_BMRK_FN>::init_description() 
+#define LEGACY_BENCHMARK(LEGACY_BMRK_FN, LEGACY_BMRK_NAME) template class OriginalBenchmark<BenchmarkSuite<BS_MPI1>, LEGACY_BMRK_FN>; \
+DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<BenchmarkSuite<BS_MPI1>, LEGACY_BMRK_FN>), LEGACY_BMRK_NAME) \
+template<> smart_ptr<reworked_Bmark_descr> OriginalBenchmark<BenchmarkSuite<BS_MPI1>, LEGACY_BMRK_FN>::descr = NULL; \
+template<> bool OriginalBenchmark<BenchmarkSuite<BS_MPI1>, LEGACY_BMRK_FN>::init_description() 
 
 
 LEGACY_BENCHMARK(IMB_pingpong, PingPong)

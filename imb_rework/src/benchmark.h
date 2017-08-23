@@ -54,6 +54,7 @@ goods and services.
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
+class BenchmarkSuiteBase;
 class Benchmark {
     public:
         Benchmark() : initialized(false) {}
@@ -70,6 +71,7 @@ class Benchmark {
         bool initialized;
     protected:
         smart_ptr<Scope> scope;
+        BenchmarkSuiteBase *suite;
     private:
         Benchmark &operator=(const Benchmark &) { return *this; }
         Benchmark(const Benchmark &) {}
@@ -78,7 +80,7 @@ class Benchmark {
 #define DEFINE_INHERITED(CLASS, SUITE_CLASS) static const char *name; \
     virtual const std::string get_name() const { return name; } \
     virtual Benchmark *create_myself() const { return new CLASS; } \
-    CLASS() { SUITE_CLASS::register_elem(this); this->allocate_internals(); }
+    CLASS() { Benchmark::suite = SUITE_CLASS::register_elem(this); this->allocate_internals(); }
 
 #define DECLARE_INHERITED(CLASS, NAME) namespace { CLASS elem_ ## NAME; } const char *CLASS::name = #NAME;
 

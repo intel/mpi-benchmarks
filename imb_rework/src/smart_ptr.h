@@ -58,11 +58,11 @@ class smart_ptr {
 private:
     typedef int counter_t;
 public:
-    smart_ptr() : pointer(NULL), rc(NULL) { }
-    smart_ptr(T * p) : pointer(p), rc(p ? new counter_t(0) : NULL) { increment(); } 
-    smart_ptr(const smart_ptr& rhs) : pointer(rhs.pointer), rc(rhs.rc) { increment(); }
+    smart_ptr() : pointer(NULL), rc(NULL), detached(false) { }
+    smart_ptr(T * p) : pointer(p), rc(p ? new counter_t(0) : NULL), detached(false) { increment(); } 
+    smart_ptr(const smart_ptr& rhs) : pointer(rhs.pointer), rc(rhs.rc), detached(rhs.detached) { increment(); }
     ~smart_ptr() {
-        if(rc && decrement() == 0) { delete pointer; delete rc; }
+        if(rc && decrement() == 0) { if (!detached) delete pointer; delete rc; }
     }
     void assign(T *p) {
         if(rc == NULL && pointer == NULL) { 
@@ -77,6 +77,7 @@ public:
         std::swap(pointer, rhs.pointer);
         std::swap(rc, rhs.rc);
     }
+    void detach() { detached = true; }
     T *get() { return pointer; }
     const T *get() const { return pointer; }
     smart_ptr& operator=(const smart_ptr& rhs) {
@@ -94,4 +95,5 @@ private:
 
     T *pointer;
     counter_t *rc;
+    bool detached;
 };

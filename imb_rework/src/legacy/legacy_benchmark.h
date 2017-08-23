@@ -1,9 +1,5 @@
 #pragma once
 #include <map>
-//#include "becnhmark_suites_collection.h"
-//#include "utils.h"
-//#include "benchmark_suite.h"
-//#include "legacy_MPI1_suite.h"
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
 
@@ -16,14 +12,17 @@ extern "C" {
 
 #include "reworked_IMB_functions.h"
 
-#define GET_GLOBAL(TYPE, NAME) { TYPE *p = (TYPE *)bs::get_internal_data_ptr(#NAME); memcpy(&NAME, p, sizeof(TYPE)); }
+#define GET_GLOBAL(TYPE, NAME) { TYPE *p = suite->get_parameter(#NAME).as<TYPE>(); \
+                                 assert(p != NULL); \
+                                 memcpy(&NAME, p, sizeof(TYPE)); }
+
 
 extern "C" { void IMB_Barrier(MPI_Comm comm); }
 
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
     protected:
-        static reworked_Bmark_descr *descr;
+        static smart_ptr<reworked_Bmark_descr> descr;
         comm_info c_info;
         iter_schedule ITERATIONS;
         MODES BMODE;
@@ -38,7 +37,7 @@ class OriginalBenchmark : public Benchmark {
         using Benchmark::scope;
         virtual void allocate_internals() { 
             BMark[0].name = NULL;
-            if (descr == NULL) 
+            if (descr.get() == NULL) 
                 descr = new reworked_Bmark_descr;
         }
         virtual bool init_description();
@@ -60,11 +59,6 @@ class OriginalBenchmark : public Benchmark {
             descr->helper_sync_legacy_globals_2(c_info, glob, BMark);
 
             scope = descr->helper_init_scope(c_info, BMark, glob);
-
-            // This is to do when change NP
-            //if (!IMB_valid(&c_info, BMark, glob.NP))
-            //    return;
-            //IMB_init_communicator(&c_info, glob.NP);
 
             // FIXME glob.NP is used inside helper_init_scope, it's easy to mess it up
             glob.NP = 0;
@@ -106,8 +100,6 @@ class OriginalBenchmark : public Benchmark {
         }
         ~OriginalBenchmark() {
             free(BMark[0].name);
-            delete descr;
-            descr = NULL;
         } 
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };

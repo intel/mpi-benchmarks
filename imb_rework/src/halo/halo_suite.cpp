@@ -17,6 +17,7 @@ namespace ndim_halo_benchmark {
 
 static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
+    UNUSED(thread_num);
     MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
     if(mode_multiple) {
         MPI_Comm_dup(comm, &new_comm);
@@ -61,12 +62,13 @@ namespace NS_HALO {
     std::vector<int> ranksperdim;
     std::vector<int> mults;
     std::vector<unsigned int> mysubs;
+/*    
     static void prvals(const std::vector<int> &arr)
     {
         for (int i = 0; i < ndims-1; ++i)
             printf("%d.", arr[i]);
         printf("%d", arr[ndims-1]);
-    }
+    }    
     static void prlayout()
     {
         printf("%d dims, %d ranks, layout: ", ndims, required_nranks);
@@ -82,6 +84,7 @@ namespace NS_HALO {
             printf(" %d", subs[i]);
         printf("\n");
     }
+*/    
     static void fill_in(std::vector<int> &topo)
     {
         ndims = topo.size();

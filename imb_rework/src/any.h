@@ -85,6 +85,7 @@ public:
         else 
             return NULL;
     }
+    void detach_ptr() { held.detach(); }
 };
 
 

@@ -64,7 +64,7 @@ class Scope;
 
 struct scope_item { 
     int np; 
-    int len; 
+    size_t len; 
     any extra_fields;
     scope_item(int _len) : np(0), len(_len) { }
     scope_item(int _np, int _len) : np(_np), len(_len) { }

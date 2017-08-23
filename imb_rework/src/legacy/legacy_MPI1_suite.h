@@ -7,9 +7,9 @@ extern "C" {
 #include "IMB_prototypes.h"
 }
 
-class OriginalBenchmarkSuite_MPI1 : public BenchmarkSuite<BS_MPI1> {
-    public:
-        static void *get_internal_data_ptr(const std::string &key);
-};
+//class OriginalBenchmarkSuite_MPI1 : public BenchmarkSuite<BS_MPI1> {
+//    public:
+//        static any &get_parameter(const std::string &key);
+//};
 
 #endif
