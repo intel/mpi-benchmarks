@@ -61,6 +61,7 @@ goods and services.
 
 using namespace std;
 
+// FIXME!!! change it to some positive integer value when it is a release time
 const int args_parser::version = 0;
 
 args_parser::value &args_parser::value::operator=(const args_parser::value &other) {
@@ -149,14 +150,14 @@ void operator>> (const YAML::Node& node, args_parser::value &v) {
     v.initialized = true;
 }
 
-YAML::Emitter &operator<< (YAML::Emitter& out, const args_parser::option &d) {
-    d.to_yaml(out);
+YAML::Emitter &operator<< (YAML::Emitter& out, const args_parser::option &opt) {
+    opt.to_yaml(out);
     return out;
 }
 
-void operator>> (const YAML::Node& node, args_parser::option &d) {
-    d.from_yaml(node);
-    d.defaulted = false;
+void operator>> (const YAML::Node& node, args_parser::option &opt) {
+    opt.from_yaml(node);
+    opt.defaulted = false;
 }
 
 void args_parser::option_scalar::to_yaml(YAML::Emitter& out) const { out << val; }
@@ -211,6 +212,12 @@ void args_parser::option_vector::set_default_value() {
     }
 }
 
+args_parser::option &args_parser::add_flag(const char *s) {
+    option &opt = add<bool>(s, false);
+    opt.flag = true;
+    return opt;
+}
+
 bool args_parser::match(string &arg, string pattern) const {
     if (strncmp(arg.c_str(), option_starter, strlen(option_starter)))
         return false;
@@ -225,7 +232,7 @@ bool args_parser::match(string &arg, option &opt) const {
     return match(arg, opt.str);
 }
 
-bool args_parser::get_value(string &arg, option &opt) {
+bool args_parser::get_value(const string &arg, option &opt) {
     size_t offset = 0; 
     assert(prev_option == NULL);
     offset = strlen(option_starter);
@@ -246,9 +253,9 @@ bool args_parser::get_value(string &arg, option &opt) {
     return res;
 }
 
-void args_parser::print_err_required_arg(const option &arg) const {
+void args_parser::print_err_required_arg(const option &opt) const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: The required argument missing or can't be parsed: " << option_starter << arg.str << endl;
+        cout << "ERROR: The required option missing or can't be parsed: " << option_starter << opt.str << endl;
 }
 
 void args_parser::print_err_required_extra_arg() const {
@@ -256,9 +263,9 @@ void args_parser::print_err_required_extra_arg() const {
         cout << "ERROR: The required extra argument missing" << endl;
 }
 
-void args_parser::print_err_parse(const option &arg) const {
+void args_parser::print_err_parse(const option &opt) const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: Parse error on argument: " << option_starter << arg.str << endl;
+        cout << "ERROR: Parse error on option: " << option_starter << opt.str << endl;
 }
 
 void args_parser::print_err_parse_extra_args() const {
@@ -280,7 +287,7 @@ void args_parser::print_help_advice() const {
 // each next call with FOREACH_NEXT gives a pointer to the next arg from expected_args
 // together with the pointer to the group name it belongs
 // Two versions are here for ordinary and constant methods, mind the 'const' keyword.
-bool args_parser::in_expected_args(enum foreach_t t, const string *&group, smart_ptr<option> *&arg) {
+bool args_parser::in_expected_args(enum foreach_t t, const string *&group, smart_ptr<option> *&opt) {
     static map<const string, vector<smart_ptr<option> > >::iterator it;
     static size_t j = 0;
     if (t == FOREACH_FIRST) {
@@ -297,7 +304,7 @@ bool args_parser::in_expected_args(enum foreach_t t, const string *&group, smart
                continue;
             } 
             group = &(it->first);
-            arg = &expected_args[j];
+            opt = &expected_args[j];
             j++;
             return true;
         }
@@ -306,7 +313,7 @@ bool args_parser::in_expected_args(enum foreach_t t, const string *&group, smart
     return false;
 }
 
-bool args_parser::in_expected_args(enum foreach_t t, const string *&group, const smart_ptr<option> *&arg) const {
+bool args_parser::in_expected_args(enum foreach_t t, const string *&group, const smart_ptr<option> *&opt) const {
     static map<const string, vector<smart_ptr<option> > >::const_iterator cit;
     static size_t j = 0;
     if (t == FOREACH_FIRST) {
@@ -323,7 +330,7 @@ bool args_parser::in_expected_args(enum foreach_t t, const string *&group, const
                continue;
             } 
             group = &(cit->first);
-            arg = &expected_args[j];
+            opt = &expected_args[j];
             j++;
             return true;
         }
@@ -332,26 +339,28 @@ bool args_parser::in_expected_args(enum foreach_t t, const string *&group, const
     return false;
 }
 
-void args_parser::print_single_option_usage(const smart_ptr<option> &d, size_t header_size, 
+void args_parser::print_single_option_usage(const smart_ptr<option> &opt, size_t header_size, 
         bool is_first, bool no_option_name) const {
     string tab(header_size, ' ');
     const char *open_brace = "[";
     const char *close_brace = "]";
     const char *empty = "";
-    const char *op = d->required ? empty : open_brace;
-    const char *cl = d->required ? empty : close_brace;
-    const string stype = value::get_type_str(d->type);
-    const string cap = (d->is_scalar() ? 
-            d->caption + ":" + stype : d->caption);
-    const string cptn = (d->caption.size() == 0 ? stype : cap);
+    const char *open = opt->required ? empty : open_brace;
+    const char *close = opt->required ? empty : close_brace;
+    const string stype = value::get_type_str(opt->type);
+    const string cap = (opt->caption.size() == 0 ? stype : opt->caption);
     const string allign = (is_first ? "" : tab);
     if (no_option_name)
-        cout << allign << op << cptn << cl << " ";
+        cout << allign << open << cap << close << " ";
+    else if (opt->flag)
+        cout << allign << open << option_starter << opt->str << close << endl;
     else
-        cout << allign << op << option_starter << d->str << option_delimiter << cptn << cl << endl;
+        cout << allign << open << option_starter << opt->str << option_delimiter << cap << close << endl;
 }
 
 void args_parser::print_help() const {
+    if (program_name.size() != 0)
+        cout << program_name << endl;
     cout << "Usage: " << basename(argv[0]) << " ";
     string header;
     header +=  "Usage: ";
@@ -379,10 +388,10 @@ void args_parser::print_help() const {
 
 void args_parser::print() const {
     const string *pgroup;
-    const smart_ptr<option> *parg;
-    in_expected_args(FOREACH_FIRST, pgroup, parg);
-    while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
-        (*parg)->print();
+    const smart_ptr<option> *popt;
+    in_expected_args(FOREACH_FIRST, pgroup, popt);
+    while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
+        (*popt)->print();
     }
 }
 
@@ -432,12 +441,12 @@ bool args_parser::parse() {
         if (prev_option) {
             // the option itself was given as a previous argv[i] 
             // now only parse the option argument
-            option &d = *prev_option;
-            if (!d.required && d.defaultize_before_parsing) 
-                d.set_default_value();
-            d.defaulted = false;
-            if (!d.do_parse(arg.c_str())) {
-                print_err_parse(d);
+            option &opt = *prev_option;
+            if (!opt.required && opt.defaultize_before_parsing) 
+                opt.set_default_value();
+            opt.defaulted = false;
+            if (!opt.do_parse(arg.c_str())) {
+                print_err_parse(opt);
                 parse_result = false;
             }
             prev_option = NULL;
@@ -452,17 +461,22 @@ bool args_parser::parse() {
         // go throwgh all expected_args[] elements to find the option by pattern
         bool found = false;
         const string *pgroup;
-        smart_ptr <option> *parg;
-        in_expected_args(FOREACH_FIRST, pgroup, parg);
-        while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
+        smart_ptr <option> *popt;
+        in_expected_args(FOREACH_FIRST, pgroup, popt);
+        while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
             if (*pgroup == "EXTRA_ARGS")
                 continue;
-            if (match(arg, **parg)) {
-                if (!(*parg)->required && (*parg)->defaultize_before_parsing)
-                    (*parg)->set_default_value();
-                (*parg)->defaulted = false;
-                if (!get_value(arg, **parg)) {
-                    print_err_parse(**parg);
+            if (match(arg, **popt)) {
+                if (!(*popt)->required && (*popt)->defaultize_before_parsing)
+                    (*popt)->set_default_value();
+                (*popt)->defaulted = false;
+                if ((*popt)->flag) {
+                    (*popt)->do_parse("on");
+                    found = true;
+                    break;
+                }
+                if (!get_value(arg, **popt)) {
+                    print_err_parse(**popt);
                     parse_result = false;
                 }
                 found = true;
@@ -509,15 +523,15 @@ bool args_parser::parse() {
 
     // loop again through all in expected_args[] to find options which were not given in cmdline
     const string *pgroup;
-    smart_ptr<option> *parg;
-    in_expected_args(FOREACH_FIRST, pgroup, parg);
-    while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
-        if ((*parg)->is_default_setting_required()) {
-            (*parg)->set_default_value();
+    smart_ptr<option> *popt;
+    in_expected_args(FOREACH_FIRST, pgroup, popt);
+    while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
+        if ((*popt)->is_default_setting_required()) {
+            (*popt)->set_default_value();
             continue;
         }
-        if ((*parg)->is_required_but_not_set()) {
-            print_err_required_arg(**parg);
+        if ((*popt)->is_required_but_not_set()) {
+            print_err_required_arg(**popt);
             parse_result = false;
         }
     }
@@ -544,11 +558,11 @@ args_parser::option &args_parser::set_caption(int n, const char *cap) {
 
 vector<args_parser::value> args_parser::get_result_value(const string &s) const {
     const string *pgroup;
-    const smart_ptr<option> *parg;
-    in_expected_args(FOREACH_FIRST, pgroup, parg);
-    while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
-        if ((*parg)->str == s) {
-            return (*parg)->get_value_as_vector();
+    const smart_ptr<option> *popt;
+    in_expected_args(FOREACH_FIRST, pgroup, popt);
+    while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
+        if ((*popt)->str == s) {
+            return (*popt)->get_value_as_vector();
         }
     }
     throw logic_error("args_parser: no such option");
@@ -567,13 +581,13 @@ bool args_parser::load(istream &stream) {
         parser.GetNextDocument(node);
         // loop through all in expected_args[] to find each option in file 
         const string *pgroup;
-        smart_ptr<option> *parg;
-        in_expected_args(FOREACH_FIRST, pgroup, parg);
-        while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
+        smart_ptr<option> *popt;
+        in_expected_args(FOREACH_FIRST, pgroup, popt);
+        while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
             if (*pgroup == "SYS" || *pgroup == "EXTRA_ARGS")
                 continue;
-            if(const YAML::Node *pName = node.FindValue((*parg)->str.c_str())) {
-                *pName >> **parg;
+            if(const YAML::Node *pName = node.FindValue((*popt)->str.c_str())) {
+                *pName >> **popt;
             }
         }
         int num_extra_args = 0, num_required_extra_args = 0;
@@ -583,8 +597,8 @@ bool args_parser::load(istream &stream) {
             for(YAML::Iterator it = pName->begin(); it != pName->end(); ++it) {
                 if (j == num_extra_args) 
                     break;
-                parg = &extra_args[j];
-                    *it >> **parg;
+                popt = &extra_args[j];
+                    *it >> **popt;
             }
         }
     }
@@ -607,28 +621,29 @@ bool args_parser::load(const string &input) {
 
 string args_parser::dump() const {
     YAML::Emitter out;
-    // FIXME remove mentioning of IMB!!!
-    out << YAML::BeginDoc << YAML::Comment("IMB config file");
+    out << YAML::BeginDoc;
+    if (program_name.size() != 0)
+        out << YAML::Comment(program_name.c_str());
     out << YAML::BeginMap;
     out << YAML::Flow;
     out << YAML::Key << "version";
     out << YAML::Value << version;
     const string *pgroup;
-    const smart_ptr<option> *parg;
-    in_expected_args(FOREACH_FIRST, pgroup, parg);
-    while(in_expected_args(FOREACH_NEXT, pgroup, parg)) {
+    const smart_ptr<option> *popt;
+    in_expected_args(FOREACH_FIRST, pgroup, popt);
+    while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
         if (*pgroup == "SYS" || *pgroup == "EXTRA_ARGS")
             continue;
-        if ((*parg)->defaulted) {
+        if ((*popt)->defaulted) {
             YAML::Emitter comment;
             comment << YAML::BeginMap;
-            comment << YAML::Flow << YAML::Key << (*parg)->str.c_str();
-            comment << YAML::Flow << YAML::Value << **parg;
+            comment << YAML::Flow << YAML::Key << (*popt)->str.c_str();
+            comment << YAML::Flow << YAML::Value << **popt;
             comment << YAML::EndMap;
             out << YAML::Flow << YAML::Newline << YAML::Comment(comment.c_str()) << YAML::Comment("(default)");
         } else {
-            out << YAML::Key << (*parg)->str.c_str();
-            out << YAML::Value << **parg;
+            out << YAML::Key << (*popt)->str.c_str();
+            out << YAML::Value << **popt;
         }
     }
     int num_extra_args = 0, num_required_extra_args = 0;
@@ -637,13 +652,13 @@ string args_parser::dump() const {
         out << YAML::Key << "extra_args";
         out << YAML::Value << YAML::BeginSeq << YAML::Newline;
         for (int i = 0; i < num_extra_args; i++) {
-            parg = &extra_args[i];
-            if ((*parg)->defaulted) {
+            popt = &extra_args[i];
+            if ((*popt)->defaulted) {
                 YAML::Emitter comment;
-                comment << YAML::Flow << **parg;
+                comment << YAML::Flow << **popt;
                 out << YAML::Flow << YAML::Newline << YAML::Comment(comment.c_str()) << YAML::Comment("(default)");
             } else {
-                out << **parg;
+                out << **popt;
             }
         }
         out << YAML::Newline << YAML::EndSeq;
@@ -653,8 +668,8 @@ string args_parser::dump() const {
     return string(out.c_str());
 }
 
-ostream &operator<<(ostream &s, const args_parser::option &d) {
-    d.to_ostream(s);
+ostream &operator<<(ostream &s, const args_parser::option &opt) {
+    opt.to_ostream(s);
     return s;
 }
 

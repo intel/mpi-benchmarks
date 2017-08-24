@@ -81,7 +81,7 @@ namespace NS_MT {
 }
 
 
-DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, "IMB-MT")
+DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, IMB-MT)
 
 template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const {
     parser.add<int>("stride", 0);

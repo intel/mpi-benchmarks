@@ -98,6 +98,9 @@ class OriginalBenchmark : public Benchmark {
         virtual bool is_default() {
             return descr->is_default();
         }
+        virtual std::vector<std::string> get_comments() {
+            return descr->comments;
+        }
         ~OriginalBenchmark() {
             free(BMark[0].name);
         } 

@@ -18,6 +18,7 @@ using namespace std;
 // Registration is done by rather ugly direct register_elem() call from a constructor
 class ExampleBenchmark_5 : public Benchmark 
 {
+    virtual const string get_name() const { return "example5"; }
     virtual void run(const scope_item &) { std::cout << "Hello from example 5"; }
 };
 

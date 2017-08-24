@@ -62,18 +62,6 @@ goods and services.
 #include "scope.h"
 #include "benchmark_suite.h"
 
-/*
-#ifdef MPI1
-#include "legacy_MPI1_suite.h"
-#endif
-#ifdef MT
-#include "MT_suite.h"
-#endif
-#ifdef HALO
-#include "halo_suite.h"
-#endif
-*/
-
 using namespace std;
 
 extern void check_parser();
@@ -101,6 +89,7 @@ int main(int argc, char * *argv)
         //args_parser parser(argc, argv, "--", '=');
         args_parser parser(argc, argv, "-", ' ');
 
+        parser.set_program_name("Intel(R) MPI Benchmarks");
         parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
 
         parser.add<string>("thread_level", "single").
@@ -122,7 +111,7 @@ int main(int argc, char * *argv)
         parser.set_current_group("SYS");
         parser.add<string>("dump", "").set_caption("config.yaml");
         parser.add<string>("load", "").set_caption("config.yaml");
-        parser.add<bool>("list", false);
+        parser.add_flag("list");
         parser.set_default_current_group();
          
         if (!parser.parse()) {
@@ -174,8 +163,31 @@ int main(int argc, char * *argv)
         // make sure all requested benchmarks are found
         set<string> default_benchmarks, all_benchmarks;
         set<string> actual_benchmark_list;
-        BenchmarkSuitesCollection::get_full_list(all_benchmarks);
+        map<string, set<string> > by_suite;
+        BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
         BenchmarkSuitesCollection::get_default_list(default_benchmarks);
+        if (parser.get<bool>("list")) {
+            for (map<string, set<string> >::iterator it_s = by_suite.begin(); 
+                 it_s != by_suite.end(); ++it_s) {
+                set<string> &benchmarks = it_s->second;
+                string sn = it_s->first;
+                if (sn == "__generic__")
+                    continue;
+                cout << sn << ":" << endl;
+                for (set<string>::iterator it_b = benchmarks.begin(); 
+                     it_b != benchmarks.end(); ++it_b) {
+                    smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it_b);
+                    string bn = b->get_name();
+                    vector<string> comments = b->get_comments();
+                    cout << "    " << bn;
+                    if (!b->is_default()) cout << " (non-default)";
+                    cout << endl;
+                    for (size_t i = 0; i < comments.size(); i++)
+                       cout << "        " << comments[i] << endl;
+                }
+            }
+            return 0;
+        }
         {
             using namespace set_operations;
             

@@ -22,7 +22,7 @@ extern "C" {
 
 using namespace std;
 
-DECLARE_BENCHMARK_SUITE_STUFF(BS_MPI1, "IMB-MPI1")
+DECLARE_BENCHMARK_SUITE_STUFF(BS_MPI1, IMB-MPI1)
 
 namespace NS_MPI1 {
     struct comm_info c_info;

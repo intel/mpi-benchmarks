@@ -52,6 +52,7 @@ goods and services.
 #pragma once
 
 #include "benchmark_suite_base.h"
+#include "utils.h"
 
 //!!! to remove
 #include <iostream>
@@ -85,11 +86,14 @@ class BenchmarkSuitesCollection {
             (*pnames)[name] = elem;
         }
     }
-    static void get_full_list(std::set<std::string> &all_benchmarks) {
+    static void get_full_list(std::set<std::string> &all_benchmarks, 
+                              std::map<std::string, std::set<std::string> > &by_suite) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
-            it->second->get_bench_list(all_benchmarks, BenchmarkSuiteBase::ALL_BENCHMARKS);
+            std::set<std::string> &benchmarks = by_suite[it->second->get_name()];
+            it->second->get_bench_list(benchmarks, BenchmarkSuiteBase::ALL_BENCHMARKS);
+            set_operations::combine(all_benchmarks, benchmarks);
         }
     }
     static void get_default_list(std::set<std::string> &default_benchmarks) {

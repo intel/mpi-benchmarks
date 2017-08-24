@@ -66,12 +66,13 @@ class Benchmark {
         virtual void run(const scope_item &) = 0;
         virtual void finalize() { }
         virtual bool is_default() { return true; }
+        virtual std::vector<std::string> get_comments() { return std::vector<std::string>(0); }
         smart_ptr<Scope> get_scope() { if (scope.get() == NULL) { scope.assign(new Scope); scope->commit(); } return scope; }
         virtual ~Benchmark() { }
         bool initialized;
+        BenchmarkSuiteBase *suite;
     protected:
         smart_ptr<Scope> scope;
-        BenchmarkSuiteBase *suite;
     private:
         Benchmark &operator=(const Benchmark &) { return *this; }
         Benchmark(const Benchmark &) {}
