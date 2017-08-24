@@ -81,6 +81,7 @@ extern void check_parser();
 int main(int argc, char * *argv)
 {
     bool no_mpi_init_flag = true;
+    int return_value = 0;
     int rank = 0, size = 0;
 
     // Some unit tests for args parser
@@ -121,6 +122,7 @@ int main(int argc, char * *argv)
         parser.set_current_group("SYS");
         parser.add<string>("dump", "").set_caption("config.yaml");
         parser.add<string>("load", "").set_caption("config.yaml");
+        parser.add<bool>("list", false);
         parser.set_default_current_group();
          
         if (!parser.parse()) {
@@ -155,8 +157,7 @@ int main(int argc, char * *argv)
         if (filename != "") {
             FILE *t = fopen(filename.c_str(), "r");
             if (t == NULL) {
-                cout << "ERROR: can't open a file given in -input option" << endl;
-                return 1;
+                throw logic_error("can't open a file given in -input option");
             }
             char input_line[72+1], name[32+1];
             while (fgets(input_line, 72, t)) {
@@ -222,8 +223,7 @@ int main(int argc, char * *argv)
         } else if (mpi_init_mode == "nompiinit") {
             ;
         } else {
-            cout << "ERROR: wrong value of `thread_level' option" << endl;
-            return 1;
+            throw logic_error("wrong value of `thread_level' option");
         }
         if (!no_mpi_init_flag) {
             MPI_Init_thread(&argc, (char ***)&argv, required_mode, &provided_mode);
@@ -274,9 +274,15 @@ int main(int argc, char * *argv)
         BenchmarkSuitesCollection::finalize(actual_benchmark_list);
     }
     catch(exception &ex) {
+        if (no_mpi_init_flag) {
+            MPI_Init(NULL, NULL);
+            no_mpi_init_flag = false;
+        }
         if (!no_mpi_init_flag && rank == 0)
             cout << "EXCEPTION: " << ex.what() << endl;
+        return_value = 1;
     }
     if (!no_mpi_init_flag)
         MPI_Finalize();
+    return return_value;
 }

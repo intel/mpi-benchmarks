@@ -228,7 +228,6 @@ class HaloBenchmark : public Benchmark {
     }
     virtual void run_instance(thread_local_data_t *input, chunk_t chunk, double &t, int &result, size_t &total_count) {
         MPI_Comm comm = input->comm;
-        MPI_Status status;
         t = 0;
         result = 0;
         if (rank >= required_nranks)
@@ -239,6 +238,7 @@ class HaloBenchmark : public Benchmark {
         size_t datatype_size = (size_t)idts;
         
 #if 0        
+        MPI_Status status;
         t = MPI_Wtime();
         for (int iter = 0; iter < parent::input->repeat; ++iter) {
             for (int i = 0; i < ndims; ++i) {
@@ -256,10 +256,9 @@ class HaloBenchmark : public Benchmark {
             }
         }
 #else
-        int recvoffs = 0;
         const int maxreqs = 4 * ndims;
         int nreqs = 0;
-        MPI_Request reqs[maxreqs];
+        std::vector<MPI_Request> reqs(maxreqs);
         for (int iter = 0; iter < input->warmup + input->repeat; ++iter) {
             if (iter == input->warmup) {
                 t = MPI_Wtime();
@@ -290,7 +289,7 @@ class HaloBenchmark : public Benchmark {
             assert(nreqs <= maxreqs);
             result = 1;
             total_count = nreqs * 
-            MPI_Waitall(nreqs, reqs, MPI_STATUSES_IGNORE);
+            MPI_Waitall(nreqs, &reqs[0], MPI_STATUSES_IGNORE);
         }
         result = 1;
         total_count = (size_t)nreqs * (size_t)chunk.count;

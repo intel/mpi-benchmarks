@@ -31,7 +31,7 @@ enum barropt_t {
     BARROPT_SPECIAL
 };
 
-static MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
+static inline MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
     UNUSED(thread_num);
     MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
