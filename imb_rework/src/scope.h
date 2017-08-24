@@ -141,8 +141,6 @@ struct NPLenCombinedScope : public Scope {
     virtual void commit() {
         formed = true;
         assert(sequence.size() == 0);
-        assert(lens.size() != 0);
-        assert(nps.size() != 0);
         for (size_t i = 0; i < nps.size(); i++) {
             for (size_t j = 0; j < lens.size(); j++) {
                 sequence.push_back(scope_item(nps[i], lens[j]));
