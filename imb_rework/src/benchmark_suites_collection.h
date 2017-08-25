@@ -64,9 +64,6 @@ enum benchmark_suite_t {
 #ifdef NBC    
     BS_NBC,
 #endif
-#ifdef OSU
-    BS_OSU,
-#endif
 #ifdef MT
     BS_MT,
 #endif
@@ -86,7 +83,7 @@ class BenchmarkSuitesCollection {
             (*pnames)[name] = elem;
         }
     }
-    static void get_full_list(std::set<std::string> &all_benchmarks, 
+    static void get_full_list(std::vector<std::string> &all_benchmarks, 
                               std::map<std::string, std::set<std::string> > &by_suite) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
@@ -96,7 +93,7 @@ class BenchmarkSuitesCollection {
             set_operations::combine(all_benchmarks, benchmarks);
         }
     }
-    static void get_default_list(std::set<std::string> &default_benchmarks) {
+    static void get_default_list(std::vector<std::string> &default_benchmarks) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
@@ -108,7 +105,6 @@ class BenchmarkSuitesCollection {
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
                 it->second->init();
-//                std::cout << "Benchmark suite '" << it->second->get_name() << "' registered" << std::endl;
         }
     }
     static void declare_args(args_parser &parser) {
@@ -118,7 +114,7 @@ class BenchmarkSuitesCollection {
                 it->second->declare_args(parser);
         }
     }
-    static bool prepare(args_parser &parser, const std::set<std::string> &benchs) {
+    static bool prepare(args_parser &parser, const std::vector<std::string> &benchs) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
@@ -139,7 +135,7 @@ class BenchmarkSuitesCollection {
         }
         return b;
     }
-    static void finalize(const std::set<std::string> &benchs) {
+    static void finalize(const std::vector<std::string> &benchs) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) 

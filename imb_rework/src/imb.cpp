@@ -161,8 +161,9 @@ int main(int argc, char * *argv)
 
         // Complete benchmark list filling in: combine -input, -include, -exclude options,
         // make sure all requested benchmarks are found
-        set<string> default_benchmarks, all_benchmarks;
-        set<string> actual_benchmark_list;
+        vector<string> default_benchmarks, all_benchmarks;
+        vector<string> actual_benchmark_list;
+        vector<string> benchmarks_to_run;
         map<string, set<string> > by_suite;
         BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
         BenchmarkSuitesCollection::get_default_list(default_benchmarks);
@@ -190,11 +191,10 @@ int main(int argc, char * *argv)
         }
         {
             using namespace set_operations;
-            
+           
             preprocess_list(requested_benchmarks);
             preprocess_list(to_include);
             preprocess_list(to_exclude);
-
             preprocess_list(all_benchmarks);
             preprocess_list(default_benchmarks);
 
@@ -203,17 +203,31 @@ int main(int argc, char * *argv)
             } else {
                 combine(actual_benchmark_list, default_benchmarks);
             }
+            exclude(to_include, to_exclude);
             exclude(actual_benchmark_list, to_exclude);
-            combine(actual_benchmark_list, to_include);
-
-            set<string> missing;
-            diff(actual_benchmark_list, all_benchmarks, missing);
+            combine(to_include, actual_benchmark_list);
+            actual_benchmark_list = to_include;
+            vector<string> missing = actual_benchmark_list;
+            exclude(missing, all_benchmarks);
             if (missing.size() != 0) {
                 cout << "Benchmarks not found:" << endl;
-                for (set<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
+                for (vector<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
                     cout << *it << endl;
                 }
                 return 1;
+            }
+
+            // Change benchmark names to their canonical form
+            all_benchmarks.resize(0);
+            by_suite.clear();
+            BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
+            for (size_t i = 0; i < actual_benchmark_list.size(); i++) {
+                string b = to_lower(actual_benchmark_list[i]);
+                for (size_t i = 0; i < all_benchmarks.size(); i++) {
+                    if (to_lower(all_benchmarks[i]) == b) {
+                        benchmarks_to_run.push_back(all_benchmarks[i]);
+                    }
+                }
             }
         }
 
@@ -250,7 +264,7 @@ int main(int argc, char * *argv)
         // ACTUAL BENCHMARKING
         //
         // 1, Preparation phase on suite level
-        if (!BenchmarkSuitesCollection::prepare(parser, actual_benchmark_list)) {
+        if (!BenchmarkSuitesCollection::prepare(parser, benchmarks_to_run)) {
             throw logic_error("One or more benchmark suites failed at preparation stage");
         }        
 
@@ -258,7 +272,7 @@ int main(int argc, char * *argv)
         typedef pair<smart_ptr<Benchmark>, smart_ptr<Scope> > item;
         typedef vector<item> running_sequence;
         running_sequence sequence;
-        for (set<string>::iterator it = actual_benchmark_list.begin(); it != actual_benchmark_list.end(); ++it) {
+        for (vector<string>::iterator it = benchmarks_to_run.begin(); it != benchmarks_to_run.end(); ++it) {
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
                 throw logic_error("benchmark creator failed!");
@@ -283,7 +297,7 @@ int main(int argc, char * *argv)
         }
 
         // 5. Final steps on suite-level
-        BenchmarkSuitesCollection::finalize(actual_benchmark_list);
+        BenchmarkSuitesCollection::finalize(benchmarks_to_run);
     }
     catch(exception &ex) {
         if (no_mpi_init_flag) {

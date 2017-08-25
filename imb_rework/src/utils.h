@@ -64,15 +64,14 @@ namespace set_operations {
     void exclude(T1 &from, T2 &what) {
         for (typename T2::iterator what_it = what.begin();
              what_it != what.end(); ++what_it) {
-            typename T1::iterator it = from.find(*what_it);
-            if (it != from.end()) {
-                from.erase(*it);
+            typename T1::iterator it = find(from.begin(), from.end(), *what_it);
+            if (it != from.end())
+                from.erase(it);
             }
-        }
     }
     // result = one \ two    (set difference)
-    template <typename T1, typename T2>
-    void diff(T1 &one, T1 &two, T2 &result) {
+    template <typename T1, typename T2, typename T3>
+    void diff(T1 &one, T2 &two, T3 &result) {
         set_difference(one.begin(), one.end(), two.begin(), two.end(), inserter(result, result.end()));
     }
     static const std::string to_lower(const std::string &in) {

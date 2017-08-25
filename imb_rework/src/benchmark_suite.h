@@ -61,6 +61,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
     protected:
         static pnames_t *pnames;
         static BenchmarkSuite<bs> *instance;
+        std::vector<std::string> names_list;
     public:   
         static BenchmarkSuite<bs> &get_instance() { 
             if (instance == NULL) {
@@ -80,10 +81,13 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         }
 
         virtual void declare_args(args_parser &) const {} 
-        virtual bool prepare(const args_parser &, const std::set<std::string> &) { return true; } 
-        virtual void finalize(const std::set<std::string> &) { } 
+        virtual bool prepare(const args_parser &, const std::vector<std::string> &) { return true; } 
+        virtual void finalize(const std::vector<std::string> &) { } 
         static BenchmarkSuite<bs> *register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); return instance; }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
+            get_instance().do_get_full_list(all_benchmarks); 
+        }
+        static void get_full_list(std::vector<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 
         }
         virtual smart_ptr<Benchmark> create(const std::string &s) { return get_instance().do_create(s); }
@@ -97,9 +101,10 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             if (pnames == NULL) {
                 pnames = new pnames_t();
             }
-            if (pnames->find(name) == pnames->end()) 
+            if (pnames->find(name) == pnames->end()) { 
                 (*pnames)[name] = elem;
-            
+                names_list.push_back(name);
+            }
         }
         smart_ptr<Benchmark> do_create(const std::string &s) {
             if (pnames == NULL) {
@@ -110,19 +115,22 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
                 return smart_ptr<Benchmark>((Benchmark *)0);
             return smart_ptr<Benchmark>(elem->create_myself());
         }
-        void do_get_full_list(std::set<std::string> &all_benchmarks) {
+        template <typename T>
+        void do_get_full_list(T &all_benchmarks) {
             if (pnames == NULL) {
                 pnames = new pnames_t();
             }
-            std::insert_iterator<std::set<std::string> > insert(all_benchmarks, all_benchmarks.end());
-            for (std::map<std::string, const Benchmark*>::iterator it = pnames->begin();
-                 it != pnames->end();
-                 ++it) {
-                *insert++ = it->first;
+            std::insert_iterator<T> insert(all_benchmarks, all_benchmarks.end());
+            for (size_t i = 0; i < names_list.size(); i++) {
+                *insert++ = names_list[i];
             }
         }
-    public:        
+    public:
         virtual void get_bench_list(std::set<std::string> &benchs, BenchListFilter filter = ALL_BENCHMARKS) const {
+            UNUSED(filter);
+            get_full_list(benchs); 
+        }
+        virtual void get_bench_list(std::vector<std::string> &benchs, BenchListFilter filter = ALL_BENCHMARKS) const {
             UNUSED(filter);
             get_full_list(benchs); 
         }

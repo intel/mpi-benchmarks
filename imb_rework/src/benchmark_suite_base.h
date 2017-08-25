@@ -61,9 +61,10 @@ struct BenchmarkSuiteBase {
     enum BenchListFilter { ALL_BENCHMARKS, DEFAULT_BENCHMARKS };
     virtual void init() {}
     virtual void declare_args(args_parser &) const {};
-    virtual bool prepare(const args_parser &, const std::set<std::string> &) { return true; }
-    virtual void finalize(const std::set<std::string> &) { }
+    virtual bool prepare(const args_parser &, const std::vector<std::string> &) { return true; }
+    virtual void finalize(const std::vector<std::string> &) { }
     virtual void get_bench_list(std::set<std::string> &, BenchListFilter filter = ALL_BENCHMARKS) const { UNUSED(filter); }
+    virtual void get_bench_list(std::vector<std::string> &, BenchListFilter filter = ALL_BENCHMARKS) const { UNUSED(filter); }
     virtual smart_ptr<Benchmark> create(const std::string &) { return smart_ptr<Benchmark>(); }
     virtual const std::string get_name() const = 0;
     virtual any get_parameter(const std::string &key) { UNUSED(key); return any(); }

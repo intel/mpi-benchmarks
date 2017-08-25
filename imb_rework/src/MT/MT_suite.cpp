@@ -96,8 +96,16 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add<std::string>("datatype", "int").set_caption("int|char");
 }
 
-template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::set<std::string> &) {
+template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::vector<std::string> &benchs) {
     using namespace NS_MT;
+
+    std::vector<std::string> all_benchs, spare_benchs = benchs, intersection = benchs;
+    BenchmarkSuite<BS_MT>::get_full_list(all_benchs);
+    set_operations::exclude(spare_benchs, all_benchs);
+    set_operations::exclude(intersection, spare_benchs);
+    if (intersection.size() == 0)
+        return true;
+
     parser.get<int>("count", count);
     mode_multiple = (parser.get<std::string>("thread_level") == "multiple");
     stride = parser.get<int>("stride");
@@ -172,7 +180,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MT>::finalize(const std::set<std::string> &) {
+template <> void BenchmarkSuite<BS_MT>::finalize(const std::vector<std::string> &) {
     using namespace NS_MT;
     if (prepared && rank == 0)
         std::cout << std::endl;

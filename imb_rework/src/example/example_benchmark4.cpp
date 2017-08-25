@@ -35,7 +35,7 @@ namespace example_suite4 {
     MPI_Datatype datatype;
     int ncycles;
 
-    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const set<string> &) {
+    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const vector<string> &) {
         parser.get<int>("len", len);
         string dt = parser.get<string>("datatype");
         if (dt == "int") datatype = MPI_INT;

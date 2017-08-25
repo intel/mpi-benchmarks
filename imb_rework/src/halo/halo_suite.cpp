@@ -119,7 +119,7 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
     parser.add_vector<int>("topo", "1", '.');
 }
 
-template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::set<std::string> &) {
+template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::vector<std::string> &) {
     using namespace NS_HALO;
 
     parser.get<int>("count", count);

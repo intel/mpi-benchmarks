@@ -128,13 +128,12 @@ void preprocess_list(T &list) {
     list = tmp;
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const set<string> &benchs) {
+template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs) {
     using namespace NS_MPI1;
-    set<string> all_benchs, intersection;
+    vector<string> all_benchs, spare_benchs = benchs, intersection = benchs;
     BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
-    set_operations::preprocess_list(all_benchs);
-    set_intersection(all_benchs.begin(), all_benchs.end(), benchs.begin(), benchs.end(),
-                     inserter(intersection, intersection.begin()));
+    set_operations::exclude(spare_benchs, all_benchs);
+    set_operations::exclude(intersection, spare_benchs);
     if (intersection.size() == 0)
         return true;
 
@@ -301,18 +300,18 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         fprintf(unit,"# \n");
         fprintf(unit,"\n");
         fprintf(unit,"# List of Benchmarks to run:\n\n");
-        for (set<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
+        for (vector<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
             printf("# %s\n", it->c_str());
         }
     }
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::finalize(const set<string> &benchs) {
+template <> void BenchmarkSuite<BS_MPI1>::finalize(const vector<string> &benchs) {
     using namespace NS_MPI1;
     if (!prepared)
         return;
-    for (set<string>::const_iterator it = benchs.begin(); it != benchs.end(); ++it) {
+    for (vector<string>::const_iterator it = benchs.begin(); it != benchs.end(); ++it) {
         smart_ptr<Benchmark> b = get_instance().create(*it);
         if (b.get() == NULL) 
             continue;
@@ -338,6 +337,24 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
             }
             else
                 ++it;
+        }
+    }
+}
+
+template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(vector<string> &benchs, 
+                                                         BenchmarkSuiteBase::BenchListFilter filter) const {
+    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
+    if (benchs.size() == 0)
+        return;
+    if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
+        for (size_t i = benchs.size() - 1; i != 0; i--) {
+            printf(">> %s\n", benchs[i].c_str());
+            smart_ptr<Benchmark> b = get_instance().create(benchs[i]);
+            if (b.get() == NULL) {
+                continue;
+            }
+            if (!b->is_default()) 
+                benchs.erase(benchs.begin() + i);
         }
     }
 }

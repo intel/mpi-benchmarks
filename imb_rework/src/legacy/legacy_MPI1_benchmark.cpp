@@ -47,7 +47,6 @@ void IMB_pingpong_specificsource(struct comm_info* c_info, int size,
 
 LEGACY_BENCHMARK(IMB_pingpong_specificsource, PingPongSpecificSource)
 {
-    descr->flags.insert(DEFAULT);
     descr->flags.insert(SELECT_SOURCE);
     descr->flags.insert(SINGLE_TRANSFER);
     descr->flags.insert(SCALE_TIME_HALF);
@@ -63,7 +62,6 @@ void IMB_pingpong_anysource(struct comm_info* c_info, int size,
 
 LEGACY_BENCHMARK(IMB_pingpong_anysource, PingPongAnySource)
 {
-    descr->flags.insert(DEFAULT);
     descr->flags.insert(SINGLE_TRANSFER);
     descr->flags.insert(SCALE_TIME_HALF);
     descr->flags.insert(SENDBUF_SIZE_I);
@@ -88,7 +86,6 @@ void IMB_pingping_specificsource(struct comm_info* c_info, int size,
 
 LEGACY_BENCHMARK(IMB_pingping_specificsource, PingPingSpecificSource)
 {
-    descr->flags.insert(DEFAULT);
     descr->flags.insert(SELECT_SOURCE);
     descr->flags.insert(SINGLE_TRANSFER);
     descr->flags.insert(SENDBUF_SIZE_I);
@@ -103,7 +100,6 @@ void IMB_pingping_anysource(struct comm_info* c_info, int size,
 
 LEGACY_BENCHMARK(IMB_pingping_anysource, PingPingAnySource)
 {
-    descr->flags.insert(DEFAULT);
     descr->flags.insert(SINGLE_TRANSFER);
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
@@ -158,25 +154,6 @@ LEGACY_BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
     descr->flags.insert(REDUCTION);    
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
-    return true;
-}
-
-LEGACY_BENCHMARK(IMB_bcast, Bcast)
-{
-    descr->flags.insert(DEFAULT);
-    descr->flags.insert(COLLECTIVE);
-    descr->flags.insert(HAS_ROOT);
-    descr->flags.insert(SENDBUF_SIZE_I);
-    descr->flags.insert(RECVBUF_SIZE_I);
-    return true;
-}
-
-LEGACY_BENCHMARK(IMB_barrier, Barrier)
-{
-    descr->flags.insert(DEFAULT);
-    descr->flags.insert(SYNC);
-    descr->flags.insert(SENDBUF_SIZE_0);
-    descr->flags.insert(RECVBUF_SIZE_0);
     return true;
 }
 
@@ -253,6 +230,25 @@ LEGACY_BENCHMARK(IMB_alltoallv, Alltoallv)
     descr->flags.insert(COLLECTIVE);
     descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
+    return true;
+}
+
+LEGACY_BENCHMARK(IMB_bcast, Bcast)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(COLLECTIVE);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    return true;
+}
+
+LEGACY_BENCHMARK(IMB_barrier, Barrier)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SYNC);
+    descr->flags.insert(SENDBUF_SIZE_0);
+    descr->flags.insert(RECVBUF_SIZE_0);
     return true;
 }
 
