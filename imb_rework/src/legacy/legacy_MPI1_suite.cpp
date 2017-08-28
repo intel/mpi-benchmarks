@@ -97,7 +97,8 @@ bool load_msg_sizes(const char *filename)
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
+template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std::ostream &output) const {
+    UNUSED(output);
     parser.set_current_group(get_name());
     parser.add<int>("npmin", 2).set_caption("NPmin").
         set_description(
@@ -264,6 +265,7 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
                "Default:\n"
                "off\n");                   
     parser.set_default_current_group();
+    return true;
 }
 
 #define BASIC_INPUT_EXPERIMENT 1
@@ -275,7 +277,7 @@ void preprocess_list(T &list) {
     list = tmp;
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs) {
+template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs, std::ostream &output) {
     using namespace NS_MPI1;
     vector<string> all_benchs, spare_benchs = benchs, intersection = benchs;
     BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
@@ -379,7 +381,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     string given_msglen_filename = parser.get<string>("msglen");
     if (given_msglen_filename != "") {
         if (!load_msg_sizes(given_msglen_filename.c_str())) {
-            cout << "Sizes File " << given_msglen_filename << " invalid or doesnt exist" << endl;
+            output << "Sizes File " << given_msglen_filename << " invalid or doesnt exist" << endl;
             cmd_line_error = true;
         }
     }
@@ -454,7 +456,9 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::finalize(const vector<string> &benchs) {
+template <> void BenchmarkSuite<BS_MPI1>::finalize(const vector<string> &benchs,
+                                                   std::ostream &output) {
+    UNUSED(output);
     using namespace NS_MPI1;
     if (!prepared)
         return;

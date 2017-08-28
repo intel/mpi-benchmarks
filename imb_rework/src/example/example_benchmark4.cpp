@@ -23,7 +23,9 @@ namespace example_suite4 {
     // - declare_args()/prepare() overloaded virtual function to implement some command line parameters
     // - get_parameter() overloaded virtual function implements the high-level interface 
     // to pass parameters from a suite to a benchmark
-    template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
+    template <> bool BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser,
+                                                              std::ostream &output) const {
+        UNUSED(output);
         parser.set_current_group(get_name());
         parser.add_vector<int>("len", "1,2,4,8").
                      set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
@@ -31,20 +33,22 @@ namespace example_suite4 {
                      set_caption("int|char");
         parser.add<int>("ncycles", 1000);
         parser.set_default_current_group();
+        return true;
     }
     
     vector<int> len;
     MPI_Datatype datatype;
     int ncycles;
 
-    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const vector<string> &) {
+    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
+                                                         const vector<string> &,
+                                                         std::ostream &output) {
         parser.get<int>("len", len);
         string dt = parser.get<string>("datatype");
         if (dt == "int") datatype = MPI_INT;
         else if (dt == "char") datatype = MPI_CHAR;
         else {
-            // FIXME get rid of cout some way!
-            cout << "Unknown data type in datatype option" << endl;
+            output << get_name() << ": " << "Unknown data type in datatype option" << endl;
             return false;
         }
         ncycles = parser.get<int>("ncycles");

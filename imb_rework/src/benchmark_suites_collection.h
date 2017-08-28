@@ -107,18 +107,21 @@ class BenchmarkSuitesCollection {
                 it->second->init();
         }
     }
-    static void declare_args(args_parser &parser) {
+    static bool declare_args(args_parser &parser, std::ostream &output) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
-                it->second->declare_args(parser);
+                if (!it->second->declare_args(parser, output))
+                    return false;
         }
+        return true;
     }
-    static bool prepare(args_parser &parser, const std::vector<std::string> &benchs) {
+    static bool prepare(args_parser &parser, const std::vector<std::string> &benchs,
+                        std::ostream &output) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
-                if (!it->second->prepare(parser, benchs)) {
+                if (!it->second->prepare(parser, benchs, output)) {
                     return false;
                 }
         }
@@ -135,10 +138,10 @@ class BenchmarkSuitesCollection {
         }
         return b;
     }
-    static void finalize(const std::vector<std::string> &benchs) {
+    static void finalize(const std::vector<std::string> &benchs, std::ostream &output) {
         assert(pnames != NULL);
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) 
-                it->second->finalize(benchs); 
+                it->second->finalize(benchs, output);
     }    
 };

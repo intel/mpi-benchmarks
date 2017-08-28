@@ -105,7 +105,9 @@ namespace NS_HALO {
 
 DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, ndim_halo_benchmark)
 
-template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
+template <> bool BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser,
+                                                          std::ostream &output) const {
+    UNUSED(output);
     parser.set_current_group(get_name());
     parser.add<int>("stride", 0);
     parser.add<int>("warmup",  100);
@@ -118,9 +120,12 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
         set_caption("int|char");
     parser.add_vector<int>("topo", "1", '.');
     parser.set_default_current_group();
+    return true;
 }
 
-template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::vector<std::string> &) {
+template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
+                                                     const std::vector<std::string> &,
+                                                     std::ostream &output) {
     using namespace NS_HALO;
 
     parser.get<int>("count", count);
@@ -135,14 +140,12 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
-        // FIXME get rid of cout some way!
-        std::cout << "Unknown data type in datatype option" << std::endl;
+        output << get_name() << ": " << "Unknown data type in datatype option" << std::endl;
         return false;
     }
 
 //    if (do_checks && datatype != MPI_INT) {
-//        // FIXME get rid of cout some way!
-//        std::cout << "Only int data type is supported with check option" << std::endl;
+//        output << get_name() << ": " << "Only int data type is supported with check option" << std::endl;
 //        return false;
 //    }
 
@@ -170,8 +173,7 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
     fill_in(topo);
 
     if (required_nranks > nranks && rank == 0) {
-        // FIXME get rid of cout some way!
-        std::cout << "Not enough ranks, " << required_nranks << " min. required" << std::endl;
+        output << get_name() << ": " << "Not enough ranks, " << required_nranks << " min. required" << std::endl;
         return false;
     }
 

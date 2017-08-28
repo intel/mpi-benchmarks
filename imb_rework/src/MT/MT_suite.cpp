@@ -83,7 +83,9 @@ namespace NS_MT {
 
 DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, IMB-MT)
 
-template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const {
+template <> bool BenchmarkSuite<BS_MT>::declare_args(args_parser &parser,
+                                                     std::ostream &output) const {
+    UNUSED(output);
     parser.set_current_group(get_name());
     parser.add<int>("stride", 0);
     parser.add<int>("warmup",  100);
@@ -96,9 +98,12 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add<bool>("check", false);
     parser.add<std::string>("datatype", "int").set_caption("int|char");
     parser.set_default_current_group();
+    return true;
 }
 
-template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::vector<std::string> &benchs) {
+template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, 
+                                                const std::vector<std::string> &benchs,
+                                                std::ostream &output) {
     using namespace NS_MT;
 
     std::vector<std::string> all_benchs, spare_benchs = benchs, intersection = benchs;
@@ -117,8 +122,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     else if (barrier_type == "on") barrier_option = BARROPT_NORMAL;
     else if (barrier_type == "special") barrier_option = BARROPT_SPECIAL;
     else {
-        // FIXME get rid of cout some way!
-        std::cout << "Wrong barrier option value" << std::endl;
+        output << get_name() << ": " << "Wrong barrier option value" << std::endl;
         return false;
     }
 
@@ -129,8 +133,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
     else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
     else {
-        // FIXME get rid of cout some way!
-        std::cout << "Wrong malloc_algo option value" << std::endl;
+        output << get_name() << ": " << "Wrong malloc_algo option value" << std::endl;
         return false;
     }
     if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
@@ -143,14 +146,12 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
     else {
-        // FIXME get rid of cout some way!
-        std::cout << "Unknown data type in datatype option" << std::endl;
+        output << get_name() << ": " << "Unknown data type in datatype option" << std::endl;
         return false;
     }
 
     if (do_checks && datatype != MPI_INT) {
-        // FIXME get rid of cout some way!
-        std::cout << "Only int data type is supported with check option" << std::endl;
+        output << get_name() << ": " << "Only int data type is supported with check option" << std::endl;
         return false;
     }
     
@@ -169,23 +170,24 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        std::cout << "#------------------------------------------------------------" << std::endl;
-        std::cout << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << std::endl;
-        std::cout << "#------------------------------------------------------------" << std::endl;
-        std::cout << "#" << std::endl;
-        std::cout << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << std::endl;
-        std::cout << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << std::endl;
-        std::cout << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << std::endl;
-        std::cout << "#" << std::endl;
-        std::cout << "#" << std::endl;
+        output << "#------------------------------------------------------------" << std::endl;
+        output << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << std::endl;
+        output << "#------------------------------------------------------------" << std::endl;
+        output << "#" << std::endl;
+        output << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << std::endl;
+        output << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << std::endl;
+        output << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << std::endl;
+        output << "#" << std::endl;
+        output << "#" << std::endl;
     }
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MT>::finalize(const std::vector<std::string> &) {
+template <> void BenchmarkSuite<BS_MT>::finalize(const std::vector<std::string> &,
+                                                 std::ostream &output) {
     using namespace NS_MT;
     if (prepared && rank == 0)
-        std::cout << std::endl;
+        output << std::endl;
 }
 
 #define HANDLE_PARAMETER(TYPE, NAME) if (key == #NAME) { \

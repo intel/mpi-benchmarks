@@ -80,9 +80,15 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
         }
 
-        virtual void declare_args(args_parser &) const {} 
-        virtual bool prepare(const args_parser &, const std::vector<std::string> &) { return true; } 
-        virtual void finalize(const std::vector<std::string> &) { } 
+        virtual bool declare_args(args_parser &, 
+                                  std::ostream &output = std::cout) const {
+            UNUSED(output);
+            return true;
+        } 
+        virtual bool prepare(const args_parser &, const std::vector<std::string> &, 
+                             std::ostream &output = std::cout) { UNUSED(output); return true; } 
+        virtual void finalize(const std::vector<std::string> &, 
+                              std::ostream &output = std::cout) { UNUSED(output); } 
         static BenchmarkSuite<bs> *register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); return instance; }
         static void get_full_list(std::set<std::string> &all_benchmarks) { 
             get_instance().do_get_full_list(all_benchmarks); 

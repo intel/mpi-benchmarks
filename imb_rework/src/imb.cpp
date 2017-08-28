@@ -126,7 +126,9 @@ int main(int argc, char * *argv)
 
 
         // Now fill in bechmark suite related args
-        BenchmarkSuitesCollection::declare_args(parser);
+        if (!BenchmarkSuitesCollection::declare_args(parser, output)) {
+            throw runtime_error("one or more benchmark suites failed on options declaration stage");
+        }
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
@@ -296,15 +298,21 @@ int main(int argc, char * *argv)
         // ACTUAL BENCHMARKING
         //
         // 1, Preparation phase on suite level
-        if (!BenchmarkSuitesCollection::prepare(parser, benchmarks_to_run)) {
+        if (!BenchmarkSuitesCollection::prepare(parser, benchmarks_to_run, output)) {
             throw logic_error("One or more benchmark suites failed at preparation stage");
-        }        
+        }       
+        if (rank == 0) {
+           cout << output.str();
+           output.str("");
+           output.clear();
+        }
 
         // 2. All benchmarks wrappers constructors, initializers and scope definition
         typedef pair<smart_ptr<Benchmark>, smart_ptr<Scope> > item;
         typedef vector<item> running_sequence;
         running_sequence sequence;
-        for (vector<string>::iterator it = benchmarks_to_run.begin(); it != benchmarks_to_run.end(); ++it) {
+        for (vector<string>::iterator it = benchmarks_to_run.begin(); 
+             it != benchmarks_to_run.end(); ++it) {
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
                 throw logic_error("benchmark creator failed!");
@@ -329,7 +337,12 @@ int main(int argc, char * *argv)
         }
 
         // 5. Final steps on suite-level
-        BenchmarkSuitesCollection::finalize(benchmarks_to_run);
+        BenchmarkSuitesCollection::finalize(benchmarks_to_run, output);
+        if (rank == 0) {
+           cout << output.str();
+           output.str("");
+           output.clear();
+        }
     }
     catch(exception &ex) {
         if (no_mpi_init_flag) {
