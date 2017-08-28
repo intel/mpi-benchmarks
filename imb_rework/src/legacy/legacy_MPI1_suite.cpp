@@ -99,25 +99,170 @@ bool load_msg_sizes(const char *filename)
 
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
     parser.set_current_group(get_name());
-    parser.add<int>("npmin", 2).set_caption("NPmin");
-    parser.add<int>("multi", -1).set_caption("MultiMode");
+    parser.add<int>("npmin", 2).set_caption("NPmin").
+        set_description(
+            "The argument after npmin is NPmin,\n"
+            "the minimum number of processes to run on\n"
+            "(then if IMB is started on NP processes, the process numbers\n"
+            "NPmin, 2*NPmin, ... ,2^k * NPmin < NP, NP are used)\n"
+            "To run on just NP processes, run IMB on NP and select -npmin NP\n"
+            "\n"
+            "Default:\n"
+            "NPmin=2\n");
+    parser.add<int>("multi", -1).set_caption("MultiMode").
+        set_description(
+            "The argument after -multi is MultiMode (0 or 1)\n"
+            "\n"
+            "If -multi is selected, running the N process version of a benchmark\n"
+            "on NP overall, means running on (NP/N) simultaneous groups of N each.\n"
+            "\n"
+            "MultiMode only controls default (0) or extensive (1) output charts.\n"
+            "0: only lowest performance groups is output\n"
+            "1: all groups are output\n"
+            "\n"
+            "Default:\n"
+            "multi off\n");
     parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
            set_caption("cache_size[,cache_line_size]").
-           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
+           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
+           set_description(
+                "the argument after off_cache can be either 1 single number (cache_size),\n"
+                "or 2 comma separated numbers (cache_size,cache_line_size), or just -1\n"
+                "\n"
+                "By default, without this flag, the communications buffer is\n"
+                "the same within all repetitions of one message size sample;\n"
+                "most likely, cache reusage is yielded and thus throughput results\n"
+                "that might be non realistic.\n"
+                "\n"
+                "With -off_cache, it is attempted to avoid cache reusage.\n"
+                "cache_size is a float for an upper bound of the size of the last level cache in MBytes\n"
+                "cache_line_size is assumed to be the size (Bytes) of a last level cache line\n"
+                "(can be an upper estimate).\n"
+                "The sent/recv'd data are stored in buffers of size ~ 2 x MAX( cache_size, message_size );\n"
+                "when repetitively using messages of a particular size, their addresses are advanced within those\n"
+                "buffers so that a single message is at least 2 cache lines after the end of the previous message.\n"
+                "Only when those buffers have been marched through (eventually), they will re-used from the beginning.\n"
+                "\n"
+                "A cache_size and a cache_line_size are assumed as statically defined\n"
+                "in  => IMB_mem_info.h; these are used when -off_cache -1 is entered\n"
+                "\n"
+                "remark: -off_cache is effective for IMB-MPI1, IMB-EXT, but not IMB-IO\n"
+                "\n"
+                "Examples:\n"
+                "-off_cache -1 (use defaults of IMB_mem_info.h);\n"
+                "-off_cache 2.5 (2.5 MB last level cache, default line size);\n"
+                "-off_cache 16,128 (16 MB last level cache, line size 128);\n"
+                "\n"
+                "NOTE: the off_cache mode might also be influenced by eventual internal\n"
+                "caching with the MPI library. This could make the interpretation\n"
+                "intricate.\n"
+                "\n"
+                "Default:\n"
+                "no cache control, data likely to come out of cache most of the time\n");
     parser.add_vector<int>("iter", "1000,40,100", ',', 1, 3).
-           set_caption("msgspersample[,overall_vol[,msgs_nonaggr]]");
-    parser.add<string>("iter_policy", "dynamic").set_caption("iter_policy");
-    parser.add<float>("time", 10.0f).set_caption("max_runtime per sample");
+           set_caption("msgspersample[,overall_vol[,msgs_nonaggr]]").
+           set_description(
+                "The argument after -iter can contain from 1 to 3 comma separated values\n"
+                "3 integer numbers override the defaults\n"
+                "MSGSPERSAMPLE, OVERALL_VOL, MSGS_NONAGGR of IMB_settings.h\n"
+                "Examples:\n"
+                "-iter 2000        (override MSGSPERSAMPLE by value 2000)\n"
+                "-iter 1000,100    (override OVERALL_VOL by 100)\n"
+                "-iter 1000,40,150 (override MSGS_NONAGGR by 150)\n"
+                "\n"   
+                "Default:\n"
+                "iteration control through parameters MSGSPERSAMPLE,OVERALL_VOL,MSGS_NONAGGR => IMB_settings.h\n");
+    parser.add<string>("iter_policy", "dynamic").set_caption("iter_policy").
+           set_description(
+                "The argument after -iter_policy is a one from possible strings,\n"
+                "Specifying that policy will be used for auto iteration control:\n"
+                "dynamic,multiple_np,auto,off\n"
+                "\n"
+                "Example:\n"
+                "-iter_policy auto\n"
+                "\n"
+                "Default:\n"
+                "dynamic\n");
+    parser.add<float>("time", 10.0f).set_caption("max_runtime per sample").
+           set_description(
+                "The argument after -time is a float, specifying that\n"
+                "a benchmark will run at most that many seconds per message size\n"
+                "the combination with the -iter flag or its defaults is so that always\n"
+                "the maximum number of repetitions is chosen that fulfills all restrictions\n"
+                "\n"
+                "Example:\n"
+                "-time 0.150       (a benchmark will (roughly) run at most 150 milli seconds per message size, if\n"
+                "the default (or -iter selected) number of repetitions would take longer than that)\n"
+                "\n"
+                "remark: per sample, the rough number of repetitions to fulfill the -time request\n"
+                "is estimated in preparatory runs that use ~ 1 second overhead\n"
+                "\n"
+                "Default:\n"
+                "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n" 
+                "(new default in IMB_3.2)\n");
     parser.add<float>("mem", 1.0f).
-           set_caption("max. per process memory for overall message buffers");
-    parser.add<string>("msglen", "").set_caption("Lengths_file");
-    parser.add_vector<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ");
+           set_caption("max. per process memory for overall message buffers").
+           set_description(
+               "The argument after -mem is a float, specifying that\n"
+               "at most that many GBytes are allocated per process for the message buffers\n"
+               "if the size is exceeded, a warning will be output, stating how much memory\n"
+               "would have been necessary, but the overall run is not interrupted\n"
+               "\n"
+               "Example:\n"
+               "-mem 0.2         (restrict memory for message buffers to 200 MBytes per process)\n"
+               "\n"
+               "Default:\n"
+               "the memory is restricted by MAX_MEM_USAGE => IMB_mem_info.h\n");
+    parser.add<string>("msglen", "").set_caption("Lengths_file").
+           set_description(
+               "The argument after -msglen is a lengths_file, an ASCII file, containing any set of nonnegative\n"
+               "message lengths, 1 per line\n"
+               "\n"
+               "Default:\n"
+               "no lengths_file, lengths defined by settings.h, settings_io.h\n");
+    parser.add_vector<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ").
+           set_description(
+               "The argument after -map is PxQ, P,Q are integer numbers with P*Q <= NP\n"
+               "enter PxQ with the 2 numbers separated by letter \"x\" and no blancs\n"
+               "the basic communicator is set up as P by Q process grid\n"
+               "\n"
+               "If, e.g., one runs on N nodes of X processors each, and inserts\n"
+               "P=X, Q=N, then the numbering of processes is \"inter node first\"\n"
+               "running PingPong with P=X, Q=2 would measure inter-node performance\n"
+               "(assuming MPI default would apply 'normal' mapping, i.e. fill nodes\n"
+               "first priority)\n"
+               "\n"   
+               "Default:\n"
+               "Q=1\n");
     parser.add_vector<int>("msglog", "0:22", ':', 1, 2).
            set_caption("min_msglog:max_msglog").
-           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
-    parser.add<bool>("root_shift", false).set_caption("on or off");
-    parser.add<bool>("sync", true).set_caption("on or off");
-    parser.add<bool>("imb_barrier", false).set_caption("on or off");
+           set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
+           set_description(
+                "The argument after -msglog min:max, min and max are positive integer numbers, min<max\n"
+                "where min is power of 2 so that second smallest data transfer size is max(unit,2^min)\n"
+                "(the smallest always being 0), where unit = sizeof(float) for reductions, unit = 1 else\n"
+                "max is power of 2 so that 2^max is largest messages size, max must be less than 31\n");
+    parser.add<bool>("root_shift", false).set_caption("on or off").
+           set_description(
+               "Controls root change at each iteration step for certain collective benchmarks,\n"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "off\n");
+    parser.add<bool>("sync", true).set_caption("on or off").
+           set_description(
+               "Controls whether all processes are syncronized at each iteration step in collective benchmarks,\n"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)"
+               "\n"
+               "Default:\n"
+               "on\n");
+    parser.add<bool>("imb_barrier", false).set_caption("on or off").
+           set_description(
+               "Use internal MPI-independent barrier syncronization implementation,\n"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "off\n");                   
     parser.set_default_current_group();
 }
 

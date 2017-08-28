@@ -370,7 +370,7 @@ void args_parser::print_help() const {
     header += basename(argv[0]); 
     header += " ";
     size_t size = min(header.size(), (size_t)16);
-    string tab(size-2, ' ');
+    string tab(size - 2, ' ');
     bool is_first = true;
     bool is_there_sys_group = false, is_there_empty_group = false;
     // help
@@ -420,6 +420,32 @@ void args_parser::print_help() const {
         print_single_option_usage(extra_args[j], size, is_first, true);
     if (num_extra_args)
         sout << endl;
+}
+
+void args_parser::print_help(string str) const {
+    if (program_name.size() != 0)
+        sout << program_name << endl;
+    bool was_printed = false;
+    const string *pgroup;
+    const smart_ptr<option> *popt;
+    in_expected_args(FOREACH_FIRST, pgroup, popt);
+    while(in_expected_args(FOREACH_NEXT, pgroup, popt)) {
+        const smart_ptr<option> &opt = *popt;
+        if (opt->str == str) {
+            sout << "Option: ";
+            print_single_option_usage(opt, 0, true);
+            if (*pgroup != "SYS" && *pgroup != "")
+                sout << "Group: " << *pgroup << endl;
+            if (opt->description != "") {
+                sout << endl << opt->description << endl;
+            } 
+            was_printed = true;
+        }
+    }
+    if (!was_printed) {
+        sout << "No such option: " << str << endl;
+        print_help_advice();
+    }
 }
 
 void args_parser::print() const {
@@ -490,7 +516,11 @@ bool args_parser::parse() {
         }
         // help is hardcoded as and optional 1st arg
         if (i == 1 && match(arg, string("help")) && !is_flag_set(NOHELP)) {
-            print_help();
+            if (argc == 3) {
+                print_help(string(argv[2]));
+            } else {
+                print_help();
+            }
             parse_result = false;
             help_printed = true;
         }

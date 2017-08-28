@@ -234,6 +234,7 @@ class args_parser {
     bool is_flag_set(flag_t flag) const { return flags.count(flag) > 0; } 
     void print_help_advice() const;
     void print_help() const;
+    void print_help(std::string str) const;
     void print() const;
     void get_command_line(std::string &) const;
     bool parse();

@@ -96,10 +96,28 @@ int main(int argc, char * *argv)
         parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
 
         parser.add<string>("thread_level", "single").
-            set_caption("single|funneled|serialized|multiple|nompinit");
-        parser.add<string>("input", "").set_caption("filename");
-        parser.add_vector<string>("include", "").set_caption("benchmark[,benchmark,[...]");
-        parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...] ...");
+               set_caption("single|funneled|serialized|multiple|nompinit").
+               set_description(
+                   "Sets up the type of MPI_Init call to use:\n"
+                   "single: MPI_Init\n"
+                   "funneled: MPI_Init_thread with MPI_THREAD_FUNNELED\n"
+                   "serialized: MPI_Init_thread with MPI_THREAD_SERIALIZED\n"
+                   "multiple: MPI_Init_thread with MPI_THREAD_MULTIPLE\n"
+                   "nompiinit: don't call MPI_Init (the MPI_Init call may be made then in error case\n"
+                   "to prevent rubbish output\n");
+        parser.add<string>("input", "").set_caption("filename").
+               set_description(
+                   "The argument after -input is a filename is any text file containing, line by line,\n" 
+                   "benchmark names facilitates running particular benchmarks as compared to\n"
+                   "using the command line.\n"
+                   "\n"
+                   "default:\n"
+                   "no input file exists\n");
+
+        parser.add_vector<string>("include", "").set_caption("benchmark[,benchmark,[...]").
+               set_description("The argument after -include is one or more benchmark names separated by comma");
+        parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...] ...").
+               set_description("The argument after -exclude is one or more benchmark names separated by comma");
 
         // Extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
@@ -112,9 +130,18 @@ int main(int argc, char * *argv)
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
-        parser.add<string>("dump", "").set_caption("config.yaml");
-        parser.add<string>("load", "").set_caption("config.yaml");
-        parser.add_flag("list");
+        parser.add<string>("dump", "").set_caption("config.yaml").
+               set_description(
+                   "Dump the YAML config file with the set of actual options for\n"
+                   "the benchmark session. Parameter sets up the config file name\n");
+        parser.add<string>("load", "").set_caption("config.yaml").
+               set_description(
+                   "Load session options from YAML config file given as a parameter\n");
+        parser.add_flag("list").
+               set_description(
+                   "Prints out all the benchmark names available in this IMB build.\n"
+                   "The information about the benchmarks suite each benchmark belongs to\n"
+                   "and the benchmark description (if available) is printed out also\n");
         parser.set_default_current_group();
          
         if (!parser.parse()) {
