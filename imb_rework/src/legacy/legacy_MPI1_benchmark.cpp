@@ -36,7 +36,7 @@ LEGACY_BENCHMARK(IMB_pingpong, PingPong)
     descr->flags.insert(SCALE_TIME_HALF);
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
-    descr->comments.push_back("This is a pingpong benchmark bla bla bla...");
+//    descr->comments.push_back("This is a pingpong benchmark bla bla bla...");
     return true;
 }
 
