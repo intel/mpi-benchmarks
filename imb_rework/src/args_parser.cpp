@@ -255,31 +255,31 @@ bool args_parser::get_value(const string &arg, option &opt) {
 
 void args_parser::print_err_required_arg(const option &opt) const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: The required option missing or can't be parsed: " << option_starter << opt.str << endl;
+        sout << "ERROR: The required option missing or can't be parsed: " << option_starter << opt.str << endl;
 }
 
 void args_parser::print_err_required_extra_arg() const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: The required extra argument missing" << endl;
+        sout << "ERROR: The required extra argument missing" << endl;
 }
 
 void args_parser::print_err_parse(const option &opt) const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: Parse error on option: " << option_starter << opt.str << endl;
+        sout << "ERROR: Parse error on option: " << option_starter << opt.str << endl;
 }
 
 void args_parser::print_err_parse_extra_args() const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: Parse error on an extra argument" << endl;
+        sout << "ERROR: Parse error on an extra argument" << endl;
 }
 
 void args_parser::print_err_extra_args() const {
     if (!is_flag_set(SILENT))
-        cout << "ERROR: Some extra or unknown arguments or options" << endl;
+        sout << "ERROR: Some extra or unknown arguments or options" << endl;
 }
 
 void args_parser::print_help_advice() const {
-    cout << "Try \"" <<  basename(argv[0]) << " " << option_starter << "help\" for usage information" << endl;
+    sout << "Try \"" <<  basename(argv[0]) << " " << option_starter << "help\" for usage information" << endl;
 }
 
 // NOTE: This one is just to loop over expected_args 2-level array in a easier way.
@@ -351,39 +351,83 @@ void args_parser::print_single_option_usage(const smart_ptr<option> &opt, size_t
     const string cap = (opt->caption.size() == 0 ? stype : opt->caption);
     const string allign = (is_first ? "" : tab);
     if (no_option_name)
-        cout << allign << open << cap << close << " ";
+        sout << allign << open << cap << close << " ";
     else if (opt->flag)
-        cout << allign << open << option_starter << opt->str << close << endl;
+        sout << allign << open << option_starter << opt->str << close << endl;
     else
-        cout << allign << open << option_starter << opt->str << option_delimiter << cap << close << endl;
+        sout << allign << open << option_starter << opt->str << option_delimiter << cap << close << endl;
 }
 
 void args_parser::print_help() const {
     if (program_name.size() != 0)
-        cout << program_name << endl;
-    cout << "Usage: " << basename(argv[0]) << " ";
+        sout << program_name << endl;
+    sout << "Usage: " << basename(argv[0]) << " ";
     string header;
     header +=  "Usage: ";
     header += basename(argv[0]); 
     header += " ";
     size_t size = min(header.size(), (size_t)16);
+    string tab(size-2, ' ');
     bool is_first = true;
+    bool is_sys = false, is_empty = false;
+/*    
     const string *pgroup;
+    string prev_pgroup;
     const smart_ptr<option> *poption;
     in_expected_args(FOREACH_FIRST, pgroup, poption);
     while(in_expected_args(FOREACH_NEXT, pgroup, poption)) {
         if (*pgroup == "EXTRA_ARGS")
             continue;
+        if (*pgroup != prev_pgroup) {
+            sout << tab << *pgroup << ":" << endl;
+            prev_pgroup = *pgroup;
+        }
         print_single_option_usage(*poption, size, is_first);
         is_first = false;
     }
+*/   
+    smart_ptr<option> help = new option_scalar(*this, "help", BOOL, value(false)); 
+    help->flag = true;
+    print_single_option_usage(help, size, is_first);
+    is_first = false;
+    help->flag = false;
+    help->set_caption("option");
+    print_single_option_usage(help, size, is_first);
+    vector<string> groups;
+    map<const string, vector<smart_ptr<option> > >::const_iterator cit;
+    for (cit = expected_args.begin(); cit != expected_args.end(); ++cit) {
+        groups.push_back(cit->first);
+        if (cit->first == "SYS")
+            is_sys = true;
+        if (cit->first == "")
+            is_empty = true;
+    }
+    if (is_sys) {
+        const vector<smart_ptr<option> > &args = expected_args.find("SYS")->second;
+        for (size_t i = 0; i < args.size(); i++)
+            print_single_option_usage(args[i], size, is_first);
+    }
+    if (is_empty) {
+        const vector<smart_ptr<option> > &args = expected_args.find("")->second;
+        for (size_t i = 0; i < args.size(); i++)
+            print_single_option_usage(args[i], size, is_first);
+    }
+    for (size_t group = 0; group < groups.size(); group++) {
+        const vector<smart_ptr<option> > &args = expected_args.find(groups[group])->second;
+        if (groups[group] == "EXTRA_ARGS" || groups[group] == "SYS" || groups[group] == "")
+            continue;
+        sout << tab << groups[group] << ":" << endl;
+        for (size_t i = 0; i < args.size(); i++)
+            print_single_option_usage(args[i], size, is_first);
+    }
+
+
     int num_extra_args = 0, num_required_extra_args = 0;
     const std::vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
-    for (int j = 0; j < num_extra_args; j++) {
+    for (int j = 0; j < num_extra_args; j++) 
         print_single_option_usage(extra_args[j], size, is_first, true);
-    }
     if (num_extra_args)
-        cout << endl;
+        sout << endl;
 }
 
 void args_parser::print() const {
@@ -603,7 +647,7 @@ bool args_parser::load(istream &stream) {
         }
     }
     catch (const YAML::Exception& e) {
-        cout << "ERROR: input YAML file parsing error: " << e.what() << endl;
+        sout << "ERROR: input YAML file parsing error: " << e.what() << endl;
         return false;
     }
     // now do regular parse procedure to complete: 1) cmdline options ovelapping: 

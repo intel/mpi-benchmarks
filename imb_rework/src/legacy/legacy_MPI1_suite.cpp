@@ -98,6 +98,7 @@ bool load_msg_sizes(const char *filename)
 }
 
 template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) const {
+    parser.set_current_group(get_name());
     parser.add<int>("npmin", 2).set_caption("NPmin");
     parser.add<int>("multi", -1).set_caption("MultiMode");
     parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
@@ -117,6 +118,7 @@ template <> void BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser) cons
     parser.add<bool>("root_shift", false).set_caption("on or off");
     parser.add<bool>("sync", true).set_caption("on or off");
     parser.add<bool>("imb_barrier", false).set_caption("on or off");
+    parser.set_default_current_group();
 }
 
 #define BASIC_INPUT_EXPERIMENT 1
@@ -326,17 +328,12 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
                                                          BenchmarkSuiteBase::BenchListFilter filter) const {
     BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
-        for (set<string>::iterator it = benchs.begin(); it != benchs.end();) {
+        for (set<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
             smart_ptr<Benchmark> b = get_instance().create(*it);
-            if (b.get() == NULL) {
-                ++it;
+            if (b.get() == NULL)            
                 continue;
-            }
-            if (!b->is_default()) {
-                benchs.erase(it++);
-            }
-            else
-                ++it;
+            if (!b->is_default()) 
+                benchs.erase(it);
         }
     }
 }
@@ -348,7 +345,6 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(vector<string> &benchs,
         return;
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
         for (size_t i = benchs.size() - 1; i != 0; i--) {
-            printf(">> %s\n", benchs[i].c_str());
             smart_ptr<Benchmark> b = get_instance().create(benchs[i]);
             if (b.get() == NULL) {
                 continue;

@@ -106,6 +106,7 @@ namespace NS_HALO {
 DECLARE_BENCHMARK_SUITE_STUFF(BS_GENERIC, ndim_halo_benchmark)
 
 template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
+    parser.set_current_group(get_name());
     parser.add<int>("stride", 0);
     parser.add<int>("warmup",  100);
     parser.add<int>("repeat", 1000);
@@ -115,8 +116,8 @@ template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) c
 //    parser.add<bool>("check", false);
     parser.add<std::string>("datatype", "int").
         set_caption("int|char");
-
     parser.add_vector<int>("topo", "1", '.');
+    parser.set_default_current_group();
 }
 
 template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, const std::vector<std::string> &) {

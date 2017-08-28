@@ -74,12 +74,18 @@ class args_parser {
     const char * const *argv;
     const char *option_starter;
     const char option_delimiter;
+    std::ostream &sout;
     const static int version;
     std::string program_name;
 
     public:
-    args_parser(int &_argc, char * *&_argv, const char *opt_st = "--", char opt_delim = '=') : argc(_argc), argv(_argv), option_starter(opt_st), option_delimiter(opt_delim),
-                                             prev_option(NULL) {}
+    args_parser(int &_argc, char * *&_argv, const char *opt_st = "--", 
+                char opt_delim = '=', std::ostream &_sout = std::cout) : argc(_argc), argv(_argv), 
+                                                                         option_starter(opt_st), 
+                                                                         option_delimiter(opt_delim), 
+                                                                         sout(_sout),
+                                                                         prev_option(NULL) 
+    {}
     typedef enum { STRING, INT, FLOAT, BOOL } arg_t;
     typedef enum { ALLOW_UNEXPECTED_ARGS, SILENT, NOHELP, NODUPLICATE /*, NODEFAULTSDUMP*/ } flag_t;
 
@@ -107,7 +113,7 @@ class args_parser {
             static const std::string get_type_str(arg_t _type); 
     };
     struct option {
-        args_parser &parser;
+        const args_parser &parser;
         enum mode { APPLY_DEFAULTS_ONLY_WHEN_MISSING };
         std::string str;
         arg_t type;
@@ -117,7 +123,7 @@ class args_parser {
         bool flag;
         std::string caption;
         std::string description;
-        option(args_parser &_parser, std::string _str, arg_t _type, bool _required) : parser(_parser), str(_str), 
+        option(const args_parser &_parser, const std::string _str, arg_t _type, bool _required) : parser(_parser), str(_str), 
                                                                type(_type), required(_required), 
                                                                defaultize_before_parsing(true), 
                                                                defaulted(false), flag(false) {};
@@ -147,11 +153,11 @@ class args_parser {
     struct option_scalar : public option {
         args_parser::value def;
         args_parser::value val;
-        option_scalar(args_parser &_parser, std::string _str, arg_t _type) : option(_parser,_str, _type, true) { }
-        option_scalar(args_parser &_parser, std::string _str, arg_t _type, value _def) : option(_parser, _str, _type, false), def(_def)
+        option_scalar(const args_parser &_parser, const std::string _str, arg_t _type) : option(_parser,_str, _type, true) { }
+        option_scalar(const args_parser &_parser, const std::string _str, arg_t _type, value _def) : option(_parser, _str, _type, false), def(_def)
         { def.sanity_check(type); }
         virtual ~option_scalar() {}
-        virtual void print() const { std::cout << str << ": " << val << std::endl; }
+        virtual void print() const { parser.sout << str << ": " << val << std::endl; }
         virtual bool do_parse(const char *sval);
         virtual bool is_scalar() const { return true; }
         virtual void to_ostream(std::ostream &s) const { s << val; }
@@ -170,11 +176,11 @@ class args_parser {
         int num_already_initialized_elems;
         std::vector<args_parser::value> val;
         std::string vec_def;
-        option_vector(args_parser &_parser, std::string _str, arg_t _type, 
+        option_vector(const args_parser &_parser, const std::string _str, arg_t _type, 
                      char _vec_delimiter, int _vec_min, int _vec_max)  :
             option(_parser, _str, _type, true), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max)
         { num_already_initialized_elems = 0; }
-        option_vector(args_parser &_parser, std::string _str, arg_t _type, 
+        option_vector(const args_parser &_parser, std::string _str, arg_t _type, 
                      char _vec_delimiter, int _vec_min, int _vec_max, 
                      const std::string &_vec_def)  :
             option(_parser, _str, _type, false), vec_delimiter(_vec_delimiter), vec_min(_vec_min), vec_max(_vec_max), 
@@ -182,9 +188,9 @@ class args_parser {
         { num_already_initialized_elems = 0; }
         virtual ~option_vector() {}
         virtual void print() const { 
-            std::cout << str << ": ";
-            to_ostream(std::cout);
-            std::cout << std::endl; 
+            parser.sout << str << ": ";
+            to_ostream(parser.sout);
+            parser.sout << std::endl; 
         }
         virtual bool do_parse(const char *sval);
         virtual bool is_scalar() const { return false; }

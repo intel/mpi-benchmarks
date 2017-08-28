@@ -24,11 +24,13 @@ namespace example_suite4 {
     // - get_parameter() overloaded virtual function implements the high-level interface 
     // to pass parameters from a suite to a benchmark
     template <> void BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser) const {
+        parser.set_current_group(get_name());
         parser.add_vector<int>("len", "1,2,4,8").
                      set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
         parser.add<string>("datatype", "int").
                      set_caption("int|char");
         parser.add<int>("ncycles", 1000);
+        parser.set_default_current_group();
     }
     
     vector<int> len;

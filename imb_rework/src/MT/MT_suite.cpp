@@ -84,6 +84,7 @@ namespace NS_MT {
 DECLARE_BENCHMARK_SUITE_STUFF(BS_MT, IMB-MT)
 
 template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const {
+    parser.set_current_group(get_name());
     parser.add<int>("stride", 0);
     parser.add<int>("warmup",  100);
     parser.add<int>("repeat", 1000);
@@ -94,6 +95,7 @@ template <> void BenchmarkSuite<BS_MT>::declare_args(args_parser &parser) const 
     parser.add<std::string>("malloc_algo", "serial").set_caption("serial|continous|parallel");
     parser.add<bool>("check", false);
     parser.add<std::string>("datatype", "int").set_caption("int|char");
+    parser.set_default_current_group();
 }
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, const std::vector<std::string> &benchs) {

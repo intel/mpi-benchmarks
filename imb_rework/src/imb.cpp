@@ -71,10 +71,13 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
+    const char *program_name = "Intel(R) MPI Benchmarks";
+    std::ostringstream output;
 
     // Some unit tests for args parser
 #if 0
     check_parser();
+    return 1;
 #endif    
 
     
@@ -87,9 +90,9 @@ int main(int argc, char * *argv)
         // Do basic initialisation of exapected args
         //args_parser parser(argc, argv, "/", ':');
         //args_parser parser(argc, argv, "--", '=');
-        args_parser parser(argc, argv, "-", ' ');
+        args_parser parser(argc, argv, "-", ' ', output);
 
-        parser.set_program_name("Intel(R) MPI Benchmarks");
+        parser.set_program_name(program_name);
         parser.set_flag(args_parser::ALLOW_UNEXPECTED_ARGS);
 
         parser.add<string>("thread_level", "single").
@@ -115,7 +118,7 @@ int main(int argc, char * *argv)
         parser.set_default_current_group();
          
         if (!parser.parse()) {
-            return 1;
+            throw 1;
         }
         string infile;  
         infile = parser.get<string>("load");
@@ -123,7 +126,7 @@ int main(int argc, char * *argv)
             ifstream in(infile.c_str(), ios_base::in);
             parser.load(in);
             if (!parser.parse()) {
-                throw logic_error("parser after load failed");
+                throw runtime_error("input config file parse error");
             }
         }
         string outfile;  
@@ -146,7 +149,7 @@ int main(int argc, char * *argv)
         if (filename != "") {
             FILE *t = fopen(filename.c_str(), "r");
             if (t == NULL) {
-                throw logic_error("can't open a file given in -input option");
+                throw runtime_error("can't open a file given in -input option");
             }
             char input_line[72+1], name[32+1];
             while (fgets(input_line, 72, t)) {
@@ -168,26 +171,28 @@ int main(int argc, char * *argv)
         BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
         BenchmarkSuitesCollection::get_default_list(default_benchmarks);
         if (parser.get<bool>("list")) {
+            output << program_name << endl;
+            output << "List of benchmarks:" << endl;
             for (map<string, set<string> >::iterator it_s = by_suite.begin(); 
                  it_s != by_suite.end(); ++it_s) {
                 set<string> &benchmarks = it_s->second;
                 string sn = it_s->first;
                 if (sn == "__generic__")
                     continue;
-                cout << sn << ":" << endl;
+                output << sn << ":" << endl;
                 for (set<string>::iterator it_b = benchmarks.begin(); 
                      it_b != benchmarks.end(); ++it_b) {
                     smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it_b);
                     string bn = b->get_name();
                     vector<string> comments = b->get_comments();
-                    cout << "    " << bn;
-                    if (!b->is_default()) cout << " (non-default)";
-                    cout << endl;
+                    output << "    " << bn;
+                    if (!b->is_default()) output << " (non-default)";
+                    output << endl;
                     for (size_t i = 0; i < comments.size(); i++)
-                       cout << "        " << comments[i] << endl;
+                       output << "        " << comments[i] << endl;
                 }
             }
-            return 0;
+            throw 0;
         }
         {
             using namespace set_operations;
@@ -304,9 +309,21 @@ int main(int argc, char * *argv)
             MPI_Init(NULL, NULL);
             no_mpi_init_flag = false;
         }
-        if (!no_mpi_init_flag && rank == 0)
+        if (!no_mpi_init_flag && rank == 0) {
             cout << "EXCEPTION: " << ex.what() << endl;
+            cout << output.str();
+        }
         return_value = 1;
+    }
+    catch(int ret) {
+        if (no_mpi_init_flag) {
+            MPI_Init(NULL, NULL);
+            no_mpi_init_flag = false;
+        }
+        if (!no_mpi_init_flag && rank == 0) {
+            cout << output.str();
+        }
+        return_value = ret;
     }
     if (!no_mpi_init_flag)
         MPI_Finalize();
