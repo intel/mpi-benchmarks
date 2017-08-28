@@ -253,29 +253,32 @@ bool args_parser::get_value(const string &arg, option &opt) {
     return res;
 }
 
-void args_parser::print_err_required_arg(const option &opt) const {
+void args_parser::print_err(error_t err, string option, string extra) {
     if (!is_flag_set(SILENT))
-        sout << "ERROR: The required option missing or can't be parsed: " << option_starter << opt.str << endl;
-}
-
-void args_parser::print_err_required_extra_arg() const {
-    if (!is_flag_set(SILENT))
-        sout << "ERROR: The required extra argument missing" << endl;
-}
-
-void args_parser::print_err_parse(const option &opt) const {
-    if (!is_flag_set(SILENT))
-        sout << "ERROR: Parse error on option: " << option_starter << opt.str << endl;
-}
-
-void args_parser::print_err_parse_extra_args() const {
-    if (!is_flag_set(SILENT))
-        sout << "ERROR: Parse error on an extra argument" << endl;
-}
-
-void args_parser::print_err_extra_args() const {
-    if (!is_flag_set(SILENT))
-        sout << "ERROR: Some extra or unknown arguments or options" << endl;
+        switch (err) {
+            case NONE: break;
+            case NO_REQUIRED_OPTION: 
+                sout << "ERROR: The required option missing or can't be parsed: " 
+                     << option_starter << option << endl;
+                break;
+            case NO_REQUIRED_EXTRA_ARG: 
+                sout << "ERROR: The required extra argument missing" << endl;
+                break;
+            case PARSE_ERROR_OPTION: 
+                sout << "ERROR: Parse error on option: "
+                     << option_starter << option << endl;
+                break;
+            case PARSE_ERROR_EXTRA_ARGS: 
+                sout << "ERROR: Parse error on an extra argument" << endl;
+                break;
+            case UNKNOWN_EXTRA_ARGS:
+                sout << "ERROR: Some extra or unknown arguments or options" << endl;
+                break;
+            default: throw logic_error("args_parser: print_err: unknown error");
+        }
+    last_error = err;
+    last_error_option = option;
+    last_error_extra = extra;
 }
 
 void args_parser::print_help_advice() const {
@@ -369,49 +372,39 @@ void args_parser::print_help() const {
     size_t size = min(header.size(), (size_t)16);
     string tab(size-2, ' ');
     bool is_first = true;
-    bool is_sys = false, is_empty = false;
-/*    
-    const string *pgroup;
-    string prev_pgroup;
-    const smart_ptr<option> *poption;
-    in_expected_args(FOREACH_FIRST, pgroup, poption);
-    while(in_expected_args(FOREACH_NEXT, pgroup, poption)) {
-        if (*pgroup == "EXTRA_ARGS")
-            continue;
-        if (*pgroup != prev_pgroup) {
-            sout << tab << *pgroup << ":" << endl;
-            prev_pgroup = *pgroup;
-        }
-        print_single_option_usage(*poption, size, is_first);
-        is_first = false;
-    }
-*/   
+    bool is_there_sys_group = false, is_there_empty_group = false;
+    // help
     smart_ptr<option> help = new option_scalar(*this, "help", BOOL, value(false)); 
     help->flag = true;
     print_single_option_usage(help, size, is_first);
+    // help option
     is_first = false;
     help->flag = false;
     help->set_caption("option");
     print_single_option_usage(help, size, is_first);
+    // enumarate all groups which are here
     vector<string> groups;
     map<const string, vector<smart_ptr<option> > >::const_iterator cit;
     for (cit = expected_args.begin(); cit != expected_args.end(); ++cit) {
         groups.push_back(cit->first);
         if (cit->first == "SYS")
-            is_sys = true;
+            is_there_sys_group = true;
         if (cit->first == "")
-            is_empty = true;
+            is_there_empty_group = true;
     }
-    if (is_sys) {
+    // "SYS" option go first
+    if (is_there_sys_group) {
         const vector<smart_ptr<option> > &args = expected_args.find("SYS")->second;
         for (size_t i = 0; i < args.size(); i++)
             print_single_option_usage(args[i], size, is_first);
     }
-    if (is_empty) {
+    // option from unnamed group go next
+    if (is_there_empty_group) {
         const vector<smart_ptr<option> > &args = expected_args.find("")->second;
         for (size_t i = 0; i < args.size(); i++)
             print_single_option_usage(args[i], size, is_first);
     }
+    // options from groups in the order they where added
     for (size_t group = 0; group < groups.size(); group++) {
         const vector<smart_ptr<option> > &args = expected_args.find(groups[group])->second;
         if (groups[group] == "EXTRA_ARGS" || groups[group] == "SYS" || groups[group] == "")
@@ -420,8 +413,7 @@ void args_parser::print_help() const {
         for (size_t i = 0; i < args.size(); i++)
             print_single_option_usage(args[i], size, is_first);
     }
-
-
+    // extra args
     int num_extra_args = 0, num_required_extra_args = 0;
     const std::vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
     for (int j = 0; j < num_extra_args; j++) 
@@ -490,7 +482,7 @@ bool args_parser::parse() {
                 opt.set_default_value();
             opt.defaulted = false;
             if (!opt.do_parse(arg.c_str())) {
-                print_err_parse(opt);
+                print_err(PARSE_ERROR_OPTION, opt.str, arg);
                 parse_result = false;
             }
             prev_option = NULL;
@@ -520,7 +512,7 @@ bool args_parser::parse() {
                     break;
                 }
                 if (!get_value(arg, **popt)) {
-                    print_err_parse(**popt);
+                    print_err(PARSE_ERROR_OPTION, (*popt)->str, arg);
                     parse_result = false;
                 }
                 found = true;
@@ -534,7 +526,7 @@ bool args_parser::parse() {
 
     // the case when cmdline args ended too early
     if (prev_option != NULL) {
-        print_err_parse(*prev_option);
+        print_err(PARSE_ERROR_OPTION, prev_option->str);
         parse_result = false;
     }
 
@@ -542,7 +534,7 @@ bool args_parser::parse() {
     int num_extra_args = 0, num_required_extra_args = 0;
     std::vector<smart_ptr<option> > &extra_args = get_extra_args_info(num_extra_args, num_required_extra_args);
     if (unknown_args.size() < (size_t)num_required_extra_args) {
-        print_err_required_extra_arg();
+        print_err(NO_REQUIRED_EXTRA_ARG, "");
         parse_result = false;
     } else {
         int num_processed_extra_args = 0;
@@ -555,7 +547,7 @@ bool args_parser::parse() {
                 extra_args[j]->set_default_value();
             extra_args[j]->defaulted = false;
             if (!extra_args[j]->do_parse(unknown_args[j].c_str())) {
-                print_err_parse_extra_args();
+                print_err(PARSE_ERROR_EXTRA_ARGS, "", unknown_args[j]);
                 parse_result = false;
                 break;
             }
@@ -575,14 +567,14 @@ bool args_parser::parse() {
             continue;
         }
         if ((*popt)->is_required_but_not_set()) {
-            print_err_required_arg(**popt);
+            print_err(NO_REQUIRED_OPTION, (*popt)->str);
             parse_result = false;
         }
     }
-    // if there are too many unexpected args, raise error
+    // if there are too many unexpected args, raise an error
     if (!is_flag_set(ALLOW_UNEXPECTED_ARGS)) {
         if (parse_result && unknown_args.size()) {
-            print_err_extra_args();
+            print_err(UNKNOWN_EXTRA_ARGS, "");
             parse_result = false;
         }
     }

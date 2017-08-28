@@ -84,10 +84,12 @@ class args_parser {
                                                                          option_starter(opt_st), 
                                                                          option_delimiter(opt_delim), 
                                                                          sout(_sout),
-                                                                         prev_option(NULL) 
+                                                                         prev_option(NULL),
+                                                                         last_error(NONE)  
     {}
     typedef enum { STRING, INT, FLOAT, BOOL } arg_t;
     typedef enum { ALLOW_UNEXPECTED_ARGS, SILENT, NOHELP, NODUPLICATE /*, NODEFAULTSDUMP*/ } flag_t;
+    typedef enum { NONE, NO_REQUIRED_OPTION, NO_REQUIRED_EXTRA_ARG, PARSE_ERROR_OPTION, PARSE_ERROR_EXTRA_ARGS, UNKNOWN_EXTRA_ARGS } error_t;
 
     class value {
         public:
@@ -209,6 +211,9 @@ class args_parser {
     std::map<std::string, std::vector<smart_ptr<option> > > expected_args;
     std::vector<std::string> unknown_args;
     option *prev_option;
+    error_t last_error;
+    std::string last_error_option;
+    std::string last_error_extra;
    
     bool match(std::string &arg, std::string pattern) const;
     bool match(std::string &arg, option &exp) const;
@@ -218,11 +223,7 @@ class args_parser {
     const std::vector<smart_ptr<args_parser::option> > &get_extra_args_info(int &num_extra_args, int &num_required_extra_args) const;
     std::vector<smart_ptr<args_parser::option> > &get_extra_args_info(int &num_extra_args, int &num_required_extra_args);
 
-    void print_err_required_arg(const option &arg) const;
-    void print_err_required_extra_arg() const;
-    void print_err_parse(const option &arg) const; 
-    void print_err_parse_extra_args() const;
-    void print_err_extra_args() const;
+    void print_err(error_t err, std::string arg, std::string extra = "");
     void print_single_option_usage(const smart_ptr<option> &d, size_t header_size, bool is_first, bool no_option_name = false) const;
 
     std::vector<value> get_result_value(const std::string &s) const;
@@ -266,6 +267,12 @@ class args_parser {
     std::string dump() const;
     bool load(const std::string &input);
     bool load(std::istream &in);
+
+    error_t get_last_error(std::string &option, std::string &extra) {
+        option = last_error_option;
+        extra = last_error_extra;
+        return last_error;
+    }
 
     protected:
     // NOTE: see source for usage comments
