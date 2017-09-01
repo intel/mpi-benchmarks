@@ -56,6 +56,8 @@ goods and services.
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -75,13 +77,14 @@ struct CheckParser {
     bool result;
     bool except;
     smart_ptr<args_parser> pparser;
+    ostringstream output;
     CheckParser() : result(false), except(false) {}
     args_parser &init(int argc, char ** argv, int mode = 1) {
         print_args(argc, argv);
         switch (mode) {
-            case 1: pparser = new args_parser(argc, argv, "-", ' '); break;
-            case 2: pparser = new args_parser(argc, argv, "--", '='); break;
-            case 3: pparser = new args_parser(argc, argv, "/", ':'); break;
+            case 1: pparser = new args_parser(argc, argv, "-", ' ', output); break;
+            case 2: pparser = new args_parser(argc, argv, "--", '=', output); break;
+            case 3: pparser = new args_parser(argc, argv, "/", ':', output); break;
             default: assert(false);
         }
         return *pparser;
@@ -95,6 +98,13 @@ struct CheckParser {
             except = true;
         }
         return *pparser;
+    }
+    size_t lines_in_output() {
+        string s = output.str();
+        return count(s.begin(), s.end(), '\n');
+    }
+    bool output_contains(string what) {
+        return output.str().find(what) != string::npos;
     }
 };
 
@@ -176,6 +186,22 @@ void basic_scalar_check(T val) {
     }
 }
  
+
+template <typename T>
+void err_scalar_check(T val) {
+    const char * argv[1024]; 
+    for (int mode = 1; mode <= 3; mode++) {
+        string opt, ext;
+        int nargs = make_args_scalar<T>(argv, "aaaa", mode, val);
+        CheckParser p;
+        p.init(nargs, (char * *)argv, mode).add<T>("aaa").set_caption("bbb");
+        args_parser::error_t err = p.run().get_last_error(opt, ext);
+        assert(!p.result && !p.except && err == args_parser::NO_REQUIRED_OPTION &&
+                opt == "aaa"); // && p.lines_in_output() == 2 && p.output_contains("ERROR"));
+        printf(">> %s, %d, %s\n", p.output.str().c_str(), p.lines_in_output(), p.output_contains("ERROR")?"true":"false");
+    }
+}
+
 template <typename T>
 void basic_vector_check(T val1, T val2) {
     const char *argv[1024]; 
@@ -274,6 +300,9 @@ void check_parser()
     default_vector_check_ext<bool>("true", "false,true", 2, false, true);
     default_vector_check_ext<string>("aaa,bbbb", "ccc", 2, "ccc", "bbbb");
     default_vector_check_ext<string>("aaa", "ccc,ddd", 2, "ccc", "ddd");
+
+    err_scalar_check<string>("ccc");
+
 }
 #endif
 
