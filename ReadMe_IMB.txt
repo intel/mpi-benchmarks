@@ -147,7 +147,7 @@ Building Instructions for Linux* OS
 
    where <component> is one of the make targets above.
    For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
-   https://software.intel.com/en-us/imb-user-guide-2018-beta
+   https://software.intel.com/en-us/imb-user-guide
 
 -----------------------------------------
 Building Instructions for Windows* OS
@@ -190,7 +190,7 @@ Building "x64" Executable Files
 3) Use F7 or Build > Build Solution to create an executable.
 
    For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
-   https://software.intel.com/en-us/imb-user-guide-2018-beta
+   https://software.intel.com/en-us/imb-user-guide
 
 ----------------------
 Copyright and Licenses
