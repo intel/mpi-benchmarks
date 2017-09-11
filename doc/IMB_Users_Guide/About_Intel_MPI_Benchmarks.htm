@@ -1,0 +1,71 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Introducing Intel® MPI Benchmarks</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:disc; }
+li.hcp2 { list-style:none;
+display:inline; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Introducing Intel® MPI Benchmarks</h1>
+<p>Intel® MPI Benchmarks performs a set of MPI performance measurements for point-to-point and global communication operations for a range of message sizes. Intel® MPI Benchmarks is developed using ANSI C plus standard MPI. It is distributed as an open source project to enable use of benchmarks across various cluster architectures and MPI implementations.</p>
+<p>The generated benchmark data fully characterizes:</p>
+<ul class="hcp1">
+<li>Performance of a cluster system, including node performance, network latency, and throughput</li>
+<li>Efficiency of the MPI implementation used</li>
+</ul>
+<p>The Intel® MPI Benchmarks package consists of the following components:</p>
+<ul class="hcp1">
+<li>
+<p><a href="The_Benchmarks.htm">IMB-MPI1</a> – benchmarks for MPI-1 functions.</p>
+</li>
+<li>
+<p>Two components for <a href="MPI-2_Part_of_Intel_MPI_Benchmarks.htm">MPI-2</a> functionality:</p>
+</li>
+<li class="hcp2">
+<ul class="hcp1">
+<li>
+<p>IMB-EXT – one-sided communications benchmarks.</p>
+</li>
+<li>
+<p>IMB-IO – input/output (I/O) benchmarks.</p>
+</li>
+</ul>
+</li>
+<li>Two components for <a href="mpi3_benchmarks.htm">MPI-3</a> functionality:</li>
+<li class="hcp2">
+<ul class="hcp1">
+<li>
+<p>IMB-NBC – benchmarks for non-blocking collective (NBC) operations.</p>
+</li>
+<li>
+<p>IMB-RMA – one-sided communications benchmarks. These benchmarks measure the Remote Memory Access (RMA) functionality introduced in the MPI-3 standard.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>Each component constitutes a separate executable file. You can run all of the supported benchmarks, or specify a single executable file in the command line to get results for a specific subset of benchmarks.</p>
+<p>If you do not have the MPI-2 or MPI-3 extensions available, you can install and use IMB-MPI1 that uses only standard MPI-1 functions.</p>
+</body>
+</html>

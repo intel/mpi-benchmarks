@@ -1,0 +1,114 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>S_Action_indv</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>S_[ACTION]_indv</h1>
+<p>File I/O performed by a single process. This pattern mimics the typical case when a particular master process performs all of the I/O. See the basic definitions and a schematic view of the pattern below.</p>
+<h2>S_[ACTION]_indv Definition</h2>
+<table width="600">
+<col style="width: 33.333%;">
+<col style="width: 33.333%;">
+<tr>
+<th>
+<p>Property</p>
+</th>
+<th>
+<p>Description</p>
+</th>
+</tr>
+<tr>
+<td>
+<p>Measured pattern</p>
+</td>
+<td>
+<p>As symbolized in figure <a href="IMB-IO_Benchmarks.htm#Figure_5_8_I_O">I/O benchmarks, aggregation for output</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Elementary I/O action</p>
+</td>
+<td>
+<p>As symbolized in the figure below.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI routines for the blocking mode</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_File_write/MPI_File_read</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI routines for the nonblocking mode</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_File_iwrite/MPI_File_iread</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">etype</samp></p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>File type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI data type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported timings</p>
+</td>
+<td>
+<p><samp class="codeph">t</samp> (in <samp class="codeph">&#956;sec</samp>) as indicated in the figure <a href="IMB-IO_Benchmarks.htm#Figure_5_8_I_O">I/O benchmarks, aggregation for output</a>, aggregate and non-aggregate for the <samp class="codeph">Write</samp> flavor.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported throughput</p>
+</td>
+<td>
+<p><samp class="codeph">x/t</samp>, aggregate and non-aggregate for the <samp class="codeph">Write</samp> flavor</p>
+</td>
+</tr>
+</table>
+<h2><a name="S_[ACTION]_indv_pattern">S_[ACTION]_indv Pattern</a></h2>
+<p><img src="IMB_Users_Guide_files/image20.png" alt="" style="border: none;" width="459" height="270" border="0"></p>
+</body>
+</html>

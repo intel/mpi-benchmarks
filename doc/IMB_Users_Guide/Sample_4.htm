@@ -1,0 +1,99 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Sample 4 - IMB-EXT.exe</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Sample 4 - IMB-EXT.exe</h1>
+<p>The example below shows the results for the <samp class="codeph">Window</samp> benchmark received after running <samp class="codeph">IMB-EXT.exe</samp> on a Microsoft Windows* cluster using two processes. The performance diagnostics for <samp class="codeph">Unidir_Get</samp>, <samp class="codeph">Unidir_Put</samp>, <samp class="codeph">Bidir_Get,</samp> <samp class="codeph">Bidir_Put</samp>, and <samp class="codeph">Accumulate</samp> are omitted.</p>
+<pre>
+ &lt;..&gt; -n 2 IMB-EXT.exe
+ 
+#---------------------------------------------------
+#    Intel ® MPI Benchmark Suite V3.2.2, MPI-2 part 
+#---------------------------------------------------
+# Date                  : Fri Sep 05 12:26:52 2008
+# Machine             : Intel64 Family 6 Model 15 Stepping 6, GenuineIntel
+# System               : Windows Server 2008
+# Release              : .0.6001
+# Version               : Service Pack 1
+# MPI Version        : 2.0
+# MPI Thread Environment: MPI_THREAD_SINGLE
+ 
+# New default behavior from Version 3.2 on:
+# the number of iterations per message size is cut down
+# dynamically when a certain run time (per message size sample)
+# is expected to be exceeded. Time limit is defined by variable
+# SECS_PER_SAMPLE (=&gt; IMB_settings.h)
+# or through the flag =&gt; -time 
+ 
+# Calling sequence was:
+# \\master-node\MPI_Share_Area\IMB_3.1\src\IMB-EXT.exe
+# Minimum message length in bytes:   0
+# Maximum message length in bytes:   4194304
+#
+# MPI_Datatype                   :   MPI_BYTE
+# MPI_Datatype for reductions    :   MPI_FLOAT
+# MPI_Op                         :   MPI_SUM 
+#
+#
+ 
+# List of Benchmarks to run:
+# Window
+# Unidir_Get
+# Unidir_Put
+# Bidir_Get
+# Bidir_Put
+# Accumulate
+ 
+#----------------------------------------------------------------
+# Benchmarking Window
+# #processes = 2
+#---------------------------------------------------------------
+       #bytes #repetitions  t_min[&#956;sec]  t_max[&#956;sec] t_avg[&#956;sec]
+            0          100       ..           ..           ..
+            4          100
+            8          100
+           16          100
+           32          100
+           64          100
+          128          100
+          256          100
+          512          100
+         1024          100
+         2048          100
+         4096          100
+         8192          100
+        16384          100
+        32768          100
+        65536          100
+       131072          100
+       262144          100
+       524288           80
+      1048576           40
+      2097152           20
+      4194304           10
+...
+# All processes entering MPI_Finalize
+</pre>
+<p>The above example listing shows the results of running <samp class="codeph">IMB-EXT.exe</samp> on a Microsoft Windows* cluster using two processes.</p>
+<p>The listing only shows the result for the <samp class="codeph">Window</samp> benchmark. The performance diagnostics for <samp class="codeph">Unidir_Get</samp>, <samp class="codeph">Unidir_Put</samp>, <samp class="codeph">Bidir_Get</samp>, <samp class="codeph">Bidir_Put</samp>, and <samp class="codeph">Accumulate</samp> are omitted.</p>
+</body>
+</html>

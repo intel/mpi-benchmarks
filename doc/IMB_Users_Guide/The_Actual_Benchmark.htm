@@ -1,0 +1,116 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Actual Benchmarking</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:disc; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Actual Benchmarking</h1>
+<p>To reduce measurement errors caused by insufficient clock resolution, every benchmark is run repeatedly. The repetition count is as follows:</p>
+<p>For <samp class="codeph">IMB-MPI1</samp>, <samp class="codeph">IMB-NBC</samp>, and aggregate flavors of <samp class="codeph">IMB-EXT</samp>, <samp class="codeph">IMB-IO</samp>, and <samp class="codeph">IMB-RMA</samp> benchmarks, the repetition count is <samp class="codeph">MSGSPERSAMPLE</samp>. This constant is defined in <samp class="codeph">IMB_settings.h</samp> and <samp class="codeph">IMB_settings_io.h</samp>, with 1000 and 50 values, respectively.</p>
+<p>To avoid excessive run times for large transfer sizes X, an upper bound is set to <samp class="codeph">OVERALL_VOL/X</samp>. The <samp class="codeph">OVERALL_VOL</samp> value is defined in <samp class="codeph">IMB_settings.h</samp> and <samp class="codeph">IMB_settings_io.h</samp>, with 4MB and 16MB values, respectively.</p>
+<p>Given transfer size X, the repetition count for all aggregate benchmarks is defined as follows:</p>
+<p><samp class="codeph">n_sample = MSGSPERSAMPLE (X=0)</samp></p>
+<p><samp class="codeph">n_sample = max(1,min(MSGSPERSAMPLE,OVERALL_VOL/X)) (X&gt;0)</samp></p>
+<p>The repetition count for non-aggregate benchmarks is defined completely analogously, with <samp class="codeph">MSGSPERSAMPLE</samp> replaced by <samp class="codeph">MSGS_NONAGGR</samp>. It is recommended to reduce the repetition count as non-aggregate run times are usually much longer.</p>
+<p>In the following examples, <i>elementary transfer</i> means a pure function (<samp class="codeph">MPI_[Send, ...]</samp>, <samp class="codeph">MPI_Put</samp>, <samp class="codeph">MPI_Get</samp>, <samp class="codeph">MPI_Accumulate</samp>, <samp class="codeph">MPI_File_write_XX</samp>, <samp class="codeph">MPI_File_read_XX</samp>), without any further function call. Assured completion transfer completion is:</p>
+<ul class="hcp1">
+<li>
+<p><samp class="codeph">IMB-EXT</samp> benchmarks: <samp class="codeph">MPI_Win_fence</samp></p>
+</li>
+<li>
+<p><samp class="codeph">IMB-IO Write</samp> benchmarks: a triplet <samp class="codeph">MPI_File_sync/MPI_Barrier(file_communicator)/MPI_File_sync</samp></p>
+</li>
+<li>
+<p><samp class="codeph">IMB-RMA</samp> benchmarks: <samp class="codeph">MPI_Win_flush</samp>, <samp class="codeph">MPI_Win_flush_all</samp>, <samp class="codeph">MPI_Win_flush_local</samp>, or <samp class="codeph">MPI_Win_flush_local_all</samp></p>
+</li>
+<li>
+<p>Other benchmarks: empty</p>
+</li>
+</ul>
+<h2>MPI-1 Benchmarks</h2>
+<pre>
+for ( i=0; i&lt;N_BARR; i++ ) MPI_Barrier(MY_COMM)
+time = MPI_Wtime()
+for ( i=0; i&lt;n_sample; i++ )
+   execute MPI pattern
+time = (MPI_Wtime()-time)/n_sample
+</pre>
+<h2>IMB-EXT and Blocking I/O Benchmarks</h2>
+<p>For aggregate benchmarks, the kernel loop looks as follows:</p>
+<pre>
+for ( i=0; i&lt;N_BARR; i++ )MPI_Barrier(MY_COMM)
+/* Negligible integer (offset) calculations ... */
+time = MPI_Wtime()
+for ( i=0; i&lt;n_sample; i++ )
+   execute elementary transfer
+   assure completion of all transfers
+time = (MPI_Wtime()-time)/n_sample
+</pre>
+<p>For non-aggregate benchmarks, every transfer is completed before going on to the next transfer:</p>
+<pre>
+for ( i=0; i&lt;N_BARR; i++ )MPI_Barrier(MY_COMM)
+/* Negligible integer (offset) calculations ... */
+time = MPI_Wtime()
+for ( i=0; i&lt;n_sample; i++ )
+   {
+   execute elementary transfer
+   assure completion of transfer
+   }
+time = (MPI_Wtime()-time)/n_sample
+</pre>
+<h2>Non-blocking I/O Benchmarks</h2>
+<p>A nonblocking benchmark has to provide three timings:</p>
+<ul class="hcp1">
+<li>
+<p><samp class="codeph">t_pure</samp> - blocking pure I/O time</p>
+</li>
+<li>
+<p><samp class="codeph">t_ovrl</samp>- nonblocking I/O time concurrent with CPU activity</p>
+</li>
+<li>
+<p><samp class="codeph">t_CPU</samp> - pure CPU activity time</p>
+</li>
+</ul>
+<p>The actual benchmark consists of the following stages:</p>
+<ul class="hcp1">
+<li>
+<p>Calling the equivalent blocking benchmark, as defined in <a href="The_Actual_Benchmark.htm">Actual Benchmarking</a> and taking benchmark time as <samp class="codeph">t_pure</samp>.</p>
+</li>
+<li>
+<p>Closing and re-opening the related file(s).</p>
+</li>
+<li>
+<p>Re-synchronizing the processes.</p>
+</li>
+<li>
+<p>Running the nonblocking case, concurrent with CPU activity (exploiting <samp class="codeph">t_CPU</samp> when running undisturbed), taking the effective time as <samp class="codeph">t_ovrl</samp>.</p>
+</li>
+</ul>
+<p>You can set the desired CPU time <samp class="codeph">t_CPU</samp> in <samp class="codeph">IMB_settings_io.h:</samp></p>
+<pre>
+#define TARGET_CPU_SECS 0.1 /* unit seconds */
+</pre>
+</body>
+</html>

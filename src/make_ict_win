@@ -1,0 +1,160 @@
+# Enter root directory of MPI for Windows install
+MPI_HOME    =
+
+MPI_INCLUDE =
+LIB_PATH    =
+LIBS        =
+CC          =
+OPTFLAGS    = /Ox /DWIN_IMB /D_CRT_SECURE_NO_DEPRECATE
+CLINKER     = $(CC)
+LDFLAGS     =
+CPPFLAGS    =
+
+.SUFFIXES: 
+.SUFFIXES: .c .obj
+
+
+PROFLIB     =
+
+SRC1 = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c IMB_mem_manager.c IMB_parse_name_mpi1.c  IMB_benchlist.c IMB_strgs.c \
+IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c \
+IMB_pingpong.c IMB_pingping.c IMB_allreduce.c IMB_reduce_scatter.c IMB_reduce.c IMB_exchange.c IMB_bcast.c IMB_barrier.c IMB_allgather.c IMB_allgatherv.c IMB_gather.c IMB_gatherv.c IMB_scatter.c IMB_scatterv.c IMB_alltoall.c IMB_alltoallv.c IMB_sendrecv.c IMB_init_transfer.c IMB_chk_diff.c IMB_cpu_exploit.c IMB_bandwidth.c
+
+
+OBJ1 = IMB.obj IMB_utils.obj IMB_declare.obj  IMB_init.obj IMB_mem_manager.obj IMB_parse_name_mpi1.obj  IMB_benchlist.obj IMB_strgs.obj \
+IMB_err_handler.obj IMB_g_info.obj  IMB_warm_up.obj IMB_output.obj \
+IMB_pingpong.obj IMB_pingping.obj IMB_allreduce.obj IMB_reduce_scatter.obj IMB_reduce.obj IMB_exchange.obj IMB_bcast.obj IMB_barrier.obj IMB_allgather.obj IMB_allgatherv.obj IMB_gather.obj IMB_gatherv.obj IMB_scatter.obj IMB_scatterv.obj IMB_alltoall.obj IMB_alltoallv.obj IMB_sendrecv.obj IMB_init_transfer.obj  IMB_chk_diff.obj IMB_cpu_exploit.obj IMB_bandwidth.obj
+
+
+SRCEXT = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c  IMB_mem_manager.c IMB_benchlist.c IMB_parse_name_ext.c IMB_strgs.c \
+IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c \
+IMB_window.c IMB_ones_unidir.c IMB_ones_bidir.c IMB_ones_accu.c IMB_init_transfer.c IMB_user_set_info.c IMB_chk_diff.c 
+
+OBJEXT = IMB.obj IMB_utils.obj IMB_declare.obj  IMB_init.obj  IMB_mem_manager.obj IMB_benchlist.obj IMB_parse_name_ext.obj IMB_strgs.obj \
+IMB_err_handler.obj IMB_g_info.obj  IMB_warm_up.obj IMB_output.obj \
+IMB_window.obj IMB_ones_unidir.obj IMB_ones_bidir.obj IMB_ones_accu.obj IMB_init_transfer.obj IMB_user_set_info.obj IMB_chk_diff.obj 
+
+SRCIO= IMB.c IMB_utils.c IMB_declare.c  IMB_init.c  IMB_mem_manager.c IMB_init_file.c IMB_user_set_info.c\
+IMB_benchlist.c IMB_parse_name_io.c IMB_strgs.c \
+IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c IMB_cpu_exploit.c\
+IMB_open_close.c IMB_write.c IMB_read.c IMB_init_transfer.c IMB_chk_diff.c  
+
+OBJIO= IMB.obj IMB_utils.obj IMB_declare.obj  IMB_init.obj  IMB_mem_manager.obj IMB_init_file.obj \
+IMB_benchlist.obj IMB_parse_name_io.obj IMB_strgs.obj IMB_user_set_info.obj IMB_cpu_exploit.obj\
+IMB_err_handler.obj IMB_g_info.obj  IMB_warm_up.obj IMB_output.obj \
+IMB_open_close.obj IMB_write.obj IMB_read.obj IMB_init_transfer.obj IMB_chk_diff.obj  
+
+SRCNBC = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c IMB_mem_manager.c IMB_parse_name_nbc.c  IMB_benchlist.c IMB_strgs.c \
+IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c \
+IMB_allreduce.c IMB_reduce_scatter.c IMB_reduce.c IMB_bcast.c IMB_barrier.c IMB_allgather.c IMB_allgatherv.c IMB_gather.c IMB_gatherv.c IMB_scatter.c IMB_scatterv.c IMB_alltoall.c IMB_alltoallv.c IMB_sendrecv.c IMB_init_transfer.c IMB_chk_diff.c IMB_cpu_exploit.c
+
+OBJNBC = IMB.obj IMB_utils.obj IMB_declare.obj  IMB_init.obj IMB_mem_manager.obj IMB_parse_name_nbc.obj  IMB_benchlist.obj IMB_strgs.obj \
+IMB_err_handler.obj IMB_g_info.obj  IMB_warm_up.obj IMB_output.obj \
+IMB_allreduce.obj IMB_reduce_scatter.obj IMB_reduce.obj IMB_bcast.obj IMB_barrier.obj IMB_allgather.obj IMB_allgatherv.obj IMB_gather.obj IMB_gatherv.obj IMB_scatter.obj IMB_scatterv.obj IMB_alltoall.obj IMB_alltoallv.obj IMB_sendrecv.obj IMB_init_transfer.obj  IMB_chk_diff.obj IMB_cpu_exploit.obj
+
+SRCRMA = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c  IMB_mem_manager.c IMB_benchlist.c IMB_parse_name_rma.c IMB_strgs.c \
+IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c  IMB_init_transfer.c IMB_user_set_info.c IMB_chk_diff.c \
+IMB_rma_put.c IMB_cpu_exploit.c IMB_rma_get.c IMB_rma_atomic.c
+
+OBJRMA = IMB.obj IMB_utils.obj IMB_declare.obj  IMB_init.obj  IMB_mem_manager.obj IMB_benchlist.obj IMB_parse_name_rma.obj IMB_strgs.obj \
+IMB_err_handler.obj IMB_g_info.obj  IMB_warm_up.obj IMB_output.obj  IMB_init_transfer.obj IMB_user_set_info.obj IMB_chk_diff.obj \
+IMB_rma_put.obj IMB_cpu_exploit.obj IMB_rma_get.obj IMB_rma_atomic.obj
+
+default: all
+all: IMB-IO  IMB-EXT IMB-MPI1 IMB-NBC IMB-RMA
+
+IMB-MPI1: $(SRC1) IMB_declare.h exe_mpi1
+	$(MAKE) /f make_ict_win MPI_HOME="$(MPI_HOME)" MPI_INCLUDE="$(MPI_INCLUDE)" CPPFLAGS="$(CPPFLAGS)" CC=$(CC) CPP=MPI1 OPTFLAGS="$(OPTFLAGS)" LDFLAGS="$(LDFLAGS)" LIB_PATH="$(LIB_PATH)" LIBS="$(LIBS)" MPI1
+IMB-EXT:$(SRCEXT) IMB_declare.h  exe_ext
+	$(MAKE) /f make_ict_win MPI_HOME="$(MPI_HOME)" MPI_INCLUDE="$(MPI_INCLUDE)" CPPFLAGS="$(CPPFLAGS)" CC=$(CC) CPP=EXT OPTFLAGS="$(OPTFLAGS)" LDFLAGS="$(LDFLAGS)" LIB_PATH="$(LIB_PATH)" LIBS="$(LIBS)" EXT
+IMB-IO: $(SRCIO) IMB_declare.h exe_io
+	$(MAKE) /f make_ict_win MPI_HOME="$(MPI_HOME)" MPI_INCLUDE="$(MPI_INCLUDE)" CPPFLAGS="$(CPPFLAGS)" CC=$(CC) CPP=MPIIO OPTFLAGS="$(OPTFLAGS)" LDFLAGS="$(LDFLAGS)" LIB_PATH="$(LIB_PATH)" LIBS="$(LIBS)" IO
+IMB-NBC: $(SRCNBC) IMB_declare.h exe_nbc
+	$(MAKE) /f make_ict_win MPI_HOME="$(MPI_HOME)" MPI_INCLUDE="$(MPI_INCLUDE)" CPPFLAGS="$(CPPFLAGS)" CC=$(CC) CPP=NBC OPTFLAGS="$(OPTFLAGS)" LDFLAGS="$(LDFLAGS)" LIB_PATH="$(LIB_PATH)" LIBS="$(LIBS)" NBC
+IMB-RMA: $(SRCRMA) IMB_declare.h exe_rma
+	$(MAKE) /f make_ict_win MPI_HOME="$(MPI_HOME)" MPI_INCLUDE="$(MPI_INCLUDE)" CPPFLAGS="$(CPPFLAGS)" CC=$(CC) CPP=RMA OPTFLAGS="$(OPTFLAGS)" LDFLAGS="$(LDFLAGS)" LIB_PATH="$(LIB_PATH)" LIBS="$(LIBS)" RMA
+
+exe_io:
+	del /f /q $(OBJIO)
+exe_ext:
+	del /f /q $(OBJEXT)
+exe_mpi1:
+	del /f /q $(OBJ1)
+exe_nbc:
+	del /f /q $(OBJNBC)
+exe_rma:
+	del /f /q $(OBJRMA)
+
+MPI1: $(OBJ1) 
+	$(CLINKER) $(LDFLAGS) /FeIMB-MPI1 $(OBJ1)  "$(LIB_PATH)" "$(LIBS)"
+
+EXT : $(OBJEXT) 
+	$(CLINKER) $(LDFLAGS) /FeIMB-EXT $(OBJEXT)  "$(LIB_PATH)" "$(LIBS)"
+
+IO: $(OBJIO) 
+	$(CLINKER) $(LDFLAGS) /FeIMB-IO $(OBJIO)  "$(LIB_PATH)" "$(LIBS)"
+
+NBC: $(OBJNBC) 
+	$(CLINKER) $(LDFLAGS) /FeIMB-NBC $(OBJNBC)  "$(LIB_PATH)" "$(LIBS)"
+
+RMA: $(OBJRMA) 
+	$(CLINKER) $(LDFLAGS) /FeIMB-RMA $(OBJRMA)  "$(LIB_PATH)" "$(LIBS)"
+
+.c.obj :
+	$(CC) /I"$(MPI_INCLUDE)" $(CPPFLAGS) /D$(CPP) $(OPTFLAGS) /c $*.c
+
+# DEPENDENCIES
+IMB_declare.h:	IMB_settings.h IMB_comm_info.h IMB_settings_io.h IMB_bnames_mpi1.h \
+                IMB_bnames_ext.h IMB_bnames_io.h IMB_err_check.h IMB_appl_errors.h IMB_mem_info.h
+
+IMB.obj:              IMB_declare.h IMB_benchmark.h
+IMB_init.obj:	    IMB_declare.h IMB_benchmark.h
+IMB_mem_manager.obj:	    IMB_declare.h IMB_benchmark.h
+IMB_benchlist.obj:        IMB_declare.h IMB_benchmark.h 
+IMB_output.obj:	    IMB_declare.h IMB_benchmark.h
+IMB_warm_up.obj:          IMB_declare.h IMB_benchmark.h
+IMB_chk_diff.obj:         IMB_declare.h IMB_chk_diff.c
+IMB_declare.obj:	    IMB_declare.h
+IMB_g_info.obj: 	    IMB_declare.h IMB_benchmark.h
+IMB_err_handler.obj:	    IMB_declare.h IMB_appl_errors.h
+IMB_init_transfer.obj:    IMB_declare.h IMB_benchmark.h IMB_comments.h
+
+# IMB-MPI1:
+IMB_parse_name_mpi1.obj:  IMB_declare.h IMB_benchmark.h IMB_comments.h
+IMB_pingping.obj:	    IMB_declare.h
+IMB_pingpong.obj:	    IMB_declare.h
+IMB_sendrecv.obj:	    IMB_declare.h
+IMB_exchange.obj:	    IMB_declare.h
+IMB_reduce.obj:	    IMB_declare.h
+IMB_reduce_scatter.obj:   IMB_declare.h
+IMB_allreduce.obj:	    IMB_declare.h
+IMB_bcast.obj:	    IMB_declare.h
+IMB_allgather.obj:        IMB_declare.h
+IMB_allgatherv.obj:       IMB_declare.h
+IMB_alltoall.obj:        IMB_declare.h
+IMB_alltoallv.obj:       IMB_declare.h
+IMB_barrier.obj:	    IMB_declare.h
+IMB_bandwidth.obj:    IMB_declare.h
+
+# IMB-NBC:
+IMB_parse_name_nbc.obj:   IMB_declare.h IMB_benchmark.h IMB_comments.h
+
+# IMB-EXT:
+IMB_parse_name_ext.obj:   IMB_declare.h IMB_benchmark.h IMB_comments.h
+IMB_window.obj:           IMB_declare.h
+IMB_ones_unidir.obj:      IMB_declare.h
+IMB_ones_bidir.obj:       IMB_declare.h
+IMB_ones_accu.obj:        IMB_declare.h
+
+# IMB-IO:
+IMB_parse_name_io.obj:     IMB_declare.h IMB_benchmark.h IMB_comments.h
+IMB_init_file.obj:         IMB_declare.h IMB_benchmark.h IMB_comments.h
+IMB_open_close.obj:        IMB_declare.h IMB_benchmark.h 
+IMB_write.obj:             IMB_declare.h IMB_benchmark.h 
+IMB_read.obj:              IMB_declare.h IMB_benchmark.h 
+
+#IMB-RMA:
+IMB_parse_name_rma.obj:    IMB_declare.h IMB_benchmark.h IMB_comments.h
+IMB_rma_put.obj:           IMB_declare.h IMB_benchmark.h 
+IMB_rma_get.obj:           IMB_declare.h IMB_benchmark.h 
+IMB_rma_atomic.obj:        IMB_declare.h IMB_benchmark.h 

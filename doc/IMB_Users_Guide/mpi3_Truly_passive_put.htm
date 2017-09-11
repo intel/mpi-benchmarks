@@ -1,0 +1,77 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Truly_passive_put</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Truly_passive_put</h1>
+<p>This benchmark verifies whether the MPI implementation supports the truly one-sided communication mode. In this mode, the origin process can complete its access epoch even if the target process is outside the MPI stack.</p>
+<p>The <samp class="codeph">Truly_passive_put</samp> benchmark returns two timing values:</p>
+<ul style="list-style: disc;">
+<li>The time needed for the origin process to complete the <samp class="codeph">MPI_Put</samp> operation while the target process is waiting in the MPI stack in the <samp class="codeph">MPI_Barrier</samp> call.</li>
+<li>The time needed for the origin process to complete the <samp class="codeph">MPI_Put</samp> operation while the target process performs computations outside the MPI stack before the <samp class="codeph">MPI_Barrier</samp> call.</li>
+</ul>
+<p>To ensure measurement correctness, the time spent by the target process in the computation function should be comparable to the time needed for successful completion of the <samp class="codeph">MPI_Put</samp> operation by the origin process.</p>
+<table width="800">
+<col style="width: 25%;">
+<col style="width: 75%;">
+<tr>
+<th>
+<p>Property</p>
+</th>
+<th>
+<p>Description</p>
+</th>
+</tr>
+<tr>
+<td>
+<p>Measured pattern</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_Put/MPI_Win_flush</samp>, while the target process performs computations before the <samp class="codeph">MPI_Barrier</samp> call</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI data type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp> (origin and target)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported timings</p>
+</td>
+<td>
+<p>Bare time</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported throughput</p>
+</td>
+<td>
+<p>None</p>
+</td>
+</tr>
+</table>
+</body>
+</html>

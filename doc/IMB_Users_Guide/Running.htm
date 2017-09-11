@@ -1,0 +1,46 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Running Intel® MPI Benchmarks</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Running Intel® MPI Benchmarks</h1>
+<p>To run the Intel® MPI Benchmarks, use the following command-line syntax:</p>
+<pre>
+mpirun -np &lt;<i>P</i>&gt; IMB-&lt;<i>component</i>&gt; [arguments]
+</pre>
+<p>where</p>
+<ul style="list-style: disc;">
+<li>
+<p><samp class="codeph">&lt;P&gt;</samp> is the number of processes. <samp class="codeph">P=1</samp> is recommended for all I/O and message passing benchmarks except the single transfer ones.</p>
+</li>
+<li>
+<p><samp class="codeph">&lt;component&gt;</samp> is the component-specific suffix that can take <samp class="codeph">MPI1</samp>, <samp class="codeph">EXT</samp>, <samp class="codeph">IO</samp>, <samp class="codeph">NBC</samp>, and <samp class="codeph">RMA</samp> values.</p>
+</li>
+</ul>
+<p>By default, all benchmarks run on <samp class="codeph">Q</samp> <i>active processes</i> defined as follows:</p>
+<p class="codeph">Q=[1,] 2, 4, 8, ..., largest&#160;2<sup>x</sup></p>
+<p>For example, if <samp class="codeph">P=11</samp>, the benchmarks run on <samp class="codeph">Q=[1,]2,4,8,11</samp> active processes. Single transfer <samp class="codeph">IMB-IO</samp> benchmarks run with <samp class="codeph">Q=1</samp>. Single transfer <samp class="codeph">IMB-EXT</samp> and <samp class="codeph">IMB-RMA</samp> benchmarks run&#160;with <samp class="codeph">Q=2</samp>.</p>
+<p>To pass control arguments other than <samp class="codeph">P</samp>, you can use <samp class="codeph">(argc,argv)</samp>. Process 0 in <samp class="codeph">MPI_COMM_WORLD</samp> reads all command-line arguments and broadcasts them to all other processes. Control arguments can define various features, such as time measurement, message length, and selection of communicators. For details, see <a href="Command-Line_Control.htm">Command-Line Control</a>.</p>
+<h2>See Also</h2>
+<p class="seealsoitem"><a href="Command-Line_Control.htm">Command-Line Control</a><br>
+<a href="Parameters_Controlling_IMB.htm">Parameters Controlling Intel® MPI Benchmarks</a></p>
+</body>
+</html>

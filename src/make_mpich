@@ -1,0 +1,27 @@
+# Enter root directory of mpich install
+MPI_HOME=
+
+MPICC=$(shell find ${MPI_HOME} -name mpicc -print)
+
+NULL_STRING :=
+ifneq (,$(findstring /bin/mpicc,${MPICC}))
+MPI_INCLUDE := -I${MPI_HOME}/include
+else
+$(error Variable MPI_HOME="${MPI_HOME}" does not seem to contain a valid mpicc)
+endif
+LIB_PATH    =
+LIBS        = 
+CC          = ${MPI_HOME}/bin/mpicc 
+OPTFLAGS    = -O3
+CLINKER     = ${CC}
+LDFLAGS     =
+CPPFLAGS    = 
+
+IMB-MPI1 = IMB-MPI1
+IMB-EXT  = IMB-EXT
+IMB-IO   = IMB-IO
+IMB-NBC  = IMB-NBC
+IMB-RMA  = IMB-RMA
+
+export MPI_INCLUDE CC LIB_PATH LIBS OPTFLAGS CLINKER LDFLAGS CPPFLAGS IMB-MPI1 IMB-EXT IMB-IO IMB-NBC IMB-RMA
+include Makefile.base

@@ -1,0 +1,39 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Synchronization</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Synchronization</h1>
+<p>Before the actual benchmark measurement is performed, several consecutive 
+ barrier calls are made to ensure perfect processes synchronization. The 
+ <samp class="codeph">N_BARR</samp> constant defines the number of consecutive 
+ calls. The constant is defined in <samp class="codeph">IMB_settings.h</samp> 
+ and <samp class="codeph">IMB_settings_io.h</samp>, with the current value 
+ of 2. </p>
+<p>The barrier calls are either ordinary <samp class="codeph">MPI_Barrier(comm)</samp> 
+ calls, or <samp class="codeph">IMB_barrier(comm)</samp> calls (in the 
+ case the <samp class="codeph"><a href="Command-Line_Control.htm#imb_barrier">–imb_barrier</a></samp> 
+ option is specified).</p>
+<p>See figure <a href="Control_Flow.htm">Control flow of IMB</a> to understand 
+ the way all the processes are synchronized.</p>
+</body>
+</html>

@@ -1,0 +1,258 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>IMB-MPI-2 Benchmark Classification</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:disc; }
+i.hcp2 { font-style:normal; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>IMB-MPI-2 Benchmark Classification</h1>
+<p>Intel® MPI Benchmarks introduces three classes of benchmarks:</p>
+<ul class="hcp1">
+<li>
+<p>Single Transfer</p>
+</li>
+<li>
+<p>Parallel Transfer</p>
+</li>
+<li>
+<p>Collective</p>
+</li>
+</ul>
+<p>Each class interprets results in a different way.</p>
+<div class="Note">
+<h3 class="NoteTipHead">Note</h3>
+<p>The following benchmarks do not belong to any class:</p>
+<ul class="hcp1">
+<li>
+<p><samp class="codeph">Window</samp> - measures overhead of one-sided communications for the <samp class="codeph">MPI_Win_create&#160;/&#160;MPI_Win_free</samp> functions</p>
+</li>
+<li>
+<p><samp class="codeph">Open_close</samp> - measures overhead of input/output operations for the <samp class="codeph">MPI_File_open&#160;/&#160;MPI_File_close</samp> functions</p>
+</li>
+</ul>
+</div>
+<h2><a name="Single_Transfer1" id="Single_Transfer1">Single Transfer Benchmarks</a></h2>
+<p>This class contains benchmarks of functions that operate on a single data element transferred between <i class="hcp2">one</i> source and <i class="hcp2">one</i> target. For MPI-2 benchmarks, the source of the data transfer can be an MPI process or, in the case of <samp class="codeph">Read</samp> benchmarks, an MPI file. The target can be an MPI process or an MPI file.</p>
+<p>For I/O benchmarks, the single transfer is defined as an operation between an MPI process and an individual window or a file.</p>
+<ul class="hcp1">
+<li>
+<p>Single transfer <samp class="codeph">IMB-EXT</samp> benchmarks only run with two active processes.</p>
+</li>
+<li>
+<p>Single transfer <samp class="codeph">IMB-IO</samp> benchmarks only run with one active process.</p>
+</li>
+</ul>
+<h2><a name="Parallel_Transfer1" id="Parallel_Transfer1">Parallel Transfer Benchmarks</a></h2>
+<p>This class contains benchmarks of functions that operate on several processes in parallel. The benchmark timings are produced under a global load. The number of participating processes is arbitrary.</p>
+<p>In the Parallel Transfer, more than one process participates in the overall pattern.</p>
+<p>The final time is measured as the maximum of timings for&#160;all single processes. The throughput is related to that time and the overall amount of transferred data (sum over all processes).</p>
+<h2><a name="Collective_Benchmarks1" id="Collective_Benchmarks1">Collective Benchmarks</a></h2>
+<p>This class contains benchmarks of functions that are collective as provided by the MPI standard. The final time is measured as the maximum of timings for all single processes. The throughput is not calculated.</p>
+<h2>MPI-2 Benchmarks Classification</h2>
+<table width="600">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<tr>
+<th>
+<p>Single Transfer</p>
+</th>
+<th>
+<p>Parallel Transfer</p>
+</th>
+<th>
+<p>Collective</p>
+</th>
+<th>
+<p>Other</p>
+</th>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">Unidir_Get</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Unidir_Get</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Accumulate</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Window</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">Unidir_Put</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Unidir_Put</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Accumulate</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Window</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">Bidir_Get</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Bidir_Get</samp></p>
+</td>
+<td>
+<p>&#160;</p>
+</td>
+<td>
+<p>&#160;</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">Bidir_Put</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi_Bidir_Put</samp></p>
+</td>
+<td>
+<p>&#160;</p>
+</td>
+<td>
+<p>&#160;</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">S_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">P_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Multi-C_[I]Write_indv</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">S_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">P_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Write_indv</samp></p>
+<p><samp class="codeph">Multi-C_[I]Write_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">Open_close</samp></p>
+<p><samp class="codeph">Multi-Open_close</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">S_[I]Read_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">P_[I]Read_indv</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Read_indv</samp></p>
+<p><samp class="codeph">Multi-C_[I]Read_indv</samp></p>
+</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">S_[I]Write_expl</samp></p>
+</td>
+<td>
+<p><samp class="codeph">P_[I]Write_expl</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Write_expl</samp></p>
+<p><samp class="codeph">Multi-C_[I]Write_expl</samp></p>
+</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>
+<p><samp class="codeph">S_[I]Read_expl</samp></p>
+</td>
+<td>
+<p><samp class="codeph">P_[I]Read_expl</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Read_expl</samp></p>
+<p><samp class="codeph">Multi-C_[I]Read_expl</samp></p>
+</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>&#160;</td>
+<td>
+<p><samp class="codeph">P_[I]Write_shared</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Write_shared</samp></p>
+<p><samp class="codeph">Multi-C_[I]Write_shared</samp></p>
+</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>&#160;</td>
+<td>
+<p><samp class="codeph">P_[I]Read_shared</samp></p>
+</td>
+<td>
+<p><samp class="codeph">C_[I]Read_shared</samp></p>
+<p><samp class="codeph">Multi-C_[I]Write_shared</samp></p>
+</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>&#160;</td>
+<td>
+<p><samp class="codeph">P_[I]Write_priv</samp></p>
+</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>&#160;</td>
+<td>
+<p><samp class="codeph">P_[I]Read_priv</samp></p>
+</td>
+<td>&#160;</td>
+<td>&#160;</td>
+</tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,1 @@
+var imb_link="../../../../../imb/doc/IMB_Users_Guide.html";

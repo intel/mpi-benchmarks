@@ -1,0 +1,97 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>MPI-2 Benchmark Modes</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:disc; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>MPI-2 Benchmark Modes</h1>
+<p>MPI-2 benchmarks can run in the following modes:</p>
+<ul class="hcp1">
+<li>
+<p>Blocking/nonblocking mode. These modes apply to the <samp class="codeph">IMB-IO</samp> benchmarks only. For details, see sections <a href="IMB-IO_Benchmarks.htm">IMB-IO Blocking Benchmarks</a> and <a href="Non-Blocking_I_O_Benchmarks.htm">IMB-IO Nonblocking Benchmarks</a>.</p>
+</li>
+<li>
+<p><a name="Aggregate_Non_Aggregate" id="Aggregate_Non_Aggregate">Aggregate/non-aggregate mode</a>. Non-aggregate mode is not available for nonblocking flavors of <samp class="codeph">IMB-IO</samp> benchmarks.</p>
+</li>
+</ul>
+<p>The following example illustrates aggregation of M transfers for IMB-EXT and blocking Write benchmarks:</p>
+<pre>
+Select a repetition count M
+time = MPI Wtime();
+issue M disjoint transfers
+assure completion of all transfers
+time = (MPI_Wtime() - time) / M
+</pre>
+<p>In this example:</p>
+<ul class="hcp1">
+<li>
+<p><samp class="codeph">M</samp> is a repetition count:</p>
+<ul class="hcp1">
+<li>
+<p><samp class="codeph">M&#160;=&#160;1</samp>&#160;in the non-aggregate&#160;mode</p>
+</li>
+<li>
+<p><samp class="codeph">M</samp> <samp class="codeph">= n_sample</samp> in the aggregate mode. For the exact definition of <samp class="codeph">n_sample</samp> see the <a href="The_Actual_Benchmark.htm">Actual Benchmarking</a> section.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>A transfer is issued by the corresponding one-sided communication call (for <samp class="codeph">IMB-EXT</samp>) and by an <samp class="codeph">MPI-IO</samp> write call (for <samp class="codeph">IMB-IO</samp>).</p>
+</li>
+<li>
+<p><i>Disjoint</i> means that multiple transfers (if <samp class="codeph">M</samp>&gt;1) are to/from disjoint sections of the window or file. This permits to avoid misleading optimizations when using the same locations for multiple transfers.</p>
+</li>
+</ul>
+<p>The variation of <samp class="codeph">M</samp> provides important information about the system and the MPI implementation, crucial for application code optimizations. For example, the following possible internal strategies of an implementation could influence the timing outcome of the above pattern.</p>
+<ul class="hcp1">
+<li>
+<p>Accumulative strategy. Several successive transfers (up to <samp class="codeph">M</samp> in the example above) are accumulated without an immediate completion. At certain stages, the accumulated transfers are completed as a whole. This approach may save time of expensive synchronizations. This strategy is expected to produce better results in the aggregate case as compared to the non-aggregate one.</p>
+</li>
+<li>
+<p>Non-accumulative strategy. Every Transfer is completed before the return from the corresponding function. The time of expensive synchronizations is taken into account. This strategy is expected to produce equal results for aggregate and non-aggregate cases.</p>
+</li>
+</ul>
+<h2>Assured Completion of Transfers</h2>
+<p>Following the MPI standard, <i>assured completion of transfers</i> is the minimum sequence of operations after which all processes of the file communicator have a consistent view after a write.</p>
+<p>The aggregate and non-aggregate modes differ in when the assured completion of data transfers takes place:</p>
+<ul class="hcp1">
+<li>
+<p>after each transfer (non-aggregate mode)</p>
+</li>
+<li>
+<p>after a bunch of multiple transfers (aggregate mode)</p>
+</li>
+</ul>
+<p>For Intel® MPI Benchmarks, assured completion means the following:</p>
+<ul class="hcp1">
+<li>
+<p>For IMB-EXT benchmarks, <samp class="codeph">MPI_Win_fence</samp></p>
+</li>
+<li>
+<p>For IMB-IO Write benchmarks, a triplet <samp class="codeph">MPI_File_sync/MPI_Barrier(file_communicator)/MPI_File_sync</samp>. This fixes the non-sufficient definition in the Intel® MPI Benchmarks 3.0.</p>
+</li>
+</ul>
+</body>
+</html>

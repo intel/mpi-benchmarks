@@ -1,0 +1,87 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Bidir_Get</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+img.hcp1 { border:none; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Bidir_Get</h1>
+<p>This is the benchmark for the <samp class="codeph">MPI_Get</samp> function, with bidirectional transfers. Below see the basic definitions and a schematic view of the pattern.</p>
+<h2>Bidir_Get Definition</h2>
+<table width="600">
+<col style="width: 33.333%;">
+<col style="width: 33.333%;">
+<tr>
+<th>
+<p>Property</p>
+</th>
+<th>
+<p>Description</p>
+</th>
+</tr>
+<tr>
+<td>
+<p>Measured pattern</p>
+</td>
+<td>
+<p>As symbolized between <img src="IMB_Users_Guide_files/arrows.GIF" alt="" width="44" height="23" border="0" class="hcp1"> in the figure below. This benchmark runs on two active processes (<samp class="codeph">Q=2</samp>).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI routine</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_Get</samp></p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI data type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp>, for both origin and target</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported timings</p>
+</td>
+<td>
+<p><samp class="codeph">t=t(M)</samp> (in <samp class="codeph">&#956;sec</samp>) as indicated in the figure below, non-aggregate (<samp class="codeph">M=1</samp>)and aggregate (<samp class="codeph">M=n_sample</samp>). For details, see <a href="The_Actual_Benchmark.htm">Actual Benchmarking</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported throughput</p>
+</td>
+<td>
+<p><samp class="codeph">X/t</samp>, aggregate and non-aggregate</p>
+</td>
+</tr>
+</table>
+<h2>Bidir_Get Pattern</h2>
+<p><img src="IMB_Users_Guide_files/image09.png" alt="" width="463" height="226" border="0" class="hcp1"></p>
+</body>
+</html>

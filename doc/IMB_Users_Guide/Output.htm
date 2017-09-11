@@ -1,0 +1,68 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Output</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:disc; }
+-->
+</style>
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Output</h1>
+<p>The benchmark output includes the following information:</p>
+<ul class="hcp1">
+	<li><p>General information:</p>
+	<p>machine, system, release, and version are obtained by <samp class="codeph">IMB_g_info.c.</samp></p></li>
+	<li><p>The calling sequence (command-line flags) are repeated in the 
+	 output chart</p></li>
+	<li><p>Results for the non-multiple mode</p></li>
+</ul>
+<p>After a benchmark completes, three time values are available, extended 
+ over the group of active processes:</p>
+<ul class="hcp1">
+	<li><p><samp class="codeph">Tmax</samp> - the maximum time</p></li>
+	<li><p><samp class="codeph">Tmin</samp> - the minimum time</p></li>
+	<li><p><samp class="codeph">Tavg</samp> - the average time</p></li>
+</ul>
+<p>The time unit is <samp class="codeph">&#956;.</samp></p>
+<p>Single Transfer Benchmarks:</p>
+<p><samp class="codeph">Display X = message size [bytes], T=Tmax[&#956;sec], 
+ bandwidth = X / T</samp></p>
+<p>Parallel Transfer Benchmarks:</p>
+<p><samp class="codeph">Display X = message; size, Tmax, Tmin and Tavg, 
+ bandwidth based on time = Tmax</samp></p>
+<div class="Note">
+	<h3 class="NoteTipHead">Note</h3>
+	<p>IMB-RMA benchmarks show only bare timings for Parallel Transfer 
+	 benchmarks.</p>
+</div>
+<p>Collective Benchmarks:</p>
+<p><samp class="codeph">Display X = message size;(except for Barrier), 
+ Tmax, Tmin; and Tavg</samp></p>
+<p>Results for the multiple mode</p>
+<ul class="hcp1">
+	<li><p>-multi 0: the same as above, with min, avg over all groups.</p></li>
+	<li><p>-multi 1: the same for all groups, max, min, avg over single 
+	 groups.</p></li>
+</ul>
+</body>
+</html>

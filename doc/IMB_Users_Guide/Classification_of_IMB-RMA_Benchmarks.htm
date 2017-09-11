@@ -1,0 +1,183 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Classification of IMB-RMA Benchmarks</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ul.hcp1 { list-style:circle; }
+li.hcp2 { list-style:disc; }
+p.hcp3 { font-weight:bold; }
+-->
+</style>
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Classification of IMB-RMA Benchmarks</h1>
+<p>All the <samp class="codeph">IMB-RMA</samp> benchmarks fall into the 
+ following categories:</p>
+<p><b>Single Transfer</b></p>
+<p>In these benchmarks, one process accesses the memory of another process, 
+ in unidirectional or bidirectional manner. Single Transfer IMB-RMA benchmarks 
+ only run on two active processes. Throughput values are measured in MBps 
+ and can be calculated as follows:</p>
+<p><samp class="codeph">throughput = X/</samp><samp class="codeph">time,</samp></p>
+<p>where</p>
+<ul class="hcp1">
+	<li class="hcp2"><samp class="codeph">time</samp> is measured 
+	 in <samp class="codeph">&#956;sec</samp>.</li>
+	<li class="hcp2"><samp class="codeph">X</samp> is the 
+	 length of a message, in bytes.</li>
+</ul>
+<p class="hcp3">Multiple Transfer</p>
+<p>In these benchmarks, one process accesses the memory of several other 
+ processes.</p>
+<p>Throughput values are measured in MBps and can be calculated as follows:</p>
+<p><samp class="codeph">throughput = X/</samp><samp class="codeph">time 
+ * N</samp>, where</p>
+<ul class="hcp1">
+	<li class="hcp2"><samp class="codeph">time</samp> is measured 
+	 in <samp class="codeph">&#956;sec</samp>.</li>
+	<li class="hcp2"><samp class="codeph">X</samp> is the 
+	 length of a message, in bytes.</li>
+	<li class="hcp2"><samp class="codeph">N</samp> is the 
+	 number of target processes. 
+	<div class="Note">
+		<h3 class="NoteTipHead">Note</h3>
+		<p>The final throughput value is multiplied by the amount of target 
+		 processes since the transfer is performed to every process except 
+		 the origin process itself.</p>
+	</div></li>
+</ul>
+<p class="hcp3">Parallel Transfer</p>
+<p>This class contains benchmarks that operate on several processes in 
+ parallel. These benchmarks show bare timing values: maximum, minimum, 
+ and the average time among all the ranks participating in the benchmark 
+ measurements.</p>
+<p>The table below lists all <samp class="codeph">IMB-RMA</samp> benchmarks 
+ and specifies their properties:</p>
+<table width="100%">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<tr>
+		<th><p>Benchmark</p></th>
+		<th><p>Type</p></th>
+		<th><p>Aggregated Mode</p></th>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Unidir_put</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Unidir_get</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Bidir_put</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Bidir_get</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">One_put_all</samp></p></td>
+		<td><p>Multiple Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">One_get_all</samp></p></td>
+		<td><p>Multiple Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">All_put_all</samp></p></td>
+		<td><p>Parallel Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">All_get_all</samp></p></td>
+		<td><p>Parallel Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Put_local</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Put_all_local</samp></p></td>
+		<td><p>Multiple Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Exchange_put</samp></p></td>
+		<td><p>Parallel Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Exchange_get</samp></p></td>
+		<td><p>Parallel Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Accumulate</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Get_accumulate</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Fetch_and_op</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Compare_and_swap</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Truly_passive_put</samp></p></td>
+		<td><p>Single Transfer*</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Get_local</samp></p></td>
+		<td><p>Single Transfer</p></td>
+		<td><p>Supported</p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">Get_all_local</samp></p></td>
+		<td><p>Multiple Transfer</p></td>
+		<td><p>N/A</p></td>
+	</tr>
+</table>
+<p>* The output format differs from the regular Single Transfer output. 
+ For details, see <a href="mpi3_Truly_passive_put.htm">Truly_passive_put</a>.</p>
+</body>
+</html>

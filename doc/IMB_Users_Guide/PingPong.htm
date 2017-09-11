@@ -1,0 +1,72 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>PingPong</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+img.hcp1 { border:none; }
+-->
+</style>
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>PingPong, PingPongSpecificSource, PingPongAnySource</h1>
+<p>Use <samp class="codeph">PingPong</samp>, <samp class="codeph">PingPongSpecificSource</samp>, 
+ and <samp class="codeph">PingPongAnySource</samp> for measuring startup 
+ and throughput of a single message sent between two processes. <samp class="codeph">PingPongAnySource</samp> 
+ uses the <samp class="codeph">MPI_ANY_SOURCE</samp> value for destination 
+ rank, while <samp class="codeph">PingPong</samp> and <samp class="codeph">PingPongSpecificSource</samp> 
+ use an explicit value.&#160;</p>
+<h2>PingPong Definition</h2>
+<table width="600">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<tr>
+		<th><p>Property</p></th>
+		<th><p>Description</p></th>
+	</tr>
+	<tr>
+		<td><p>Measured pattern</p></td>
+		<td><p>As symbolized between <img src="IMB_Users_Guide_files/arrows.GIF" alt="" width="44" height="23" border="0" class="hcp1"> 
+		 in the figure below. This benchmark runs on two active processes 
+		 (<samp class="codeph">Q=2).</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>MPI routines</p></td>
+		<td><p><samp class="codeph">MPI_Send, MPI_Recv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>MPI data type</p></td>
+		<td><p><samp class="codeph">MPI_BYTE</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>Reported timings</p></td>
+		<td><p><samp class="codeph">time=&#916;t/2</samp> (in <samp class="codeph">&#956;sec</samp>) 
+		 as indicated in the figure below.</p></td>
+	</tr>
+	<tr>
+		<td><p>Reported throughput</p></td>
+		<td><p><samp class="codeph">X/time</samp></p></td>
+	</tr>
+</table>
+<h2>PingPong Pattern</h2>
+<p><img src="IMB_Users_Guide_files/image01.png" alt="" width="475" height="345" border="0" class="hcp1"></p>
+</body>
+</html>

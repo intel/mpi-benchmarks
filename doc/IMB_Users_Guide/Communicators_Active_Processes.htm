@@ -1,0 +1,28 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Communicators, Active Processes</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Communicators, Active Processes</h1>
+<p>Communicator management is repeated in every "<samp class="codeph">select MY_COMM</samp>" step. If it exists, the previous communicator is freed. When you run <samp class="codeph">Q&lt;=P</samp> processes, the first <samp class="codeph">Q</samp> ranks of <samp class="codeph">MPI_COMM_WORLD</samp> are put into one group, and the remaining <samp class="codeph">P-Q</samp> get <samp class="codeph">MPI_COMM_NULL</samp>.</p>
+<p>The group of <samp class="codeph">MY_COMM</samp> calls the active processes group.</p>
+</body>
+</html>

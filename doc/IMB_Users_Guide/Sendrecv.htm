@@ -1,0 +1,76 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Sendrecv</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+img.hcp1 { border:none; }
+-->
+</style>
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Sendrecv</h1>
+<p>The <samp class="codeph">Sendrecv</samp> benchmark is based on <samp 
+	 class="codeph">MPI_Sendrecv</samp>. In this benchmark, the processes 
+ form a periodic communication chain. Each process sends a message to the 
+ right neighbor and receives a message from the left neighbor in the chain. 
+ The turnover count is two messages per sample (one in, one out) for each 
+ process.</p>
+<p>In the case of two processes, <samp class="codeph">Sendrecv</samp> is 
+ equivalent to the <samp class="codeph">PingPing</samp> benchmark of <samp 
+	 class="codeph">IMB1.x.</samp> For two processes, it reports the bidirectional 
+ bandwidth of the system, as obtained by the optimized <samp class="codeph">MPI_Sendrecv</samp> 
+ function.&#160;</p>
+<h2>Sendrecv Definition</h2>
+<table width="600">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<tr>
+		<th><p>Property</p></th>
+		<th><p>Description</p></th>
+	</tr>
+	<tr>
+		<td><p>Measured pattern</p></td>
+		<td><p>As symbolized between <img src="IMB_Users_Guide_files/arrows.GIF" alt="" width="44" height="23" border="0" class="hcp1"> 
+		 in the figure below.</p></td>
+	</tr>
+	<tr>
+		<td><p>MPI routines</p></td>
+		<td><p><samp class="codeph">MPI_Sendrecv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>MPI data type</p></td>
+		<td><p><samp class="codeph">MPI_BYTE</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>Reported timings</p></td>
+		<td><p><samp class="codeph">time=&#916;t</samp> (in <samp class="codeph">&#956;sec</samp>) 
+		 as indicated in the figure below.</p></td>
+	</tr>
+	<tr>
+		<td><p>Reported throughput</p></td>
+		<td><p><samp class="codeph">2X/time</samp></p></td>
+	</tr>
+</table>
+<h2><a name="Figure_4-4" id="Figure_4-4"></a>Sendrecv Pattern</h2>
+<p><img src="IMB_Users_Guide_files/image03.png" alt="" width="489" height="224" border="0" class="hcp1"></p>
+</body>
+</html>

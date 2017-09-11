@@ -1,0 +1,93 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Other Preparations for Benchmarking</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+ol.hcp1 { list-style:decimal; }
+-->
+</style>
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Other Preparations for Benchmarking</h1>
+<h2>Window (IMB-EXT and IMB-RMA)</h2>
+<ol class="hcp1">
+<li>An <samp class="codeph">Info</samp> is set and <samp class="codeph">MPI_Win_create</samp> is called, creating a window of size <samp class="codeph">X</samp> for <samp class="codeph">MY_COMM</samp>.</li>
+<li>For <samp class="codeph">IMB-EXT</samp>, <samp class="codeph">MPI_Win_fence</samp> is called to start an access epoch.
+<div class="Note">
+<h3 class="NoteTipHead">Note</h3>
+<p><samp class="codeph">IMB-RMA</samp> benchmarks do not require <samp class="codeph">MPI_Win_fence</samp> since they use passive target communication mode.</p>
+</div>
+</li>
+</ol>
+<h2>File (IMB-IO)</h2>
+<p>To initialize the IMB-IO file, follow these steps:</p>
+<ol class="hcp1">
+<li>
+<p>Select a file name. This parameter is located in the <samp class="codeph">IMB_settings_io.h</samp> include file. In the case of a <samp class="codeph">multi-&lt;MPI command&gt;</samp>, a suffix <samp class="codeph">_g&lt;groupid&gt;</samp> is appended to the name. If the file name is per process, a second event suffix <samp class="codeph">_&lt;rank&gt;</samp> is appended.</p>
+</li>
+<li>
+<p>Delete the file if it exists: open the file with <samp class="codeph">MPI_MODE_DELETE_ON_CLOSE</samp>&#160;and&#160;close&#160;it. The file is deleted.</p>
+</li>
+<li>
+<p>Select a communicator to open the file: <samp class="codeph">MPI_COMM_SELF</samp> for <samp class="codeph">S_benchmarks</samp> and <samp class="codeph">P_[ACTION]_priv</samp>.</p>
+</li>
+<li>
+<p>Select a mode: <samp class="codeph">MPI_MODE_CREATE | MPI_MODE_RDWR</samp></p>
+</li>
+<li>
+<p>Select an <samp class="codeph">info</samp> routine as explained below.</p>
+</li>
+</ol>
+<h2>Info</h2>
+<p>Intel® MPI Benchmarks uses an external function <samp class="codeph">User_Set_Info</samp> which you implement for your local system. The default version is:</p>
+<pre>
+#include mpi.h
+void User_Set_Info ( MPI_Info* opt_info)
+#ifdef MPIIO
+{/*  Set info for all MPI_File_open calls  */
+*opt_info = MPI_INFO_NULL;
+}
+#endif
+#ifdef EXT
+{/*  Set info for all MPI_Win_create calls  */
+*opt_info = MPI_INFO_NULL;
+}
+#endif
+</pre>
+<p>The Intel® MPI Benchmarks has no assumptions or restrictions on the implementation of this routine.</p>
+<h2>View (IMB-IO)</h2>
+<p>The file view is determined by the following settings:</p>
+<ul style="list-style: disc;">
+<li>
+<p><samp class="codeph">disp&#160;=&#160;0,</samp></p>
+</li>
+<li>
+<p><samp class="codeph">datarep&#160;=&#160;native</samp></p>
+</li>
+<li>
+<p><samp class="codeph">etype, filetypeas</samp> defined in the <a href="IMB-IO_Benchmarks.htm">IMB-IO Blocking Benchmarks</a> section</p>
+</li>
+<li>
+<p><samp class="codeph">info</samp> as defined in the "Info" section above</p>
+</li>
+</ul>
+</body>
+</html>

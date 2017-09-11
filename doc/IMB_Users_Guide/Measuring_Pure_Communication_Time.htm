@@ -1,0 +1,43 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Measuring Pure Communication Time</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Measuring Pure Communication Time</h1>
+<p>To measure pure execution time of nonblocking collective operations, use the <samp class="codeph">_pure</samp> flavor of the <samp class="codeph">IMB-NBC</samp> benchmarks. The benchmark methodology is consistent with the one used for regular <a href="Collective_Benchmarks.htm">collective operations</a>:</p>
+<ul style="list-style: disc;">
+<li>Each rank performs the predefined amount of iterations and calculates the mean value.</li>
+<li>The basic MPI data type for all messages is <samp class="codeph">MPI_BYTE</samp> for pure data movement functions and <samp class="codeph">MPI_FLOAT</samp> for reductions.</li>
+<li>If the operation requires the root process to be specified, the root process is selected round-robin through iterations.&#160;</li>
+</ul>
+<p>These benchmarks are not included into the default list of <samp class="codeph">IMB-NBC</samp> benchmarks. To run a benchmark, specify the particular benchmark name or use the <samp class="codeph">–include</samp> command-line parameter. For example:</p>
+<pre>
+$ mpirun -np 2 IMB-NBC Ialltoall_pure
+$ mpirun -np 2 IMB-NBC -include Iallgather_pure Ialltoall_pure
+</pre>
+<h2>Displaying Results</h2>
+<p>Pure nonblocking collective benchmarks show bare timing values. Since execution time may vary for different ranks, three timing values are shown: maximum, minimum, and the average time among all the ranks participating in the benchmark measurements. &#160;</p>
+<h2>See Also</h2>
+<p class="seealsoitem"><a href="IMB_NBC_Benchmarks.htm">IMB-NBC Benchmarks</a><br>
+<a href="Measuring_Communication_and_Computation_Overlap.htm">Measuring Communication and Computation Overlap</a><br>
+<a href="Command-Line_Control.htm">Command-Line Control</a><br></p>
+</body>
+</html>

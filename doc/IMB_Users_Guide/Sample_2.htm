@@ -1,0 +1,140 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Sample 2 - IMB-MPI1 PingPing Allreduce</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Sample 2 - IMB-MPI1 PingPing Allreduce</h1>
+<p>The following example shows the results of the <samp class="codeph">PingPing</samp></p>
+<pre>
+&lt;..&gt; 
+ -np 6 IMB-MPI1
+  pingping allreduce -map 2x3 -msglen Lengths -multi 0
+Lengths file:
+0
+100
+1000
+10000
+100000
+1000000
+#---------------------------------------------------
+# Intel ® MPI Benchmark Suite V3.2.2, MPI1 part
+#---------------------------------------------------
+# Date                  : Thu Sep 4 13:26:03 2008
+# Machine               : x86_64
+# System                : Linux
+# Release               : 2.6.9-42.ELsmp
+# Version               : #1 SMP Wed Jul 12 23:32:02 EDT 2006
+# MPI Version           : 2.0
+# MPI Thread Environment: MPI_THREAD_SINGLE<br>
+# New default behavior from Version 3.2 on:
+# the number of iterations per message size is cut down
+# dynamically when a certain run time (per message size sample)
+# is expected to be exceeded. Time limit is defined by variable
+# SECS_PER_SAMPLE (=&gt; IMB_settings.h)
+# or through the flag =&gt; -time<br> 
+# Calling sequence was:
+# IMB-MPI1 pingping allreduce -map 3x2 -msglen Lengths
+#          -multi 0<br>
+# Message lengths were user-defined
+#
+# MPI_Datatype                        :   MPI_BYTE
+# MPI_Datatype for reductions    :   MPI_FLOAT
+# MPI_Op                                :   MPI_SUM 
+#
+#
+# List of Benchmarks to run:
+# (Multi-)PingPing
+# (Multi-)Allreduce
+#--------------------------------------------------------------
+# Benchmarking Multi-PingPing
+# ( 3 groups of 2 processes each running simultaneously )
+# Group  0:     0    3
+#
+# Group  1:     1    4
+#
+# Group  2:     2    5
+#
+#--------------------------------------------------------------
+# bytes #rep.s t_min[&#956;sec] t_max[&#956;sec] t_avg[&#956;sec] Mbytes/sec
+      0   1000       ..          ..          ..          ..
+    100   1000      
+   1000   1000      
+  10000   1000      
+ 100000    419     
+1000000     41    
+#--------------------------------------------------------------
+# Benchmarking Multi-Allreduce
+# ( 3 groups of 2 processes each running simultaneously )
+# Group  0:     0    3
+#
+# Group  1:     1    4
+#
+# Group  2:     2    5
+#
+#--------------------------------------------------------------
+#bytes #repetitions  t_min[&#956;sec]  t_max[&#956;sec]  t_avg[&#956;sec]
+      0         1000         ..          ..           ..
+    100         1000       
+   1000         1000       
+  10000         1000       
+ 100000          419      
+1000000           41     
+  
+#--------------------------------------------------------------
+# Benchmarking Allreduce
+# 
+#processes = 4; rank order (rowwise):
+#     0    3
+#
+#     1    4
+#
+# ( 2 additional processes waiting in MPI_Barrier)
+#--------------------------------------------------------------
+# bytes #repetitions  t_min[&#956;sec]  t_max[&#956;sec]  t_avg[&#956;sec]
+      0         1000         ..          ..           ..
+    100         1000       
+   1000         1000       
+  10000         1000      
+ 100000          419     
+1000000           41  
+#--------------------------------------------------------------
+# Benchmarking Allreduce
+# 
+# processes = 6; rank order (rowwise):
+#     0    3
+#
+#     1    4
+#
+#     2    5
+#
+#--------------------------------------------------------------
+# bytes #repetitions  t_min[&#956;sec]  t_max[&#956;sec]  t_avg[&#956;sec]
+      0         1000         ..          ..           ..
+    100         1000       
+   1000         1000       
+  10000         1000      
+ 100000          419     
+1000000           41  
+ 
+# All processes entering MPI_Finalize 
+</pre>
+</body>
+</html>

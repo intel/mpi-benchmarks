@@ -1,0 +1,19 @@
+LIB_PATH    =
+LIBS        =
+CC          = mpiicc 
+ifeq (,$(shell which ${CC}))
+$(error ${CC} is not defined through the PATH environment variable setting. Please try sourcing an Intel(R) Cluster Tools script file such as "mpivars.[c]sh" or "ictvars.[c]sh")
+endif
+OPTFLAGS    = 
+CLINKER     = ${CC} 
+LDFLAGS     =  
+CPPFLAGS    =
+
+IMB-MPI1 = IMB-MPI1
+IMB-IO   = IMB-IO
+IMB-EXT  = IMB-EXT
+IMB-NBC  = IMB-NBC
+IMB-RMA  = IMB-RMA
+
+export CC LIB_PATH LIBS OPTFLAGS CLINKER LDFLAGS CPPFLAGS IMB-MPI1 IMB-IO IMB-EXT IMB-NBC IMB-RMA
+include Makefile.base

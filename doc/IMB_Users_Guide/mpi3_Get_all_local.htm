@@ -1,0 +1,75 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Get_all_local</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Get_all_local</h1>
+<p>This benchmark tests the <samp class="codeph">MPI_Get</samp> operation where one active process obtains data from all other processes. All target processes are waiting in the <samp class="codeph">MPI_Barrier</samp> call, while the active process performs the transfers. The completion of the origin process is ensured by the <samp class="codeph">MPI_Win_flush_local_all</samp> operation. Since local completion of the <samp class="codeph">MPI_Get</samp> operation is semantically equivalent to a regular completion, the benchmark flow is very similar to the <samp class="codeph">One_get_all</samp> benchmark.</p>
+<div class="Note">
+<h3 class="NoteTipHead">Note</h3>
+<p>This benchmark is not enabled in <samp class="codeph">IMB-RMA</samp> by default. Specify the benchmark name in the command line or use the <samp class="codeph">–include</samp> command-line parameter to run this benchmark.</p>
+</div>
+<table width="800">
+<col style="width: 25%;">
+<col style="width: 75%;">
+<tr>
+<th>
+<p>Property</p>
+</th>
+<th>
+<p>Description</p>
+</th>
+</tr>
+<tr>
+<td>
+<p>Measured pattern</p>
+</td>
+<td>
+<p><samp class="codeph">(N*MPI_Get)/MPI_Win_flush_local_all</samp>, where <samp class="codeph">N</samp> is the number of target processes</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI data type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp> (origin and target)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported timings</p>
+</td>
+<td>
+<p>Bare time</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported throughput</p>
+</td>
+<td>
+<p><samp class="codeph">MBps</samp></p>
+</td>
+</tr>
+</table>
+</body>
+</html>

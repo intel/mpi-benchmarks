@@ -1,0 +1,126 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Sample 3 - IMB-IO p_write_indv</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Sample 3 - IMB-IO p_write_indv</h1>
+<p>The following example shows the results of the <samp class="codeph">p_write_indv</samp> benchmark:</p>
+<pre>
+&lt;..&gt; IMB-IO -np 2 p_write_indv -npmin 2
+#---------------------------------------------------
+# Date                  : Thu Sep  4 13:43:34 2008
+# Machine               : x86_64
+# System                : Linux
+# Release               : 2.6.9-42.ELsmp
+# Version               : #1 SMP Wed Jul 12 23:32:02 EDT 2006
+# MPI Version           : 2.0
+# MPI Thread Environment: MPI_THREAD_SINGLE
+ 
+# New default behavior from Version 3.2 on:
+# the number of iterations per message size is cut down
+# dynamically when a certain run time (per message size sample)
+# is expected to be exceeded. Time limit is defined by variable
+# SECS_PER_SAMPLE (=&gt; IMB_settings.h)
+# or through the flag =&gt; -time 
+ 
+# Calling sequence was:
+# ./IMB-IO p_write_indv -npmin 2
+# Minimum io portion in bytes:   0
+# Maximum io portion in bytes:   16777216
+#
+#
+#
+# List of Benchmarks to run:
+# P_Write_Indv
+#--------------------------------------------------------------
+# Benchmarking P_Write_Indv
+# #processes = 2
+#--------------------------------------------------------------
+#
+#    MODE: AGGREGATE
+#
+  #bytes #rep.s t_min[&#956;sec]     t_max     t_avg Mb/sec
+       0     50       ..         ..        ..      ..
+       1     50      
+       2     50     
+       4     50     
+       8     50     
+      16     50     
+      32     50     
+      64     50     
+     128     50     
+     256     50     
+     512     50     
+    1024     50     
+    2048     50     
+    4096     50     
+    8192     50     
+   16384     50    
+   32768     50    
+   65536     50    
+  131072     50    
+  262144     50    
+  524288     32   
+ 1048576     16   
+ 2097152      8   
+ 4194304      4  
+ 8388608      2  
+16777216      1  
+ 
+#--------------------------------------------------------------
+# Benchmarking P_Write_Indv
+# #processes = 2
+#--------------------------------------------------------------
+#
+#    MODE: NON-AGGREGATE
+#
+  #bytes #rep.s t_min[&#956;sec]     t_max     t_avg Mb/sec
+       0     10     ..           ..         ..    ..
+       1     10    
+       2     10    
+       4     10   
+       8     10   
+      16     10   
+      32     10   
+      64     10   
+     128     10   
+     256     10   
+     512     10   
+    1024     10   
+    2048     10   
+    4096     10   
+    8192     10   
+   16384     10   
+   32768     10   
+   65536     10   
+  131072     10   
+  262144     10   
+  524288     10   
+ 1048576     10   
+ 2097152      8   
+ 4194304      4  
+ 8388608      2  
+16777216      1 
+ 
+# All processes entering MPI_Finalize
+</pre>
+</body>
+</html>

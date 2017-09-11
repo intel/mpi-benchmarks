@@ -1,0 +1,169 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>IMB-MPI1 Benchmark Classification</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+<style title="hcp" type="text/css">
+<!--
+li.hcp1 { list-style:disc; }
+-->
+</style>
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Classification of MPI-1 Benchmarks</h1>
+<p>Intel® MPI Benchmarks introduces the following classes of benchmarks:</p>
+<ul style="list-style: disc;">
+	<li><p>Single Transfer</p></li>
+	<li><p>Parallel Transfer</p></li>
+	<li><p>Collective benchmarks</p></li>
+</ul>
+<p>The following table lists the MPI-1 benchmarks in each class:</p>
+<table width="600">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<col style="width: 33.333%;">
+	<tr>
+		<th><p>Single Transfer</p></th>
+		<th><p>Parallel Transfer</p></th>
+		<th><p>Collective</p></th>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPong</samp></p></td>
+		<td><p><samp class="codeph">Sendrecv</samp></p></td>
+		<td><p><samp class="codeph">Bcast</samp></p>
+		<p><samp class="codeph">Multi-Bcast</samp></p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPongSpecificSource</samp></p></td>
+		<td><p><samp class="codeph">Exchange</samp></p></td>
+		<td><p><samp class="codeph">Allgather</samp></p>
+		<p><samp class="codeph">Multi-Allgather</samp></p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPongAnySource</samp></p></td>
+		<td><p><samp class="codeph">Multi-PingPong</samp></p></td>
+		<td><p><samp class="codeph">Allgatherv</samp></p>
+		<p><samp class="codeph">Multi-Allgatherv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPing</samp></p></td>
+		<td><p><samp class="codeph">Multi-PingPing</samp></p></td>
+		<td><p><samp class="codeph">Alltoall</samp></p>
+		<p><samp class="codeph">Multi-Alltoall</samp></p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPingSpecificSource</samp></p></td>
+		<td><p><samp class="codeph">Multi-Sendrecv</samp></p></td>
+		<td><p><samp class="codeph">Alltoallv</samp></p>
+		<p><samp class="codeph">Multi-Alltoallv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p><samp class="codeph">PingPingAnySource</samp></p></td>
+		<td><p><samp class="codeph">Multi-Exchange</samp></p></td>
+		<td><p><samp class="codeph">Scatter</samp></p>
+		<p><samp class="codeph">Multi-Scatter</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Uniband</samp></p></td>
+		<td><p><samp class="codeph">Scatterv</samp></p>
+		<p><samp class="codeph">Multi-Scatterv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Biband</samp></p></td>
+		<td><p><samp class="codeph">Gather</samp></p>
+		<p><samp class="codeph">Multi-Gather</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Multi-Uniband</samp></p></td>
+		<td><p><samp class="codeph">Gatherv</samp></p>
+		<p><samp class="codeph">Multi-Gatherv</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Multi-Biband</samp></p></td>
+		<td><p><samp class="codeph">Reduce</samp></p>
+		<p><samp class="codeph">Multi-Reduce</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Reduce_scatter</samp></p>
+		<p><samp class="codeph">Multi-Reduce_scatter</samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Allreduce</samp></p>
+		<p><samp class="codeph" style="font-family: monospace;"><samp class="codeph">Multi-Allreduce</samp></samp></p></td>
+	</tr>
+	<tr>
+		<td><p>&#160;</p></td>
+		<td><p>&#160;</p></td>
+		<td><p><samp class="codeph">Barrier</samp></p>
+		<p><samp class="codeph">Multi-Barrier</samp></p></td>
+	</tr>
+</table>
+<p>Each class interprets results in a different way.</p>
+<h2>Single Transfer Benchmarks</h2>
+<p>Single transfer benchmarks involve two active processes into communication. 
+ Other processes wait for the communication completion. Each benchmark 
+ is run with varying message lengths. The timing is averaged between two 
+ processes. The basic MPI data type for all messages is <samp class="codeph">MPI_BYTE.</samp></p>
+<p>Throughput values are measured in MBps and can be calculated as follows:</p>
+<p><samp class="codeph">throughput = X/</samp><samp class="codeph">time</samp></p>
+<p>where</p>
+<ul>
+	<li><samp class="codeph">time</samp> is measured in <samp class="codeph">&#956;</samp> 
+	 sec.</li>
+	<li><samp class="codeph">X</samp> is the length of a message, in bytes.</li>
+</ul>
+<h2>Parallel Transfer Benchmarks</h2>
+<p>Parallel transfer benchmarks involve more than two active processes 
+ into communication. Each benchmark runs with varying message lengths. 
+ The timing is averaged over multiple samples. The basic MPI data type 
+ for all messages is <samp class="codeph">MPI_BYTE</samp>. The throughput 
+ calculations of the benchmarks take into account the multiplicity <samp 
+	 class="codeph">nmsg</samp> of messages outgoing from or incoming to 
+ a particular process. For the <samp class="codeph">Sendrecv</samp> benchmark, 
+ a particular process sends and receives <samp class="codeph">X</samp> 
+ bytes, the turnover is <samp class="codeph">2X bytes</samp>, <samp class="codeph">nmsg=2</samp>. 
+ For the <samp class="codeph">Exchange</samp> benchmark, the turnover is 
+ <samp class="codeph">4X</samp> bytes, <samp class="codeph">nmsg=4.</samp></p>
+<p>Throughput values are measured in MBps and can be calculated as follows:</p>
+<p><samp class="codeph">throughput = nmsg*X/time</samp>,</p>
+<p>where</p>
+<ul style="list-style: circle;">
+	<li class="hcp1"><p><samp class="codeph">time</samp> is 
+	 measured in <samp class="codeph">&#956;sec</samp>.</p></li>
+	<li class="hcp1"><samp class="codeph">X</samp> is the 
+	 length of a message, in bytes.</li>
+</ul>
+<h2>Collective Benchmarks</h2>
+<p>Collective benchmarks measure MPI collective operations. Each benchmark 
+ is run with varying message lengths. The timing is averaged over multiple 
+ samples. The basic MPI data type for all messages is <samp class="codeph">MPI_BYTE</samp> 
+ for pure data movement functions and <samp class="codeph">MPI_FLOAT</samp> 
+ for reductions.</p>
+<p>Collective benchmarks show bare timings.</p>
+</body>
+</html>

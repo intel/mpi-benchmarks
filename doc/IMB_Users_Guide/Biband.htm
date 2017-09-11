@@ -1,0 +1,63 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>Biband</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>Biband</h1>
+<p>The <samp class="codeph">Biband</samp> measures the cumulative bandwidth 
+ and message rate values. To achieve this, the first half of ranks communicates 
+ with the second half using <samp class="codeph">MPI_Isend/MPI_Recv/MPI_Wait</samp> 
+ calls. In case of the odd number of processes, one of them does not participate 
+ in the message exchange. The bunch of <samp class="codeph">MPI_Isend</samp> 
+ calls are issued by each rank in the first half of ranks to its counterpart 
+ from the second half of ranks, and vice versa. The number of messages 
+ issued at each iteration step is defined with the <samp class="codeph">MAX_WIN_SIZE</samp> 
+ constant. The same buffer is used for every send event in the iteration.</p>
+<h2>Uniband Definition</h2>
+<table width="600">
+	<col style="width: 30%;">
+	<col style="width: 70%;">
+	<tr>
+		<th><p>Property</p></th>
+		<th><p>Description</p></th>
+	</tr>
+	<tr>
+		<td><p>Measured pattern</p></td>
+		<td><p class="codeph">(MAX_WIN_SIZE *MPI_Isend)/(MAX_WIN_SIZE&#160;*MPI_Irecv)/Waitall</p></td>
+	</tr>
+	<tr>
+		<td><p>MPI data type</p></td>
+		<td><p><samp class="codeph">MPI_BYTE</samp> (origin and target)</p></td>
+	</tr>
+	<tr>
+		<td><p>Reported message rate</p></td>
+		<td><p><samp class="codeph">2*MAX_WIN_SIZE*N/MAX(process_timings)</samp>, 
+		 where <samp class="codeph">N</samp> is the number of communicating 
+		 pairs</p></td>
+	</tr>
+	<tr>
+		<td><p>Reported throughput</p></td>
+		<td><p><samp class="codeph">MBps (msg_rate *size_in_bytes/ 1000000.0)</samp></p></td>
+	</tr>
+</table>
+</body>
+</html>

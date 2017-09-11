@@ -1,0 +1,71 @@
+
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <meta name="generator" content="Adobe RoboHelp 2015">
+<title>All_put_all</title>
+<link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+ <link rel="StyleSheet" href="intel_css_styles.css" type="text/css">
+</head>
+<script src="NavScript.js" language="JavaScript1.2" type="text/javascript"></script>
+<script language="JavaScript1.2" type="text/javascript">WriteNavLink(0);</script>
+<body>
+<script type="text/javascript" src="ehlpdhtm.js" language="JavaScript1.2"></script>
+
+ <div style="width: 100%; position: relative;" id="header">
+	<p style="font-style: italic;">Intel® 
+	 MPI Benchmarks User Guide and Methodology Description</p>
+</div>
+
+
+<h1>All_put_all</h1>
+<p>The benchmark tests the scenario when all processes communicate with each other using <samp class="codeph">MPI_Put</samp> operation. To avoid congestion due to simultaneous access to the memory of a process by all other processes, different ranks choose different targets at each particular step. For example, while looping through all the possible target ranks, the next target is chosen as follows: <samp class="codeph">(target_rank + current_rank)%num_ranks</samp>.</p>
+<table width="800">
+<col style="width: 25%;">
+<col style="width: 75%;">
+<tr>
+<th>
+<p>Property</p>
+</th>
+<th>
+<p>Description</p>
+</th>
+</tr>
+<tr>
+<td>
+<p>Measured pattern</p>
+</td>
+<td>
+<p><samp class="codeph">(N*MPI_Put)/MPI_Win_flush_all</samp>, where <samp class="codeph">N</samp> is the number of target processes</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MPI data type</p>
+</td>
+<td>
+<p><samp class="codeph">MPI_BYTE</samp> (origin and target)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported timings</p>
+</td>
+<td>
+<p>Bare time</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>Reported throughput</p>
+</td>
+<td>
+<p>None</p>
+</td>
+</tr>
+</table>
+</body>
+</html>
