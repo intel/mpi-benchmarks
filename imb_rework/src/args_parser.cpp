@@ -92,10 +92,12 @@ bool args_parser::value::parse(const char *sval, arg_t _type) {
             res = 1;
             string s; s.assign(sval);                                 
             if (s == "on" || s == "yes" || s == "ON" || s == "YES" || 
-                s == "true" || s == "TRUE") {
+                s == "true" || s == "enable" || s == "TRUE" || s == "ENABLE" ||
+                s == "1") {
                 b = true;
             } else if (s == "off" || s == "no" || s == "OFF" || s == "NO" || 
-                s == "false" || s == "FALSE") {
+                s == "false" || s == "disable" || s == "FALSE" || s == "DISABLE" ||
+                s == "0") {
                 b = false;
             } else {
                 res = 0;
