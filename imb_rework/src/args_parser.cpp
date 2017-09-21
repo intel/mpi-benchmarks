@@ -92,10 +92,12 @@ bool args_parser::value::parse(const char *sval, arg_t _type) {
             res = 1;
             string s; s.assign(sval);                                 
             if (s == "on" || s == "yes" || s == "ON" || s == "YES" || 
-                s == "true" || s == "TRUE") {
+                s == "true" || s == "enable" || s == "TRUE" || s == "ENABLE" ||
+                s == "1") {
                 b = true;
             } else if (s == "off" || s == "no" || s == "OFF" || s == "NO" || 
-                s == "false" || s == "FALSE") {
+                s == "false" || s == "disable" || s == "FALSE" || s == "DISABLE" ||
+                s == "0") {
                 b = false;
             } else {
                 res = 0;
@@ -733,6 +735,12 @@ string args_parser::dump() const {
     out << YAML::Newline;
     return string(out.c_str());
 }
+
+bool args_parser::is_option(const string &str) const {
+    if (strncmp(str.c_str(), option_starter, strlen(option_starter)) == 0) return true;
+    return false;
+}
+
 
 ostream &operator<<(ostream &s, const args_parser::option &opt) {
     opt.to_ostream(s);

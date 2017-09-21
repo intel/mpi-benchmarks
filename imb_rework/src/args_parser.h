@@ -268,6 +268,7 @@ class args_parser {
     std::string dump() const;
     bool load(const std::string &input);
     bool load(std::istream &in);
+    bool is_option(const std::string &str) const;
 
     error_t get_last_error(std::string &option, std::string &extra) {
         option = last_error_option;

@@ -80,21 +80,24 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             }
         }
 
-        virtual bool declare_args(args_parser &, 
+        virtual bool declare_args(args_parser &,
                                   std::ostream &output = std::cout) const {
             UNUSED(output);
             return true;
         } 
-        virtual bool prepare(const args_parser &, const std::vector<std::string> &, 
-                             std::ostream &output = std::cout) { UNUSED(output); return true; } 
-        virtual void finalize(const std::vector<std::string> &, 
-                              std::ostream &output = std::cout) { UNUSED(output); } 
-        static BenchmarkSuite<bs> *register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); return instance; }
-        static void get_full_list(std::set<std::string> &all_benchmarks) { 
-            get_instance().do_get_full_list(all_benchmarks); 
+        virtual bool prepare(const args_parser &, const std::vector<std::string> &,
+                             const std::vector<std::string> &, std::ostream &output = std::cout) {
+            UNUSED(output);
+            return true;
         }
-        static void get_full_list(std::vector<std::string> &all_benchmarks) { 
-            get_instance().do_get_full_list(all_benchmarks); 
+        virtual void finalize(const std::vector<std::string> &,
+                              std::ostream &output = std::cout) { UNUSED(output); }
+        static BenchmarkSuite<bs> *register_elem(const Benchmark *elem) { get_instance().do_register_elem(elem); return instance; }
+        static void get_full_list(std::set<std::string> &all_benchmarks) {
+            get_instance().do_get_full_list(all_benchmarks);
+        }
+        static void get_full_list(std::vector<std::string> &all_benchmarks) {
+            get_instance().do_get_full_list(all_benchmarks);
         }
         virtual smart_ptr<Benchmark> create(const std::string &s) { return get_instance().do_create(s); }
         virtual any get_parameter(const std::string &key) { UNUSED(key); return any(); }
@@ -107,7 +110,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
             if (pnames == NULL) {
                 pnames = new pnames_t();
             }
-            if (pnames->find(name) == pnames->end()) { 
+            if (pnames->find(name) == pnames->end()) {
                 (*pnames)[name] = elem;
                 names_list.push_back(name);
             }

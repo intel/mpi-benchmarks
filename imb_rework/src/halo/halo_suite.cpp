@@ -125,7 +125,12 @@ template <> bool BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser,
 
 template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
                                                      const std::vector<std::string> &,
+                                                     const std::vector<std::string> &unknown_args,
                                                      std::ostream &output) {
+    if (unknown_args.size() != 0) {
+        output << "Some unknown options or extra arguments." << std::endl;
+        return false;
+    }
     using namespace NS_HALO;
 
     parser.get<int>("count", count);

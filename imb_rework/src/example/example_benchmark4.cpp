@@ -35,14 +35,19 @@ namespace example_suite4 {
         parser.set_default_current_group();
         return true;
     }
-    
+
     vector<int> len;
     MPI_Datatype datatype;
     int ncycles;
 
-    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser, 
+    template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser,
                                                          const vector<string> &,
+                                                         const vector<string> &unknown_args,
                                                          std::ostream &output) {
+        if (unknown_args.size() != 0) {
+            output << "Some unknown options or extra arguments." << std::endl;
+            return false;
+        }
         parser.get<int>("len", len);
         string dt = parser.get<string>("datatype");
         if (dt == "int") datatype = MPI_INT;
@@ -52,7 +57,7 @@ namespace example_suite4 {
             return false;
         }
         ncycles = parser.get<int>("ncycles");
-        return true;       
+        return true;
     }
 
 #define HANDLE_PARAMETER(TYPE, NAME) if (key == #NAME) { \
