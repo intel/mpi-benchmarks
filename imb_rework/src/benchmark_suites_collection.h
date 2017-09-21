@@ -117,16 +117,21 @@ class BenchmarkSuitesCollection {
         return true;
     }
     static bool prepare(args_parser &parser, const std::vector<std::string> &benchs,
-                        std::ostream &output) {
+                        const std::vector<std::string> &unknown_args, std::ostream &output) {
         assert(pnames != NULL);
+        std::vector<std::string> suites_to_remove;
         for (std::map<const std::string, BenchmarkSuiteBase*>::iterator it = pnames->begin();
              it != pnames->end(); ++it) {
-                if (!it->second->prepare(parser, benchs, output)) {
-                    return false;
+                if (!it->second->prepare(parser, benchs, unknown_args, output)) {
+                    suites_to_remove.push_back(it->first);
                 }
         }
+        for (std::vector<std::string>::iterator it = suites_to_remove.begin();
+                it != suites_to_remove.end(); ++it) {
+            pnames->erase(*it);
+        }
         return true;
-    }    
+    }
     static smart_ptr<Benchmark> create(const std::string &name) {
         assert(pnames != NULL);
         smart_ptr<Benchmark> b;

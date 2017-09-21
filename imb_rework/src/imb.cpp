@@ -196,6 +196,7 @@ int main(int argc, char * *argv)
         vector<string> default_benchmarks, all_benchmarks;
         vector<string> actual_benchmark_list;
         vector<string> benchmarks_to_run;
+        vector<string> missing;
         map<string, set<string> > by_suite;
         BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
         BenchmarkSuitesCollection::get_default_list(default_benchmarks);
@@ -241,14 +242,13 @@ int main(int argc, char * *argv)
             exclude(actual_benchmark_list, to_exclude);
             combine(to_include, actual_benchmark_list);
             actual_benchmark_list = to_include;
-            vector<string> missing = actual_benchmark_list;
+            missing = actual_benchmark_list;
             exclude(missing, all_benchmarks);
             if (missing.size() != 0) {
-                cout << "Benchmarks not found:" << endl;
-                for (vector<string>::iterator it = missing.begin(); it != missing.end(); ++it) {
-                    cout << *it << endl;
+                exclude(actual_benchmark_list, missing);
+                if (actual_benchmark_list.size() == 0) {
+                    combine(actual_benchmark_list, default_benchmarks);
                 }
-                return 1;
             }
 
             // Change benchmark names to their canonical form
@@ -298,9 +298,17 @@ int main(int argc, char * *argv)
         // ACTUAL BENCHMARKING
         //
         // 1, Preparation phase on suite level
-        if (!BenchmarkSuitesCollection::prepare(parser, benchmarks_to_run, output)) {
+        if (!BenchmarkSuitesCollection::prepare(parser, benchmarks_to_run, missing, output)) {
             throw logic_error("One or more benchmark suites failed at preparation stage");
-        }       
+        }
+        {
+            using namespace set_operations;
+            vector<string> benchmarks_to_exclude = benchmarks_to_run;
+            all_benchmarks.clear();
+            BenchmarkSuitesCollection::get_full_list(all_benchmarks, by_suite);
+            exclude(benchmarks_to_exclude, all_benchmarks);
+            exclude(benchmarks_to_run, benchmarks_to_exclude);
+        }
         if (rank == 0) {
            cout << output.str();
            output.str("");
@@ -318,7 +326,7 @@ int main(int argc, char * *argv)
                 throw logic_error("benchmark creator failed!");
             }
             b->init();
-            smart_ptr<Scope> scope = b->get_scope();            
+            smart_ptr<Scope> scope = b->get_scope();
             sequence.push_back(item(b, scope));
         }
 

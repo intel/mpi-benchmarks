@@ -277,8 +277,12 @@ void preprocess_list(T &list) {
     list = tmp;
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs, std::ostream &output) {
+template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs,
+                                                  const vector<string> &unknown_args, std::ostream &output) {
     using namespace NS_MPI1;
+    for (vector<string>::const_iterator it = unknown_args.begin(); it != unknown_args.end(); ++it) {
+        output << "Invalid benchmark name " << *it << endl;
+    }
     vector<string> all_benchs, spare_benchs = benchs, intersection = benchs;
     BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
     set_operations::exclude(spare_benchs, all_benchs);

@@ -734,6 +734,12 @@ string args_parser::dump() const {
     return string(out.c_str());
 }
 
+bool args_parser::is_option(const string &str) const {
+    if (strncmp(str.c_str(), option_starter, strlen(option_starter)) == 0) return true;
+    return false;
+}
+
+
 ostream &operator<<(ostream &s, const args_parser::option &opt) {
     opt.to_ostream(s);
     return s;

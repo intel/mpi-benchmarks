@@ -103,9 +103,28 @@ template <> bool BenchmarkSuite<BS_MT>::declare_args(args_parser &parser,
 
 template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser, 
                                                 const std::vector<std::string> &benchs,
+                                                const std::vector<std::string> &unknown_args,
                                                 std::ostream &output) {
     using namespace NS_MT;
 
+    if (unknown_args.size() != 0) {
+        std::vector<std::string> unknown_options, unknown_benchmarks;
+        for (std::vector<std::string>::const_iterator it = unknown_args.begin(); it != unknown_args.end(); ++it) {
+            if (parser.is_option(*it)) {
+                unknown_options.push_back(*it);
+            }
+            else {
+                unknown_benchmarks.push_back(*it);
+            }
+        }
+        for (std::vector<std::string>::const_iterator it = unknown_options.begin(); it != unknown_options.end(); ++it) {
+            output << "Invalid option " << *it << std::endl;
+        }
+        for (std::vector<std::string>::const_iterator it = unknown_benchmarks.begin(); it != unknown_benchmarks.end(); ++it) {
+            output << "Invalid benchmark name " << *it << std::endl;
+        }
+        return false;
+    }
     std::vector<std::string> all_benchs, spare_benchs = benchs, intersection = benchs;
     BenchmarkSuite<BS_MT>::get_full_list(all_benchs);
     set_operations::exclude(spare_benchs, all_benchs);

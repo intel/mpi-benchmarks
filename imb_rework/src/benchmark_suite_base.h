@@ -60,14 +60,17 @@ class Benchmark;
 struct BenchmarkSuiteBase {
     enum BenchListFilter { ALL_BENCHMARKS, DEFAULT_BENCHMARKS };
     virtual void init() {}
-    virtual bool declare_args(args_parser &, 
+    virtual bool declare_args(args_parser &,
                               std::ostream &output = std::cout) const {
         UNUSED(output);
         return true;
     }
     virtual bool prepare(const args_parser &, const std::vector<std::string> &,
-                         std::ostream &output = std::cout) { UNUSED(output); return true; }
-    virtual void finalize(const std::vector<std::string> &, std::ostream &output = std::cout) { 
+                         const std::vector<std::string> &, std::ostream &output = std::cout) {
+        UNUSED(output);
+        return true;
+    }
+    virtual void finalize(const std::vector<std::string> &, std::ostream &output = std::cout) {
         UNUSED(output);
     }
     virtual void get_bench_list(std::set<std::string> &, BenchListFilter filter = ALL_BENCHMARKS) const { UNUSED(filter); }
