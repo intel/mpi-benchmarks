@@ -1,5 +1,3 @@
-#ifdef MPI1
-
 #include <set>
 #include <vector>
 #include <string>
@@ -517,6 +515,3 @@ template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
     HANDLE_PARAMETER(LEGACY_GLOBALS, glob);
     return result;
 }
-
-#endif
-

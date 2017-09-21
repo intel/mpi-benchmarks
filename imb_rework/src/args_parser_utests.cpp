@@ -198,7 +198,7 @@ void err_scalar_check(T val) {
         args_parser::error_t err = p.run().get_last_error(opt, ext);
         assert(!p.result && !p.except && err == args_parser::NO_REQUIRED_OPTION &&
                 opt == "aaa"); // && p.lines_in_output() == 2 && p.output_contains("ERROR"));
-        printf(">> %s, %d, %s\n", p.output.str().c_str(), p.lines_in_output(), p.output_contains("ERROR")?"true":"false");
+//        printf(">> %s, %d, %s\n", p.output.str().c_str(), p.lines_in_output(), p.output_contains("ERROR")?"true":"false");
     }
 }
 

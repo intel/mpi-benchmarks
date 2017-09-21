@@ -58,15 +58,9 @@ goods and services.
 #include <iostream>
 
 enum benchmark_suite_t { 
-#ifdef MPI1    
     BS_MPI1, 
-#endif
-#ifdef NBC    
     BS_NBC,
-#endif
-#ifdef MT
     BS_MT,
-#endif
     BS_GENERIC    
 };
 

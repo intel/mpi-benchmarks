@@ -1,5 +1,3 @@
-#ifdef MPI1
-
 #include <mpi.h>
 #include <vector>
 #include <string>
@@ -268,5 +266,3 @@ LEGACY_BENCHMARK(IMB_bi_bandwidth, Biband)
     descr->flags.insert(RECVBUF_SIZE_I);
     return true;
 }
-
-#endif    

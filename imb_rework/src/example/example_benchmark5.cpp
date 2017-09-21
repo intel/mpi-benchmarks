@@ -47,6 +47,12 @@ class BenchmarkSuiteExample5 : public BenchmarkSuiteBase
         UNUSED(filter);
         result.insert("example_bench5");
     }
+    virtual void get_bench_list(std::vector<std::string> &result, 
+        BenchListFilter filter = ALL_BENCHMARKS) const 
+    { 
+        UNUSED(filter);
+        result.push_back("example_bench5");
+    }
     virtual smart_ptr<Benchmark> create(const std::string &name) 
     {  
         if (name == "example_bench5") {
