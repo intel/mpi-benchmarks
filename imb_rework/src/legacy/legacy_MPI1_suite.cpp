@@ -394,7 +394,8 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     vector<int> given_msglog;
     parser.get<int>("msglog", given_msglog);
     if (given_msglog.size() == 1) {
-        c_info.max_msg_log = c_info.min_msg_log = given_msglog[0];
+        c_info.min_msg_log = 0;
+        c_info.max_msg_log = given_msglog[0];
     } else {
         c_info.min_msg_log = given_msglog[0];
         c_info.max_msg_log = given_msglog[1];
