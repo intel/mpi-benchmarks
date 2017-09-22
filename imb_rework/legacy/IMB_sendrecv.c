@@ -158,7 +158,8 @@ Output variables:
 
       for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
       
-      t1 = MPI_Wtime();
+      printf(">> c_info->rank=%d\n", c_info->rank);
+      t1 = MPI_Wtime();      
       for(i=0;i< ITERATIONS->n_sample;i++)
 	{
 	  ierr= MPI_Sendrecv((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
@@ -178,6 +179,7 @@ Output variables:
     }
   else
     { 
+      printf(">> c_info->rank=%d\n", c_info->rank);
       *time = 0.;
     }
 }
