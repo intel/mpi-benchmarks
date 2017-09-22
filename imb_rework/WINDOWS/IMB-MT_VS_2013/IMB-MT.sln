@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IMB-MPI1", "IMB-MPI1.vcxproj", "{72B11209-BF5B-4AF0-B38D-744C2FD082C3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IMB-MT", "IMB-MT.vcxproj", "{72B11209-BF5B-4AF0-B38D-744C2FD082C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

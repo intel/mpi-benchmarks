@@ -87,7 +87,11 @@ namespace set_operations {
     }
     struct case_insens_cmp : public std::binary_function<std::string, std::string, bool> {
         bool operator()(const std::string &lhs, const std::string &rhs) const {
+#ifdef WIN_IMB
+            return stricmp(lhs.c_str(), rhs.c_str()) < 0;
+#else
             return ::strcasecmp(lhs.c_str(), rhs.c_str()) < 0 ;
+#endif
         }
     };
 }

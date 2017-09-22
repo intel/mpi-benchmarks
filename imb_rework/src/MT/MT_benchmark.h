@@ -186,15 +186,21 @@ string out_field(T val);
 template <int field_len, typename T>
 string do_format(const char *fmt, T val) {
     char s[field_len+1];
+#ifdef WIN_IMB
+    _snprintf(s, field_len, fmt, val);
+#else
     snprintf(s, field_len, fmt, val);
+#endif
     s[field_len] = 0;
     return string(s);
 }
 
 template <> string out_field<double>(double val) { return do_format<14>("% 13.2f", val); }
 template <> string out_field<int>(int val) { return do_format<14>("% 13d", val); }
+template <> string out_field<unsigned int>(unsigned int val) { return do_format<14>("% 13u", val); }
 template <> string out_field<const char *>(const char *val) { return do_format<14>("% 13s", val); }
 template <> string out_field<unsigned long>(unsigned long val) { return do_format<14>("% 13ul", val); }
+template <> string out_field<unsigned long long>(unsigned long long val) { return do_format<14>("% 13llu", val); }
 
 template <class bs, mt_benchmark_func_t fn_ptr>
 class BenchmarkMTBase : public Benchmark {

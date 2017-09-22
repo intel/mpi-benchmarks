@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{72B11209-BF5B-4AF0-B38D-744C2FD082C3}</ProjectGuid>
-    <RootNamespace>IMBMPI1</RootNamespace>
+    <RootNamespace>IMBMT</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,7 +59,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;MPI1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -82,8 +82,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;MPI1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -101,52 +101,56 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\legacy\IMB.c" />
-    <ClCompile Include="..\..\legacy\IMB_allgather.c" />
-    <ClCompile Include="..\..\legacy\IMB_allgatherv.c" />
-    <ClCompile Include="..\..\legacy\IMB_allreduce.c" />
-    <ClCompile Include="..\..\legacy\IMB_alltoall.c" />
-    <ClCompile Include="..\..\legacy\IMB_alltoallv.c" />
-    <ClCompile Include="..\..\legacy\IMB_bandwidth.c" />
-    <ClCompile Include="..\..\legacy\IMB_barrier.c" />
-    <ClCompile Include="..\..\legacy\IMB_bcast.c" />
-    <ClCompile Include="..\..\legacy\IMB_benchlist.c" />
-    <ClCompile Include="..\..\legacy\IMB_chk_diff.c" />
-    <ClCompile Include="..\..\legacy\IMB_cpu_exploit.c" />
-    <ClCompile Include="..\..\legacy\IMB_declare.c" />
-    <ClCompile Include="..\..\legacy\IMB_err_handler.c" />
-    <ClCompile Include="..\..\legacy\IMB_exchange.c" />
-    <ClCompile Include="..\..\legacy\IMB_g_info.c" />
-    <ClCompile Include="..\..\legacy\IMB_gather.c" />
-    <ClCompile Include="..\..\legacy\IMB_gatherv.c" />
-    <ClCompile Include="..\..\legacy\IMB_init.c" />
-    <ClCompile Include="..\..\legacy\IMB_init_transfer.c" />
-    <ClCompile Include="..\..\legacy\IMB_mem_manager.c" />
-    <ClCompile Include="..\..\legacy\IMB_output.c" />
-    <ClCompile Include="..\..\legacy\IMB_parse_name_mpi1.c" />
-    <ClCompile Include="..\..\legacy\IMB_pingping.c" />
-    <ClCompile Include="..\..\legacy\IMB_pingpong.c" />
-    <ClCompile Include="..\..\legacy\IMB_reduce.c" />
-    <ClCompile Include="..\..\legacy\IMB_reduce_scatter.c" />
-    <ClCompile Include="..\..\legacy\IMB_scatter.c" />
-    <ClCompile Include="..\..\legacy\IMB_scatterv.c" />
-    <ClCompile Include="..\..\legacy\IMB_sendrecv.c" />
-    <ClCompile Include="..\..\legacy\IMB_strgs.c" />
-    <ClCompile Include="..\..\legacy\IMB_utils.c" />
-    <ClCompile Include="..\..\legacy\IMB_warm_up.c" />
+    <ClCompile Include="..\..\src\yamlcpp/src/aliasmanager.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/binary.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/conversion.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/directives.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/emitfromevents.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/emitter.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/emitterstate.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/emitterutils.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/exp.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/iterator.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/node.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/nodebuilder.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/nodeownership.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/null.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/ostream.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/parser.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/regex.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/scanner.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/scanscalar.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/scantag.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/scantoken.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/simplekey.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/singledocparser.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/stream.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/tag.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/contrib/graphbuilder.cpp" />
+    <ClCompile Include="..\..\src\yamlcpp/src/contrib/graphbuilderadapter.cpp" />
+
+    <ClCompile Include="..\..\src\imb.cpp" />
+    <ClCompile Include="..\..\src\args_parser.cpp" />
+    <ClCompile Include="..\..\src\args_parser_utests.cpp" />
+    <ClCompile Include="..\..\src\scope.cpp" />
+    <ClCompile Include="..\..\src\MT/MT_suite.cpp" />
+    <ClCompile Include="..\..\src\MT/MT_benchmark.cpp" />
+    <ClCompile Include="..\..\src\benchmark_suites_collection.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\legacy\IMB_benchmark.h" />
-    <ClInclude Include="..\..\legacy\IMB_bnames_ext.h" />
-    <ClInclude Include="..\..\legacy\IMB_bnames_mpi1.h" />
-    <ClInclude Include="..\..\legacy\IMB_comm_info.h" />
-    <ClInclude Include="..\..\legacy\IMB_declare.h" />
-    <ClInclude Include="..\..\legacy\IMB_err_check.h" />
-    <ClInclude Include="..\..\legacy\IMB_mem_info.h" />
+    <ClInclude Include="..\..\src\MT/MT_benchmark.h" />
+    <ClInclude Include="..\..\src\args_parser.h" />
+    <ClInclude Include="..\..\src\benchmark.h" />
+    <ClInclude Include="..\..\src\benchmark_suite_base.h" />
+    <ClInclude Include="..\..\src\benchmark_suite.h" />
+    <ClInclude Include="..\..\src\benchmark_suites_collection.h" />
+    <ClInclude Include="..\..\src\smart_ptr.h" />
+    <ClInclude Include="..\..\src\utils.h" />
+    <ClInclude Include="..\..\src\scope.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="IMB-MPI1.rc" />
+    <ResourceCompile Include="IMB-MT.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

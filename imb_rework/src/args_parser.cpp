@@ -58,6 +58,7 @@ goods and services.
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -282,6 +283,17 @@ void args_parser::print_err(error_t err, string option, string extra) {
     last_error_option = option;
     last_error_extra = extra;
 }
+
+#ifdef WIN_IMB
+std::string basename(const char *name) {
+	std::string file_name(name);
+	const size_t i = file_name.find_last_of("\\/");
+	if (std::string::npos != i)	{
+		file_name.erase(0, i + 1);
+	}
+	return file_name;
+}
+#endif
 
 void args_parser::print_help_advice() const {
     sout << "Try \"" <<  basename(argv[0]) << " " << option_starter << "help\" for usage information" << endl;
