@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
 
@@ -150,7 +152,7 @@ struct reworked_Bmark_descr {
                 } else if (iter == 1) {
                     len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
                 } else {
-                    len = min(glob.MAXMSG, len + len);
+                    len = std::min(glob.MAXMSG, len + len);
                 }
             }
 
@@ -174,10 +176,10 @@ struct reworked_Bmark_descr {
                 ci_np -= ci_np % 2;
                 NP_min += NP_min % 2;
             }
-            int NP = max(1, min(ci_np, NP_min));
+            int NP = std::max(1, std::min(ci_np, NP_min));
             bool do_it = true;
             if (Bmark->RUN_MODES[0].type == SingleTransfer) {
-                NP = min(2, ci_np);
+                NP = std::min(2, ci_np);
             }
             while (do_it) {
 //                std::cout << ">> " << ci_np << " " << NP << std::endl;
@@ -186,7 +188,7 @@ struct reworked_Bmark_descr {
                 // CALCULATE THE NUMBER OF PROCESSES FOR NEXT STEP
                 if (NP >= ci_np) { do_it = false; }
                 else {
-                    NP = min(NP + NP, ci_np);
+                    NP = std::min(NP + NP, ci_np);
                 }
             }
         }
@@ -220,7 +222,7 @@ struct reworked_Bmark_descr {
 
         Bmark->sample_failure = 0;
 
-        init_size = max(size, asize);
+        init_size = std::max(size, asize);
 
         if (c_info->rank < 0) {
             return;
@@ -239,10 +241,10 @@ struct reworked_Bmark_descr {
             double d_n_sample = ITERATIONS->msgspersample;
             int max_msg_size = 1<<c_info->max_msg_log;
             int tmp = (int)(d_n_sample*max_msg_size/(c_info->num_procs*init_size+max_msg_size)+0.5);
-            ITERATIONS->n_sample = x_sample = max(tmp-tmp%c_info->num_procs, c_info->num_procs);
+            ITERATIONS->n_sample = x_sample = std::max(tmp-tmp%c_info->num_procs, c_info->num_procs);
         } else {
             ITERATIONS->n_sample = (size > 0)
-                             ? max(1, min(ITERATIONS->overall_vol / size, x_sample))
+                             ? std::max(1, std::min(ITERATIONS->overall_vol / size, x_sample))
                              : x_sample;
         }
 // --- STEP 2: set s_len and r_len
@@ -307,10 +309,10 @@ struct reworked_Bmark_descr {
                     size_t cls = (size_t) ITERATIONS->cache_line_size;
                     size_t ofs = ( (s_len + cls - 1) / cls + 1 ) * cls;
                     ITERATIONS->s_offs = ofs;
-                    ITERATIONS->s_cache_iter = min(ITERATIONS->n_sample,(2*ITERATIONS->cache_size*CACHE_UNIT+ofs-1)/ofs);
+                    ITERATIONS->s_cache_iter = std::min((int)(ITERATIONS->n_sample), (int)((2*ITERATIONS->cache_size*CACHE_UNIT+ofs-1)/ofs));
                     ofs = ( ( r_len + cls -1 )/cls + 1 )*cls;
                     ITERATIONS->r_offs = ofs;
-                    ITERATIONS->r_cache_iter = min(ITERATIONS->n_sample,(2*ITERATIONS->cache_size*CACHE_UNIT+ofs-1)/ofs);
+                    ITERATIONS->r_cache_iter = std::min((int)(ITERATIONS->n_sample), (int)((2*ITERATIONS->cache_size*CACHE_UNIT+ofs-1)/ofs));
                 } else {
                     ITERATIONS->s_offs=ITERATIONS->r_offs=0;
                     ITERATIONS->s_cache_iter=ITERATIONS->r_cache_iter=1;
@@ -323,8 +325,8 @@ struct reworked_Bmark_descr {
         r_alloc = r_len;
 #else
         if( ITERATIONS->use_off_cache ) {
-            s_alloc = max(s_len,ITERATIONS->s_cache_iter*ITERATIONS->s_offs);
-            r_alloc = max(r_len,ITERATIONS->r_cache_iter*ITERATIONS->r_offs);
+            s_alloc = std::max(s_len,ITERATIONS->s_cache_iter*ITERATIONS->s_offs);
+            r_alloc = std::max(r_len,ITERATIONS->r_cache_iter*ITERATIONS->r_offs);
         } else {
             s_alloc = s_len;
             r_alloc = r_len;
@@ -382,7 +384,7 @@ struct reworked_Bmark_descr {
             }
         }
 
-        IMB_init_transfer(c_info, Bmark, size, (MPI_Aint) max(s_alloc, r_alloc));
+        IMB_init_transfer(c_info, Bmark, size, (MPI_Aint) std::max(s_alloc, r_alloc));
 
 
 // --- change  ITERATIONS->n_sample
@@ -436,7 +438,7 @@ struct reworked_Bmark_descr {
                 MPI_Allreduce(&rep_test, &acc_rep_test, 1, MPI_INT, MPI_MAX, c_info->communicator);
             }
 
-            ITERATIONS->n_sample = min(selected_n_sample, acc_rep_test);
+            ITERATIONS->n_sample = std::min(selected_n_sample, acc_rep_test);
 
             if (ITERATIONS->n_sample > 1) {
 #ifdef MPI1
@@ -471,13 +473,13 @@ struct reworked_Bmark_descr {
                 int i;
                 for (i = 0; i < iter; i++) {
                     t_sample = ( c_info->msglen[i] < size )
-                                ? min(t_sample,ITERATIONS->numiters[i])
-                                : max(t_sample,ITERATIONS->numiters[i]);
+                                ? std::min(t_sample,ITERATIONS->numiters[i])
+                                : std::max(t_sample,ITERATIONS->numiters[i]);
                 }
-                ITERATIONS->n_sample = ITERATIONS->numiters[iter] = min(selected_n_sample, t_sample);
+                ITERATIONS->n_sample = ITERATIONS->numiters[iter] = std::min(selected_n_sample, t_sample);
             } else {
-                ITERATIONS->n_sample = min(selected_n_sample,
-                                            min(ITERATIONS->n_sample_prev, t_sample));
+                ITERATIONS->n_sample = std::min(selected_n_sample,
+                                            std::min(ITERATIONS->n_sample_prev, t_sample));
             }
 
             MPI_Bcast(&ITERATIONS->n_sample, 1, MPI_INT, 0, c_info->communicator);
@@ -518,9 +520,9 @@ struct Bench *Bmark) {
             glob.ci_np -= glob.ci_np % 2;
             glob.NP_min += glob.NP_min % 2;
         }
-        glob.NP=max(1,min(glob.ci_np,glob.NP_min));
+        glob.NP=std::max(1,std::min(glob.ci_np,glob.NP_min));
         if (Bmark->RUN_MODES[0].type == SingleTransfer) {
-            glob.NP = (min(2,glob.ci_np));
+            glob.NP = (std::min(2,glob.ci_np));
         }
         if (Bmark->reduction ||
             Bmark->RUN_MODES[0].type == SingleElementTransfer) {
@@ -555,7 +557,7 @@ struct Bench *Bmark) {
         if (!Bmark->sample_failure) {
             time_limit[1] = 0;
             if (c_info.rank >= 0) {
-                time_limit[1] = (MPI_Wtime() - sample_time < max(max(c_info.n_lens, c_info.max_msg_log - c_info.min_msg_log) - 1, 1) * ITERATIONS.secs) ? 0 : 1;
+                time_limit[1] = (MPI_Wtime() - sample_time < std::max(std::max(c_info.n_lens, c_info.max_msg_log - c_info.min_msg_log) - 1, 1) * ITERATIONS.secs) ? 0 : 1;
             }
         }
         MPI_Allreduce(&time_limit[1], &time_limit[0], 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
