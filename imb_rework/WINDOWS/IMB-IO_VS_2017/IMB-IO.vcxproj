@@ -102,33 +102,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\IMB.c">
+    <ClCompile Include="..\..\legacy\IMB.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%I_MPI_ROOT%\intel64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <ClCompile Include="..\..\src\IMB_benchlist.c" />
-    <ClCompile Include="..\..\src\IMB_chk_diff.c" />
-    <ClCompile Include="..\..\src\IMB_cpu_exploit.c" />
-    <ClCompile Include="..\..\src\IMB_declare.c" />
-    <ClCompile Include="..\..\src\IMB_err_handler.c" />
-    <ClCompile Include="..\..\src\IMB_g_info.c" />
-    <ClCompile Include="..\..\src\IMB_init.c" />
-    <ClCompile Include="..\..\src\IMB_init_file.c" />
-    <ClCompile Include="..\..\src\IMB_init_transfer.c" />
-    <ClCompile Include="..\..\src\IMB_mem_manager.c" />
-    <ClCompile Include="..\..\src\IMB_open_close.c" />
-    <ClCompile Include="..\..\src\IMB_output.c" />
-    <ClCompile Include="..\..\src\IMB_parse_name_io.c" />
-    <ClCompile Include="..\..\src\IMB_read.c" />
-    <ClCompile Include="..\..\src\IMB_strgs.c" />
-    <ClCompile Include="..\..\src\IMB_user_set_info.c" />
-    <ClCompile Include="..\..\src\IMB_warm_up.c" />
-    <ClCompile Include="..\..\src\IMB_write.c" />
+    <ClCompile Include="..\..\legacy\IMB_benchlist.c" />
+    <ClCompile Include="..\..\legacy\IMB_chk_diff.c" />
+    <ClCompile Include="..\..\legacy\IMB_cpu_exploit.c" />
+    <ClCompile Include="..\..\legacy\IMB_declare.c" />
+    <ClCompile Include="..\..\legacy\IMB_err_handler.c" />
+    <ClCompile Include="..\..\legacy\IMB_g_info.c" />
+    <ClCompile Include="..\..\legacy\IMB_init.c" />
+    <ClCompile Include="..\..\legacy\IMB_init_file.c" />
+    <ClCompile Include="..\..\legacy\IMB_init_transfer.c" />
+    <ClCompile Include="..\..\legacy\IMB_mem_manager.c" />
+    <ClCompile Include="..\..\legacy\IMB_open_close.c" />
+    <ClCompile Include="..\..\legacy\IMB_output.c" />
+    <ClCompile Include="..\..\legacy\IMB_parse_name_io.c" />
+    <ClCompile Include="..\..\legacy\IMB_read.c" />
+    <ClCompile Include="..\..\legacy\IMB_strgs.c" />
+    <ClCompile Include="..\..\legacy\IMB_user_set_info.c" />
+    <ClCompile Include="..\..\legacy\IMB_warm_up.c" />
+    <ClCompile Include="..\..\legacy\IMB_write.c" />
+    <ClCompile Include="..\..\legacy\IMB_utils.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\IMB_appl_errors.h" />
-    <ClInclude Include="..\..\src\IMB_benchmark.h" />
-    <ClInclude Include="..\..\src\IMB_comments.h" />
-    <ClInclude Include="..\..\src\IMB_declare.h" />
+    <ClInclude Include="..\..\legacy\IMB_appl_errors.h" />
+    <ClInclude Include="..\..\legacy\IMB_benchmark.h" />
+    <ClInclude Include="..\..\legacy\IMB_comments.h" />
+    <ClInclude Include="..\..\legacy\IMB_declare.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
