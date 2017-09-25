@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{72B11209-BF5B-4AF0-B38D-744C2FD082C3}</ProjectGuid>
-    <RootNamespace>IMBMPI1</RootNamespace>
+    <RootNamespace>IMBMT</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -59,8 +59,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\legacy;$(ProjectDir)\..\..\src\legacy;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MPI1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -83,8 +83,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\legacy;$(ProjectDir)\..\..\legacy;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MPI1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -134,48 +134,12 @@
     <ClCompile Include="..\..\src\args_parser.cpp" />
     <ClCompile Include="..\..\src\args_parser_utests.cpp" />
     <ClCompile Include="..\..\src\scope.cpp" />
-    <ClCompile Include="..\..\src\MPI1/legacy_MPI1_suite.cpp" />
-    <ClCompile Include="..\..\src\MPI1/legacy_MPI1_benchmark.cpp" />
+    <ClCompile Include="..\..\src\MT/MT_suite.cpp" />
+    <ClCompile Include="..\..\src\MT/MT_benchmark.cpp" />
     <ClCompile Include="..\..\src\benchmark_suites_collection.cpp" />
   </ItemGroup>
-
   <ItemGroup>
-    <ClCompile Include="..\..\legacy\IMB_allgather.c" />
-    <ClCompile Include="..\..\legacy\IMB_allgatherv.c" />
-    <ClCompile Include="..\..\legacy\IMB_allreduce.c" />
-    <ClCompile Include="..\..\legacy\IMB_alltoall.c" />
-    <ClCompile Include="..\..\legacy\IMB_alltoallv.c" />
-    <ClCompile Include="..\..\legacy\IMB_bandwidth.c" />
-    <ClCompile Include="..\..\legacy\IMB_barrier.c" />
-    <ClCompile Include="..\..\legacy\IMB_bcast.c" />
-    <ClCompile Include="..\..\legacy\IMB_benchlist.c" />
-    <ClCompile Include="..\..\legacy\IMB_chk_diff.c" />
-    <ClCompile Include="..\..\legacy\IMB_cpu_exploit.c" />
-    <ClCompile Include="..\..\legacy\IMB_declare.c" />
-    <ClCompile Include="..\..\legacy\IMB_err_handler.c" />
-    <ClCompile Include="..\..\legacy\IMB_exchange.c" />
-    <ClCompile Include="..\..\legacy\IMB_gather.c" />
-    <ClCompile Include="..\..\legacy\IMB_gatherv.c" />
-    <ClCompile Include="..\..\legacy\IMB_g_info.c" />
-    <ClCompile Include="..\..\legacy\IMB_init.c" />
-    <ClCompile Include="..\..\legacy\IMB_init_transfer.c" />
-    <ClCompile Include="..\..\legacy\IMB_mem_manager.c" />
-    <ClCompile Include="..\..\legacy\IMB_output.c" />
-    <ClCompile Include="..\..\legacy\IMB_parse_name_mpi1.c" />
-    <ClCompile Include="..\..\legacy\IMB_pingping.c" />
-    <ClCompile Include="..\..\legacy\IMB_pingpong.c" />
-    <ClCompile Include="..\..\legacy\IMB_reduce.c" />
-    <ClCompile Include="..\..\legacy\IMB_reduce_scatter.c" />
-    <ClCompile Include="..\..\legacy\IMB_scatter.c" />
-    <ClCompile Include="..\..\legacy\IMB_scatterv.c" />
-    <ClCompile Include="..\..\legacy\IMB_sendrecv.c" />
-    <ClCompile Include="..\..\legacy\IMB_strgs.c" />
-    <ClCompile Include="..\..\legacy\IMB_utils.c" />
-    <ClCompile Include="..\..\legacy\IMB_warm_up.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\legacy/legacy_benchmark.h" />
-    <ClInclude Include="..\..\src\legacy/reworked_IMB_functions.h" />
+    <ClInclude Include="..\..\src\MT/MT_benchmark.h" />
     <ClInclude Include="..\..\src\args_parser.h" />
     <ClInclude Include="..\..\src\benchmark.h" />
     <ClInclude Include="..\..\src\benchmark_suite_base.h" />
@@ -187,7 +151,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="IMB-MPI1.rc" />
+    <ResourceCompile Include="IMB-MT.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -120,7 +120,6 @@
     <ClCompile Include="..\..\src\IMB_read.c" />
     <ClCompile Include="..\..\src\IMB_strgs.c" />
     <ClCompile Include="..\..\src\IMB_user_set_info.c" />
-    <ClCompile Include="..\..\src\IMB_utils.c" />
     <ClCompile Include="..\..\src\IMB_warm_up.c" />
     <ClCompile Include="..\..\src\IMB_write.c" />
   </ItemGroup>
