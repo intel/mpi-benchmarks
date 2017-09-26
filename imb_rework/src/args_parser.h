@@ -55,9 +55,12 @@ goods and services.
 #include <assert.h>
 #include <string>
 #include <map>
+#include <set>
 #include <stdexcept>
 #include "smart_ptr.h"
+#ifdef WITH_YAML_CPP
 #include "yaml-cpp/yaml.h"
+#endif
 
 // TODO:
 // proposed moding to add:
@@ -142,11 +145,13 @@ class args_parser {
         }
         virtual bool is_default_setting_required() = 0;
         virtual bool is_required_but_not_set() = 0;
-        virtual std::vector<args_parser::value> get_value_as_vector() const = 0; 
+        virtual std::vector<args_parser::value> get_value_as_vector() const = 0;
         virtual void to_ostream(std::ostream &s) const = 0;
         friend std::ostream &operator<<(std::ostream &s, const args_parser::option &d);
+#ifdef WITH_YAML_CPP        
         virtual void to_yaml(YAML::Emitter& out) const = 0;
         virtual void from_yaml(const YAML::Node& node) = 0;
+#endif        
         virtual ~option() {}
         private:
         option(const option &other) : parser(other.parser) {}
@@ -163,8 +168,10 @@ class args_parser {
         virtual bool do_parse(const char *sval);
         virtual bool is_scalar() const { return true; }
         virtual void to_ostream(std::ostream &s) const { s << val; }
-        virtual void to_yaml(YAML::Emitter& out) const; 
-        virtual void from_yaml(const YAML::Node& node); 
+#ifdef WITH_YAML_CPP        
+        virtual void to_yaml(YAML::Emitter& out) const;
+        virtual void from_yaml(const YAML::Node& node);
+#endif        
         virtual void set_default_value() { val = def; defaulted = true; }
         virtual bool is_default_setting_required() { return !val.is_initialized() && !required; }
         virtual bool is_required_but_not_set() { return required && !val.is_initialized(); }
@@ -189,16 +196,18 @@ class args_parser {
             vec_def(_vec_def)
         { num_already_initialized_elems = 0; }
         virtual ~option_vector() {}
-        virtual void print() const { 
+        virtual void print() const {
             parser.sout << str << ": ";
             to_ostream(parser.sout);
-            parser.sout << std::endl; 
+            parser.sout << std::endl;
         }
         virtual bool do_parse(const char *sval);
         virtual bool is_scalar() const { return false; }
         virtual void to_ostream(std::ostream &s) const { for (size_t i = 0; i < val.size(); i++) { s << val[i]; if (i != val.size()) s << ", "; } }
-        virtual void to_yaml(YAML::Emitter& out) const; 
-        virtual void from_yaml(const YAML::Node& node); 
+#ifdef WITH_YAML_CPP        
+        virtual void to_yaml(YAML::Emitter& out) const;
+        virtual void from_yaml(const YAML::Node& node);
+#endif        
         virtual void set_default_value();
         virtual bool is_default_setting_required() { return val.size() == 0 && !required; }
         virtual bool is_required_but_not_set() { return required && vec_min != 0 && !val.size() ==0; }
@@ -265,9 +274,11 @@ class args_parser {
     bool parse_special_vec(const std::string &s, std::vector<T> &r, char delim = ',', int min = 0, int max = option_vector::MAX_VEC_SIZE);
 
     void clean_args() { argc = 0; }
+#ifdef WITH_YAML_CPP    
     std::string dump() const;
     bool load(const std::string &input);
     bool load(std::istream &in);
+#endif    
     bool is_option(const std::string &str) const;
 
     error_t get_last_error(std::string &option, std::string &extra) {

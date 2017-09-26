@@ -50,7 +50,9 @@ goods and services.
 */
 
 #include "args_parser.h"
+#ifdef WITH_YAML_CPP
 #include "yaml-cpp/yaml.h"
+#endif
 
 #include <stdexcept>
 #include <assert.h>
@@ -129,6 +131,7 @@ const string args_parser::value::get_type_str(arg_t _type) {
     return "";
 }
 
+#ifdef WITH_YAML_CPP
 YAML::Emitter &operator<< (YAML::Emitter& out, const args_parser::value &v) {
     if (v.is_initialized()) {
         switch(v.type) {
@@ -172,6 +175,7 @@ void args_parser::option_vector::from_yaml(const YAML::Node& node)
     node >> val;
     assert(val.size() >= (size_t)vec_min && val.size() <= (size_t)vec_max);
 }
+#endif
 
 bool args_parser::option_scalar::do_parse(const char *sval) {
     if (val.initialized && parser.is_flag_set(NODUPLICATE))
@@ -654,6 +658,7 @@ void args_parser::get_unknown_args(vector<string> &r) const {
     }
 }
 
+#ifdef WITH_YAML_CPP
 bool args_parser::load(istream &stream) {
     try {
         YAML::Parser parser(stream);
@@ -747,6 +752,7 @@ string args_parser::dump() const {
     out << YAML::Newline;
     return string(out.c_str());
 }
+#endif
 
 bool args_parser::is_option(const string &str) const {
     if (strncmp(str.c_str(), option_starter, strlen(option_starter)) == 0) return true;

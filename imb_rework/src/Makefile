@@ -1,4 +1,8 @@
+ifdef WITH_YAML_CPP
 all: libyaml-cpp.a
+else
+all:	
+endif	
 
 ifeq ($(origin CC),default)
 CC=mpiicc
@@ -30,6 +34,7 @@ endif
 
 all: $(BINARY)
 
+ifdef WITH_YAML_CPP
 CPPFLAGS += -Iyamlcpp/include -Iyamlcpp/test
 YAMLCPP_SRC = yamlcpp/src/aliasmanager.cpp \
 yamlcpp/src/binary.cpp \
@@ -69,6 +74,7 @@ yamlcpp/test/old-api/spectests.cpp
 
 YAMLCPP_OBJ = $(YAMLCPP_SRC:.cpp=.o)
 YAMLCPP_TEST_OBJ = $(YAMLCPP_TEST_SRC:.cpp=.o)
+endif
 
 IMB_SRC = imb.cpp args_parser.cpp args_parser_utests.cpp scope.cpp
 IMB_OBJ = $(IMB_SRC:.cpp=.o)
@@ -85,6 +91,7 @@ smart_ptr.h \
 utils.h \
 scope.h
 
+ifdef WITH_YAML_CPP
 libyaml-cpp.a: $(YAMLCPP_OBJ)
 	ar qc $@ $^
 	ranlib $@
@@ -92,7 +99,12 @@ libyaml-cpp.a: $(YAMLCPP_OBJ)
 yamltest: $(YAMLCPP_TEST_OBJ) libyaml-cpp.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 
-$(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) libyaml-cpp.a
+YAML_CPP_LIB = libyaml-cpp.a
+YAML_TEST = yamltest
+CPPFLAGS += -DWITH_YAML_CPP
+endif
+
+$(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cpp
@@ -102,9 +114,12 @@ $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) libyaml-cpp.a
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(BINARY) yamltest libyaml-cpp.a
+	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(BINARY) $(YAML_CPP_LIB) $(YAML_TEST)
 
 
 $(BECHMARK_SUITE_OBJ): $(HEADERS) Makefile
 $(IMB_OBJ): $(HEADERS) Makefile
+
+ifdef WITH_YAML_CPP
 $(YAMLCPP_OBJ): Makefile
+endif	

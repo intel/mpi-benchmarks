@@ -48,7 +48,9 @@ goods and services.
 */
 
 #include "args_parser.h"
+#ifdef WITH_YAML_CPP
 #include "yaml-cpp/yaml.h"
+#endif
 
 #include <stdexcept>
 #include <assert.h>

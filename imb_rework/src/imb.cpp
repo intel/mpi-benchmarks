@@ -132,6 +132,7 @@ int main(int argc, char * *argv)
 
         // "system" option args to do special things, not dumped to files
         parser.set_current_group("SYS");
+#ifdef WITH_YAML_CPP        
         parser.add<string>("dump", "").set_caption("config.yaml").
                set_description(
                    "Dump the YAML config file with the set of actual options for\n"
@@ -139,6 +140,7 @@ int main(int argc, char * *argv)
         parser.add<string>("load", "").set_caption("config.yaml").
                set_description(
                    "Load session options from YAML config file given as a parameter\n");
+#endif        
         parser.add_flag("list").
                set_description(
                    "Prints out all the benchmark names available in this IMB build.\n"
@@ -149,6 +151,8 @@ int main(int argc, char * *argv)
         if (!parser.parse()) {
             throw 1;
         }
+        
+#ifdef WITH_YAML_CPP        
         string infile;  
         infile = parser.get<string>("load");
         if (infile != "") {
@@ -166,10 +170,10 @@ int main(int argc, char * *argv)
             ofstream of(outfile.c_str(), ios_base::out);
             of << out;
         }
+#endif
         
         vector<string> requested_benchmarks, to_include, to_exclude;
         parser.get<string>("(benchmarks)", requested_benchmarks);
-        // FIXME!!! separate unknown args to unknown option args and unknown free args
         parser.get_unknown_args(requested_benchmarks);
         parser.get<string>("include", to_include);
         parser.get<string>("exclude", to_exclude);
