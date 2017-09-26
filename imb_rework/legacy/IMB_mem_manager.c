@@ -967,7 +967,7 @@ In/out variables:
 
 /********************************************************************/
 
-extern char *bmark_names_from_input_file[100];
+extern char *duplicated_benchmark_names[1000];
 
 /* IMB 3.1 << */
 void IMB_free_all(struct comm_info* c_info, struct Bench** P_BList, struct iter_schedule* ITERATIONS)
@@ -999,9 +999,10 @@ In/out variables:
 */
 {
     int i;
-    for (i = 0; i < 100; i++) {
-        free(bmark_names_from_input_file[i]);
-        bmark_names_from_input_file[i] = NULL;
+    for (i = 0; i < 1000; i++) {
+        if(duplicated_benchmark_names[i] != NULL)
+            free(duplicated_benchmark_names[i]);
+        duplicated_benchmark_names[i] = NULL;
     }
     IMB_del_s_buf(c_info);
     IMB_del_r_buf(c_info);

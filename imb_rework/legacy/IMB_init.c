@@ -109,11 +109,12 @@ void print_array(char *name, int *ptr, int size)
 }
 */
 
-char *bmark_names_from_input_file[100] = { NULL, };
+char *duplicated_benchmark_names[1000] = { NULL, };
+unsigned int duplicated_benchmark_names_cnt = 0;
 
 struct Blist_item
 {
-    const char *bname;
+    char *bname;
     int   next_index;
 };
 
@@ -133,7 +134,7 @@ static int IMB_chk_arg_thread_level(int* val, char **argv, int argc, int iarg);
 static void IMB_init_Blist_item_pool();
 static void IMB_free_Blist_item_pool();
 
-static void IMB_add_to_list_tail(const char*, int*, int*);
+static void IMB_add_to_list_tail(const char*, int*, int*, int *);
 static void IMB_print_list    (int list_head_index);
 static void IMB_remove_invalid_items( int* p_list_head, int* p_list_tail, int* n_cases);
 static void IMB_remove_item_from_list( const char* name, int* p_list_head, int* p_list_tail, int *n_cases);
@@ -330,12 +331,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
     int Blist_head, Blist_incl_head, Blist_excl_head;
     int Blist_tail, Blist_incl_tail, Blist_excl_tail;
     int n_cases_incl, n_cases_excl;
-    enum {
-        CONSTRUCT_BLIST,
-        INCL_BLIST,
-        EXCL_BLIST
-    } blist_ind;
-
     help_only=0;
 
     *P_BList     = (struct Bench *)NULL;
@@ -389,9 +384,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
         }
         else
         {
-
-            blist_ind = CONSTRUCT_BLIST;
-
             iarg = 1;
 
             while( iarg <= *argc-1 )
@@ -414,8 +406,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     }
 
                     iarg++;
-
-                    blist_ind = CONSTRUCT_BLIST;
 
                 } else if(!strcmp((*argv)[iarg],"-multi"))
                 {
@@ -440,7 +430,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     }
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-off_cache"))
@@ -471,7 +460,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     ITERATIONS->cache_line_size = cls;
                     ITERATIONS->off_cache=1;
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-iter")) {
@@ -482,7 +470,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     } else {
                         int int_counter   = 0;
                         int param_counter = 0;
-                        const int n_param = 4; /* comma separated parameters*/
+                        const int n_param = 3; /* comma separated parameters*/
                         char* param       = (*argv)[iarg+1];
                         char const* token = NULL;
 
@@ -498,21 +486,25 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                                 case 2:  sscanf(token,"%d", &ITERATIONS->overall_vol);
                                          ITERATIONS->overall_vol *= (1024 * 1024);       break;
                                 case 3:  sscanf(token,"%d", &ITERATIONS->msgs_nonaggr);  break;
-                                default: ITERATIONS->iter_policy = imode_invalid;        break;
+                                //default: ITERATIONS->iter_policy = imode_invalid;        break;
                                 }
-                            } else {
-                                ITERATIONS->iter_policy = string_to_iter_policy(token);
+                            } //else {
+                                //ITERATIONS->iter_policy = string_to_iter_policy(token);
+                            //}
+                            else {
+                                fprintf(stderr,"Invalid iter selection\n");
+                                ok = -1;
+                                break;
                             }
                         }
                     }
 
-                    if (ITERATIONS->iter_policy == imode_invalid) {
-                        fprintf(stderr,"Invalid iter selection\n");
-                        ok = -1;
-                        break;
-                    } 
+//                    if (ITERATIONS->iter_policy == imode_invalid) {
+//                        fprintf(stderr,"Invalid iter selection\n");
+//                        ok = -1;
+//                        break;
+//                    } 
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-iter_policy")) {
@@ -540,7 +532,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     } 
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
                 } else if(!strcmp((*argv)[iarg],"-time")) {
                     int ierr; 
@@ -563,7 +554,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
 
                     ITERATIONS->secs=secs;
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-mem"))
@@ -588,7 +578,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     } 
 
                     c_info->max_mem=GB;
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-map"))
@@ -609,7 +598,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     } 
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 } else if(!strcmp((*argv)[iarg],"-msglen"))
@@ -623,7 +611,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     }
 
                     iarg_msg=iarg+1;
-                    blist_ind = CONSTRUCT_BLIST;
 
                     if( t )
                     {
@@ -654,26 +641,22 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     }
 
-                    blist_ind = CONSTRUCT_BLIST;
 
                     if( t )
                     {
                         char inp_line[72], nam[32];
-                        char *nam_copy;
                         while(fgets(inp_line,72,t))
                         {
                             if( inp_line[0] != '#' && strlen(inp_line)-1 )
                             {
                                 sscanf(inp_line,"%32s",nam);
-                                nam_copy = bmark_names_from_input_file[n_cases] = strdup(nam);
-
-                                if (++n_cases >= 100) {
+                                if (n_cases >= 1000) {
                                     fprintf(unit,"Too many benchmark cases\n");
                                     fflush(stderr);
                                     ok=-1;
                                     break;
                                 }
-                                IMB_add_to_list_tail( nam_copy, &Blist_head, &Blist_tail);
+                                IMB_add_to_list_tail(nam, &Blist_head, &Blist_tail, &n_cases);
                             }
                         }
                         fclose(t);
@@ -692,7 +675,8 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     }
 
-                    blist_ind = INCL_BLIST;
+                    IMB_add_to_list_tail((*argv)[iarg+1], &Blist_incl_head, &Blist_incl_tail, &n_cases_incl);
+                    iarg++; 
 
                 } else if(!strcmp((*argv)[iarg],"-exclude"))
                 {
@@ -704,8 +688,8 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     }
 
-                    blist_ind = EXCL_BLIST;
-
+                    IMB_add_to_list_tail((*argv)[iarg+1], &Blist_excl_head, &Blist_excl_tail, &n_cases_excl); 
+                    iarg++;
                 } 
                 /* IMB 3.2.3 << */
                 else if(!strcmp((*argv)[iarg],"-msglog"))
@@ -761,7 +745,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         break;
                     }
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
                 } 
 #ifdef USE_MPI_INIT_THREAD
@@ -777,7 +760,6 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
 
                     mpi_thread_desired = thread_level;
 
-                    blist_ind = CONSTRUCT_BLIST;
                     iarg++;
 
                 }
@@ -851,20 +833,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 else
                 {
                     /*It must be the name of one of benchmark*/
-                    if( blist_ind == CONSTRUCT_BLIST)
-                    {
-                        n_cases++;
-                        IMB_add_to_list_tail((*argv)[iarg], &Blist_head, &Blist_tail);
-                    }
-                    else if( blist_ind == INCL_BLIST)
-                    {
-                        n_cases_incl++;
-                        IMB_add_to_list_tail((*argv)[iarg], &Blist_incl_head, &Blist_incl_tail);
-                    } else if( blist_ind == EXCL_BLIST)
-                    {
-                        n_cases_excl++;
-                        IMB_add_to_list_tail((*argv)[iarg], &Blist_excl_head, &Blist_excl_tail);
-                    }
+                    IMB_add_to_list_tail((*argv)[iarg], &Blist_head, &Blist_tail, &n_cases);
                 }
 
                 iarg++;
@@ -914,12 +883,13 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 if( n_cases==0 )
                 {
                     char** def_cases, **General_cmt;
-                    int i;
+                    int i, n = 0;
 
                     n_cases = IMB_get_def_cases(&def_cases, &General_cmt);
 
+                    
                     for( i=0; i<n_cases; i++)
-                        IMB_add_to_list_tail( def_cases[i], &Blist_head, &Blist_tail);
+                        IMB_add_to_list_tail( def_cases[i], &Blist_head, &Blist_tail, &n);
                 }
 
                 /* Add benchmarks specified by option -include*/
@@ -1731,13 +1701,26 @@ static int IMB_get_Blist_item_index()
     return ret;
 }
 
-static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* list_tail_index)
+static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* list_tail_index, int *n)
 {
     int head = *list_head_index;
     int new_item_index = IMB_get_Blist_item_index();
     struct Blist_item* blist_item = &pool[new_item_index];
+    char *chained_bname = NULL;
 
-    blist_item->bname       = Bname;
+    if (Bname[0] == 0)
+        return;
+
+    duplicated_benchmark_names[duplicated_benchmark_names_cnt++] = blist_item->bname = strdup(Bname);
+    if (duplicated_benchmark_names_cnt == 1000) {
+        duplicated_benchmark_names_cnt--;
+    }
+
+    chained_bname = strchr(blist_item->bname, ',');
+    if (chained_bname != NULL) {
+        *chained_bname = 0;
+    }
+
     blist_item->next_index = -1;
 
     if( head == -1)
@@ -1755,6 +1738,10 @@ static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* l
     }
 
     *list_tail_index = new_item_index;
+    (*n)++;
+    if (chained_bname != NULL) {
+        IMB_add_to_list_tail(chained_bname + 1, list_head_index, list_tail_index, n);
+    }
 }
 
 static void IMB_print_list(int list_head_index)

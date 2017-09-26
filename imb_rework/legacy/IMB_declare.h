@@ -177,8 +177,10 @@ extern double *all_defect;
 /* IMB 3.1 << */
 /* include Windows case */
 #ifndef WIN_IMB
+#ifndef __cplusplus
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
+#endif
 #endif /*WIN_IMB*/
 /* >> IMB 3.1  */
 

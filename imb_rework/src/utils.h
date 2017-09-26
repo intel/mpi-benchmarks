@@ -64,10 +64,14 @@ namespace set_operations {
     void exclude(T1 &from, T2 &what) {
         for (typename T2::iterator what_it = what.begin();
              what_it != what.end(); ++what_it) {
-            typename T1::iterator it = find(from.begin(), from.end(), *what_it);
-            if (it != from.end())
-                from.erase(it);
-            }
+            do {
+                typename T1::iterator it = find(from.begin(), from.end(), *what_it);
+                if (it != from.end())
+                    from.erase(it);
+                else 
+                    break;
+            } while (true);
+        }
     }
     // result = one \ two    (set difference)
     template <typename T1, typename T2, typename T3>

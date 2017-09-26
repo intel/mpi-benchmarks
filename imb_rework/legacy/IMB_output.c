@@ -1143,13 +1143,20 @@ void IMB_help()
 
     fprintf(unit,"\nCalling sequence (command line will be repeated in Output table!):\n\n");
 
+
 #ifdef MPI1
-    fprintf(unit,"\nIMB-MPI1       [-h{elp}]\n");
+    const char *progname = "IMB-MPI1";
 #elif defined(EXT)
-    fprintf(unit,"\nIMB-EXT        [-h{elp}]\n");
+    const char *progname = "IMB-EXT";
 #elif defined (MPIIO)
-    fprintf(unit,"\nIMB-IO         [-h{elp}]\n");
+    const char *progname = "IMB-IO";
+#elif defined (RMA)
+    const char *progname = "IMB-RMA";
+#elif defined (NBC)
+    const char *progname = "IMB-NBC";
 #endif
+
+    fprintf(unit,"\n%s         [-h{elp}]\n", progname);
 
     /* IMB 3.1 << */
     /* Update calling sequence */
@@ -1158,7 +1165,7 @@ void IMB_help()
             "[-npmin        <NPmin>]\n"
             "[-multi        <outflag>]\n"
             "[-off_cache    <cache_size[,cache_line_size]>\n"
-            "[-iter         <msgspersample[,overall_vol[,msgs_nonaggr[,iter_policy]]]>\n"
+            "[-iter         <msgspersample[,overall_vol[,msgs_nonaggr]]>\n"
             "[-iter_policy  <iter_policy>]\n"
             "[-time         <max_runtime per sample>]\n"
             "[-mem          <max. per process memory for overall message buffers>]\n"
@@ -1166,8 +1173,8 @@ void IMB_help()
             "[-map          <PxQ>]\n"
             "[-input        <filename>]\n"
             "[benchmark1    [benchmark2 [...]]]\n"
-            "[-include      [benchmark1 [benchmark2 [...]]]\n"
-            "[-exclude      [benchmark1 [benchmark2 [...]]]\n"
+            "[-include      [benchmark1,[benchmark2,[...]]]\n"
+            "[-exclude      [benchmark1,[benchmark2,[...]]]\n"
             "[-msglog       <[min_msglog]:max_msglog>]\n"
 #if (defined MPI1 || defined NBC)
             "[-root_shift   <on or off>]\n"
@@ -1237,10 +1244,9 @@ void IMB_help()
 #endif
     fprintf(unit,
             "- iter \n\n"
-            "the argument after -iter can contain from 1 to 4 comma separated values\n"
+            "the argument after -iter can contain from 1 to 3 comma separated values\n"
             "3 integer numbers override the defaults \n"
             "MSGSPERSAMPLE, OVERALL_VOL, MSGS_NONAGGR of =>IMB_settings.h\n"
-            "and 1 string value overrides the default ITER_POLICY of => IMB_settings.h\n"
             "examples \n"
             "-iter 2000        (override MSGSPERSAMPLE by value 2000) \n"
             "-iter 1000,100    (override OVERALL_VOL by 100) \n"
@@ -1248,13 +1254,8 @@ void IMB_help()
             "\n"
             "\n"
             "default: \n"
-            "iteration control through parameters MSGSPERSAMPLE,OVERALL_VOL,MSGS_NONAGGR,ITER_POLICY => IMB_settings.h \n"
-            "\n"
-            "NOTE: !! New in versions from IMB 3.2 on !!  \n"
-            "the iter selection is overridden by a dynamic selection that is a new default in \n"
-            "IMB 3.2: when a maximum run time (per sample) is expected to be exceeded, the \n"
-            "iteration number will be cut down; see -time flag  \n"
-            "\n"
+            "iteration control through parameters MSGSPERSAMPLE,OVERALL_VOL,MSGS_NONAGGR => IMB_settings.h \n"
+           "\n"
             "- iter_policy\n"
             "\n"
             "the argument after -iter_policy is a one from possible strings,\n"
@@ -1264,6 +1265,11 @@ void IMB_help()
             "-iter_policy auto\n"
             "default:\n"
             "iteration control through parameter ITER_POLICY => IMB_settings.h \n"
+            "\n"
+            "NOTE: !! New in versions from IMB 3.2 on !!  \n"
+            "the iter selection is overridden by a dynamic selection that is a new default in \n"
+            "IMB 3.2: when a maximum run time (per sample) is expected to be exceeded, the \n"
+            "iteration number will be cut down; see -time flag  \n"
             "\n"
             "- time\n"
             "\n"
@@ -1335,10 +1341,10 @@ void IMB_help()
             "no input file exists\n"
             "\n"
             "- include\n\n"
-            "the argument after -include  is one or more benchmark names separated by spaces\n"
+            "the argument after -include  is one or more benchmark names separated by comma\n"
             "\n"
             "- exclude\n\n"
-            "the argument after -exclude  is one or more benchmark names separated by spaces\n"
+            "the argument after -exclude  is one or more benchmark names separated by comma\n"
             "\n"
             "\n"
             "-msglog\n\n"

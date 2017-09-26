@@ -297,13 +297,13 @@ ierr = 0;
 if( c_info->File_rank >= 0 )
 {
 
-int (* GEN_File_write)(MPI_File fh, void* buf, int count, 
+int (* GEN_File_write)(MPI_File fh, const void* buf, int count, 
                        MPI_Datatype datatype, MPI_Status *status);
 int (* GEN_File_write_shared)
-                      (MPI_File fh, void* buf, int count, 
+                      (MPI_File fh, const void* buf, int count, 
                        MPI_Datatype datatype, MPI_Status *status);
 int (* GEN_File_write_at) 
-                      (MPI_File fh, MPI_Offset offset, void* buf, int count, 
+                      (MPI_File fh, MPI_Offset offset, const void* buf, int count, 
                        MPI_Datatype datatype, MPI_Status *status);
 
 #ifdef CHECK
