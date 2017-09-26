@@ -49,9 +49,10 @@
 #  ***************************************************************************
 
 
-LEGACY_SRC_DIR=../legacy
-CPPFLAGS += -Ilegacy
-CPPFLAGS += -I$(LEGACY_SRC_DIR)
+CPPFLAGS += -DHALO
+CPPFLAGS += -Ihalo -IMT
 
-HEADERS += legacy/legacy_benchmark.h \
-legacy/reworked_IMB_functions.h
+BECHMARK_SUITE_SRC += halo/halo_suite.cpp halo/halo_benchmark.cpp 
+
+HEADERS += MT/MT_benchmark.h halo/halo_benchmark.h
+
