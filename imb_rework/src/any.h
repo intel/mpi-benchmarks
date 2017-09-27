@@ -57,8 +57,8 @@ class any
 {
     struct holder_base
     {
-        virtual void *get() { return NULL; }
-        virtual const std::type_info &get_type_id() { return typeid(void); }
+        virtual void *get() const { return NULL; }
+        virtual const std::type_info &get_type_id() const { return typeid(void); }
         virtual ~holder_base() {}
         int dummy;
     };
@@ -67,8 +67,8 @@ class any
     {
         smart_ptr<type> storedObject;
         holder(smart_ptr<type> pobject) : storedObject(pobject) {}
-        virtual void *get() { return storedObject.get(); }
-        virtual const std::type_info &get_type_id() { return typeid(type); }
+        virtual void *get() const { return storedObject.get(); }
+        virtual const std::type_info &get_type_id() const { return typeid(type); }
     };
     smart_ptr<holder_base> held;
 public:
@@ -77,7 +77,7 @@ public:
     any(smart_ptr<type> objectToStore) : held(new holder<type>(objectToStore))
   {}
     template <class type>
-    type *as() { 
+    type *as() const { 
         if (held.get() == NULL)
             return NULL;
         if (typeid(type) == held->get_type_id()) 

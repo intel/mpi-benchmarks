@@ -61,8 +61,8 @@ ifeq ($(origin CXX),default)
 CXX=mpiicpc
 endif
 CPPFLAGS += -I.
-CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long -fopenmp
-CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long -fopenmp
+CFLAGS += -Wall -Wextra -pedantic -Wno-long-long -fopenmp
+CXXFLAGS += -Wall -Wextra -pedantic -Wno-long-long -fopenmp
 
 #ifeq ($(origin CC),default)
 #CXX=mpicc

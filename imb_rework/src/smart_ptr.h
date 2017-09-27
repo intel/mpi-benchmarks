@@ -78,8 +78,7 @@ public:
         std::swap(rc, rhs.rc);
     }
     void detach() { detached = true; }
-    T *get() { return pointer; }
-    const T *get() const { return pointer; }
+    T *get() const { return pointer; }
     smart_ptr& operator=(const smart_ptr& rhs) {
         smart_ptr tmp(rhs);
         this->swap(tmp);

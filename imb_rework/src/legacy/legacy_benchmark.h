@@ -67,6 +67,7 @@ class OriginalBenchmark : public Benchmark {
         virtual void run(const scope_item &item) {
             int size = item.len;
             int np = item.np; 
+            int imod = *(item.extra_fields.as<int>());
             if (!initialized)
                 return;
             if (descr->stop_iterations)
@@ -81,7 +82,7 @@ class OriginalBenchmark : public Benchmark {
                 descr->helper_sync_legacy_globals_2(c_info, glob, BMark);
             }
             glob.size = size;
-            BMODE = BMark->RUN_MODES;
+            BMODE = &(BMark->RUN_MODES[imod]);
             descr->IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, size);
             descr->helper_time_check(c_info, glob, BMark, ITERATIONS);
             bool failed = (descr->stop_iterations || (BMark->sample_failure));

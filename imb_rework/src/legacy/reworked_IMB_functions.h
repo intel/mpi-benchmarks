@@ -192,6 +192,7 @@ struct reworked_Bmark_descr {
                 }
             }
         }
+        scope.add_nmodes(Bmark->N_Modes);
         scope.commit();
         return smart_ptr<Scope>(&scope);
     }

@@ -68,6 +68,7 @@ struct scope_item {
     any extra_fields;
     scope_item(int _len) : np(0), len(_len) { }
     scope_item(int _np, int _len) : np(_np), len(_len) { }
+    scope_item(int _np, int _len, any _extra) : np(_np), len(_len), extra_fields(_extra) { }
 };
 
 struct ScopeIterator {
@@ -135,15 +136,21 @@ struct VarLenScope : public Scope {
 struct NPLenCombinedScope : public Scope {
     std::vector<int> lens;
     std::vector<int> nps;
+    size_t nmodes;
+    NPLenCombinedScope() : nmodes(1) {}
     void fill_lens(std::vector<int> _lens) { lens = _lens; }
     void add_len(int len) { lens.push_back(len); }
     void add_np(int np) { nps.push_back(np); }
+    void add_nmodes(size_t _nmodes) { nmodes = _nmodes; }
     virtual void commit() {
         formed = true;
         assert(sequence.size() == 0);
-        for (size_t i = 0; i < nps.size(); i++) {
-            for (size_t j = 0; j < lens.size(); j++) {
-                sequence.push_back(scope_item(nps[i], lens[j]));
+        for (size_t k = 0; k < nmodes; k++) {
+            for (size_t i = 0; i < nps.size(); i++) {
+                for (size_t j = 0; j < lens.size(); j++) {
+                    any mode = smart_ptr<int>(new int(k));
+                    sequence.push_back(scope_item(nps[i], lens[j], mode));
+                }
             }
         }
     }
