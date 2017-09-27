@@ -190,13 +190,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
         output << "#------------------------------------------------------------" << std::endl;
-        output << "#    Intel(R) MPI Benchmarks " << "PREVIEW" << ", MT part    " << std::endl;
+        output << "#    Intel(R) MPI Benchmarks " << "2019 Technical Preview" << ", MT part    " << std::endl;
         output << "#------------------------------------------------------------" << std::endl;
-        output << "#" << std::endl;
-        output << "# ******* WARNING! THIS IS PREVIEW VERSION!      *******" << std::endl;
-        output << "# ******* FOR PRELIMINARY OVERVIEW ONLY!         *******" << std::endl;
-        output << "# ******* DON'T USE FOR ANY ACTUAL BENCHMARKING! *******" << std::endl;
-        output << "#" << std::endl;
         output << "#" << std::endl;
     }
     return true;

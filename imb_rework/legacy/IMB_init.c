@@ -97,17 +97,6 @@ For more documentation than found here, see
 
 #define MAX_INT_LOG (31)
 
-/*
-void print_array(char *name, int *ptr, int size) 
-{
-    int i;
-    printf("%s: { ", name);
-    for (i = 0; i < size; i++) {
-        printf("%d%s", ptr[i], (i == size-1 ? "" : ", "));
-    }
-    printf(" }\n");
-}
-*/
 
 char *duplicated_benchmark_names[1000] = { NULL, };
 unsigned int duplicated_benchmark_names_cnt = 0;
