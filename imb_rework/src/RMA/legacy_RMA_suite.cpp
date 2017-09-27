@@ -1,54 +1,3 @@
-/*****************************************************************************
- *                                                                           *
- * Copyright (c) 2016-2017 Intel Corporation.                                *
- * All rights reserved.                                                      *
- *                                                                           *
- *****************************************************************************
-
-This code is covered by the Community Source License (CPL), version
-1.0 as published by IBM and reproduced in the file "license.txt" in the
-"license" subdirectory. Redistribution in source and binary form, with
-or without modification, is permitted ONLY within the regulations
-contained in above mentioned license.
-
-Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
-within the regulations of the "License for Use of "Intel(R) MPI
-Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory.
-
-THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
-LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE, NON-INFRINGEMENT,
-MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each Recipient is
-solely responsible for determining the appropriateness of using and
-distributing the Program and assumes all risks associated with its
-exercise of rights under this Agreement, including but not limited to
-the risks and costs of program errors, compliance with applicable
-laws, damage to or loss of data, programs or equipment, and
-unavailability or interruption of operations.
-
-EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR
-ANY CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING
-WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
-DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-
-EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
-YOUR JURISDICTION. It is licensee's responsibility to comply with any
-export regulations applicable in licensee's jurisdiction. Under
-CURRENT U.S. export regulations this software is eligible for export
-from the U.S. and can be downloaded by or otherwise exported or
-reexported worldwide EXCEPT to U.S. embargoed destinations which
-include Cuba, Iraq, Libya, North Korea, Iran, Syria, Sudan,
-Afghanistan and any other country to which the U.S. has embargoed
-goods and services.
-
- ***************************************************************************
-*/
-
 #include <set>
 #include <vector>
 #include <string>
@@ -71,9 +20,9 @@ extern "C" {
 
 using namespace std;
 
-DECLARE_BENCHMARK_SUITE_STUFF(BS_MPI1, IMB-MPI1)
+DECLARE_BENCHMARK_SUITE_STUFF(BS_RMA, IMB-RMA)
 
-namespace NS_MPI1 {
+namespace NS_RMA {
     struct comm_info c_info;
     struct iter_schedule ITERATIONS;
     struct LEGACY_GLOBALS glob;
@@ -82,7 +31,7 @@ namespace NS_MPI1 {
 
 bool load_msg_sizes(const char *filename)
 {
-    using namespace NS_MPI1;
+    using namespace NS_RMA;
 
     FILE*t = fopen(filename, "r");
     if (t == NULL)
@@ -146,7 +95,7 @@ bool load_msg_sizes(const char *filename)
     return true;
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std::ostream &output) const {
+template <> bool BenchmarkSuite<BS_RMA>::declare_args(args_parser &parser, std::ostream &output) const {
     UNUSED(output);
     parser.set_current_group(get_name());
     parser.add<int>("npmin", 2).set_caption("NPmin").
@@ -196,7 +145,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                 "A cache_size and a cache_line_size are assumed as statically defined\n"
                 "in  => IMB_mem_info.h; these are used when -off_cache -1 is entered\n"
                 "\n"
-                "remark: -off_cache is effective for IMB-MPI1, IMB-EXT, but not IMB-IO\n"
+                "remark: -off_cache is effective for IMB-RMA, IMB-EXT, but not IMB-IO\n"
                 "\n"
                 "Examples:\n"
                 "-off_cache -1 (use defaults of IMB_mem_info.h);\n"
@@ -326,14 +275,14 @@ void preprocess_list(T &list) {
     list = tmp;
 }
 
-template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs,
+template <> bool BenchmarkSuite<BS_RMA>::prepare(const args_parser &parser, const vector<string> &benchs,
                                                   const vector<string> &unknown_args, std::ostream &output) {
-    using namespace NS_MPI1;
+    using namespace NS_RMA;
     for (vector<string>::const_iterator it = unknown_args.begin(); it != unknown_args.end(); ++it) {
         output << "Invalid benchmark name " << *it << endl;
     }
     vector<string> all_benchs, spare_benchs = benchs, intersection = benchs;
-    BenchmarkSuite<BS_MPI1>::get_full_list(all_benchs);
+    BenchmarkSuite<BS_RMA>::get_full_list(all_benchs);
     set_operations::exclude(spare_benchs, all_benchs);
     set_operations::exclude(intersection, spare_benchs);
     if (intersection.size() == 0)
@@ -507,15 +456,19 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         fprintf(unit,"# List of Benchmarks to run:\n\n");
         for (vector<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
             printf("# %s\n", it->c_str());
+            std::vector<std::string> comments = create(it->c_str())->get_comments();
+            for (vector<string>::iterator it_com = comments.begin(); it_com != comments.end(); ++it_com) {
+                printf("#     %s\n", it_com->c_str());
+            }
         }
     }
     return true;
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::finalize(const vector<string> &benchs,
+template <> void BenchmarkSuite<BS_RMA>::finalize(const vector<string> &benchs,
                                                    std::ostream &output) {
     UNUSED(output);
-    using namespace NS_MPI1;
+    using namespace NS_RMA;
     if (!prepared)
         return;
     for (vector<string>::const_iterator it = benchs.begin(); it != benchs.end(); ++it) {
@@ -529,9 +482,9 @@ template <> void BenchmarkSuite<BS_MPI1>::finalize(const vector<string> &benchs,
     }
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs, 
+template <> void BenchmarkSuite<BS_RMA>::get_bench_list(set<string> &benchs, 
                                                          BenchmarkSuiteBase::BenchListFilter filter) const {
-    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
+    BenchmarkSuite<BS_RMA>::get_full_list(benchs);
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
         for (set<string>::iterator it = benchs.begin(); it != benchs.end(); ++it) {
             smart_ptr<Benchmark> b = get_instance().create(*it);
@@ -543,9 +496,9 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(set<string> &benchs,
     }
 }
 
-template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(vector<string> &benchs, 
+template <> void BenchmarkSuite<BS_RMA>::get_bench_list(vector<string> &benchs, 
                                                          BenchmarkSuiteBase::BenchListFilter filter) const {
-    BenchmarkSuite<BS_MPI1>::get_full_list(benchs);
+    BenchmarkSuite<BS_RMA>::get_full_list(benchs);
     if (benchs.size() == 0)
         return;
     if (filter == BenchmarkSuiteBase::DEFAULT_BENCHMARKS) {
@@ -565,8 +518,8 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(vector<string> &benchs,
                                         result.detach_ptr(); }
 
 
-template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
-    using namespace NS_MPI1;
+template<> any BenchmarkSuite<BS_RMA>::get_parameter(const std::string &key) {
+    using namespace NS_RMA;
     any result;
     HANDLE_PARAMETER(comm_info, c_info);
     HANDLE_PARAMETER(iter_schedule, ITERATIONS);

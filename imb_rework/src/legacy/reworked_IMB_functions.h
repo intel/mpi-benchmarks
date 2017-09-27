@@ -58,19 +58,24 @@ typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
 
 
 enum descr_t { 
-    REDUCTION, SELECT_SOURCE, 
-    SINGLE_TRANSFER, PARALLEL_TRANSFER, COLLECTIVE, 
+    REDUCTION, SELECT_SOURCE,
+    GET, PUT,
+    SINGLE_TRANSFER, PARALLEL_TRANSFER, COLLECTIVE, SINGLE_ELEMENT_TRANSFER, MULT_PASSIVE_TRANSFER,
     PARALLEL_TRANSFER_MSG_RATE, SYNC,
     SCALE_TIME_HALF, SCALE_BW_DOUBLE, SCALE_BW_FOUR,
     SENDBUF_SIZE_I, SENDBUF_SIZE_2I, SENDBUF_SIZE_NP_I, SENDBUF_SIZE_0,
-    RECVBUF_SIZE_I, RECVBUF_SIZE_2I, RECVBUF_SIZE_NP_I, RECVBUF_SIZE_0,
+    RECVBUF_SIZE_I, RECVBUF_SIZE_2I, RECVBUF_SIZE_3I, RECVBUF_SIZE_NP_I, RECVBUF_SIZE_0,
     HAS_ROOT,
+    BIDIR_1,
+    N_MODES_1,
+    NON_AGGREGATE,
+    NONBLOCKING,
     DEFAULT
 };
 
 struct LEGACY_GLOBALS {
     int NP_min;
-    int NP, iter, size, ci_np;
+    int NP, iter, size, ci_np, imod;
     int header, MAXMSG;
     int x_sample, n_sample;
     Type_Size unit_size;
@@ -98,6 +103,10 @@ struct reworked_Bmark_descr {
                 return ParallelTransferMsgRate;
             case SYNC:
                 return Sync;
+            case SINGLE_ELEMENT_TRANSFER:
+                return SingleElementTransfer;
+            case MULT_PASSIVE_TRANSFER:
+                return MultPassiveTransfer;
             default: 
                 return BTYPE_INVALID;
         }
@@ -117,6 +126,8 @@ struct reworked_Bmark_descr {
                 return i;
             case RECVBUF_SIZE_2I:
                 return (size_t)2 * i;
+            case RECVBUF_SIZE_3I:
+                return (size_t)3 * i;
             case RECVBUF_SIZE_NP_I:
                 return np * i;
             case RECVBUF_SIZE_0:
@@ -126,6 +137,18 @@ struct reworked_Bmark_descr {
         }
         throw std::logic_error("descr2len: unknown len");
         return 0;
+    }
+
+    DIRECTION descr2access(descr_t t) {
+        switch(t) {
+            case GET:
+                return get;
+            case PUT:
+                return put;
+            default:
+                throw std::logic_error("descr2access: unknown access");
+        }
+        throw std::logic_error("descr2access: unknown access");
     }
 
     bool is_default() {
@@ -141,9 +164,49 @@ struct reworked_Bmark_descr {
 
         Bmark->reduction = (flags.count(REDUCTION) > 0);
         Bmark->Ntimes = 1;
+        bool found = false;
+#ifdef MPI1
         Bmark->select_source = (flags.count(SELECT_SOURCE) > 0);
+#endif /*MPI1*/
 
-        Bmark->Benchmark = fn;    
+#ifdef RMA
+        Bmark->N_Modes = flags.count(N_MODES_1) > 0 ? 1 : 2;
+        Bmark->RUN_MODES[0].AGGREGATE   = 0;
+        Bmark->RUN_MODES[1].AGGREGATE   = 1;
+        Bmark->RUN_MODES[0].NONBLOCKING = 0;
+        Bmark->RUN_MODES[1].NONBLOCKING = 0;
+        Bmark->RUN_MODES[0].BIDIR       = 0;
+        Bmark->RUN_MODES[1].BIDIR       = 0;
+
+        if (flags.count(NON_AGGREGATE)) {
+            Bmark->RUN_MODES[0].AGGREGATE = -1;
+        }
+
+        if (flags.count(NONBLOCKING)) {
+            Bmark->RUN_MODES[0].NONBLOCKING = 1;
+        }
+
+        if (flags.count(BIDIR_1)) {
+            Bmark->RUN_MODES[0].BIDIR = 1;
+            Bmark->RUN_MODES[1].BIDIR = 1;
+        }
+
+        descr_set access;
+        access.insert(GET);
+        access.insert(PUT);
+        for (descr_set::iterator it = access.begin(); it != access.end(); ++it) {
+            if (flags.count(*it)) {
+                if (found)
+                    result = false;
+                Bmark->access = descr2access(*it);
+                found = true;
+            }
+        }
+        if (!found)
+            result = false;
+#endif /*RMA*/
+
+        Bmark->Benchmark = fn;
         for (size_t i = 0; i < comments.size(); i++) {
             cmt.push_back(comments[i].c_str());
         } 
@@ -156,7 +219,8 @@ struct reworked_Bmark_descr {
         types.insert(COLLECTIVE);
         types.insert(PARALLEL_TRANSFER_MSG_RATE);
         types.insert(SYNC);
-        bool found = false;
+        types.insert(SINGLE_ELEMENT_TRANSFER);
+        types.insert(MULT_PASSIVE_TRANSFER);
         for (descr_set::iterator it = types.begin(); it != types.end(); ++it) {
             if (flags.count(*it)) {
                 if (found)
@@ -178,6 +242,11 @@ struct reworked_Bmark_descr {
         if (flags.count(SCALE_BW_FOUR)) {
             Bmark->scale_bw = 4.0;
         }
+
+#ifdef RMA
+        Bmark->RUN_MODES[1].type = Bmark->RUN_MODES[0].type;
+#endif /*RMA*/
+
         return result;
     }
 
@@ -193,17 +262,21 @@ struct reworked_Bmark_descr {
                 break;
             if (stop)
                 break;
-
-            // --- helper_get_next_size(c_info, glob);
-            if (c_info.n_lens > 0) {
-                len = c_info.msglen[iter];
+            if (Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+                    /* just one size needs to be tested (the size of one element) */
+                MPI_Type_size(c_info.red_data_type,&len);
             } else {
-                if( iter == 0 ) {
-                    len = 0;
-                } else if (iter == 1) {
-                    len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+                // --- helper_get_next_size(c_info, glob);
+                if (c_info.n_lens > 0) {
+                    len = c_info.msglen[iter];
                 } else {
-                    len = std::min(glob.MAXMSG, len + len);
+                    if( iter == 0 ) {
+                        len = 0;
+                    } else if (iter == 1) {
+                        len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+                    } else {
+                        len = std::min(glob.MAXMSG, len + len);
+                    }
                 }
             }
 
@@ -324,6 +397,7 @@ struct reworked_Bmark_descr {
             descr_set types;
             types.insert(RECVBUF_SIZE_I);
             types.insert(RECVBUF_SIZE_2I);
+            types.insert(RECVBUF_SIZE_3I);
             types.insert(RECVBUF_SIZE_NP_I);
             types.insert(RECVBUF_SIZE_0);
             bool found = false;
@@ -573,9 +647,18 @@ struct Bench *Bmark) {
             glob.NP_min += glob.NP_min % 2;
         }
         glob.NP=std::max(1,std::min(glob.ci_np,glob.NP_min));
-        if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+        if (Bmark->RUN_MODES[0].type == SingleTransfer ||
+            Bmark->RUN_MODES[0].type == SingleElementTransfer) {
             glob.NP = (std::min(2,glob.ci_np));
         }
+#ifdef RMA
+        if (Bmark->RUN_MODES[0].type == MultPassiveTransfer) {
+            /* Just sanity check */
+            if (c_info.num_procs > 1) {
+                Bmark->scale_bw = (double)c_info.num_procs - 1;
+            }
+        }
+#endif /*RMA*/
         if (Bmark->reduction ||
             Bmark->RUN_MODES[0].type == SingleElementTransfer) {
             MPI_Type_size(c_info.red_data_type,&glob.unit_size);
@@ -592,7 +675,9 @@ struct Bench *Bmark) {
         sample_time = MPI_Wtime();
         time_limit[0] = time_limit[1] = 0;
         Bmark->success = 1;
+#ifdef MPI1
         c_info.select_source = Bmark->select_source;
+#endif
         stop_iterations = false;
         glob.iter = 0;
         glob.size = 0;

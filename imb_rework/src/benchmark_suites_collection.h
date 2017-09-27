@@ -57,11 +57,12 @@ goods and services.
 //!!! to remove
 #include <iostream>
 
-enum benchmark_suite_t { 
-    BS_MPI1, 
+enum benchmark_suite_t {
+    BS_MPI1,
     BS_NBC,
     BS_MT,
-    BS_GENERIC    
+    BS_RMA,
+    BS_GENERIC
 };
 
 class BenchmarkSuitesCollection {

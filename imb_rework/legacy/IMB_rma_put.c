@@ -97,7 +97,7 @@ void IMB_rma_single_put (struct comm_info* c_info, int size,
     {
         target = c_info->pair1;
         sender = 1;
-    } 
+    }
     else if (c_info->rank == c_info->pair1)
     {
         target = c_info->pair0;
@@ -197,7 +197,7 @@ void IMB_rma_put_all (struct comm_info* c_info, int size,
         *time = res_time;
         return;
     } 
-    
+
     if (c_info->rank == 0 || run_mode->type == Collective)
     {
         sender = 1;
@@ -265,7 +265,7 @@ void IMB_rma_put_local (struct comm_info* c_info, int size,
         *time = res_time;
         return;
     } 
-    
+
     MPI_Type_size(c_info->s_data_type,&s_size);
     s_num=size/s_size;
 
@@ -399,7 +399,7 @@ void IMB_rma_exchange_put (struct comm_info* c_info, int size,
     defect = 0;
 #endif
     ierr = 0;
-    
+
     if (c_info->rank < 0)
     {
         *time = res_time;

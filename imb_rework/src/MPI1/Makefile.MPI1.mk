@@ -86,10 +86,10 @@ $(LEGACY_SRC_DIR)/IMB_sendrecv.c \
 $(LEGACY_SRC_DIR)/IMB_strgs.c \
 $(LEGACY_SRC_DIR)/IMB_utils.c \
 $(LEGACY_SRC_DIR)/IMB_warm_up.c
-LEGACY_OBJ=$(subst $(LEGACY_SRC_DIR),.,$(LEGACY_SRC:.c=.o))
+LEGACY_OBJ=$(subst $(LEGACY_SRC_DIR),MPI1,$(LEGACY_SRC:.c=.o))
 ADDITIONAL_OBJ += $(LEGACY_OBJ)
 
-%.o: $(LEGACY_SRC_DIR)/%.c
+MPI1/%.o: $(LEGACY_SRC_DIR)/%.c
 	$(CC) -DMPI1 -c -o $@ $<
 
 $(BECHMARK_SUITE_SRC): test_header_presence

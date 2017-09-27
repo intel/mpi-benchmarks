@@ -48,38 +48,38 @@
 #
 #  ***************************************************************************
 
-all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT
 
-IMB-MPI1:
-	make -j8 -C src -f Makefile TARGET=MPI1
-	@cp src/IMB-MPI1 .
+include legacy/Makefile.*.mk
 
-IMB-NBC:
-	make -C legacy -f Makefile TARGET=NBC
-	@cp legacy/IMB-NBC .
+CPPFLAGS += -DRMA
 
-IMB-EXT:
-	make -C legacy -f Makefile TARGET=EXT
-	@cp legacy/IMB-EXT .
+BECHMARK_SUITE_SRC += RMA/legacy_RMA_suite.cpp RMA/legacy_RMA_benchmark.cpp
+LEGACY_SRC = $(LEGACY_SRC_DIR)/IMB_utils.c \
+$(LEGACY_SRC_DIR)/IMB_declare.c \
+$(LEGACY_SRC_DIR)/IMB_init.c \
+$(LEGACY_SRC_DIR)/IMB_mem_manager.c \
+$(LEGACY_SRC_DIR)/IMB_benchlist.c \
+$(LEGACY_SRC_DIR)/IMB_parse_name_rma.c \
+$(LEGACY_SRC_DIR)/IMB_strgs.c \
+$(LEGACY_SRC_DIR)/IMB_err_handler.c \
+$(LEGACY_SRC_DIR)/IMB_g_info.c \
+$(LEGACY_SRC_DIR)/IMB_warm_up.c \
+$(LEGACY_SRC_DIR)/IMB_output.c \
+$(LEGACY_SRC_DIR)/IMB_init_transfer.c \
+$(LEGACY_SRC_DIR)/IMB_user_set_info.c \
+$(LEGACY_SRC_DIR)/IMB_chk_diff.c \
+$(LEGACY_SRC_DIR)/IMB_rma_put.c \
+$(LEGACY_SRC_DIR)/IMB_cpu_exploit.c \
+$(LEGACY_SRC_DIR)/IMB_rma_get.c \
+$(LEGACY_SRC_DIR)/IMB_rma_atomic.c
+LEGACY_OBJ=$(subst $(LEGACY_SRC_DIR),RMA,$(LEGACY_SRC:.c=.o))
+ADDITIONAL_OBJ += $(LEGACY_OBJ)
 
-IMB-RMA:
-	make -C src -f Makefile TARGET=RMA
-	@cp src/IMB-RMA .
+RMA/%.o: $(LEGACY_SRC_DIR)/%.c
+	$(CC) -DRMA -c -o $@ $<
 
-IMB-IO:
-	make -C legacy -f Makefile TARGET=IO
-	@cp legacy/IMB-IO .
+$(BECHMARK_SUITE_SRC): test_header_presence
+$(LEGACY_SRC): test_header_presence
 
-IMB-MT: | IMB-MPI1
-	make -j8 -C src -f Makefile TARGET=MT
-	@cp src/IMB-MT .
-
-
-clean:
-	make -C src -f Makefile TARGET=MPI1 clean
-	make -C legacy -f Makefile TARGET=NBC clean
-	make -C src -f Makefile TARGET=RMA clean
-	make -C legacy -f Makefile TARGET=EXT clean
-	make -C legacy -f Makefile TARGET=IO clean
-	make -C src -f Makefile TARGET=MT clean
-	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT
+test_header_presence:
+	@test -f $(LEGACY_SRC_DIR)/IMB_benchmark.h || ( echo "ERROR: can't find legacy IMB source code tree" && false )

@@ -123,8 +123,9 @@ class OriginalBenchmark : public Benchmark {
                 return;
             if (descr->stop_iterations)
                 return;
-            if (np != glob.NP) {
+            if (np != glob.NP || imod != glob.imod) {
                 glob.NP = np;
+                glob.imod = imod;
                 if (!IMB_valid(&c_info, BMark, glob.NP)) {
                     descr->stop_iterations = true;
                     return;
