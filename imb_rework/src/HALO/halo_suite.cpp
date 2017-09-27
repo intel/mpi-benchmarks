@@ -1,3 +1,54 @@
+/*****************************************************************************
+ *                                                                           *
+ * Copyright (c) 2016-2017 Intel Corporation.                                *
+ * All rights reserved.                                                      *
+ *                                                                           *
+ *****************************************************************************
+
+This code is covered by the Community Source License (CPL), version
+1.0 as published by IBM and reproduced in the file "license.txt" in the
+"license" subdirectory. Redistribution in source and binary form, with
+or without modification, is permitted ONLY within the regulations
+contained in above mentioned license.
+
+Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
+within the regulations of the "License for Use of "Intel(R) MPI
+Benchmarks" Name and Trademark" as reproduced in the file
+"use-of-trademark-license.txt" in the "license" subdirectory.
+
+THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
+LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE, NON-INFRINGEMENT,
+MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each Recipient is
+solely responsible for determining the appropriateness of using and
+distributing the Program and assumes all risks associated with its
+exercise of rights under this Agreement, including but not limited to
+the risks and costs of program errors, compliance with applicable
+laws, damage to or loss of data, programs or equipment, and
+unavailability or interruption of operations.
+
+EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR
+ANY CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING
+WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
+DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
+YOUR JURISDICTION. It is licensee's responsibility to comply with any
+export regulations applicable in licensee's jurisdiction. Under
+CURRENT U.S. export regulations this software is eligible for export
+from the U.S. and can be downloaded by or otherwise exported or
+reexported worldwide EXCEPT to U.S. embargoed destinations which
+include Cuba, Iraq, Libya, North Korea, Iran, Syria, Sudan,
+Afghanistan and any other country to which the U.S. has embargoed
+goods and services.
+
+ ***************************************************************************
+*/
+
 #include <mpi.h>
 #include <omp.h>
 #include <set>
@@ -40,37 +91,12 @@ namespace NS_HALO {
     bool prepared = false;
     std::vector<int> count;
     int malloc_align;
-//    malopt_t malloc_option;
-//    barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
     int required_nranks, ndims;
     std::vector<int> ranksperdim;
     std::vector<int> mults;
     std::vector<unsigned int> mysubs;
-/*    
-    static void prvals(const std::vector<int> &arr)
-    {
-        for (int i = 0; i < ndims-1; ++i)
-            printf("%d.", arr[i]);
-        printf("%d", arr[ndims-1]);
-    }    
-    static void prlayout()
-    {
-        printf("%d dims, %d ranks, layout: ", ndims, required_nranks);
-        prvals(ranksperdim);
-        printf("\nmults: ");
-        prvals(mults);
-        printf("\n");
-    }
-    static void prsubs(const char *name, const std::vector<unsigned int> &subs)
-    {
-        printf("%s:", name);
-        for (int i = 0; i < ndims; ++i)
-            printf(" %d", subs[i]);
-        printf("\n");
-    }
-*/    
     static void fill_in(std::vector<int> &topo)
     {
         ndims = topo.size();
@@ -115,7 +141,6 @@ template <> bool BenchmarkSuite<BS_GENERIC>::declare_args(args_parser &parser,
     parser.add_vector<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add<int>("malloc_align", 64);
-//    parser.add<bool>("check", false);
     parser.add<std::string>("datatype", "int").
         set_caption("int|char");
     parser.add_vector<int>("topo", "1", '.');
@@ -139,7 +164,6 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser,
 
     malloc_align = parser.get<int>("malloc_align");
 
-//    do_checks = parser.get<bool>("check");
 
     std::string dt = parser.get<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
@@ -149,18 +173,12 @@ template <> bool BenchmarkSuite<BS_GENERIC>::prepare(const args_parser &parser,
         return false;
     }
 
-//    if (do_checks && datatype != MPI_INT) {
-//        output << get_name() << ": " << "Only int data type is supported with check option" << std::endl;
-//        return false;
-//    }
-
     num_threads = 1;
     if (mode_multiple) {
 #pragma omp parallel default(shared)
 #pragma omp master
         num_threads = omp_get_num_threads();
     }
-//    input = (thread_local_data_t *)malloc(sizeof(thread_local_data_t) * num_threads);
     input.resize(num_threads);    
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);

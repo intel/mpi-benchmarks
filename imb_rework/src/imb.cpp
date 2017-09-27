@@ -116,7 +116,7 @@ int main(int argc, char * *argv)
 
         parser.add_vector<string>("include", "").set_caption("benchmark[,benchmark,[...]").
                set_description("The argument after -include is one or more benchmark names separated by comma");
-        parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...] ...").
+        parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...]").
                set_description("The argument after -exclude is one or more benchmark names separated by comma");
 
         // Extra non-option arguments 
