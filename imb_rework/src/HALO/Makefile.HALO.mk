@@ -56,3 +56,5 @@ BECHMARK_SUITE_SRC += HALO/halo_suite.cpp HALO/halo_benchmark.cpp
 
 HEADERS += MT/MT_benchmark.h HALO/halo_benchmark.h
 
+WITH_OPENMP = 1
+

@@ -52,7 +52,15 @@ ifdef WITH_YAML_CPP
 all: libyaml-cpp.a
 else
 all:	
-endif	
+endif
+	
+ifdef TARGET
+include $(TARGET)/Makefile.*.mk
+BINARY:=IMB-$(TARGET)
+else
+include */Makefile.*.mk
+BINARY:=imb
+endif
 
 ifeq ($(origin CC),default)
 CC=mpiicc
@@ -61,8 +69,12 @@ ifeq ($(origin CXX),default)
 CXX=mpiicpc
 endif
 CPPFLAGS += -I.
-CFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long -fopenmp
-CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long -fopenmp
+CFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
+CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
+ifdef WITH_OPENMP
+CFLAGS += -fopenmp
+CXXFLAGS += -fopenmp
+endif
 
 #ifeq ($(origin CC),default)
 #CXX=mpicc
@@ -71,16 +83,14 @@ CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long -fopenmp
 #CC=mpicxx
 #endif
 #CPPFLAGS += -I.
-#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long -qopenmp
-#CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long -qopenmp
+#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+#CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+#ifdef WITH_OPENMP
+#CFLAGS += -qopenmp
+#CXXFLAGS += -qopenmp
+#endif
 
-ifdef TARGET
-include $(TARGET)/Makefile.*.mk
-BINARY:=IMB-$(TARGET)
-else
-include */Makefile.*.mk
-BINARY:=imb
-endif
+
 
 all: $(BINARY)
 
