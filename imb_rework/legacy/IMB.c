@@ -302,7 +302,7 @@ Return value          (type int)
                 }
 
                 if( !Bmark->sample_failure ) {
-                    IMB_warm_up  (&C_INFO,Bmark,&ITERATIONS,iter);                    
+                    IMB_warm_up  (Bmark,&C_INFO,size,&ITERATIONS,iter);                    
 #ifdef MPI1
                     C_INFO.select_source = Bmark->select_source;
 #endif

@@ -83,7 +83,7 @@ For more documentation than found here, see
 Use ITERATIONS object;
 perform warmup with the minimum message size, no longer with the maximum one;
 */
-void IMB_warm_up (struct comm_info* c_info, struct Bench* Bmark, struct iter_schedule* ITERATIONS, int iter)
+void IMB_warm_up (struct Bench* Bmark, struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS, int iter)
 /* >> IMB 3.1  */
 /*
 
@@ -132,7 +132,6 @@ IMB 3.1 <<
         if( iter == 0 )
         {
 /* IMB 3.1: other warm up settings */
-            int size = asize;
             double t[MAX_TIME_ID];
             int n_sample = ITERATIONS->n_sample;
 

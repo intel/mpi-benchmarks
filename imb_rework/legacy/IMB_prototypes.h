@@ -492,7 +492,7 @@ void IMB_init_transfer(struct comm_info* c_info, struct Bench* Bmark, int size, 
 
 void IMB_close_transfer (struct comm_info* c_info, struct Bench* Bmark, int size);
 
-void IMB_warm_up (struct comm_info* c_info, struct Bench* Bmark, struct iter_schedule* ITERATIONS, int iter);
+void IMB_warm_up (struct Bench* Bmark, struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS, int iter);
 
 void IMB_cpu_exploit(float target_secs, int initialize);
 
