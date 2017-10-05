@@ -436,6 +436,10 @@ int main(int argc, char **argv);
 int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList, 
                     struct iter_schedule* ITERATIONS,
                     int *argc, char ***argv, int* NP_min);
+
+#ifdef USE_MPI_INIT_THREAD
+void IMB_chk_arg_level_of_threading (char ***argv, int *argc);
+#endif
 /* >> IMB 3.1  */
 
 void IMB_get_rank_portion(int rank, int NP, size_t size, 

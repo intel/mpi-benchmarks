@@ -206,6 +206,26 @@ static int IMB_chk_arg_thread_level(int* val, char **argv, int argc, int iarg)
 
     return ok;
 }
+
+void IMB_chk_arg_level_of_threading(char ***argv, int *argc) {
+    int iarg;
+    int thread_level;
+
+    iarg = 1;
+
+    while (iarg <= *argc - 1) {
+        if (!strcmp((*argv)[iarg], "-thread_level")) {
+            if (!IMB_chk_arg_thread_level(&thread_level, *argv, *argc, iarg + 1)) {
+                // just ignore it
+                break;
+            }
+            mpi_thread_desired = thread_level;
+            break;
+        }
+        iarg++;
+    }
+}
+
 #endif /*#ifdef USE_MPI_INIT_THREAD*/
 
 

@@ -131,7 +131,15 @@ Return value          (type int)
     Type_Size unit_size;
 
 #ifdef USE_MPI_INIT_THREAD
-    if( (ierr=MPI_Init_thread(&argc,&argv,mpi_thread_desired,&mpi_thread_environment))!=MPI_SUCCESS) IMB_err_hand(1, ierr);
+
+    IMB_chk_arg_level_of_threading(&argv, &argc);
+
+    if ((ierr=MPI_Init_thread(&argc,&argv,mpi_thread_desired,&mpi_thread_environment))!=MPI_SUCCESS) 
+        IMB_err_hand(1, ierr);
+    if (mpi_thread_environment != mpi_thread_desired) {
+        fprintf(unit, "ERROR: MPI_Init_thread was not able to set up desired threading level\n");
+        IMB_err_hand(1, ierr);
+    }
 #else
     if( (ierr=MPI_Init(&argc,&argv))!=MPI_SUCCESS) IMB_err_hand(1, ierr);
 #endif /*USE_MPI_INIT_THREAD*/
