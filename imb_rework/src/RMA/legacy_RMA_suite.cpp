@@ -1,3 +1,7 @@
+#if defined MPI1 || defined NBC || defined MPIIO || defined EXT
+#error Legacy benchmark components can't be linked together
+#endif
+
 #include <set>
 #include <vector>
 #include <string>

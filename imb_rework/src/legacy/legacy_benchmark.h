@@ -139,7 +139,7 @@ class OriginalBenchmark : public Benchmark {
             descr->helper_time_check(c_info, glob, BMark, ITERATIONS);
             bool failed = (descr->stop_iterations || (BMark->sample_failure));
             if (!failed) {
-                IMB_warm_up(&c_info, BMark, &ITERATIONS, glob.iter);
+                IMB_warm_up(BMark, &c_info, size, &ITERATIONS, glob.iter);
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
             }
             MPI_Barrier(MPI_COMM_WORLD);
