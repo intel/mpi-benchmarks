@@ -48,12 +48,18 @@
 #
 #  ***************************************************************************
 
+all: announce
+	
 ifdef WITH_YAML_CPP
 all: libyaml-cpp.a
 else
 all:	
 endif
-	
+
+ifndef TARGET
+TARGET=example
+endif
+
 ifdef TARGET
 include $(TARGET)/Makefile.*.mk
 BINARY:=IMB-$(TARGET)
@@ -164,6 +170,10 @@ YAML_TEST = yamltest
 CPPFLAGS += -DWITH_YAML_CPP
 endif
 
+announce:
+	@echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"
+	@echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"
+
 $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
 
@@ -182,4 +192,7 @@ $(IMB_OBJ): $(HEADERS) Makefile
 
 ifdef WITH_YAML_CPP
 $(YAMLCPP_OBJ): Makefile
-endif	
+endif
+
+.PHONY: announce clean all
+
