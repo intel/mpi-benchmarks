@@ -359,7 +359,7 @@ class BenchmarkMTBase : public Benchmark {
                     b[omp_get_thread_num()] = allocator.Alloc(size_b);
                 }
             }
-        } else if (malloc_option == MALOPT_CONTINOUS) {
+        } else if (malloc_option == MALOPT_CONTINUOUS) {
             char *a_base = (char *)allocator.Alloc(size_a * num_threads);
             char *b_base = (char *)allocator.Alloc(size_b * num_threads);
             for (int thread_num = 0; thread_num < num_threads; thread_num++) {

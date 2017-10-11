@@ -94,7 +94,7 @@ template <> bool BenchmarkSuite<BS_MT>::declare_args(args_parser &parser,
     parser.add_vector<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
     parser.add<int>("malloc_align", 64);
-    parser.add<std::string>("malloc_algo", "serial").set_caption("serial|continous|parallel");
+    parser.add<std::string>("malloc_algo", "serial").set_caption("serial|continuous|parallel");
     parser.add<bool>("check", false);
     parser.add<std::string>("datatype", "int").set_caption("int|char");
     parser.set_default_current_group();
@@ -149,13 +149,13 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
 
     std::string malloc_algo = parser.get<std::string>("malloc_algo");
     if (malloc_algo == "serial") malloc_option = MALOPT_SERIAL;
-    else if (malloc_algo == "continous") malloc_option = MALOPT_CONTINOUS;
+    else if (malloc_algo == "continuous") malloc_option = MALOPT_CONTINUOUS;
     else if (malloc_algo == "parallel") malloc_option = MALOPT_PARALLEL;
     else {
         output << get_name() << ": " << "Wrong malloc_algo option value" << std::endl;
         return false;
     }
-    if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINOUS) && !mode_multiple) {
+    if ((malloc_option == MALOPT_PARALLEL || malloc_option == MALOPT_CONTINUOUS) && !mode_multiple) {
         malloc_option = MALOPT_SERIAL;
     }
 

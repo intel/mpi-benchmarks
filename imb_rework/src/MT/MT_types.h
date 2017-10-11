@@ -59,7 +59,7 @@ struct thread_local_data_t {
 
 enum malopt_t {
     MALOPT_SERIAL,
-    MALOPT_CONTINOUS,
+    MALOPT_CONTINUOUS,
     MALOPT_PARALLEL
 };
 
