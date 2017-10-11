@@ -58,6 +58,7 @@ endif
 
 ifndef TARGET
 TARGET=example
+ANNOUNCE=1
 endif
 
 ifdef TARGET
@@ -171,8 +172,8 @@ CPPFLAGS += -DWITH_YAML_CPP
 endif
 
 announce:
-	@echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"
-	@echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"
+	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"; fi
+	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
 
 $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
@@ -183,7 +184,7 @@ $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 %.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-clean:
+clean: announce
 	rm -f $(IMB_OBJ) $(YAMLCPP_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(BINARY) $(YAML_CPP_LIB) $(YAML_TEST)
 
 
