@@ -52,7 +52,7 @@ For more documentation than found here, see
 
 [1] doc/ReadMe_IMB.txt 
 
-[2] Intel (R) MPI Benchmarks
+[2] Intel(R) MPI Benchmarks
     Users Guide and Methodology Description
     In 
     doc/IMB_Users_Guide.pdf
@@ -103,15 +103,15 @@ void IMB_general_info()
   fprintf(unit,"#------------------------------------------------------------\n");
 
 #ifdef MPI1                 
-  fprintf(unit,"#    Intel (R) MPI Benchmarks %s, MPI-1 part    \n",VERSION);
+  fprintf(unit,"#    Intel(R) MPI Benchmarks %s, MPI-1 part    \n",VERSION);
 #elif defined EXT
-  fprintf(unit,"#    Intel (R) MPI Benchmarks %s, MPI-2 part    \n",VERSION);
+  fprintf(unit,"#    Intel(R) MPI Benchmarks %s, MPI-2 part    \n",VERSION);
 #elif defined MPIIO
-  fprintf(unit,"#    Intel (R) MPI Benchmarks %s, MPI-IO part   \n",VERSION);
+  fprintf(unit,"#    Intel(R) MPI Benchmarks %s, MPI-IO part   \n",VERSION);
 #elif defined NBC
-  fprintf(unit,"#    Intel (R) MPI Benchmarks %s, MPI-NBC part  \n",VERSION);
+  fprintf(unit,"#    Intel(R) MPI Benchmarks %s, MPI-NBC part  \n",VERSION);
 #elif defined RMA
-  fprintf(unit,"#    Intel (R) MPI Benchmarks %s, MPI-RMA part  \n",VERSION);
+  fprintf(unit,"#    Intel(R) MPI Benchmarks %s, MPI-RMA part  \n",VERSION);
 #endif
 
 
