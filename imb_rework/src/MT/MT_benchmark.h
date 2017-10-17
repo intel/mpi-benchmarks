@@ -225,7 +225,9 @@ class BenchmarkMTBase : public Benchmark {
         OUT_TIME_MAX,
         OUT_TIME_AVG,
         OUT_BW,
-        OUT_MSGRATE
+        OUT_BW_CUMULATIVE,
+        OUT_MSGRATE,
+        OUT_MSGRATE_CUMMULATIVE
     };
     std::set<Flags> flags; 
     MPI_Datatype datatype;
@@ -433,7 +435,9 @@ class BenchmarkMTBase : public Benchmark {
                     if (flags.count(OUT_TIME_MAX)) cout << out_field("t_max[usec]");
                     if (flags.count(OUT_TIME_AVG)) cout << out_field("t_avg[usec]");
                     if (flags.count(OUT_BW)) cout << out_field("Mbytes/sec");
+                    if (flags.count(OUT_BW_CUMULATIVE)) cout << out_field("Mbytes/sec");
                     if (flags.count(OUT_MSGRATE)) cout << out_field("Msg/sec");
+                    if (flags.count(OUT_MSGRATE_CUMMULATIVE)) cout << out_field("Msg/sec");
                     cout << endl;
                 }
                 // NOTE: since we do weak scalability measurements, multiply the amount of data
@@ -444,7 +448,9 @@ class BenchmarkMTBase : public Benchmark {
                 if (flags.count(OUT_TIME_MAX)) cout << out_field(1e6 * time_max);
                 if (flags.count(OUT_TIME_AVG)) cout << out_field(1e6 * time_avg);
                 if (flags.count(OUT_BW)) cout << out_field((double)real_size * bw_multiplier / time_avg / 1e6);
+                if (flags.count(OUT_BW_CUMULATIVE)) cout << out_field((double)real_size / (double)num_threads * bw_multiplier * (double)(nresults / 2) / time_avg / 1e6);
                 if (flags.count(OUT_MSGRATE)) cout << out_field((int)(1.0 / time_avg));
+                if (flags.count(OUT_MSGRATE_CUMMULATIVE)) cout << out_field((int)((double)(nresults / 2) / time_avg));
                 cout << endl;
             }
             else {
