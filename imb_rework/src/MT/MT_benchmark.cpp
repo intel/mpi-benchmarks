@@ -430,6 +430,36 @@ DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_biband<t
         *(odata->timing.time_ptr) = sum; \
     } \
 
+#define MT_CYCLE_END_NOBARRIER   t = MPI_Wtime() - t; \
+        if (i >= skip) sum += t; \
+    } \
+    if (odata->timing.time_ptr != NULL)  { \
+        *(odata->timing.time_ptr) = sum; \
+    } \
+
+
+MT_COLLECTIVE_BEGIN(barrier) {
+    UNUSED(size);
+    MT_CYCLE_BEGIN
+        if (idata->threading.mode_multiple) {
+#pragma omp barrier            
+        }
+        MPI_Barrier(comm);
+    MT_CYCLE_END_NOBARRIER
+    return 1;
+}
+
+DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_barrier, BarrierMT)
+{
+    flags.insert(COLLECTIVE);
+    flags.insert(SEPARATE_MEASURING);
+    flags.insert(OUT_BYTES);
+    flags.insert(OUT_REPEAT);
+    flags.insert(OUT_TIME_MIN);
+    flags.insert(OUT_TIME_MAX);
+    flags.insert(OUT_TIME_AVG);
+
+}
 
 MT_COLLECTIVE_BEGIN(bcast) {
     UNUSED(size);

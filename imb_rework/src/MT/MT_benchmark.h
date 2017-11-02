@@ -135,8 +135,8 @@ template <void (bfn)()>
 void omp_aware_barrier()
 {
 #pragma omp barrier 
-    bfn();   
-#pragma omp barrier    
+    if (omp_get_thread_num() == 0)
+        bfn();   
 }
 
 void no_barrier()
@@ -164,6 +164,9 @@ struct input_benchmark_data {
     struct {
         bool check;
     } checks;
+    struct {
+        bool mode_multiple;
+    } threading;
 };
 
 struct output_benchmark_data {
@@ -264,6 +267,8 @@ class BenchmarkMTBase : public Benchmark {
         idata_local.pt2pt.stride = stride;
         
         idata_local.checks.check = do_checks;
+
+        idata_local.threading.mode_multiple = mode_multiple;
 
         barrier_func_t bfn;
         switch (barrier_option) {
