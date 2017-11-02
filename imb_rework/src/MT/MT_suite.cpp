@@ -78,6 +78,7 @@ namespace NS_MT {
     barropt_t barrier_option;
     bool do_checks;
     MPI_Datatype datatype;
+    bool noheader;
 }
 
 
@@ -96,6 +97,7 @@ template <> bool BenchmarkSuite<BS_MT>::declare_args(args_parser &parser,
     parser.add<int>("malloc_align", 64);
     parser.add<std::string>("malloc_algo", "serial").set_caption("serial|continuous|parallel");
     parser.add<bool>("check", false);
+    parser.add_flag("noheader");
     parser.add<std::string>("datatype", "int").set_caption("int|char");
     parser.set_default_current_group();
     return true;
@@ -161,6 +163,8 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
 
     do_checks = parser.get<bool>("check");
 
+    noheader = parser.get<bool>("noheader");
+
     std::string dt = parser.get<std::string>("datatype");
     if (dt == "int") datatype = MPI_INT;
     else if (dt == "char") datatype = MPI_CHAR;
@@ -188,7 +192,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
     }
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    if (rank == 0) {
+    if (rank == 0 && !noheader) {
         output << "#------------------------------------------------------------" << std::endl;
         output << "#    Intel(R) MPI Benchmarks " << "2019 Technical Preview" << ", MT part    " << std::endl;
         output << "#------------------------------------------------------------" << std::endl;
