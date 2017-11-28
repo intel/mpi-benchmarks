@@ -51,7 +51,7 @@
 
 include legacy/Makefile.*.mk
 
-CPPFLAGS += -DMPI1
+override CPPFLAGS += -DMPI1
 
 BECHMARK_SUITE_SRC += MPI1/legacy_MPI1_suite.cpp MPI1/legacy_MPI1_benchmark.cpp
 LEGACY_SRC = $(LEGACY_SRC_DIR)/IMB_allgather.c \
@@ -90,7 +90,7 @@ LEGACY_OBJ=$(subst $(LEGACY_SRC_DIR),MPI1,$(LEGACY_SRC:.c=.o))
 ADDITIONAL_OBJ += $(LEGACY_OBJ)
 
 MPI1/%.o: $(LEGACY_SRC_DIR)/%.c
-	$(CC) -DMPI1 -c -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DMPI1 -c -o $@ $<
 
 $(BECHMARK_SUITE_SRC): test_header_presence
 $(LEGACY_SRC): test_header_presence

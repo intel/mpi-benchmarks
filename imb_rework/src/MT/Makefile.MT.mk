@@ -49,8 +49,8 @@
 #  ***************************************************************************
 
 
-CPPFLAGS += -DMT
-CPPFLAGS += -IMT
+override CPPFLAGS += -DMT
+override CPPFLAGS += -IMT
 
 BECHMARK_SUITE_SRC += MT/MT_suite.cpp MT/MT_benchmark.cpp
 

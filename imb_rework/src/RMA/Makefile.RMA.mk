@@ -51,7 +51,7 @@
 
 include legacy/Makefile.*.mk
 
-CPPFLAGS += -DRMA
+override CPPFLAGS += -DRMA
 
 BECHMARK_SUITE_SRC += RMA/legacy_RMA_suite.cpp RMA/legacy_RMA_benchmark.cpp
 LEGACY_SRC = $(LEGACY_SRC_DIR)/IMB_utils.c \
@@ -76,7 +76,7 @@ LEGACY_OBJ=$(subst $(LEGACY_SRC_DIR),RMA,$(LEGACY_SRC:.c=.o))
 ADDITIONAL_OBJ += $(LEGACY_OBJ)
 
 RMA/%.o: $(LEGACY_SRC_DIR)/%.c
-	$(CC) -DRMA -c -o $@ $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) -DRMA -c -o $@ $<
 
 $(BECHMARK_SUITE_SRC): test_header_presence
 $(LEGACY_SRC): test_header_presence

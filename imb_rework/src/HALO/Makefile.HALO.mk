@@ -49,8 +49,8 @@
 #  ***************************************************************************
 
 
-CPPFLAGS += -DHALO
-CPPFLAGS += -IHALO -IMT
+override CPPFLAGS += -DHALO
+override CPPFLAGS += -IHALO -IMT
 
 BECHMARK_SUITE_SRC += HALO/halo_suite.cpp HALO/halo_benchmark.cpp 
 

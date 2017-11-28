@@ -75,12 +75,12 @@ endif
 ifeq ($(origin CXX),default)
 CXX=mpiicpc
 endif
-CPPFLAGS += -I.
-CFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
-CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
+override CPPFLAGS += -I.
+override CFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
+override CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
 ifdef WITH_OPENMP
-CFLAGS += -fopenmp
-CXXFLAGS += -fopenmp
+override CFLAGS += -fopenmp
+override CXXFLAGS += -fopenmp
 endif
 
 #ifeq ($(origin CC),default)
@@ -89,12 +89,12 @@ endif
 #ifeq ($(origin CXX),default)
 #CC=mpicxx
 #endif
-#CPPFLAGS += -I.
-#CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
+#override CPPFLAGS += -I.
+#override CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 #CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 #ifdef WITH_OPENMP
-#CFLAGS += -qopenmp
-#CXXFLAGS += -qopenmp
+#override CFLAGS += -qopenmp
+#override CXXFLAGS += -qopenmp
 #endif
 
 
@@ -102,7 +102,7 @@ endif
 all: $(BINARY)
 
 ifdef WITH_YAML_CPP
-CPPFLAGS += -Iyamlcpp/include -Iyamlcpp/test
+override CPPFLAGS += -Iyamlcpp/include -Iyamlcpp/test
 YAMLCPP_SRC = yamlcpp/src/aliasmanager.cpp \
 yamlcpp/src/binary.cpp \
 yamlcpp/src/conversion.cpp \
@@ -168,7 +168,7 @@ yamltest: $(YAMLCPP_TEST_OBJ) libyaml-cpp.a
 
 YAML_CPP_LIB = libyaml-cpp.a
 YAML_TEST = yamltest
-CPPFLAGS += -DWITH_YAML_CPP
+override CPPFLAGS += -DWITH_YAML_CPP
 endif
 
 announce:
@@ -176,7 +176,7 @@ announce:
 	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
 
 $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
