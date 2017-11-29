@@ -551,7 +551,11 @@ void IMB_calculate_times(int ntimes,
 	    }
 #endif 
         }
-        timing[AVG].times[time_id] /= times_count;
+        // fixed 'times_count may be 0' issue
+        if (times_count != 0)
+            timing[AVG].times[time_id] /= times_count;
+        else
+            timing[AVG].times[time_id] = 0;
     }
 }
 

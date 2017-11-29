@@ -70,7 +70,7 @@ For more documentation than found here, see
 
 
 
-char* VERSION="2018";
+char* VERSION="2018 Update 1";
 
 #include <stdio.h>
 #include <time.h>

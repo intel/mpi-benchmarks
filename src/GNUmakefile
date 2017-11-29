@@ -3,24 +3,24 @@ default: MPI1
 all: EXT IO MPI1 NBC RMA
 
 MPI1: feedback
-	gmake -f make_ict IMB-MPI1
+	make -f make_ict IMB-MPI1
 
 EXT:
-	gmake -f make_ict IMB-EXT
+	make -f make_ict IMB-EXT
 
 IO:
-	gmake -f make_ict IMB-IO
+	make -f make_ict IMB-IO
 
 NBC:
-	gmake -f make_ict IMB-NBC
+	make -f make_ict IMB-NBC
 
 RMA:
-	gmake -f make_ict IMB-RMA
+	make -f make_ict IMB-RMA
 
 feedback:
 	@echo " "
 	@echo "This Makefile uses make_ict to build IMB "
-	@echo "based on Intel(R) Cluster Studio"
+	@echo "based on Intel(R) Parallel Studio"
 	@echo " "
 	@echo "Targets: MPI1 (default), EXT, IO, NBC, all, clean"
 	@echo "         MPI1 builds the MPI-1 standard benchmarks"
@@ -28,7 +28,7 @@ feedback:
 	@echo "         IO builds the MPI-File I\/O benchmarks"
 	@echo "         NBC builds the nonblocking collective operations benchmarks"
 	@echo "         RMA builds the one-sided benchmarks (MPI-3 plus passive mode)"
-	@echo "         all = MPI1+EXT+IO+NBC"
+	@echo "         all = MPI1+EXT+IO+NBC+RMA"
 	@echo " "
 	@echo "When an Intel(R) MPI Library install and mpiicc path exists,"
 	@echo "this should work immediately."
@@ -43,4 +43,5 @@ feedback:
 	@echo " "
 
 clean:
-	/bin/rm -f *.o *~ PI* core IMB-IO IMB-EXT IMB-MPI1 IMB-NBC IMB-RMA exe_io exe_ext exe_mpi1 exe_nbc exe_rma IMB_out IMB_out_*
+	/bin/rm -rf *.o *~ PI* core IMB-IO IMB-EXT IMB-MPI1 IMB-NBC IMB-RMA exe_io exe_ext exe_mpi1 exe_nbc exe_rma IMB_out IMB_out_* build_MPIIO build_MPI1 build_EXT build_NBC build_RMA
+

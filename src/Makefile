@@ -9,7 +9,7 @@ feedback:
 	@echo " "
 	@echo "nmake -f make_ict_win"
 	@echo " "
-	@echo "to install the Intel(R) Cluster Studio version."
+	@echo "to install the Intel(R) Parallel Studio version."
 	@echo " "
 
 clean:

@@ -60,6 +60,11 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2018 Update 1
+--------------------------------------------
+- Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012 
+  support is removed.
+
 New in Intel(R) MPI Benchmarks 2018
 --------------------------------------------
 - Product documentation is now available online only at:
