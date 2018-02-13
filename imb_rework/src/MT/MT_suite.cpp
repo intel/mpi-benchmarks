@@ -228,3 +228,6 @@ template <> any BenchmarkSuite<BS_MT>::get_parameter(const std::string &key)
     return result;
 }
 
+#ifdef WIN32
+template BenchmarkSuite<BS_MT>;
+#endif

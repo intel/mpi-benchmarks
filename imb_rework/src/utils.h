@@ -49,6 +49,8 @@ goods and services.
 */
 
 #pragma once 
+
+#include <iterator>
 #include <algorithm>
 #include <string.h>
 

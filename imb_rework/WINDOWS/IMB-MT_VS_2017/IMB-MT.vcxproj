@@ -59,18 +59,18 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\debug\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -83,9 +83,9 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\src\yamlcpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -93,7 +93,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\release\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -102,34 +102,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\yamlcpp/src/aliasmanager.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/binary.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/conversion.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/directives.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/emitfromevents.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/emitter.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/emitterstate.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/emitterutils.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/exp.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/iterator.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/node.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/nodebuilder.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/nodeownership.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/null.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/ostream.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/parser.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/regex.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/scanner.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/scanscalar.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/scantag.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/scantoken.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/simplekey.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/singledocparser.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/stream.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/tag.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/contrib/graphbuilder.cpp" />
-    <ClCompile Include="..\..\src\yamlcpp/src/contrib/graphbuilderadapter.cpp" />
-
     <ClCompile Include="..\..\src\imb.cpp" />
     <ClCompile Include="..\..\src\args_parser.cpp" />
     <ClCompile Include="..\..\src\args_parser_utests.cpp" />

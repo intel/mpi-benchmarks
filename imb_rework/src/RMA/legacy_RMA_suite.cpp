@@ -530,3 +530,7 @@ template<> any BenchmarkSuite<BS_RMA>::get_parameter(const std::string &key) {
     HANDLE_PARAMETER(LEGACY_GLOBALS, glob);
     return result;
 }
+
+#ifdef WIN32
+template BenchmarkSuite<BS_RMA>;
+#endif
