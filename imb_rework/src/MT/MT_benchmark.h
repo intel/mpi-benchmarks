@@ -452,7 +452,7 @@ class BenchmarkMTBase : public Benchmark {
                 if (flags.count(OUT_TIME_MIN)) cout << out_field(1e6 * time_min);
                 if (flags.count(OUT_TIME_MAX)) cout << out_field(1e6 * time_max);
                 if (flags.count(OUT_TIME_AVG)) cout << out_field(1e6 * time_avg);
-                if (flags.count(OUT_BW)) cout << out_field((double)real_size * bw_multiplier / time_avg / 1e6);
+                if (flags.count(OUT_BW)) cout << out_field((double)real_size * bw_multiplier / time_max / 1e6);
                 if (flags.count(OUT_BW_CUMULATIVE)) cout << out_field((double)real_size / (double)num_threads * bw_multiplier * (double)(nresults / 2) / time_max / 1e6);
                 if (flags.count(OUT_MSGRATE)) cout << out_field((int)(1.0 / time_avg));
                 if (flags.count(OUT_MSGRATE_CUMMULATIVE)) cout << out_field((int)((double)(nresults / 2) / time_avg));
