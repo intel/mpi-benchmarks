@@ -1,7 +1,7 @@
---------------------------------------------------
-Intel(R) MPI Benchmarks 2018
+-------------------------------------------------------
+Intel(R) MPI Benchmarks 2019 Technical Preview Update 2
 README
---------------------------------------------------
+-------------------------------------------------------
 
 --------
 Contents
@@ -42,6 +42,8 @@ files and folders appear on your system:
 
     +-- \imb            Intel(R) MPI Benchmarks product directory
          |
+         +-- \legacy            Legacy product source code and Makefiles.
+         |
          +-- \license           Product license files.
          |    |              
          |    +--license.txt    Source code license granted to you.
@@ -60,6 +62,24 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Technical Preview
+-----------------------------------------------------
+- New IMB-MT benchmarks.
+  The benchmarks implement the multithreaded version of some of the IMB-MPI1
+  benchmarks using the OpenMP* paradigm.
+  
+- New benchmarks infrastructure implemented in C++.
+  The IMB-MPI1, IMB-RMA and IMB-MT implementation is now based on the new C++
+  infrastructure (IMB-NBC, IMB-EXT and IMB-IO still use the legacy one).
+  The legacy infrastructure is preserved in legacy subdirectory.
+
+- Changes in syntax for the -include and -exclude options.
+  Benchmarks to include and exclude now must be separated by a comma rather
+  than a space. Benchmarks to launch can be separated by a comma or a space.
+
+- Iteration policy can no longer be set with the -iter option. Use -iter_policy
+  instead.
+
 New in Intel(R) MPI Benchmarks 2018
 --------------------------------------------
 - Product documentation is now available online only at:

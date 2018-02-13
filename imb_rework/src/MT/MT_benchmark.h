@@ -135,7 +135,8 @@ void omp_aware_barrier()
 {
 #pragma omp barrier 
     if (omp_get_thread_num() == 0)
-        bfn();   
+        bfn();
+#pragma omp barrier
 }
 
 void no_barrier()
