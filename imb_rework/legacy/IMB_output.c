@@ -1137,11 +1137,6 @@ void IMB_make_line(int line_len)
 /* New function for IMB_3.0 */
 void IMB_help()
 {
-    fflush(stderr);
-    fflush(unit);
-
-    fprintf(unit,"\nCalling sequence (command line will be repeated in Output table!):\n\n");
-
 
 #ifdef MPI1
     const char *progname = "IMB-MPI1";
@@ -1154,6 +1149,11 @@ void IMB_help()
 #elif defined (NBC)
     const char *progname = "IMB-NBC";
 #endif
+
+    fflush(stderr);
+    fflush(unit);
+
+    fprintf(unit,"\nCalling sequence (command line will be repeated in Output table!):\n\n");
 
     fprintf(unit,"\n%s         [-h{elp}]\n", progname);
 
