@@ -1,7 +1,7 @@
--------------------------------------------------------
-Intel(R) MPI Benchmarks 2019 Technical Preview Update 2
+---------------------------------
+Intel(R) MPI Benchmarks 2019 Beta
 README
--------------------------------------------------------
+---------------------------------
 
 --------
 Contents
@@ -62,6 +62,13 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Beta
+----------------------------------------
+- Intel(R) MPI Benchmarks 2019 (Beta) are now available for Windows*.
+- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
+- Added a new benchmark BarrierMT for IMB-MT.
+- Bug fixes.
+
 New in Intel(R) MPI Benchmarks 2019 Technical Preview
 -----------------------------------------------------
 - New IMB-MT benchmarks.
