@@ -323,7 +323,6 @@ void IMB_ireduce_scatter_pure(struct comm_info* c_info,
     if(c_info->rank != -1) {
         IMB_do_n_barriers (c_info->communicator, N_BARR);
 
-        t_pure = MPI_Wtime();
         for(i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
             ierr = MPI_Ireduce_scatter((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
