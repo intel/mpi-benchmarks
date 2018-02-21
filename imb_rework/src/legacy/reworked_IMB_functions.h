@@ -256,9 +256,6 @@ struct reworked_Bmark_descr {
         int iter = 0;
         bool stop = false;
         while (true) {
-            if (!(((c_info.n_lens == 0 && len < glob.MAXMSG ) ||
-                 (c_info.n_lens > 0  && iter < c_info.n_lens))))
-                break;
             if (stop)
                 break;
             if (Bmark->RUN_MODES[0].type == SingleElementTransfer) {
@@ -290,6 +287,9 @@ struct reworked_Bmark_descr {
                 stop = true;
             }
             scope.add_len(len);
+            if (!(((c_info.n_lens == 0 && len < glob.MAXMSG ) ||
+                 (c_info.n_lens > 0  && iter < c_info.n_lens))))
+                break;
         }
        
         {
