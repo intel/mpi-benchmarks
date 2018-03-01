@@ -51,7 +51,7 @@ For more documentation than found here, see
 
 [1] doc/ReadMe_IMB.txt 
 
-[2] Intel (R) MPI Benchmarks
+[2] Intel(R) MPI Benchmarks
     Users Guide and Methodology Description
     In 
     doc/IMB_Users_Guide.pdf
