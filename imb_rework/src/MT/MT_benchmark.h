@@ -216,6 +216,7 @@ class BenchmarkMTBase : public Benchmark {
         SEND_TO_ALL,
         RECV_FROM_ALL,
         SEND_TO_2,
+        SEND_0,
         RECV_FROM_2,
         TIME_DIVIDE_BY_2,
         TIME_DIVIDE_BY_4,
@@ -326,7 +327,10 @@ class BenchmarkMTBase : public Benchmark {
         GET_GLOBAL(barropt_t, barrier_option);
         GET_GLOBAL(bool, do_checks);
         GET_GLOBAL(MPI_Datatype, datatype);
-        GET_GLOBAL(vector<int>, count);
+        if (flags.count(SEND_0))
+            count.push_back(0);
+        else
+            GET_GLOBAL(vector<int>, count);
         int idts;
         MPI_Type_size(datatype, &idts);
         datatype_size = idts;

@@ -452,7 +452,7 @@ DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_barrier, BarrierMT)
 {
     flags.insert(COLLECTIVE);
     flags.insert(SEPARATE_MEASURING);
-    flags.insert(OUT_BYTES);
+    flags.insert(SEND_0);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_MIN);
     flags.insert(OUT_TIME_MAX);
