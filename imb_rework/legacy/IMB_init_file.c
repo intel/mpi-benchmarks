@@ -178,7 +178,7 @@ fnlen = 1+strlen(FILENAME);
 if( c_info->group_mode >= 0 )
   fnlen += 4;
 
-if( Bmark->fpointer == private )
+if( Bmark->fpointer == priv )
   {
 
   if( c_info->rank > c_info->all_io_procs-1 || c_info->rank < 0 )
@@ -270,7 +270,7 @@ else
 /* >> IMB 3.1 */
 
 /* July 2002 fix V2.2.1: calculation of file sizes in "priv" case */
-   if ( Bmark->fpointer == private ) 
+   if ( Bmark->fpointer == priv ) 
     {
     int NP= c_info->all_io_procs;
 

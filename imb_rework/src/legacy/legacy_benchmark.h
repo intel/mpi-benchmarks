@@ -130,8 +130,24 @@ class OriginalBenchmark : public Benchmark {
                     return;
                 }
                 IMB_init_communicator(&c_info, glob.NP);
+#ifdef MPIIO
+                if (IMB_init_file(&c_info, BMark, &ITERATIONS, glob.NP) != 0) IMB_err_hand(0, -1);
+#endif /*MPIIO*/
                 descr->helper_sync_legacy_globals_2(c_info, glob, BMark);
             }
+            if( BMark->RUN_MODES[0].type == Sync ) {
+                glob.iter = c_info.n_lens - 1;
+            }
+#ifdef MPIIO
+            if(c_info.w_rank == 0 &&
+               do_nonblocking_) {
+                double MFlops = IMB_cpu_exploit_reworked(TARGET_CPU_SECS, 1);
+                printf("\n\n# For nonblocking benchmarks:\n\n");
+                printf("# Function CPU_Exploit obtains an undisturbed\n");
+                printf("# performance of %7.2f MFlops\n",MFlops);
+                do_nonblocking_ = 0;
+            }
+#endif
             glob.size = size;
             BMODE = &(BMark->RUN_MODES[imod]);
             descr->IMB_init_buffers_iter(&c_info, &ITERATIONS, BMark, BMODE, glob.iter, size);

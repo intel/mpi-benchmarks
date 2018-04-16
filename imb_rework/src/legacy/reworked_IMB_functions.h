@@ -52,13 +52,14 @@ goods and services.
 
 #include <algorithm>
 
+static int do_nonblocking_;
 typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
 
 
 enum descr_t { 
     REDUCTION, SELECT_SOURCE,
-    GET, PUT,
+    GET, PUT, NO,
     SINGLE_TRANSFER, PARALLEL_TRANSFER, COLLECTIVE, SINGLE_ELEMENT_TRANSFER, MULT_PASSIVE_TRANSFER,
     PARALLEL_TRANSFER_MSG_RATE, SYNC,
     SCALE_TIME_HALF, SCALE_BW_DOUBLE, SCALE_BW_FOUR,
@@ -69,6 +70,8 @@ enum descr_t {
     N_MODES_1,
     NON_AGGREGATE,
     NONBLOCKING,
+    NTIMES_3, NTIMES_2,
+    INDV_BLOCK, PRIVATE, SHARED, EXPLICIT,
     DEFAULT
 };
 
@@ -144,12 +147,29 @@ struct reworked_Bmark_descr {
                 return get;
             case PUT:
                 return put;
+            case NO:
+                return no;
             default:
                 throw std::logic_error("descr2access: unknown access");
         }
         throw std::logic_error("descr2access: unknown access");
     }
-
+#ifdef MPIIO
+    POSITIONING descr2fpointer(descr_t t) {
+        switch(t) {
+            case INDV_BLOCK:
+                return indv_block;
+            case PRIVATE:
+                return priv;
+            case SHARED:
+                return shared;
+            case EXPLICIT:
+                return explic;
+            default:
+                throw std::logic_error("descr2position: unknown fpointer");
+        }
+    }
+#endif
     bool is_default() {
         return flags.count(DEFAULT) > 0;
     }
@@ -168,21 +188,40 @@ struct reworked_Bmark_descr {
         Bmark->select_source = (flags.count(SELECT_SOURCE) > 0);
 #endif /*MPI1*/
 
-#ifdef RMA
+#if (defined RMA || defined EXT || defined MPIIO)
         Bmark->N_Modes = flags.count(N_MODES_1) > 0 ? 1 : 2;
+#ifdef RMA 
         Bmark->RUN_MODES[0].AGGREGATE   = 0;
         Bmark->RUN_MODES[1].AGGREGATE   = 1;
+#else
+        Bmark->RUN_MODES[0].AGGREGATE   = 1;
+        Bmark->RUN_MODES[1].AGGREGATE   = 0;
+#endif /*RMA*/
         Bmark->RUN_MODES[0].NONBLOCKING = 0;
         Bmark->RUN_MODES[1].NONBLOCKING = 0;
         Bmark->RUN_MODES[0].BIDIR       = 0;
         Bmark->RUN_MODES[1].BIDIR       = 0;
-
-        if (flags.count(NON_AGGREGATE)) {
-            Bmark->RUN_MODES[0].AGGREGATE = -1;
+#ifdef MPIIO
+        descr_set fpointer;
+        fpointer.insert(INDV_BLOCK);
+        fpointer.insert(SHARED);
+        fpointer.insert(PRIVATE);
+        fpointer.insert(EXPLICIT);
+        for (descr_set::iterator it = fpointer.begin(); it != fpointer.end(); ++it) {
+            if (flags.count(*it)) {
+                if (found)
+                    result = false;
+                Bmark->fpointer = descr2fpointer(*it);
+                found = true;
+            }
+        }
+        if (flags.count(NTIMES_2) > 0) {
+            Bmark->Ntimes = 2;
         }
 
-        if (flags.count(NONBLOCKING)) {
-            Bmark->RUN_MODES[0].NONBLOCKING = 1;
+#endif /*MPIIO*/
+        if (flags.count(NON_AGGREGATE)) {
+            Bmark->RUN_MODES[0].AGGREGATE = -1;
         }
 
         if (flags.count(BIDIR_1)) {
@@ -193,6 +232,7 @@ struct reworked_Bmark_descr {
         descr_set access;
         access.insert(GET);
         access.insert(PUT);
+        access.insert(NO);
         for (descr_set::iterator it = access.begin(); it != access.end(); ++it) {
             if (flags.count(*it)) {
                 if (found)
@@ -203,8 +243,17 @@ struct reworked_Bmark_descr {
         }
         if (!found)
             result = false;
-#endif /*RMA*/
+#endif /*RMA || EXT*/
 
+        if (flags.count(NONBLOCKING)) {
+            Bmark->RUN_MODES[0].NONBLOCKING = 1;
+#ifndef EXT
+           do_nonblocking_ = 1; 
+#endif
+        }
+        if (flags.count(NTIMES_3) > 0) {
+            Bmark->Ntimes = 3;
+        }
         Bmark->Benchmark = fn;
         for (size_t i = 0; i < comments.size(); i++) {
             cmt.push_back(comments[i].c_str());
@@ -224,7 +273,7 @@ struct reworked_Bmark_descr {
             if (flags.count(*it)) {
                 if (found)
                     result = false;
-                Bmark->RUN_MODES[0].type = descr2type(*it);
+                Bmark->RUN_MODES[1].type = Bmark->RUN_MODES[0].type = descr2type(*it);
                 found = true;
             }
         }
@@ -242,7 +291,7 @@ struct reworked_Bmark_descr {
             Bmark->scale_bw = 4.0;
         }
 
-#ifdef RMA
+#if (defined RMA || defined MPIIO)
         Bmark->RUN_MODES[1].type = Bmark->RUN_MODES[0].type;
 #endif /*RMA*/
 
@@ -270,6 +319,9 @@ struct reworked_Bmark_descr {
                         len = 0;
                     } else if (iter == 1) {
                         len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
+#ifdef EXT
+                        len = std::min(len, asize);
+#endif
                     } else {
                         len = std::min(glob.MAXMSG, len + len);
                     }
@@ -285,6 +337,10 @@ struct reworked_Bmark_descr {
             iter++;
             if (Bmark->RUN_MODES[0].type == Sync || Bmark->RUN_MODES[0].type == SingleElementTransfer) {
                 stop = true;
+            }
+            if( Bmark->RUN_MODES[0].type == Sync ) {
+                len = glob.MAXMSG;
+                iter = c_info.n_lens - 1;
             }
             scope.add_len(len);
             if (!(((c_info.n_lens == 0 && len < glob.MAXMSG ) ||
@@ -302,7 +358,11 @@ struct reworked_Bmark_descr {
             int NP = std::max(1, std::min(ci_np, NP_min));
             bool do_it = true;
             if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+#ifdef MPIIO
+                    NP = 1;
+#else
                 NP = std::min(2, ci_np);
+#endif
             }
             while (do_it) {
 //                std::cout << ">> " << ci_np << " " << NP << std::endl;
@@ -313,6 +373,11 @@ struct reworked_Bmark_descr {
                 else {
                     NP = std::min(NP + NP, ci_np);
                 }
+#ifdef MPIIO
+                if (Bmark->RUN_MODES[0].type == SingleTransfer) {
+                        do_it = false; 
+                }
+#endif
             }
         }
         scope.add_nmodes(Bmark->N_Modes);
@@ -343,7 +408,6 @@ struct reworked_Bmark_descr {
 #if (defined EXT || defined MPIIO || RMA)
         if( Bmark->access==no ) x_sample=ITERATIONS->msgs_nonaggr;
 #endif
-
         Bmark->sample_failure = 0;
 
         init_size = std::max(size, asize);
@@ -648,7 +712,11 @@ struct Bench *Bmark) {
         glob.NP=std::max(1,std::min(glob.ci_np,glob.NP_min));
         if (Bmark->RUN_MODES[0].type == SingleTransfer ||
             Bmark->RUN_MODES[0].type == SingleElementTransfer) {
+#ifdef MPIIO
+            glob.NP = 1;
+#else
             glob.NP = (std::min(2,glob.ci_np));
+#endif /*MPIIO*/
         }
 #ifdef RMA
         if (Bmark->RUN_MODES[0].type == MultPassiveTransfer) {
@@ -658,12 +726,16 @@ struct Bench *Bmark) {
             }
         }
 #endif /*RMA*/
+#ifdef EXT
+        MPI_Type_size(c_info.red_data_type, &glob.unit_size);
+#else
         if (Bmark->reduction ||
             Bmark->RUN_MODES[0].type == SingleElementTransfer) {
             MPI_Type_size(c_info.red_data_type,&glob.unit_size);
         } else {
             MPI_Type_size(c_info.s_data_type,&glob.unit_size);
         }
+#endif /*EXT*/
     }
 
     void helper_sync_legacy_globals_2(comm_info &c_info, LEGACY_GLOBALS &glob,

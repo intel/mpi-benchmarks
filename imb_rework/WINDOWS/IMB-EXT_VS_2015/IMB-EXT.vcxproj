@@ -58,7 +58,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\legacy;$(ProjectDir)\..\..\src\legacy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;EXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -68,7 +68,6 @@
       </PrecompiledHeader>
       <WarningLevel>Level1</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
       <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
@@ -87,7 +86,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src;$(ProjectDir)\..\..\legacy;$(ProjectDir)\..\..\src\legacy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;EXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -106,7 +105,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\legacy\IMB.c" />
+    <ClCompile Include="..\..\src\imb.cpp" />
+    <ClCompile Include="..\..\src\args_parser.cpp" />
+    <ClCompile Include="..\..\src\args_parser_utests.cpp" />
+    <ClCompile Include="..\..\src\scope.cpp" />
+    <ClCompile Include="..\..\src\EXT/legacy_EXT_suite.cpp" />
+    <ClCompile Include="..\..\src\EXT/legacy_EXT_benchmark.cpp" />
+    <ClCompile Include="..\..\src\benchmark_suites_collection.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\..\legacy\IMB_benchlist.c" />
     <ClCompile Include="..\..\legacy\IMB_chk_diff.c" />
     <ClCompile Include="..\..\legacy\IMB_declare.c" />
@@ -129,19 +136,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\legacy\IMB_appl_errors.h" />
-    <ClInclude Include="..\..\legacy\IMB_benchmark.h" />
-    <ClInclude Include="..\..\legacy\IMB_bnames_ext.h" />
-    <ClInclude Include="..\..\legacy\IMB_bnames_io.h" />
-    <ClInclude Include="..\..\legacy\IMB_bnames_mpi1.h" />
-    <ClInclude Include="..\..\legacy\IMB_comm_info.h" />
-    <ClInclude Include="..\..\legacy\IMB_comments.h" />
-    <ClInclude Include="..\..\legacy\IMB_declare.h" />
-    <ClInclude Include="..\..\legacy\IMB_err_check.h" />
-    <ClInclude Include="..\..\legacy\IMB_mem_info.h" />
-    <ClInclude Include="..\..\legacy\IMB_prototypes.h" />
-    <ClInclude Include="..\..\legacy\IMB_settings.h" />
-    <ClInclude Include="..\..\legacy\IMB_settings_io.h" />
+    <ClInclude Include="..\..\src\legacy/legacy_benchmark.h" />
+    <ClInclude Include="..\..\src\legacy/reworked_IMB_functions.h" />
+    <ClInclude Include="..\..\src\args_parser.h" />
+    <ClInclude Include="..\..\src\benchmark.h" />
+    <ClInclude Include="..\..\src\benchmark_suite_base.h" />
+    <ClInclude Include="..\..\src\benchmark_suite.h" />
+    <ClInclude Include="..\..\src\benchmark_suites_collection.h" />
+    <ClInclude Include="..\..\src\smart_ptr.h" />
+    <ClInclude Include="..\..\src\utils.h" />
+    <ClInclude Include="..\..\src\scope.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

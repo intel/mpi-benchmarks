@@ -144,7 +144,7 @@ In/out variables:
     if( c_info->view != MPI_DATATYPE_NULL )
 		    MPI_Type_free(&c_info->view);
 
-    if( Bmark->fpointer == private )
+    if( Bmark->fpointer == priv )
     {
 
 	c_info->split.Locsize	= baslen;
@@ -163,7 +163,7 @@ In/out variables:
     }
 
     if( Bmark->fpointer == indv_block || Bmark->fpointer == shared ||
-	Bmark->fpointer == explicit )
+	Bmark->fpointer == explic )
     {
 	int bllen[3];
 

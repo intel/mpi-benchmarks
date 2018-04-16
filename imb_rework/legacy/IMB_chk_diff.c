@@ -277,11 +277,11 @@ Input variables:
 		Offset = (MPI_Offset)(j_sample*totlen);
 		break;
 
-	    case explicit:
+	    case explic:
 		Offset = c_info->split.Offset+(MPI_Offset)(j_sample*totlen);
 		break;
 
-	    case private:
+	    case priv:
 		Offset = (MPI_Offset)(j_sample*loclen);
 		break;
 

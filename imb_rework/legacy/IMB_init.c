@@ -347,6 +347,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
     ITERATIONS->n_sample=0;
     ITERATIONS->off_cache=0;
     ITERATIONS->cache_size=-1;
+    ITERATIONS->cache_line_size=0;
     ITERATIONS->s_offs = ITERATIONS->r_offs = 0;
     ITERATIONS->s_cache_iter = ITERATIONS->r_cache_iter = 1;
     ITERATIONS->msgspersample=MSGSPERSAMPLE;

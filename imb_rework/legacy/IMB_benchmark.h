@@ -133,8 +133,8 @@ typedef enum { put, get, no } DIRECTION;
 typedef enum 
 { 
     nothing=-1,
-    private, 
-    explicit, 
+    priv, 
+    explic, 
     indv_block, 
     indv_cyclic, 
     shared 

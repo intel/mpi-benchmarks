@@ -245,7 +245,7 @@ In/out variables:
 	Bmark->bench_comments = &Write_Priv_cmt[0];
 
 	Bmark->access = put;
-	Bmark->fpointer = private;
+	Bmark->fpointer = priv;
     }
     else if (!strcmp(tmp_name,"write_expl"))
     { 
@@ -254,7 +254,7 @@ In/out variables:
 	Bmark->bench_comments = &Write_Expl_cmt[0];
 
 	Bmark->access = put;
-	Bmark->fpointer = explicit;
+	Bmark->fpointer = explic;
     }
     else if (!strcmp(tmp_name,"read_indv"))
     { 
@@ -281,7 +281,7 @@ In/out variables:
 	Bmark->bench_comments = &Read_Priv_cmt[0];
 
 	Bmark->access = get;
-	Bmark->fpointer = private;
+	Bmark->fpointer = priv;
     }
     else if (!strcmp(tmp_name,"read_expl"))
     {
@@ -290,7 +290,7 @@ In/out variables:
 	Bmark->bench_comments = &Read_Expl_cmt[0];
 
 	Bmark->access = get;
-	Bmark->fpointer = explicit;
+	Bmark->fpointer = explic;
     }
     else if (!strcmp(Bmark->name,"open_close"))
     {
@@ -302,7 +302,7 @@ In/out variables:
 	Bmark->RUN_MODES[0].AGGREGATE=-1;
 
 	Bmark->access = no;
-	Bmark->fpointer = explicit;
+	Bmark->fpointer = explic;
     }
     else 
     {
@@ -314,7 +314,7 @@ In/out variables:
     Bmark->RUN_MODES[0].type=type;
     Bmark->RUN_MODES[1].type=type;
 
-    if( type == SingleTransfer ) Bmark->fpointer = private;
+    if( type == SingleTransfer ) Bmark->fpointer = priv;
 
     if( Bmark->access == get || Bmark->access == no  ||
 	md )

@@ -61,6 +61,8 @@ enum benchmark_suite_t {
     BS_NBC,
     BS_MT,
     BS_RMA,
+    BS_EXT,
+    BS_IO,
     BS_GENERIC
 };
 

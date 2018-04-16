@@ -56,10 +56,10 @@ IMB-MPI1:
 	copy .\src\IMB-MPI1.exe
 
 IMB-NBC:
-	cd .\legacy
+	cd .\src
 	nmake -f Makefile_win IMB-NBC
 	cd ..
-	copy .\legacy\IMB-NBC.exe
+	copy .\src\IMB-NBC.exe
 
 IMB-RMA:
 	cd .\src
@@ -68,16 +68,16 @@ IMB-RMA:
 	copy .\src\IMB-RMA.exe
 
 IMB-EXT:
-	cd .\legacy
+	cd .\src
 	nmake -f Makefile_win IMB-EXT
 	cd ..
-	copy .\legacy\IMB-EXT.exe
+	copy .\src\IMB-EXT.exe
 
 IMB-IO:
-	cd .\legacy
+	cd .\src
 	nmake -f Makefile_win IMB-IO
 	cd ..
-	copy .\legacy\IMB-IO.exe
+	copy .\src\IMB-IO.exe
 
 
 IMB-MT:
@@ -87,13 +87,12 @@ IMB-MT:
 	copy .\src\IMB-MT.exe
 
 clean:
-	cd .\legacy
-	nmake -f Makefile_win exe_io
-	nmake -f Makefile_win exe_ext
-	nmake -f Makefile_win exe_nbc
-	cd ../src
+	cd ./src
 	nmake -f Makefile_win clean TARGET=MT
 	nmake -f Makefile_win clean TARGET=MPI1
 	nmake -f Makefile_win clean TARGET=RMA
+	nmake -f Makefile_win clean TARGET=NBC
+	nmake -f Makefile_win clean TARGET=IO
+	nmake -f Makefile_win clean TARGET=EXT
 	cd ..
 	del /f /q IMB-MPI1.exe IMB-NBC.exe IMB-RMA.exe IMB-EXT.exe IMB-IO.exe IMB-MT.exe

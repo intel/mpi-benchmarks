@@ -253,9 +253,9 @@ Output variables:
 if( c_info->File_rank>=0 )
 {
 if( RUN_MODE->AGGREGATE )
-IMB_write_ij(c_info, size, explicit, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, time);
+IMB_write_ij(c_info, size, explic, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, time);
 else
-IMB_write_ij(c_info, size, explicit, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, time);
+IMB_write_ij(c_info, size, explic, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, time);
 
 if( RUN_MODE->NONBLOCKING )
 {
@@ -263,9 +263,9 @@ MPI_File_close(&c_info->fh);
 IMB_open_file(c_info);
 
 if( RUN_MODE->AGGREGATE )
-IMB_iwrite_ij(c_info, size, explicit, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, 1, time+1);
+IMB_iwrite_ij(c_info, size, explic, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, 1, time+1);
 else
-IMB_iwrite_ij(c_info, size, explicit, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, 1, time+1);
+IMB_iwrite_ij(c_info, size, explic, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, 1, time+1);
 }
 }
 }
@@ -366,7 +366,7 @@ DIAGNOSTICS("Write standard ",c_info,c_info->s_buffer,Locsize,Totalsize,i+j,pos)
 
 }
 
-else if ( pos == explicit )
+else if ( pos == explic )
 for ( j=0; j<j_sample; j++ )
 {
 
@@ -488,7 +488,7 @@ MPI_ERRHAND(ierr);
 
 }
 
-else if ( pos == explicit )
+else if ( pos == explic )
 
 for ( j=0; j<i_sample*j_sample; j++ )
 {
@@ -582,7 +582,7 @@ DIAGNOSTICS("IWrite standard ",c_info,c_info->s_buffer,Locsize,Totalsize,i+j,pos
 
 }
 
-else if ( pos == explicit )
+else if ( pos == explic )
 for ( j=0; j<j_sample; j++ )
 {
 

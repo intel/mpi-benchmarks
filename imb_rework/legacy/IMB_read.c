@@ -251,9 +251,9 @@ Output variables:
 if( c_info->File_rank>=0 )
 {
 if( RUN_MODE->AGGREGATE )
-IMB_read_ij(c_info, size, explicit, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, time);
+IMB_read_ij(c_info, size, explic, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, time);
 else
-IMB_read_ij(c_info, size, explicit, RUN_MODE->type, ITERATIONS->n_sample, 1, 0, time);
+IMB_read_ij(c_info, size, explic, RUN_MODE->type, ITERATIONS->n_sample, 1, 0, time);
 
 if( RUN_MODE->NONBLOCKING )
 {
@@ -261,9 +261,9 @@ MPI_File_close(&c_info->fh);
 IMB_open_file(c_info);
 
 if( RUN_MODE->AGGREGATE )
-IMB_iread_ij(c_info, size, explicit, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, 1, time+1);
+IMB_iread_ij(c_info, size, explic, RUN_MODE->type, 1, ITERATIONS->n_sample, 1, 1, time+1);
 else
-IMB_iread_ij(c_info, size, explicit, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, 1, time+1);
+IMB_iread_ij(c_info, size, explic, RUN_MODE->type,  ITERATIONS->n_sample, 1, 0, 1, time+1);
 }
 }
 }
@@ -416,7 +416,7 @@ either standard or collective MPI_File_read_XXX
 
 		    }
 		} /*if( pos == indv_block )*/
-		else if( pos == explicit )
+		else if( pos == explic )
 		{
 
 		    for( j=0; j<j_sample; j++ )
@@ -545,7 +545,7 @@ CHK_DIFF("Coll. IRead_indv",c_info, c_info->r_buffer, 0,
 
 }
 
-else if ( pos == explicit )
+else if ( pos == explic )
 
 for ( j=0; j<i_sample*j_sample; j++ )
 {
@@ -657,7 +657,7 @@ CHK_DIFF("IRead_indv",c_info, c_info->r_buffer, 0,
 
 }
 
-else if( pos == explicit )
+else if( pos == explic )
 {
 
 for( j=0; j<j_sample; j++ )
