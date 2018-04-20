@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,29 +50,29 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
-    
+
  ***************************************************************************/
 
 
 /*
-Header file newly introduced in IMB 3.1 
+Header file newly introduced in IMB 3.1
 */
 
 #ifndef __mem_info_h__
 #define __mem_info_h__
 
 
-#define CACHE_UNIT 1048576 /* Unit for cache sizes */
-#define CACHE_SIZE 8  /* default last level cache size (in units CACHE_UNIT Bytes) when using "off_cache" */
-#define CACHE_LINE_SIZE  64 /* default last level cache line size (Bytes) */
+#define CACHE_UNIT 1048576      /* Unit for cache sizes */
+#define CACHE_SIZE 8    /* default last level cache size (in units CACHE_UNIT Bytes) when using "off_cache" */
+#define CACHE_LINE_SIZE  64     /* default last level cache line size (Bytes) */
 
-#define MEM_UNIT 1073741824 /* Units for memory usage sizes */
-#define MAX_MEM_USAGE  1  /* default max. memory (in units MEM_UNIT Bytes) used for message buffers */
+#define MEM_UNIT 1073741824     /* Units for memory usage sizes */
+#define MAX_MEM_USAGE  1        /* default max. memory (in units MEM_UNIT Bytes) used for message buffers */
 
 #endif

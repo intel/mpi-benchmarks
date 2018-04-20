@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_pingping.c 
+ File: IMB_pingping.c
 
- Implemented functions: 
+ Implemented functions:
 
  IMB_pingping;
 
@@ -78,7 +78,7 @@ For more documentation than found here, see
 
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -92,107 +92,103 @@ Hans-Joachim Plum, Intel GmbH
 /* ===================================================================== */
 
 
-void IMB_pingping(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                  MODES RUN_MODE, double* time)
+void IMB_pingping(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                  MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-1 benchmark kernel
-                      2 process exchange; MPI_Isend + MPI_Recv 
-                      
+                      2 process exchange; MPI_Isend + MPI_Recv
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1,t2;
-  int    i;
-  
-  Type_Size s_size, r_size;
-  int s_num, r_num;
-  int s_tag, r_tag;
-  int dest, source;
-  MPI_Status stat;
-  MPI_Request request;
+    double t1, t2;
+    int i;
 
-#ifdef CHECK 
-  defect=0;
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    int s_tag, r_tag;
+    int dest, source;
+    MPI_Status stat;
+    MPI_Request request;
+
+#ifdef CHECK
+    defect = 0;
 #endif
-  ierr = 0;
+    ierr = 0;
 
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
 
-  if ((s_size!=0) && (r_size!=0))
-   {
-      s_num=size/s_size;
-      r_num=size/r_size;
-    } 
-  s_tag = 1;
-  r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
-  
-  dest = -1;
-  if (c_info->rank == c_info->pair0)
-      dest = c_info->pair1;
-  else if (c_info->rank == c_info->pair1)
-      dest = c_info->pair0;
-
-  source = c_info->select_source ? dest : MPI_ANY_SOURCE;
-      
-  if( dest != -1 )
-    {
-      for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
-
-      t1 = MPI_Wtime();
-      for(i=0;i< ITERATIONS->n_sample;i++)
-	{
-	  ierr= MPI_Isend((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                          s_num,
-			  c_info->s_data_type,dest,s_tag,
-			  c_info->communicator,&request);
-	  MPI_ERRHAND(ierr);
-	  ierr = MPI_Recv((char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                          r_num,c_info->r_data_type,source,
-			  r_tag,c_info->communicator,&stat);
-	  MPI_ERRHAND(ierr);
-
-	  ierr = MPI_Wait(&request, &stat);
-	  MPI_ERRHAND(ierr);
-
-          CHK_DIFF("PingPing",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                    0, size, size, asize,
-                    put, 0, ITERATIONS->n_sample, i,
-                    dest, &defect);
-	}
-      t2 = MPI_Wtime();
-      
-      *time=(t2 - t1)/ITERATIONS->n_sample;
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
-  else
-    { 
-      *time = 0.; 
+    s_tag = 1;
+    r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
+
+    dest = -1;
+    if (c_info->rank == c_info->pair0)
+        dest = c_info->pair1;
+    else if (c_info->rank == c_info->pair1)
+        dest = c_info->pair0;
+
+    source = c_info->select_source ? dest : MPI_ANY_SOURCE;
+
+    if (dest != -1) {
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
+
+        t1 = MPI_Wtime();
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            ierr =
+                MPI_Isend((char *) c_info->s_buffer +
+                          i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                          c_info->s_data_type, dest, s_tag, c_info->communicator, &request);
+            MPI_ERRHAND(ierr);
+            ierr =
+                MPI_Recv((char *) c_info->r_buffer +
+                         i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, r_num,
+                         c_info->r_data_type, source, r_tag, c_info->communicator, &stat);
+            MPI_ERRHAND(ierr);
+
+            ierr = MPI_Wait(&request, &stat);
+            MPI_ERRHAND(ierr);
+
+            CHK_DIFF("PingPing", c_info,
+                     (char *) c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     0, size, size, asize, put, 0, ITERATIONS->n_sample, i, dest, &defect);
+        }
+        t2 = MPI_Wtime();
+
+        *time = (t2 - t1) / ITERATIONS->n_sample;
+    }
+    else {
+        *time = 0.;
     }
 }
-

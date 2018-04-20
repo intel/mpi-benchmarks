@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -83,25 +83,23 @@ Input variables:
 
 */
 
-void IMB_Barrier ( MPI_Comm comm )
+void IMB_Barrier(MPI_Comm comm)
 {
     int size = 0;
     int rank = 0;
 
     int mask = 0x1;
-    int dst,src;
+    int dst, src;
 
     int tmp = 0;
 
-    MPI_Comm_size( comm, &size );
-    MPI_Comm_rank( comm, &rank );
+    MPI_Comm_size(comm, &size);
+    MPI_Comm_rank(comm, &rank);
 
-    for( ; mask < size; mask <<=1 ) {
+    for (; mask < size; mask <<= 1) {
         dst = (rank + mask) % size;
         src = (rank - mask + size) % size;
-        MPI_Sendrecv( &tmp, 0, MPI_BYTE, dst, IMB_BARRIER_TAG,
-                      &tmp, 0, MPI_BYTE, src, IMB_BARRIER_TAG,
-                      comm, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(&tmp, 0, MPI_BYTE, dst, IMB_BARRIER_TAG,
+                     &tmp, 0, MPI_BYTE, src, IMB_BARRIER_TAG, comm, MPI_STATUS_IGNORE);
     }
 }
-

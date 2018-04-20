@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_bcast.c 
+ File: IMB_bcast.c
 
- Implemented functions: 
+ Implemented functions:
 
  IMB_bcast;
  IMB_ibcast;
@@ -81,7 +81,7 @@ For more documentation than found here, see
 /*************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -95,209 +95,94 @@ Hans-Joachim Plum, Intel GmbH
 /* ===================================================================== */
 
 
-void IMB_bcast(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-               MODES RUN_MODE, double* time)
+void IMB_bcast(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+               MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-1 benchmark kernel
                       Benchmarks MPI_Bcast
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
     double t1, t2;
-    int    i;
+    int i;
     Type_Size s_size;
     int s_num;
-    void* bc_buf;
+    void *bc_buf;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    if (s_size!=0) s_num=size/s_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    if (s_size != 0)
+        s_num = size / s_size;
 
     *time = 0.;
 
-    if(c_info->rank!=-1)
-    {
+    if (c_info->rank != -1) {
         int root = 0;
-        IMB_do_n_barriers (c_info->communicator, N_BARR);
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             /* Provide that s_buffer is not overwritten */
             bc_buf = (root == c_info->rank) ? c_info->s_buffer : c_info->r_buffer;
 
             t1 = MPI_Wtime();
-            ierr= MPI_Bcast((char*)bc_buf+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                            s_num,c_info->s_data_type,
-                            root,c_info->communicator);
+            ierr = MPI_Bcast((char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                             s_num, c_info->s_data_type, root, c_info->communicator);
             t2 = MPI_Wtime();
             *time += (t2 - t1);
 
             MPI_ERRHAND(ierr);
 
             CHK_DIFF("Bcast", c_info,
-                     (char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                     (char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                      0, size, size, 1, put, 0, ITERATIONS->n_sample, i, root, &defect);
 
             /*  CHANGE THE ROOT NODE */
             root = (root + c_info->root_shift) % c_info->num_procs;
 
-            IMB_do_n_barriers (c_info->communicator, c_info->sync);
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         *time /= ITERATIONS->n_sample;
     }
 }
 
-#elif defined NBC // MPI1
+#elif defined NBC       // MPI1
 
 /*************************************************************************/
 
-void IMB_ibcast(struct comm_info* c_info,
-                int size,
-                struct iter_schedule* ITERATIONS,
-                MODES RUN_MODE,
-                double* time)
-/*
-
-                      
-                      MPI-NBC benchmark kernel
-                      Benchmarks MPI_Ibcast
-                      
-
-
-Input variables: 
-
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
-
--size                 (type int)                      
-                      Basic message size in bytes
-
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
-
--RUN_MODE             (type MODES)                      
-                      (only MPI-2 case: see [1])
-
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
-
-*/
-{
-    int         i = 0,
-                root = 0;
-    Type_Size   s_size;
-    int         s_num = 0;
-    void*       bc_buf = NULL;
-    MPI_Request request;
-    MPI_Status  status;
-    double      t_pure = 0.,
-                t_comp = 0.,
-                t_ovrlp = 0.; 
-
-#ifdef CHECK
-    defect=0.;
-#endif  
-    ierr = 0;
-
-    /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->s_data_type, &s_size);
-    if (s_size != 0) {
-        s_num = size / s_size;
-    }
-
-    if(c_info->rank != -1) {
-        IMB_ibcast_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
-
-        /* INITIALIZATION CALL */
-        IMB_cpu_exploit(t_pure, 1);
-        root = 0;
-
-        IMB_do_n_barriers(c_info->communicator, N_BARR);
-
-        for(i=0; i < ITERATIONS->n_sample; i++)
-        {
-            bc_buf = (root == c_info->rank)
-                   ? c_info->s_buffer
-                   : c_info->r_buffer;
-
-            t_ovrlp -= MPI_Wtime();
-            ierr = MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                               s_num,
-                               c_info->s_data_type,
-                               root,
-                               c_info->communicator,
-                               &request);
-            MPI_ERRHAND(ierr);
-
-            t_comp -= MPI_Wtime();
-            IMB_cpu_exploit(t_pure, 0);
-            t_comp += MPI_Wtime();
-
-            MPI_Wait(&request, &status);
-            t_ovrlp += MPI_Wtime();
-
-            CHK_DIFF("Ibcast", c_info,
-                     (char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                     0, size, size, 1, put, 0, ITERATIONS->n_sample, i, root, &defect);
-            /* CHANGE THE ROOT NODE */
-            root = (root + c_info->root_shift) % c_info->num_procs;
-            IMB_do_n_barriers(c_info->communicator, c_info->sync);
-        }
-
-        t_comp  /= ITERATIONS->n_sample;
-        t_ovrlp /= ITERATIONS->n_sample;
-    }
-
-    time[0] = t_pure;
-    time[1] = t_ovrlp;
-    time[2] = t_comp;
-}
-
-/*************************************************************************/
-
-void IMB_ibcast_pure(struct comm_info* c_info,
-                     int size,
-                     struct iter_schedule* ITERATIONS,
-                     MODES RUN_MODE,
-                     double* time)
+void IMB_ibcast(struct comm_info *c_info,
+                int size, struct iter_schedule *ITERATIONS, MODES RUN_MODE, double *time)
 /*
 
 
@@ -331,14 +216,13 @@ Output variables:
 
 */
 {
-    int         i = 0,
-                root = 0;
-    Type_Size   s_size;
-    int         s_num = 0;
-    void*       bc_buf = NULL;
+    int i = 0, root = 0;
+    Type_Size s_size;
+    int s_num = 0;
+    void *bc_buf = NULL;
     MPI_Request request;
-    MPI_Status  status;
-    double      t_pure = 0.;
+    MPI_Status status;
+    double t_pure = 0., t_comp = 0., t_ovrlp = 0.;
 
 #ifdef CHECK
     defect = 0.;
@@ -351,32 +235,124 @@ Output variables:
         s_num = size / s_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
+        IMB_ibcast_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
+
+        /* INITIALIZATION CALL */
+        IMB_cpu_exploit(t_pure, 1);
         root = 0;
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i = 0; i < ITERATIONS->n_sample; i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             bc_buf = (root == c_info->rank)
-                   ? c_info->s_buffer
-                   : c_info->r_buffer;
+                ? c_info->s_buffer : c_info->r_buffer;
+
+            t_ovrlp -= MPI_Wtime();
+            ierr = MPI_Ibcast((char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                              s_num, c_info->s_data_type, root, c_info->communicator, &request);
+            MPI_ERRHAND(ierr);
+
+            t_comp -= MPI_Wtime();
+            IMB_cpu_exploit(t_pure, 0);
+            t_comp += MPI_Wtime();
+
+            MPI_Wait(&request, &status);
+            t_ovrlp += MPI_Wtime();
+
+            CHK_DIFF("Ibcast", c_info,
+                     (char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                     0, size, size, 1, put, 0, ITERATIONS->n_sample, i, root, &defect);
+            /* CHANGE THE ROOT NODE */
+            root = (root + c_info->root_shift) % c_info->num_procs;
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+
+        t_comp /= ITERATIONS->n_sample;
+        t_ovrlp /= ITERATIONS->n_sample;
+    }
+
+    time[0] = t_pure;
+    time[1] = t_ovrlp;
+    time[2] = t_comp;
+}
+
+/*************************************************************************/
+
+void IMB_ibcast_pure(struct comm_info *c_info,
+                     int size, struct iter_schedule *ITERATIONS, MODES RUN_MODE, double *time)
+/*
+
+
+                      MPI-NBC benchmark kernel
+                      Benchmarks MPI_Ibcast
+
+
+
+Input variables:
+
+-c_info               (type struct comm_info*)
+                      Collection of all base data for MPI;
+                      see [1] for more information
+
+
+-size                 (type int)
+                      Basic message size in bytes
+
+-ITERATIONS           (type struct iter_schedule *)
+                      Repetition scheduling
+
+-RUN_MODE             (type MODES)
+                      (only MPI-2 case: see [1])
+
+
+Output variables:
+
+-time                 (type double*)
+                      Timing result per sample
+
+
+*/
+{
+    int i = 0, root = 0;
+    Type_Size s_size;
+    int s_num = 0;
+    void *bc_buf = NULL;
+    MPI_Request request;
+    MPI_Status status;
+    double t_pure = 0.;
+
+#ifdef CHECK
+    defect = 0.;
+#endif
+    ierr = 0;
+
+    /* GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    if (s_size != 0) {
+        s_num = size / s_size;
+    }
+
+    if (c_info->rank != -1) {
+        root = 0;
+
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
+
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            bc_buf = (root == c_info->rank)
+                ? c_info->s_buffer : c_info->r_buffer;
 
             t_pure -= MPI_Wtime();
-                ierr = MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                  s_num,
-                                  c_info->s_data_type,
-                                  root,
-                                  c_info->communicator,
-                                  &request);
-                MPI_ERRHAND(ierr);
-                MPI_Wait(&request, &status);
+            ierr = MPI_Ibcast((char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                              s_num, c_info->s_data_type, root, c_info->communicator, &request);
+            MPI_ERRHAND(ierr);
+            MPI_Wait(&request, &status);
             t_pure += MPI_Wtime();
 
             CHK_DIFF("Ibcast_pure", c_info,
-                     (char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                     (char *) bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                      0, size, size, 1, put, 0, ITERATIONS->n_sample, i, root, &defect);
-            
+
             root = (root + c_info->root_shift) % c_info->num_procs;
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
@@ -387,4 +363,3 @@ Output variables:
 }
 
 #endif // MPI1 or NBC
-

@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,13 +50,13 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
-    
+
  ***************************************************************************/
 
 
@@ -89,10 +89,10 @@ IMB. These are
 - MAXMSGLOG    (largest data size is 2^MAXMSGLOG)
 
 - MSGSPERSAMPLE (max. repetition count)
-- MSGS_NONAGGR  (       "           for non aggregate benchmarks)
+- MSGS_NONAGGR  ("           for non aggregate benchmarks)
 
 - OVERALL_VOL   (for all sizes < OVERALL_VOL, the repetition count is eventually
-                reduced so that not more than OVERALL_VOL bytes overall are 
+                reduced so that not more than OVERALL_VOL bytes overall are
                 processed.
                 This avoids unnecessary repetitions for large message sizes.
 
@@ -102,10 +102,10 @@ IMB. These are
 
                 min(MSGPERSAMPLE,max(1,OVERALL_VOL/X))    (X>0)
 
-                NOTE: OVERALL_VOL does NOT restrict the size of the max. 
+                NOTE: OVERALL_VOL does NOT restrict the size of the max.
                 data transfer. 2^MAXMSGLOG is the largest size, independent
                 of OVERALL_VOL.
-               )
+)
 
 
 - N_BARR        Number of MPI_Barrier for synchronization
@@ -120,7 +120,7 @@ which specifies the name of input/output file ("recycled" for all benchmarks;
 if one separate file is opened on each process, an index _<rank> will be
 appended to the filename)
 
-*/ 
+*/
 
 #define FILENAME "IMB_out"
 
@@ -157,14 +157,14 @@ DON'T change anything below here !!
 /* How to set communications buffers for process rank, index i */
 #ifdef BUFFERS_INT
 
-typedef int assign_type ;
+typedef int assign_type;
 #define BUF_VALUE(rank,i)  10000000*(1+rank)+i%10000000
 
 #endif
 
 #ifdef BUFFERS_FLOAT
 
-typedef float assign_type ;
+typedef float assign_type;
 #define BUF_VALUE(rank,i)  (0.1*((rank)+1)+(float)((i)))
 
 #endif

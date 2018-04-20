@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_declare.c 
+ File: IMB_declare.c
 
- Implemented functions: 
+ Implemented functions:
 
  ***************************************************************************/
 
@@ -80,47 +80,47 @@ For more documentation than found here, see
 
 #include "IMB_prototypes.h"
 
-long   r_check,s_check;
+long r_check, s_check;
 double defect;
 double *all_defect;
 
 #endif
 
-FILE* dbg_file;
-char* dbgf_name;
+FILE *dbg_file;
+char *dbgf_name;
 
 double *all_times;
 
 /*  STRINGS FOR OUTPUT   */
-char aux_string[out_fields*ow_format];
+char aux_string[out_fields * ow_format];
 
 /* FORMAT FOR OUTPUT    */
-char format [out_fields*7];
+char format[out_fields * 7];
 
 /* ARRAY OF CASES, EITHER DEFAULT OR ARGUMENT LIST */
-char **cases ;           
+char **cases;
 
 /* Error status  */
 
 int err_flag;
 
 /* I/O unit */
-FILE* unit;
+FILE *unit;
 
 /* MAXIMAL MESSAGE LENGTH    */
 int MAXMSG;
 
-void * AUX;
-size_t AUX_LEN=0;
+void *AUX;
+size_t AUX_LEN = 0;
 
-int    do_nonblocking=0;
-double tCPU = 0.;    /* CPU time for overlap benchmarks */
+int do_nonblocking = 0;
+double tCPU = 0.;               /* CPU time for overlap benchmarks */
 double MFlops = -1.;
 
 /* calls to IMB_v_alloc / IMB_v_free */
-int num_alloc=0, num_free=0;
+int num_alloc = 0, num_free = 0;
 
 #ifdef USE_MPI_INIT_THREAD
 int mpi_thread_environment = MPI_THREAD_SINGLE;
-int mpi_thread_desired	   = MPI_THREAD_MULTIPLE;
-#endif /*USE_MPI_INIT_THREAD*/
+int mpi_thread_desired = MPI_THREAD_MULTIPLE;
+#endif /*USE_MPI_INIT_THREAD */

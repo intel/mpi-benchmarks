@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,13 +50,13 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
-    
+
  ***************************************************************************/
 
 
@@ -66,48 +66,15 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "Ibcast"
-  ,"Iallgather"
-  ,"Iallgatherv"
-  ,"Igather"
-  ,"Igatherv"
-  ,"Iscatter"
-  ,"Iscatterv"
-  ,"Ialltoall"
-  ,"Ialltoallv"
-  ,"Ireduce"
-  ,"Ireduce_scatter"
-  ,"Iallreduce"
-  ,"Ibarrier"
+    "Ibcast", "Iallgather", "Iallgatherv", "Igather", "Igatherv", "Iscatter", "Iscatterv",
+    "Ialltoall", "Ialltoallv", "Ireduce", "Ireduce_scatter", "Iallreduce", "Ibarrier"
 };
 
 /* NAMES OF BENCHMARKS (ALL CASE)*/
 char *ALLC[] = {
-   "Ibcast"
-  ,"Ibcast_pure"
-  ,"Iallgather"
-  ,"Iallgather_pure"
-  ,"Iallgatherv"
-  ,"Iallgatherv_pure"
-  ,"Igather"
-  ,"Igather_pure"
-  ,"Igatherv"
-  ,"Igatherv_pure"
-  ,"Iscatter"
-  ,"Iscatter_pure"
-  ,"Iscatterv"
-  ,"Iscatterv_pure"
-  ,"Ialltoall"
-  ,"Ialltoall_pure"
-  ,"Ialltoallv"
-  ,"Ialltoallv_pure"
-  ,"Ireduce"
-  ,"Ireduce_pure"
-  ,"Ireduce_scatter"
-  ,"Ireduce_scatter_pure"
-  ,"Iallreduce"
-  ,"Iallreduce_pure"
-  ,"Ibarrier"
-  ,"Ibarrier_pure"
+    "Ibcast", "Ibcast_pure", "Iallgather", "Iallgather_pure", "Iallgatherv", "Iallgatherv_pure",
+    "Igather", "Igather_pure", "Igatherv", "Igatherv_pure", "Iscatter", "Iscatter_pure",
+    "Iscatterv", "Iscatterv_pure", "Ialltoall", "Ialltoall_pure", "Ialltoallv",
+    "Ialltoallv_pure", "Ireduce", "Ireduce_pure", "Ireduce_scatter", "Ireduce_scatter_pure",
+    "Iallreduce", "Iallreduce_pure", "Ibarrier", "Ibarrier_pure"
 };
-

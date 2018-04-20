@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
-    
- File: IMB_user_set_info.c 
 
- Implemented functions: 
+ File: IMB_user_set_info.c
+
+ Implemented functions:
 
  IMB_user_set_info;
 
@@ -78,17 +78,17 @@ For more documentation than found here, see
 
 
 
-void IMB_user_set_info(MPI_Info* opt_info)
+void IMB_user_set_info(MPI_Info * opt_info)
 /*
 
 
 
-In/out variables: 
+In/out variables:
 
--opt_info             (type MPI_Info*)                      
+-opt_info             (type MPI_Info*)
                       Is set. Default is MPI_INFO_NULL, everything beyond
                       this is user decision and system dependent.
-                      
+
 
 
 */
@@ -99,7 +99,7 @@ In/out variables:
 Set info for all MPI I/O functions
 */
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 
@@ -108,13 +108,13 @@ Set info for all MPI I/O functions
 Set info for all MPI_Win_create calls
 */
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 
 #ifdef RMA
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 

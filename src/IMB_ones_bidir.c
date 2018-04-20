@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
-    
- File: IMB_ones_bidir.c 
 
- Implemented functions: 
+ File: IMB_ones_bidir.c
+
+ Implemented functions:
 
  IMB_bidir_get;
  IMB_bidir_put;
@@ -68,7 +68,7 @@ For more documentation than found here, see
 
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -92,172 +92,148 @@ Hans-Joachim Plum, Intel GmbH
 
 
 
-void IMB_bidir_get(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-                   MODES RUN_MODE, double* time)
+void IMB_bidir_get(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                   MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-2 benchmark kernel
                       Driver for aggregate / non agg. bidirectional MPI_Get benchmarks
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       Mode (aggregate/non aggregate; blocking/nonblocking);
                       see "IMB_benchmark.h" for definition
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1, t2;
-  
-  Type_Size s_size,r_size;
-  int s_num, r_num;
-  int dest, source,sender;
-  MPI_Status stat;
+    double t1, t2;
 
-  ierr = 0;
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-    {
-      s_num=size/s_size;
-      r_num=size/r_size;
-    } 
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    int dest, source, sender;
+    MPI_Status stat;
 
-  if (c_info->rank == c_info->pair0)
-    {
-      dest = c_info->pair1;
+    ierr = 0;
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
-  else if (c_info->rank == c_info->pair1)
-    {
-      dest =c_info->pair0 ;
-    }
-  else
-    {
-      dest   = -1;
-    }
-  sender=0;
 
-  if( !RUN_MODE->AGGREGATE )
-     IMB_ones_get(  c_info,
-                s_num, dest, 
-                r_num, sender,
-                size, ITERATIONS,
-                time);
-  if( RUN_MODE->AGGREGATE )
-     IMB_ones_mget( c_info,
-                s_num, dest, 
-                r_num, sender,
-                size, ITERATIONS,
-                time);
+    if (c_info->rank == c_info->pair0) {
+        dest = c_info->pair1;
+    }
+    else if (c_info->rank == c_info->pair1) {
+        dest = c_info->pair0;
+    }
+    else {
+        dest = -1;
+    }
+    sender = 0;
+
+    if (!RUN_MODE->AGGREGATE)
+        IMB_ones_get(c_info, s_num, dest, r_num, sender, size, ITERATIONS, time);
+    if (RUN_MODE->AGGREGATE)
+        IMB_ones_mget(c_info, s_num, dest, r_num, sender, size, ITERATIONS, time);
 
 }
 
 
 
 
-void IMB_bidir_put(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-                   MODES RUN_MODE, double* time)
+void IMB_bidir_put(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                   MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-2 benchmark kernel
                       Driver for aggregate / non agg. bidirectional MPI_Put benchmarks
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       Mode (aggregate/non aggregate; blocking/nonblocking);
                       see "IMB_benchmark.h" for definition
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1, t2;
-  
-  Type_Size s_size,r_size;
-  int s_num, r_num;
-  int dest, source,sender;
-  int ierr;
-  MPI_Status stat;
+    double t1, t2;
 
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-    {
-      s_num=size/s_size;
-      r_num=size/r_size;
-    } 
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    int dest, source, sender;
+    int ierr;
+    MPI_Status stat;
 
-  if (c_info->rank == c_info->pair0)
-    {
-      dest = c_info->pair1;
-    }
-  else if (c_info->rank == c_info->pair1)
-    {
-      dest =c_info->pair0 ;
-    }
-  else
-    {
-      dest   = -1;
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
 
-  
-  sender=1;
+    if (c_info->rank == c_info->pair0) {
+        dest = c_info->pair1;
+    }
+    else if (c_info->rank == c_info->pair1) {
+        dest = c_info->pair0;
+    }
+    else {
+        dest = -1;
+    }
 
-  if( !RUN_MODE->AGGREGATE )
-     IMB_ones_put(  c_info,
-                s_num, dest, 
-                r_num, sender,
-                size, ITERATIONS,
-                time);
-  
-  if( RUN_MODE->AGGREGATE )
-     IMB_ones_mput( c_info,
-                s_num, dest, 
-                r_num, sender,
-                size, ITERATIONS,
-                time);
+
+    sender = 1;
+
+    if (!RUN_MODE->AGGREGATE)
+        IMB_ones_put(c_info, s_num, dest, r_num, sender, size, ITERATIONS, time);
+
+    if (RUN_MODE->AGGREGATE)
+        IMB_ones_mput(c_info, s_num, dest, r_num, sender, size, ITERATIONS, time);
 
 }

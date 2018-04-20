@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_ones_accu.c 
+ File: IMB_ones_accu.c
 
- Implemented functions: 
+ Implemented functions:
 
  IMB_accumulate;
 
@@ -80,7 +80,7 @@ For more documentation than found here, see
 /*************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -94,159 +94,154 @@ Hans-Joachim Plum, Intel GmbH
 /* ===================================================================== */
 
 
-void IMB_accumulate (struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-                     MODES RUN_MODE, double* time)
+void IMB_accumulate(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                    MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-2 benchmark kernel
                       Benchmarks MPI_Accumulate
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       Mode (aggregate/non aggregate; blocking/nonblocking);
                       see "IMB_benchmark.h" for definition
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1, t2;
-  
-  Type_Size s_size,r_size;
-  int s_num, r_num;
+    double t1, t2;
+
+    Type_Size s_size, r_size;
+    int s_num, r_num;
 /* IMB 3.1 << */
-  int r_off;
+    int r_off;
 /* >> IMB 3.1  */
-  int s_tag, r_tag;
-  int dest, source, root;
-  int i;
-  MPI_Status stat;
+    int s_tag, r_tag;
+    int dest, source, root;
+    int i;
+    MPI_Status stat;
 
-
-#ifdef CHECK 
-  defect=0;
-#endif
-  ierr = 0;
-
-  /*  GET SIZE OF DATA TYPE */  
-MPI_Type_size(c_info->red_data_type,&s_size);
-
-/* IMB 3.1 << */
-s_num=size/s_size;
-r_size=s_size;
-r_num=s_num;
-r_off=ITERATIONS->r_offs/r_size;
-/* >> IMB 3.1  */
-
-root = (c_info-> rank == 0);
-
-if( c_info-> rank < 0 )
-*time = 0.;
-else
-{
-
-if( !RUN_MODE->AGGREGATE )
-{
-
-*time = MPI_Wtime();
-
-for(i=0;i< ITERATIONS->n_sample;i++)
-	{
-
-       ierr = MPI_Accumulate(
-                 (char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                 s_num, c_info->red_data_type,
-                 0, i%ITERATIONS->r_cache_iter*r_off,
-                 r_num, c_info->red_data_type, c_info->op_type,
-                 c_info->WIN );
-       MPI_ERRHAND(ierr);
-
-       ierr = MPI_Win_fence(0, c_info->WIN);
-       MPI_ERRHAND(ierr);
-#ifdef CHECK
-if( root ) 
-{
-       CHK_DIFF("Accumulate",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                0, size, size, asize, 
-                put, 0, ITERATIONS->n_sample, i,
-                -1, &defect);
-       IMB_ass_buf((char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0, 0, 
-		   (size>0)? size-1 : 0, 0);
-}
-MPI_Barrier(c_info->communicator);
-#endif
-
-	}
-*time=(MPI_Wtime()-*time)/ITERATIONS->n_sample;
-}
-
-if( RUN_MODE->AGGREGATE )
-{
-
-for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
-
-*time = MPI_Wtime();
 
 #ifdef CHECK
-for(i=0;i< ITERATIONS->r_cache_iter; i++)
+    defect = 0;
+#endif
+    ierr = 0;
+
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->red_data_type, &s_size);
+
+/* IMB 3.1 << */
+    s_num = size / s_size;
+    r_size = s_size;
+    r_num = s_num;
+    r_off = ITERATIONS->r_offs / r_size;
+/* >> IMB 3.1  */
+
+    root = (c_info->rank == 0);
+
+    if (c_info->rank < 0)
+        *time = 0.;
+    else {
+
+        if (!RUN_MODE->AGGREGATE) {
+
+            *time = MPI_Wtime();
+
+            for (i = 0; i < ITERATIONS->n_sample; i++) {
+
+                ierr = MPI_Accumulate((char *) c_info->s_buffer +
+                                      i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                                      c_info->red_data_type, 0,
+                                      i % ITERATIONS->r_cache_iter * r_off, r_num,
+                                      c_info->red_data_type, c_info->op_type, c_info->WIN);
+                MPI_ERRHAND(ierr);
+
+                ierr = MPI_Win_fence(0, c_info->WIN);
+                MPI_ERRHAND(ierr);
+#ifdef CHECK
+                if (root) {
+                    CHK_DIFF("Accumulate", c_info,
+                             (char *) c_info->r_buffer +
+                             i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, 0, size, size,
+                             asize, put, 0, ITERATIONS->n_sample, i, -1, &defect);
+                    IMB_ass_buf((char *) c_info->r_buffer +
+                                i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, 0, 0,
+                                (size > 0) ? size - 1 : 0, 0);
+                }
+                MPI_Barrier(c_info->communicator);
+#endif
+
+            }
+            *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
+        }
+
+        if (RUN_MODE->AGGREGATE) {
+
+            for (i = 0; i < N_BARR; i++)
+                MPI_Barrier(c_info->communicator);
+
+            *time = MPI_Wtime();
+
+#ifdef CHECK
+            for (i = 0; i < ITERATIONS->r_cache_iter; i++)
 #else
-for(i=0;i< ITERATIONS->n_sample;i++)
+            for (i = 0; i < ITERATIONS->n_sample; i++)
 #endif
-	{
+            {
 
-       ierr = MPI_Accumulate(
-                 (char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                 s_num, c_info->red_data_type,
-                 0, i%ITERATIONS->r_cache_iter*r_off,
-                 r_num, c_info->red_data_type, c_info->op_type,
-                 c_info->WIN );
-       MPI_ERRHAND(ierr);
+                ierr = MPI_Accumulate((char *) c_info->s_buffer +
+                                      i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                                      c_info->red_data_type, 0,
+                                      i % ITERATIONS->r_cache_iter * r_off, r_num,
+                                      c_info->red_data_type, c_info->op_type, c_info->WIN);
+                MPI_ERRHAND(ierr);
 
-	}
+            }
 
-       ierr = MPI_Win_fence(0, c_info->WIN);
-       MPI_ERRHAND(ierr);
+            ierr = MPI_Win_fence(0, c_info->WIN);
+            MPI_ERRHAND(ierr);
 
-*time=(MPI_Wtime()-*time)/ITERATIONS->n_sample;
+            *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
 
 #ifdef CHECK
-if( root ) 
-{
-    for(i=0;i< ITERATIONS->r_cache_iter; i++)
-    {
-	CHK_DIFF("Accumulate", c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-    		 0, size, size, asize, 
-                 put, 0, ITERATIONS->n_sample, i,
-	         -1, &defect);
-        IMB_ass_buf((char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0, 0, (size>0)? size-1 : 0, 0);
-	     
-    }
-}
+            if (root) {
+                for (i = 0; i < ITERATIONS->r_cache_iter; i++) {
+                    CHK_DIFF("Accumulate", c_info,
+                             (char *) c_info->r_buffer +
+                             i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, 0, size, size,
+                             asize, put, 0, ITERATIONS->n_sample, i, -1, &defect);
+                    IMB_ass_buf((char *) c_info->r_buffer +
+                                i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, 0, 0,
+                                (size > 0) ? size - 1 : 0, 0);
+
+                }
+            }
 #endif
 
 
 
-}
+        }
 
-}
+    }
 }

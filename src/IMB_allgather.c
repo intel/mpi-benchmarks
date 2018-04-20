@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_allgather.c 
+ File: IMB_allgather.c
 
- Implemented functions: 
+ Implemented functions:
 
  IMB_allgather;
 
@@ -75,7 +75,7 @@ For more documentation than found here, see
 /*******************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -89,97 +89,93 @@ Hans-Joachim Plum, Intel GmbH
 /* ===================================================================== */
 
 
-void IMB_allgather(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                   MODES RUN_MODE, double* time)
+void IMB_allgather(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                   MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-1 benchmark kernel
                       Benchmarks MPI_Allgather
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1, t2;
-  int    i;
+    double t1, t2;
+    int i;
 
-  Type_Size s_size,r_size;
-  int s_num, r_num;
-  
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+
 #ifdef CHECK
-  defect=0.;
+    defect = 0.;
 #endif
-  ierr = 0;
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-  {
-      s_num=size/s_size;
-      r_num=size/r_size;
-  } 
-  
-  *time =0.;
-  if(c_info->rank!=-1)
-  {
-      IMB_do_n_barriers (c_info->communicator, N_BARR);
+    ierr = 0;
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
+    }
 
-      for(i=0;i< ITERATIONS->n_sample;i++)
-      {
-          t1 = MPI_Wtime();
-          ierr = MPI_Allgather((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                               s_num,c_info->s_data_type,
-			       (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                               r_num,c_info->r_data_type,
-			       c_info->communicator);
-          t2 = MPI_Wtime();
-          *time += (t2 - t1);
+    *time = 0.;
+    if (c_info->rank != -1) {
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-          MPI_ERRHAND(ierr);
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            t1 = MPI_Wtime();
+            ierr =
+                MPI_Allgather((char *) c_info->s_buffer +
+                              i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                              c_info->s_data_type,
+                              (char *) c_info->r_buffer +
+                              i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, r_num,
+                              c_info->r_data_type, c_info->communicator);
+            t2 = MPI_Wtime();
+            *time += (t2 - t1);
 
-          CHK_DIFF("Allgather",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-                   0, (size_t) c_info->num_procs* (size_t) size, 1, 
-                   put, 0, ITERATIONS->n_sample, i,
-                   -2, &defect);
-          IMB_do_n_barriers (c_info->communicator, c_info->sync);
-      }
-      *time /= ITERATIONS->n_sample;
-  }
+            MPI_ERRHAND(ierr);
+
+            CHK_DIFF("Allgather", c_info,
+                     (char *) c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     0, 0, (size_t) c_info->num_procs * (size_t) size, 1, put, 0,
+                     ITERATIONS->n_sample, i, -2, &defect);
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+        *time /= ITERATIONS->n_sample;
+    }
 }
 
-#elif defined NBC // MPI1
+#elif defined NBC       // MPI1
 
 /*************************************************************************/
 
-void IMB_iallgather(struct comm_info* c_info,
-                    int size,
-                    struct iter_schedule* ITERATIONS,
-                    MODES RUN_MODE,
-                    double* time)
+void IMB_iallgather(struct comm_info *c_info,
+                    int size, struct iter_schedule *ITERATIONS, MODES RUN_MODE, double *time)
 /*
 
 
@@ -212,31 +208,27 @@ Output variables:
 
 */
 {
-    int         i = 0;
-    Type_Size   s_size,
-                r_size;
-    int         s_num = 0,
-                r_num = 0;
+    int i = 0;
+    Type_Size s_size, r_size;
+    int s_num = 0, r_num = 0;
     MPI_Request request;
-    MPI_Status  status;
-    double      t_pure = 0.,
-                t_comp = 0.,
-                t_ovrlp = 0.;
+    MPI_Status status;
+    double t_pure = 0., t_comp = 0., t_ovrlp = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
-    if ((s_size!=0) && (r_size!=0)) {
-        s_num=size/s_size;
-        r_num=size/r_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         IMB_iallgather_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
         /* INITIALIZATION CALL */
@@ -244,17 +236,15 @@ Output variables:
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i=0; i < ITERATIONS->n_sample; i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_ovrlp -= MPI_Wtime();
-            ierr = MPI_Iallgather((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                  s_num,
-                                  c_info->s_data_type,
-                                  (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                  r_num,
-                                  c_info->r_data_type,
-                                  c_info->communicator,
-                                  &request);
+            ierr =
+                MPI_Iallgather((char *) c_info->s_buffer +
+                               i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                               c_info->s_data_type,
+                               (char *) c_info->r_buffer +
+                               i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, r_num,
+                               c_info->r_data_type, c_info->communicator, &request);
 
             MPI_ERRHAND(ierr);
             t_comp -= MPI_Wtime();
@@ -265,14 +255,14 @@ Output variables:
             t_ovrlp += MPI_Wtime();
 
             CHK_DIFF("Iallgather", c_info,
-                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                     0, 0, ((size_t)c_info->num_procs * (size_t)size),
+                     (char *) c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     0, 0, ((size_t) c_info->num_procs * (size_t) size),
                      1, put, 0, ITERATIONS->n_sample, i, -2, &defect);
 
-            IMB_do_n_barriers (c_info->communicator, c_info->sync);
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         t_ovrlp /= ITERATIONS->n_sample;
-        t_comp  /= ITERATIONS->n_sample;
+        t_comp /= ITERATIONS->n_sample;
     }
 
     time[0] = t_pure;
@@ -282,11 +272,8 @@ Output variables:
 
 /*************************************************************************/
 
-void IMB_iallgather_pure(struct comm_info* c_info,
-                         int size,
-                         struct iter_schedule* ITERATIONS,
-                         MODES RUN_MODE,
-                         double* time)
+void IMB_iallgather_pure(struct comm_info *c_info,
+                         int size, struct iter_schedule *ITERATIONS, MODES RUN_MODE, double *time)
 /*
 
 
@@ -320,53 +307,47 @@ Output variables:
 
 */
 {
-    int         i = 0;
-    Type_Size   s_size,
-                r_size;
-    int         s_num = 0,
-                r_num;
+    int i = 0;
+    Type_Size s_size, r_size;
+    int s_num = 0, r_num;
     MPI_Request request;
-    MPI_Status  status;
-    double      t_pure = 0.;
+    MPI_Status status;
+    double t_pure = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->s_data_type, &r_size);
-    if ((s_size != 0) && (r_size != 0)) 
-    {
+    if ((s_size != 0) && (r_size != 0)) {
         s_num = size / s_size;
         r_num = size / r_size;
     }
 
-    if(c_info->rank != -1) 
-    {
+    if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i = 0; i < ITERATIONS->n_sample; i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
-            ierr = MPI_Iallgather((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                  s_num,
-                                  c_info->s_data_type,
-                                  (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                  r_num,
-                                  c_info->r_data_type,
-                                  c_info->communicator,
-                                  &request);
+            ierr =
+                MPI_Iallgather((char *) c_info->s_buffer +
+                               i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs, s_num,
+                               c_info->s_data_type,
+                               (char *) c_info->r_buffer +
+                               i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, r_num,
+                               c_info->r_data_type, c_info->communicator, &request);
             MPI_ERRHAND(ierr);
             MPI_Wait(&request, &status);
             t_pure += MPI_Wtime();
 
             CHK_DIFF("Iallgather_pure", c_info,
-                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                     0, 0, ((size_t)c_info->num_procs * (size_t)size),
+                     (char *) c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     0, 0, ((size_t) c_info->num_procs * (size_t) size),
                      1, put, 0, ITERATIONS->n_sample, i, -2, &defect);
-            
+
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         t_pure /= ITERATIONS->n_sample;

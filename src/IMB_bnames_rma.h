@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,11 +50,11 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
  ***************************************************************************/
@@ -66,50 +66,47 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "Unidir_put",
-   "Unidir_get",
-   "Bidir_put",
-   "Bidir_get",
-   "One_put_all",
-   "One_get_all",
-   "All_put_all",
-   "All_get_all",
-   "Put_local",
-   "Put_all_local",
-   "Exchange_put",
-   "Exchange_get",
-   "Accumulate",
-   "Get_accumulate",
-   "Fetch_and_op",
-   "Compare_and_swap",
-   "Truly_passive_put"
+    "Unidir_put",
+    "Unidir_get",
+    "Bidir_put",
+    "Bidir_get",
+    "One_put_all",
+    "One_get_all",
+    "All_put_all",
+    "All_get_all",
+    "Put_local",
+    "Put_all_local",
+    "Exchange_put",
+    "Exchange_get",
+    "Accumulate",
+    "Get_accumulate",
+    "Fetch_and_op",
+    "Compare_and_swap",
+    "Truly_passive_put"
 };
 
 
-/* Get_local and Get_all_local are not included to the def 
+/* Get_local and Get_all_local are not included to the def
  * case, because they are supposed to be very similar to
  * Unidir_get and One_get_all correspondingly */
 char *ALLC[] = {
-   "Unidir_put",
-   "Unidir_get",
-   "Bidir_put",
-   "Bidir_get",
-   "One_put_all",
-   "One_get_all",
-   "All_put_all",
-   "All_get_all",
-   "Put_local",
-   "Get_local",      
-   "Put_all_local",
-   "Get_all_local",
-   "Exchange_put",
-   "Exchange_get",
-   "Accumulate",
-   "Get_accumulate",
-   "Fetch_and_op",
-   "Compare_and_swap",
-   "Truly_passive_put"
+    "Unidir_put",
+    "Unidir_get",
+    "Bidir_put",
+    "Bidir_get",
+    "One_put_all",
+    "One_get_all",
+    "All_put_all",
+    "All_get_all",
+    "Put_local",
+    "Get_local",
+    "Put_all_local",
+    "Get_all_local",
+    "Exchange_put",
+    "Exchange_get",
+    "Accumulate",
+    "Get_accumulate",
+    "Fetch_and_op",
+    "Compare_and_swap",
+    "Truly_passive_put"
 };
-
-
-

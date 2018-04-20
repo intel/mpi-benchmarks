@@ -14,7 +14,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -34,7 +34,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -50,16 +50,16 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel (R) MPI Benchmarks
     Users Guide and Methodology Description
-    In 
+    In
     doc/IMB_Users_Guide.pdf
 
- File: IMB_open_close.c 
+ File: IMB_open_close.c
 
- Implemented functions: 
+ Implemented functions:
 
  IMB_open_close;
 
@@ -82,7 +82,7 @@ For more documentation than found here, see
 /*************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -93,69 +93,65 @@ Hans-Joachim Plum, Intel GmbH
 */
 /* ===================================================================== */
 
-void IMB_open_close(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                    MODES RUN_MODE, double* time)
+void IMB_open_close(struct comm_info *c_info, int size, struct iter_schedule *ITERATIONS,
+                    MODES RUN_MODE, double *time)
 /*
 
-                      
+
                       MPI-IO benchmark kernel
                       MPI_File_open + MPI_File_close
-                      
 
 
-Input variables: 
 
--c_info               (type struct comm_info*)                      
+Input variables:
+
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       Mode (aggregate/non aggregate; blocking/nonblocking);
                       see "IMB_benchmark.h" for definition
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
 {
-  double t1, t2;
-  int    i, dum;
-  MPI_Status stat;
+    double t1, t2;
+    int i, dum;
+    MPI_Status stat;
 
-  ierr = 0;
+    ierr = 0;
 
-  if(c_info->rank!=-1)
-    {
-      for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    if (c_info->rank != -1) {
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
 
-      t1 = MPI_Wtime();
-      for(i=0;i< ITERATIONS->n_sample;i++)
-	{
-        ierr = MPI_File_open(c_info->File_comm, c_info->filename,
-                             c_info->amode, c_info->info, &c_info->fh);
-        MPI_ERRHAND(ierr);
-        ierr=MPI_File_write
-          (c_info->fh, (void*)&dum, 1 ,c_info->etype,&stat);
-        ierr = MPI_File_close(&c_info->fh);
-        MPI_ERRHAND(ierr);
-	}
-      t2 = MPI_Wtime();
-      *time=(t2 - t1)/(ITERATIONS->n_sample);
+        t1 = MPI_Wtime();
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            ierr = MPI_File_open(c_info->File_comm, c_info->filename,
+                                 c_info->amode, c_info->info, &c_info->fh);
+            MPI_ERRHAND(ierr);
+            ierr = MPI_File_write(c_info->fh, (void *) &dum, 1, c_info->etype, &stat);
+            ierr = MPI_File_close(&c_info->fh);
+            MPI_ERRHAND(ierr);
+        }
+        t2 = MPI_Wtime();
+        *time = (t2 - t1) / (ITERATIONS->n_sample);
     }
-  else
-    { 
-      *time = 0.; 
+    else {
+        *time = 0.;
     }
 }
-
