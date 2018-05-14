@@ -160,6 +160,8 @@ class OriginalBenchmark : public Benchmark {
             MPI_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);
+            IMB_del_s_buf(&c_info);
+            IMB_del_r_buf(&c_info);
             glob.header = 0;
             glob.iter++;
         }
