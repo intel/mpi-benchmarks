@@ -131,7 +131,9 @@ struct comm_info
 /* >> IMB 3.2.3  */
 
     MPI_Errhandler	ERR;
- 
+
+    int touch_cache;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
     char* 	filename;
