@@ -125,13 +125,13 @@ Output variables:
 
 */
 {
-  double t1,t2;
   int i;
   Type_Size s_size, r_size;
   int s_num,r_num;
   int s_tag, r_tag;
   int dest, source;
   MPI_Status stat;
+  *time = 0.;
 
 #ifdef CHECK 
   defect=0;
@@ -156,28 +156,28 @@ Output variables:
       source = (c_info->rank + c_info->num_procs-1) % (c_info->num_procs);
 
       for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
-      
-      t1 = MPI_Wtime();      
+
       for(i=0;i< ITERATIONS->n_sample;i++)
 	{
+          if (c_info->touch_cache)
+              memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     size);
+          *time -= MPI_Wtime();
 	  ierr= MPI_Sendrecv((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                              s_num,c_info->s_data_type, dest,s_tag,
                              (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                              r_num,c_info->r_data_type,source,r_tag,
 			     c_info->communicator,&stat);
 	  MPI_ERRHAND(ierr);
+          *time += MPI_Wtime();
 
           CHK_DIFF("Sendrecv",c_info,(char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                     0, size, size, asize,
                     put, 0, ITERATIONS->n_sample, i,
                     source, &defect);
 	}
-      t2 = MPI_Wtime();
-      *time=(t2 - t1)/ITERATIONS->n_sample;
     }
-  else
-    { 
-      *time = 0.;
-    }
+    *time /= ITERATIONS->n_sample;
 }
 
