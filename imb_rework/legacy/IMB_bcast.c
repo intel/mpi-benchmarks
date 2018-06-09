@@ -156,6 +156,10 @@ Output variables:
             /* Provide that s_buffer is not overwritten */
             bc_buf = (root == c_info->rank) ? c_info->s_buffer : c_info->r_buffer;
 
+            if (c_info->touch_cache)
+                memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        size);
             t1 = MPI_Wtime();
             ierr= MPI_Bcast((char*)bc_buf+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                             s_num,c_info->s_data_type,
