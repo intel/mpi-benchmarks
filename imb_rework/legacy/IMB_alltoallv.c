@@ -164,6 +164,10 @@ Output variables:
 
         for(i=0;i< ITERATIONS->n_sample;i++)
         {
+            if (c_info->touch_cache)
+                memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                       (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                       size * c_info->num_procs);
             t1 = MPI_Wtime();
             ierr = MPI_Alltoallv((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                 c_info->sndcnt,c_info->sdispl,
