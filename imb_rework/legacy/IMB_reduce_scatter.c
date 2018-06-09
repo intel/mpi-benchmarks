@@ -128,7 +128,7 @@ Output variables:
 */
 {
     double t1, t2;
-    int    i;
+    int    i, s_buff_size = 0;
     size_t pos1,pos2;
 #ifdef CHECK
     size_t pos;
@@ -151,6 +151,7 @@ Output variables:
         {
             IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
             c_info->reccnt[i] = (pos2-pos1+1)/s_size;
+            s_buff_size += c_info->reccnt[i] * s_size;
 #ifdef CHECK
             if( i==c_info->rank ) {pos=pos1; Locsize= s_size*c_info->reccnt[i];}
 #endif
@@ -172,6 +173,14 @@ Output variables:
 
        for(i=0;i< ITERATIONS->n_sample;i++)
        {
+            if (c_info->touch_cache) {
+                memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        s_buff_size);
+                memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        size);
+            }
             t1 = MPI_Wtime();
             ierr = MPI_Reduce_scatter ((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                        (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
