@@ -153,15 +153,18 @@ Output variables:
 
       for(i=0;i< ITERATIONS->n_sample;i++)
       {
-          t1 = MPI_Wtime();
+          if (c_info->touch_cache)
+              memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                     size);
+          *time -= MPI_Wtime();
           ierr = MPI_Allreduce((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                                s_num,
                                c_info->red_data_type,c_info->op_type,
                                c_info->communicator);
           MPI_ERRHAND(ierr);
-          t2 = MPI_Wtime();
-          *time += (t2 - t1);
+          *time += MPI_Wtime();
 
           CHK_DIFF("Allreduce",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                    size, size, asize, 
