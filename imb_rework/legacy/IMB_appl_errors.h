@@ -80,9 +80,9 @@ void Errors_mpi(MPI_Comm *, int*,...);
 #define MAX_ERR_LINES 32
 struct ERR_HEADER
 {
-int n_header;
-char* Lines[MAX_ERR_LINES];
-int err_flag;
+    int n_header;
+    char* Lines[MAX_ERR_LINES];
+    int err_flag;
 };
 
 #endif
