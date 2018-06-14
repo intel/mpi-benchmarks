@@ -69,7 +69,7 @@ For more documentation than found here, see
 
 
 
-char* VERSION="2019 Beta";
+char* VERSION="2019";
 
 #include <stdio.h>
 #include <time.h>
