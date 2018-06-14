@@ -73,46 +73,43 @@ goods and services.
 
 void IMB_uni_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
               MODES RUN_MODE, double* time);
+
 void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
               MODES RUN_MODE, double* time);
 
 
 void IMB_uni_bandwidth(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-              MODES RUN_MODE, double* time)
+              MODES RUN_MODE, double* time) {
 /*
 
-                      
                       MPI-1 benchmark kernel
                       multiple processes unidirectional exchange
-                      
 
 
-Input variables: 
+Input variables:
 
--c_info               (type struct comm_info*)                      
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
-{
-    if(c_info->touch_cache && ITERATIONS->s_cache_iter*ITERATIONS->s_offs != 0)
+    if (c_info->touch_cache && (ITERATIONS->s_cache_iter * ITERATIONS->s_offs != 0))
         IMB_uni_bandwidth_touch(c_info, size, ITERATIONS, RUN_MODE, time);
     else
         IMB_uni_bandwidth_no_touch(c_info, size, ITERATIONS, RUN_MODE, time);
@@ -122,13 +119,12 @@ Output variables:
 
 
 void IMB_uni_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-              MODES RUN_MODE, double* time)
-{
+                                MODES RUN_MODE, double* time) {
     double t1,t2;
     int i;
 
     Type_Size s_size, r_size;
-    int s_num,r_num;
+    int s_num, r_num;
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
@@ -138,40 +134,36 @@ void IMB_uni_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter
     char ack;
     ierr = 0;
 
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
-    if ((s_size!=0) && (r_size!=0))
-    {
-        s_num=size/s_size;
-        r_num=size/r_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
     else
-    {
-	return;
-    }
+        return;
+
     s_tag = 1;
     r_tag = s_tag;
 
-    if(c_info->rank!=-1)
+    if (c_info->rank != -1)
         peers = c_info->num_procs / 2;
-    else
-    {
+    else {
         *time = 0.;
         return;
     }
 
-    for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    for (i = 0; i < N_BARR; i++)
+        MPI_Barrier(c_info->communicator);
 
     t1 = MPI_Wtime();
-    if (c_info->rank < peers)
-    {
+    if (c_info->rank < peers) {
         dest = (c_info->rank + peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for(i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
-                                c_info->s_data_type, 
+                                c_info->s_data_type,
                                 dest,
                                 s_tag,
                                 c_info->communicator,
@@ -181,15 +173,13 @@ void IMB_uni_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
         }
     }
-    else
-    {
+    else {
         source = (c_info->rank - peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                                     r_num,
-                                    c_info->r_data_type, 
+                                    c_info->r_data_type,
                                     source,
                                     r_tag,
                                     c_info->communicator,
@@ -200,12 +190,11 @@ void IMB_uni_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter
         }
     }
     t2 = MPI_Wtime();
-    *time=(t2 - t1)/ITERATIONS->n_sample;
+    *time = (t2 - t1) / ITERATIONS->n_sample;
 }
 
 void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-              MODES RUN_MODE, double* time)
-{
+              MODES RUN_MODE, double* time) {
     double t1;
     int i;
 
@@ -219,45 +208,42 @@ void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sc
     int ws, peers;
     char ack;
     ierr = 0;
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
-    if ((s_size!=0) && (r_size!=0))
-    {
-        s_num=size/s_size;
-        r_num=size/r_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
     else
-    {
         return;
-    }
+
     s_tag = 1;
     r_tag = s_tag;
 
-    if(c_info->rank!=-1)
+    if (c_info->rank != -1)
         peers = c_info->num_procs / 2;
-    else
-    {
+    else {
         *time = 0.;
         return;
     }
 
-    for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    for (i = 0; i < N_BARR; i++)
+        MPI_Barrier(c_info->communicator);
 
     t1 = 0;
     if (c_info->rank < peers)
     {
         dest = (c_info->rank + peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                memcpy((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                       (char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                memcpy((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                       (char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                        size);
             t1 -= MPI_Wtime();
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr= MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
-                                c_info->s_data_type, 
+                                c_info->s_data_type,
                                 dest,
                                 s_tag,
                                 c_info->communicator,
@@ -268,20 +254,18 @@ void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sc
             t1 += MPI_Wtime();
         }
     }
-    else
-    {
+    else {
         source = (c_info->rank - peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                memcpy((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                       (char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                memcpy((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                       (char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                        size);
             t1 -= MPI_Wtime();
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr= MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                                     r_num,
-                                    c_info->r_data_type, 
+                                    c_info->r_data_type,
                                     source,
                                     r_tag,
                                     c_info->communicator,
@@ -292,17 +276,18 @@ void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sc
             t1 += MPI_Wtime();
         }
     }
-    *time=(t1)/ITERATIONS->n_sample;
+    *time = t1 / ITERATIONS->n_sample;
 }
 
 void IMB_bi_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-             MODES RUN_MODE, double* time);
+                               MODES RUN_MODE, double* time);
+
 void IMB_bi_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-             MODES RUN_MODE, double* time);
+                            MODES RUN_MODE, double* time);
 
 
 void IMB_bi_bandwidth(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-             MODES RUN_MODE, double* time)
+                      MODES RUN_MODE, double* time) {
 /*
 
                       
@@ -335,8 +320,7 @@ Output variables:
 
 
 */
-{
-    if (c_info->touch_cache && ITERATIONS->r_cache_iter*ITERATIONS->r_offs != 0)
+    if (c_info->touch_cache && ITERATIONS->r_cache_iter * ITERATIONS->r_offs != 0)
         IMB_bi_bandwidth_touch(c_info, size, ITERATIONS, RUN_MODE, time);
     else
         IMB_bi_bandwidth_no_touch(c_info, size, ITERATIONS, RUN_MODE, time);
@@ -346,8 +330,7 @@ Output variables:
 
 
 void IMB_bi_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-             MODES RUN_MODE, double* time)
-{
+                               MODES RUN_MODE, double* time) {
     double t1, t2;
     int i;
 
@@ -356,100 +339,93 @@ void IMB_bi_bandwidth_no_touch(struct comm_info* c_info, int size,  struct iter_
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    const int max_win_size2 = 2*MAX_WIN_SIZE;
-    MPI_Request requests[2*MAX_WIN_SIZE];
+    const int max_win_size2 = 2 * MAX_WIN_SIZE;
+    MPI_Request requests[2 * MAX_WIN_SIZE];
 
     int ws, peers;
     char ack;
     ierr = 0;
 
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
-    if ((s_size!=0) && (r_size!=0))
-    {
-        s_num=size/s_size;
-        r_num=size/r_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
     else
-    {
-	return;
-    }
+        return;
+
     s_tag = 1;
     r_tag = s_tag;
 
     if (c_info->rank!=-1)
         peers = c_info->num_procs / 2;
-    else
-    {
+    else {
         *time = 0.;
         return;
     }
 
-    for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    for (i = 0; i < N_BARR; i++)
+        MPI_Barrier(c_info->communicator);
 
     t1 = MPI_Wtime();
-    if (c_info->rank < peers)
-    {
+    if (c_info->rank < peers) {
         dest = (c_info->rank + peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for(i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                                 r_num,
-                                c_info->r_data_type, 
+                                c_info->r_data_type,
                                 dest,
                                 r_tag,
                                 c_info->communicator,
                                 &requests[ws]);
 
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
-                                c_info->s_data_type, 
+                                c_info->s_data_type,
                                 dest,
                                 s_tag,
                                 c_info->communicator,
-                                &requests[ws+MAX_WIN_SIZE]);
+                                &requests[ws + MAX_WIN_SIZE]);
 
             MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
         }
     }
-    else
-    {
+    else {
         source = (c_info->rank - peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                         r_num,
-                        c_info->r_data_type, 
+                        c_info->r_data_type,
                         source,
                         r_tag,
                         c_info->communicator,
                         &requests[ws]);
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                         s_num,
-                        c_info->s_data_type, 
+                        c_info->s_data_type,
                         source,
                         s_tag,
                         c_info->communicator,
-                        &requests[ws+MAX_WIN_SIZE]);
+                        &requests[ws + MAX_WIN_SIZE]);
 
             MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);
         }
     }
     t2 = MPI_Wtime();
-    *time=(t2 - t1)/ITERATIONS->n_sample;
+    *time = (t2 - t1) / ITERATIONS->n_sample;
 
 }
 
 
 void IMB_bi_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-             MODES RUN_MODE, double* time)
-{
+                            MODES RUN_MODE, double* time) {
     double t1;
     int i;
 
@@ -458,65 +434,61 @@ void IMB_bi_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sch
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    const int max_win_size2 = 2*MAX_WIN_SIZE;
-    MPI_Request requests[2*MAX_WIN_SIZE];
+    const int max_win_size2 = 2 * MAX_WIN_SIZE;
+    MPI_Request requests[2 * MAX_WIN_SIZE];
 
     int ws, peers;
     char ack;
     ierr = 0;
 
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
-    if ((s_size!=0) && (r_size!=0))
-    {
-        s_num=size/s_size;
-        r_num=size/r_size;
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
     else
-    {
-	return;
-    }
+        return;
+
     s_tag = 1;
     r_tag = s_tag;
 
-    if (c_info->rank!=-1)
+    if (c_info->rank != -1)
         peers = c_info->num_procs / 2;
-    else
-    {
+    else {
         *time = 0.;
         return;
     }
 
-    for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    for (i = 0; i < N_BARR; i++)
+        MPI_Barrier(c_info->communicator);
     t1 = 0;
-    if (c_info->rank < peers)
-    {
+    if (c_info->rank < peers) {
         dest = (c_info->rank + peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++) {
-                memcpy((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                       (char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                memcpy((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                       (char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                        size);
-                memcpy((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                       (char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                memcpy((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                       (char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                        size);
             }
 
             t1 -= MPI_Wtime();
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                                 r_num,
-                                c_info->r_data_type, 
+                                c_info->r_data_type,
                                 dest,
                                 r_tag,
                                 c_info->communicator,
                                 &requests[ws]);
 
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
-                                c_info->s_data_type, 
+                                c_info->s_data_type,
                                 dest,
                                 s_tag,
                                 c_info->communicator,
@@ -527,43 +499,40 @@ void IMB_bi_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sch
             t1 += MPI_Wtime();
         }
     }
-    else
-    {
+    else {
         source = (c_info->rank - peers);
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++) {
-                memcpy((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                       (char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                memcpy((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                       (char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                        size);
-                memcpy((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                       (char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                memcpy((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                       (char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                        size);
             }
 
             t1 -= MPI_Wtime();
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Irecv((char*)c_info->r_buffer+ws%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                         r_num,
-                        c_info->r_data_type, 
+                        c_info->r_data_type,
                         source,
                         r_tag,
                         c_info->communicator,
                         &requests[ws]);
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr= MPI_Isend((char*)c_info->s_buffer+ws%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                         s_num,
-                        c_info->s_data_type, 
+                        c_info->s_data_type,
                         source,
                         s_tag,
                         c_info->communicator,
-                        &requests[ws+MAX_WIN_SIZE]);
+                        &requests[ws + MAX_WIN_SIZE]);
 
             MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);
             t1 += MPI_Wtime();
         }
     }
-    *time= t1/ITERATIONS->n_sample;
-
+    *time = t1 / ITERATIONS->n_sample;
 }
