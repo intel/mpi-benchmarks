@@ -77,43 +77,41 @@ For more documentation than found here, see
 
 
 
-void IMB_user_set_info(MPI_Info* opt_info)
+void IMB_user_set_info(MPI_Info* opt_info) {
 /*
 
 
 
-In/out variables: 
+In/out variables:
 
--opt_info             (type MPI_Info*)                      
+-opt_info             (type MPI_Info*)
                       Is set. Default is MPI_INFO_NULL, everything beyond
                       this is user decision and system dependent.
-                      
+
 
 
 */
-{
-
 #ifdef MPIIO
-/*
-Set info for all MPI I/O functions
-*/
+    /*
+    Set info for all MPI I/O functions
+    */
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 
 #ifdef EXT
-/*
-Set info for all MPI_Win_create calls
-*/
+    /*
+    Set info for all MPI_Win_create calls
+    */
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 
 #ifdef RMA
 
-*opt_info = MPI_INFO_NULL;
+    *opt_info = MPI_INFO_NULL;
 
 #endif
 
