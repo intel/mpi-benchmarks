@@ -88,100 +88,89 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_scatter(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                 MODES RUN_MODE, double* time)
+                 MODES RUN_MODE, double* time) {
 /*
 
-                      
-                      MPI-1 benchmark kernel
-                      Benchmarks MPI_Scatter
-                      
+                          MPI-1 benchmark kernel
+                          Benchmarks MPI_Scatter
 
+Input variables:
 
-Input variables: 
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)                      
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
+-RUN_MODE                 (type MODES)
+                          (only MPI-2 case: see [1])
 
--RUN_MODE             (type MODES)                      
-                      (only MPI-2 case: see [1])
+Output variables:
 
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
-  int    i;
-  Type_Size s_size,r_size;
-  int s_num, r_num;
-  double t1, t2;
+    int    i;
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    double t1, t2;
 
 #ifdef CHECK
-defect=0.;
+    defect = 0.;
 #endif
-  ierr = 0;
+    ierr = 0;
 
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-  {
-      s_num=size/s_size;
-      r_num=size/r_size;
-  } 
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
+    }
 
-  *time = 0.;
+    *time = 0.;
 
-  if(c_info->rank!=-1)
-  {
-      int root = 0;
+    if (c_info->rank != -1) {
+        int root = 0;
 
-      IMB_do_n_barriers(c_info->communicator, N_BARR);
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-      for(i=0;i<ITERATIONS->n_sample;i++)
-      {
-          if (c_info->touch_cache) {
-              memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                      (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                      size * c_info->num_procs);
-              memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                      (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                      size);
-          }
-          t1 = MPI_Wtime();
-          ierr = MPI_Scatter((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                              s_num, c_info->s_data_type,
-                              (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                              r_num, c_info->r_data_type,
-                              root,
-                              c_info->communicator);
-          MPI_ERRHAND(ierr);
-          t2 = MPI_Wtime();
-          *time += (t2 - t1);
-          
-          CHK_DIFF("Scatter",c_info,
-                 (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                 (size_t) s_num* (size_t) c_info->rank, size, size, 1, 
-                 put, 0, ITERATIONS->n_sample, i,
-                 root, &defect);
-          
-          root = (root + c_info->root_shift) % c_info->num_procs;
-          IMB_do_n_barriers(c_info->communicator, c_info->sync);
-      }
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            if (c_info->touch_cache) {
+                memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        size * c_info->num_procs);
+                memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        size);
+            }
+            t1 = MPI_Wtime();
+            ierr = MPI_Scatter((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                               s_num, c_info->s_data_type,
+                               (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                               r_num, c_info->r_data_type,
+                               root,
+                               c_info->communicator);
+            MPI_ERRHAND(ierr);
+            t2 = MPI_Wtime();
+            *time += (t2 - t1);
 
-      *time /= ITERATIONS->n_sample;
-  }
+            CHK_DIFF("Scatter", c_info,
+                     (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                     (size_t)s_num* (size_t)c_info->rank, size, size, 1,
+                     put, 0, ITERATIONS->n_sample, i,
+                     root, &defect);
+
+            root = (root + c_info->root_shift) % c_info->num_procs;
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+        *time /= ITERATIONS->n_sample;
+    }
 }
 
 #elif defined NBC // MPI1
@@ -192,39 +181,32 @@ void IMB_iscatter(struct comm_info* c_info,
                   int size,
                   struct iter_schedule* ITERATIONS,
                   MODES RUN_MODE,
-                  double* time)
+                  double* time) {
 /*
 
-
-                      MPI-NBC benchmark kernel
-                      Benchmarks MPI_Iscatter
-
-
+                          MPI-NBC benchmark kernel
+                          Benchmarks MPI_Iscatter
 
 Input variables:
 
--c_info               (type struct comm_info*)
-                      Collection of all base data for MPI;
-                      see [1] for more information
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
-
--RUN_MODE             (type MODES)
-
+-RUN_MODE                 (type MODES)
 
 Output variables:
 
--time                 (type double*)
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
     int         i = 0;
     Type_Size   s_size,
                 r_size;
@@ -237,7 +219,7 @@ Output variables:
                 t_ovrlp = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
@@ -249,7 +231,7 @@ Output variables:
         r_num = size / r_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         int root = 0;
         IMB_iscatter_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
@@ -258,8 +240,7 @@ Output variables:
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i=0; i < ITERATIONS->n_sample; i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_ovrlp -= MPI_Wtime();
             ierr = MPI_Iscatter((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
@@ -274,7 +255,7 @@ Output variables:
             MPI_ERRHAND(ierr);
 
             t_comp -= MPI_Wtime();
-                IMB_cpu_exploit(t_pure, 0);
+            IMB_cpu_exploit(t_pure, 0);
             t_comp += MPI_Wtime();
 
             MPI_Wait(&request, &status);
@@ -288,7 +269,7 @@ Output variables:
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         t_ovrlp /= ITERATIONS->n_sample;
-        t_comp  /= ITERATIONS->n_sample;
+        t_comp /= ITERATIONS->n_sample;
     }
 
     time[0] = t_pure;
@@ -302,39 +283,32 @@ void IMB_iscatter_pure(struct comm_info* c_info,
                        int size,
                        struct iter_schedule* ITERATIONS,
                        MODES RUN_MODE,
-                       double* time)
+                       double* time) {
 /*
 
-
-                      MPI-NBC benchmark kernel
-                      Benchmarks IMB_Iscatter_pure
-
-
+                          MPI-NBC benchmark kernel
+                          Benchmarks IMB_Iscatter_pure
 
 Input variables:
 
--c_info               (type struct comm_info*)
-                      Collection of all base data for MPI;
-                      see [1] for more information
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
-
--RUN_MODE             (type MODES)
-
+-RUN_MODE                 (type MODES)
 
 Output variables:
 
--time                 (type double*)
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
     int         i = 0;
     Type_Size   s_size,
                 r_size;
@@ -345,7 +319,7 @@ Output variables:
     double      t_pure = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
@@ -357,13 +331,12 @@ Output variables:
         r_num = size / r_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         int root = 0;
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i = 0; i < ITERATIONS->n_sample; i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
             ierr = MPI_Iscatter((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                 s_num,
@@ -387,7 +360,6 @@ Output variables:
         }
         t_pure /= ITERATIONS->n_sample;
     }
-
     time[0] = t_pure;
 }
 
