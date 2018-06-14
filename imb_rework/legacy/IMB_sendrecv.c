@@ -90,93 +90,84 @@ Hans-Joachim Plum, Intel GmbH
 */
 /* ===================================================================== */
 
-void IMB_sendrecv(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-                  MODES RUN_MODE, double* time)
+void IMB_sendrecv(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
+                  MODES RUN_MODE, double* time) {
 /*
 
-                      
-                      MPI-1 benchmark kernel
-                      Benchmarks MPI_Sendrecv
-                      
+                          MPI-1 benchmark kernel
+                          Benchmarks MPI_Sendrecv
 
+Input variables:
 
-Input variables: 
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)                      
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
+-RUN_MODE                 (type MODES)
+                          (only MPI-2 case: see [1])
 
--RUN_MODE             (type MODES)                      
-                      (only MPI-2 case: see [1])
+Output variables:
 
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
-  int i;
-  Type_Size s_size, r_size;
-  int s_num,r_num;
-  int s_tag, r_tag;
-  int dest, source;
-  MPI_Status stat;
-  *time = 0.;
+    int i;
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    int s_tag, r_tag;
+    int dest, source;
+    MPI_Status stat;
+    *time = 0.;
 
 #ifdef CHECK 
-  defect=0;
+    defect = 0;
 #endif
-  ierr = 0;
+    ierr = 0;
 
-  /*  GET SIZE OF DATA TYPE's in s_size and r_size */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-    {
-      s_num=size/s_size;
-      r_num=size/r_size;
-    }   
-  s_tag = 1;
-  r_tag = MPI_ANY_TAG;
-  
-  if(c_info->rank!=-1)
-    {  
-      /*  CALCULATE SOURCE AND DESTINATION */  
-      dest   = (c_info->rank + 1)                   % (c_info->num_procs);
-      source = (c_info->rank + c_info->num_procs-1) % (c_info->num_procs);
+    /*  GET SIZE OF DATA TYPE's in s_size and r_size */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
+    }
+    s_tag = 1;
+    r_tag = MPI_ANY_TAG;
 
-      for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    if (c_info->rank != -1) {
+        /*  CALCULATE SOURCE AND DESTINATION */
+        dest = (c_info->rank + 1) % (c_info->num_procs);
+        source = (c_info->rank + c_info->num_procs - 1) % (c_info->num_procs);
 
-      for(i=0;i< ITERATIONS->n_sample;i++)
-	{
-          if (c_info->touch_cache)
-              memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                     size);
-          *time -= MPI_Wtime();
-	  ierr= MPI_Sendrecv((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                             s_num,c_info->s_data_type, dest,s_tag,
-                             (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                             r_num,c_info->r_data_type,source,r_tag,
-			     c_info->communicator,&stat);
-	  MPI_ERRHAND(ierr);
-          *time += MPI_Wtime();
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
 
-          CHK_DIFF("Sendrecv",c_info,(char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                    0, size, size, asize,
-                    put, 0, ITERATIONS->n_sample, i,
-                    source, &defect);
-	}
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            if (c_info->touch_cache)
+                memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                       (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                       size);
+            *time -= MPI_Wtime();
+            ierr = MPI_Sendrecv((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                s_num, c_info->s_data_type, dest, s_tag,
+                                (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                r_num, c_info->r_data_type, source, r_tag,
+                                c_info->communicator, &stat);
+            MPI_ERRHAND(ierr);
+            *time += MPI_Wtime();
+
+            CHK_DIFF("Sendrecv", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                     0, size, size, asize,
+                     put, 0, ITERATIONS->n_sample, i,
+                     source, &defect);
+        }
     }
     *time /= ITERATIONS->n_sample;
 }
