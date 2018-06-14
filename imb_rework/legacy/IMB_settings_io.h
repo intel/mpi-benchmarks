@@ -156,14 +156,14 @@ DON'T change anything below here !!
 /* How to set communications buffers for process rank, index i */
 #ifdef BUFFERS_INT
 
-typedef int assign_type ;
+typedef int assign_type;
 #define BUF_VALUE(rank,i)  10000000*(1+rank)+i%10000000
 
 #endif
 
 #ifdef BUFFERS_FLOAT
 
-typedef float assign_type ;
+typedef float assign_type;
 #define BUF_VALUE(rank,i)  (0.1*((rank)+1)+(float)((i)))
 
 #endif
