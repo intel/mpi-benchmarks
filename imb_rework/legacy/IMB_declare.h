@@ -241,11 +241,11 @@ extern int IMB_internal_barrier;
 
 #define IMB_Assert(expr)  assert(expr)
 
-#define IMB_i_alloc(type, B, Len, where ) \
-	{	\
-    	    IMB_Assert(Len>0); \
-	    (B) = (type*) IMB_v_alloc(sizeof(type)*(Len), where); \
-	}
+#define IMB_i_alloc(type, B, Len, where )                       \
+    {                                                           \
+        IMB_Assert(Len>0);                                      \
+        (B) = (type*) IMB_v_alloc(sizeof(type)*(Len), where);   \
+    }
 
 #define IMB_do_n_barriers(comm, iter)       \
     {                                       \
@@ -262,9 +262,9 @@ extern int IMB_internal_barrier;
     }                                       \
 
 #ifdef WIN_IMB
-#define IMB_strcasecmp(s1, s2)	stricmp( (s1), (s2))
+#define IMB_strcasecmp(s1, s2)  stricmp( (s1), (s2))
 #else /*linux*/
-#define IMB_strcasecmp(s1, s2)	strcasecmp( (s1), (s2))
+#define IMB_strcasecmp(s1, s2)  strcasecmp( (s1), (s2))
 #endif /*WIN_IMB*/
 
 #endif /*#ifndef _DECLARE_H*/
