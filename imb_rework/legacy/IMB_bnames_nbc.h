@@ -65,48 +65,48 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "Ibcast"
-  ,"Iallgather"
-  ,"Iallgatherv"
-  ,"Igather"
-  ,"Igatherv"
-  ,"Iscatter"
-  ,"Iscatterv"
-  ,"Ialltoall"
-  ,"Ialltoallv"
-  ,"Ireduce"
-  ,"Ireduce_scatter"
-  ,"Iallreduce"
-  ,"Ibarrier"
+    "Ibcast",
+    "Iallgather",
+    "Iallgatherv",
+    "Igather",
+    "Igatherv",
+    "Iscatter",
+    "Iscatterv",
+    "Ialltoall",
+    "Ialltoallv",
+    "Ireduce",
+    "Ireduce_scatter",
+    "Iallreduce",
+    "Ibarrier"
 };
 
 /* NAMES OF BENCHMARKS (ALL CASE)*/
 char *ALLC[] = {
-   "Ibcast"
-  ,"Ibcast_pure"
-  ,"Iallgather"
-  ,"Iallgather_pure"
-  ,"Iallgatherv"
-  ,"Iallgatherv_pure"
-  ,"Igather"
-  ,"Igather_pure"
-  ,"Igatherv"
-  ,"Igatherv_pure"
-  ,"Iscatter"
-  ,"Iscatter_pure"
-  ,"Iscatterv"
-  ,"Iscatterv_pure"
-  ,"Ialltoall"
-  ,"Ialltoall_pure"
-  ,"Ialltoallv"
-  ,"Ialltoallv_pure"
-  ,"Ireduce"
-  ,"Ireduce_pure"
-  ,"Ireduce_scatter"
-  ,"Ireduce_scatter_pure"
-  ,"Iallreduce"
-  ,"Iallreduce_pure"
-  ,"Ibarrier"
-  ,"Ibarrier_pure"
+    "Ibcast",
+    "Ibcast_pure",
+    "Iallgather",
+    "Iallgather_pure",
+    "Iallgatherv",
+    "Iallgatherv_pure",
+    "Igather",
+    "Igather_pure",
+    "Igatherv",
+    "Igatherv_pure",
+    "Iscatter",
+    "Iscatter_pure",
+    "Iscatterv",
+    "Iscatterv_pure",
+    "Ialltoall",
+    "Ialltoall_pure",
+    "Ialltoallv",
+    "Ialltoallv_pure",
+    "Ireduce",
+    "Ireduce_pure",
+    "Ireduce_scatter",
+    "Ireduce_scatter_pure",
+    "Iallreduce",
+    "Iallreduce_pure",
+    "Ibarrier",
+    "Ibarrier_pure"
 };
 
