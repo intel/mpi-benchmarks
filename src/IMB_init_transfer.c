@@ -1,6 +1,7 @@
 /*****************************************************************************
  *                                                                           *
  * Copyright (c) 2003-2016 Intel Corporation.                                *
+ * Copyright (c) 2018 Cisco Systems, Inc.                                    *
  * All rights reserved.                                                      *
  *                                                                           *
  *****************************************************************************
@@ -187,7 +188,7 @@ In/out variables:
 	    if( baslen>0 )
 	    {
 		/* end change */
-		ierr=MPI_Type_struct(3,bllen,displ,types,&c_info->view);
+		ierr=MPI_Type_create_struct(3,bllen,displ,types,&c_info->view);
 		IMB_err_hand(1,ierr);
 		ierr=MPI_Type_commit(&c_info->view);
 		IMB_err_hand(1,ierr);
