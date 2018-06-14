@@ -78,7 +78,7 @@ For more documentation than found here, see
 /*******************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -93,103 +93,94 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_allgatherv(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                    MODES RUN_MODE, double* time)
+                    MODES RUN_MODE, double* time) {
 /*
 
-                      
                       MPI-1 benchmark kernel
                       Benchmarks MPI_Allgatherv
-                      
 
 
-Input variables: 
+Input variables:
 
--c_info               (type struct comm_info*)                      
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
-
 */
-{
-  double t1, t2;
-  int    i;
-  Type_Size s_size,r_size;
-  int s_num, r_num;
+    double t1, t2;
+    int    i;
+    Type_Size s_size,r_size;
+    int s_num, r_num;
 
 #ifdef CHECK
-  defect=0.;
+    defect = 0.;
 #endif
-  ierr = 0;
+    ierr = 0;
 
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
-  {
-      s_num=size/s_size;
-      r_num=size/r_size;
-  } 
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
+    }
 
-  /* INITIALIZATION OF DISPLACEMENT and RECEIVE COUNTS */
+    /* INITIALIZATION OF DISPLACEMENT and RECEIVE COUNTS */
 
-  for (i=0;i<c_info->num_procs ;i++)
-  {
-      c_info->rdispl[i] = r_num*i;
-      c_info->reccnt[i] = r_num;
-  }
+    for (i = 0; i < c_info->num_procs; i++) {
+        c_info->rdispl[i] = r_num * i;
+        c_info->reccnt[i] = r_num;
+    }
 
-  *time = 0.;
-  if(c_info->rank!=-1)
-  {
-      IMB_do_n_barriers(c_info->communicator, N_BARR);
+    *time = 0.;
+    if (c_info->rank != -1) {
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-      for(i=0;i<ITERATIONS->n_sample;i++)
-      {
-          if (c_info->touch_cache) {
-              memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                      (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                      size);
-              memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                      (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                      size * c_info->num_procs);
-          }
-          t1 = MPI_Wtime();
-          ierr = MPI_Allgatherv((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                                s_num,c_info->s_data_type,
-                                (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                                c_info->reccnt,c_info->rdispl,
-                                c_info->r_data_type,
-                                c_info->communicator);
-          MPI_ERRHAND(ierr);
-          t2 = MPI_Wtime();
-          *time += (t2 - t1);
+        for (i = 0;i < ITERATIONS->n_sample; i++) {
+            if (c_info->touch_cache) {
+                memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                        size);
+                memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                        size * c_info->num_procs);
+            }
+            t1 = MPI_Wtime();
+            ierr = MPI_Allgatherv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                  s_num, c_info->s_data_type,
+                                  (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                  c_info->reccnt, c_info->rdispl,
+                                  c_info->r_data_type,
+                                  c_info->communicator);
+            MPI_ERRHAND(ierr);
+            t2 = MPI_Wtime();
+            *time += (t2 - t1);
 
-          CHK_DIFF("Allgatherv",c_info, 
-                   (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-                   0, (size_t) c_info->num_procs* (size_t) size, 1, 
-                   put, 0, ITERATIONS->n_sample, i,
-                   -2, &defect);
-          
-          IMB_do_n_barriers(c_info->communicator, c_info->sync);
-      }
-      *time /= ITERATIONS->n_sample;
-  }
+            CHK_DIFF("Allgatherv",c_info,
+                     (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs, 0,
+                     0, (size_t)c_info->num_procs * (size_t)size, 1,
+                     put, 0, ITERATIONS->n_sample, i,
+                     -2, &defect);
+
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+        *time /= ITERATIONS->n_sample;
+    }
 }
 
 #elif defined NBC // MPI1
@@ -200,7 +191,7 @@ void IMB_iallgatherv(struct comm_info* c_info,
                      int size,
                      struct iter_schedule* ITERATIONS,
                      MODES RUN_MODE,
-                     double* time)
+                     double* time) {
 /*
 
 
@@ -233,7 +224,6 @@ Output variables:
 
 
 */
-{
     int         i = 0;
     Type_Size   s_size,
                 r_size;
@@ -246,7 +236,7 @@ Output variables:
                 t_ovrlp = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
@@ -258,7 +248,7 @@ Output variables:
         r_num = size / r_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         /* GET PURE TIME. DISPLACEMENT AND RECEIVE COUNT WILL BE INITIALIZED HERE */
         IMB_iallgatherv_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
@@ -267,7 +257,7 @@ Output variables:
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i=0; i < ITERATIONS->n_sample; i++)
+        for(i = 0; i < ITERATIONS->n_sample; i++)
         {
             t_ovrlp -= MPI_Wtime();
             ierr = MPI_Iallgatherv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
@@ -284,15 +274,15 @@ Output variables:
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
             t_comp += MPI_Wtime();
-            
+
             MPI_Wait(&request, &status);
             t_ovrlp += MPI_Wtime();
-            
+
             CHK_DIFF("Iallgatherv", c_info,
                      (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                      0, 0, ((size_t)c_info->num_procs * (size_t)size),
                      1, put, 0, ITERATIONS->n_sample, i, -2, &defect);
-            
+
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         t_ovrlp /= ITERATIONS->n_sample;
@@ -310,7 +300,7 @@ void IMB_iallgatherv_pure(struct comm_info* c_info,
                           int size,
                           struct iter_schedule* ITERATIONS,
                           MODES RUN_MODE,
-                          double* time)
+                          double* time) {
 /*
 
 
@@ -343,7 +333,6 @@ Output variables:
 
 
 */
-{
     int         i = 0;
     Type_Size   s_size,
                 r_size;
@@ -354,7 +343,7 @@ Output variables:
     double      t_pure = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
@@ -366,7 +355,7 @@ Output variables:
         r_num = size / r_size;
     }
 
-    for (i=0 ; i < c_info->num_procs; ++i) {
+    for (i = 0 ; i < c_info->num_procs; ++i) {
         c_info->rdispl[i] = r_num * i;
         c_info->reccnt[i] = r_num;
     }
