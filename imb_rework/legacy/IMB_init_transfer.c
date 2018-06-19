@@ -171,7 +171,7 @@ In/out variables:
             /* July 2002 fix V2.2.1: handle empty view case separately */
             if (baslen > 0) {
                 /* end change */
-                ierr = MPI_Type_struct(3, bllen, displ, types, &c_info->view);
+                ierr = MPI_Type_create_struct(3, bllen, displ, types, &c_info->view);
                 IMB_err_hand(1, ierr);
                 ierr = MPI_Type_commit(&c_info->view);
                 IMB_err_hand(1, ierr);

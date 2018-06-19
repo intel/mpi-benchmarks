@@ -67,6 +67,12 @@ For more documentation than found here, see
 
 #include "IMB_declare.h"
 
+typedef enum {
+    CT_BASE        = 0,
+    CT_BASE_VEC    = 1,
+    CT_RESIZE      = 2,
+    CT_RESIZE_VEC  = 3
+} CONTIG_TYPES;
 
 #ifdef MPIIO
 typedef struct { int Locsize; MPI_Offset Offset; int Totalsize;} SPLITTING;
@@ -87,13 +93,16 @@ struct comm_info {
     int         rank;               /* rank of actual process in communicator   */
     int         root_shift;         /* switch for root change at each iteration */
     int         sync;               /* switch for rank synchronization after each iter */
+    int         size_scale;
 
+    CONTIG_TYPES    contig_type;
     MPI_Datatype    s_data_type;    /* data type of sent data                   */
     MPI_Datatype    r_data_type;    /* data type of received data               */
 
     MPI_Datatype    red_data_type;  /* data type of reduced data               */
     MPI_Op      op_type;            /* operation type                          */
 
+    int         zero_size;
     int         pair0, pair1;       /* process pair                            */
     int         select_tag;         /* 0/1 for tag selection off/on            */
     int         select_source;      /* 0/1 for sender selection off/on         */

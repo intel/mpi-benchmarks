@@ -144,6 +144,8 @@ Output variables:
     if (s_size != 0)
         s_num = size / s_size;
 
+    size *= c_info->size_scale;
+
     if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 

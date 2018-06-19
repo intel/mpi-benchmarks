@@ -204,6 +204,8 @@ In/out variables:
 #else
         IMB_v_free((void**)&c_info->s_buffer);
 
+        s_len *= c_info->size_scale;
+
         c_info->s_buffer = IMB_v_alloc(s_len, where);
         c_info->s_alloc = s_len;
 #endif
@@ -222,6 +224,9 @@ In/out variables:
         c_info->r_alloc = rlen;
 #else
         IMB_v_free((void**)&c_info->r_buffer);
+
+        r_len *= c_info->size_scale;
+
 
         c_info->r_buffer = IMB_v_alloc(r_len, where);
         c_info->r_alloc = r_len;
@@ -439,7 +444,9 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
     c_info->op_type = MPI_SUM;   /* OPERATION TYPE IN Allred       */
     c_info->red_data_type = MPI_FLOAT; /* NOTE: NO 'CAST' CHECK IN. IBUF */
 
-
+    c_info->size_scale   = 1;
+    c_info->zero_size    = 1;
+    c_info->contig_type  = CT_BASE;
     c_info->communicator = MPI_COMM_NULL;
 
     /* Auxiliary space */

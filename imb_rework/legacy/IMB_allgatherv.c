@@ -140,6 +140,8 @@ Output variables:
         r_num = size / r_size;
     }
 
+    size *= c_info->size_scale;
+
     /* INITIALIZATION OF DISPLACEMENT and RECEIVE COUNTS */
 
     for (i = 0; i < c_info->num_procs; i++) {

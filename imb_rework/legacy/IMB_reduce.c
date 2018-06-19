@@ -137,6 +137,8 @@ Output variables:
     if (s_size != 0)
         s_num = size / s_size;
 
+    size *= c_info->size_scale;
+
     *time = 0.;
     if (c_info->rank != -1) {
         int root = 0;

@@ -143,6 +143,8 @@ Output variables:
     s_tag = 1;
     r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
 
+    size *= c_info->size_scale;
+
     *time = 0;
     if (c_info->rank != -1) {
         if (c_info->rank < c_info->num_procs - 1)   right = c_info->rank + 1;

@@ -140,6 +140,8 @@ Output variables:
         c_info->reccnt[i] = r_num;
     }
 
+    size *= c_info->size_scale;
+
     *time = 0.;
     if (c_info->rank != -1) {
         int root = 0;

@@ -126,7 +126,7 @@ Output variables:
     MPI_Status stat;
     *time = 0.;
 
-#ifdef CHECK 
+#ifdef CHECK
     defect = 0;
 #endif
     ierr = 0;
@@ -138,6 +138,9 @@ Output variables:
         s_num = size / s_size;
         r_num = size / r_size;
     }
+
+    size *= c_info->size_scale;
+
     s_tag = 1;
     r_tag = MPI_ANY_TAG;
 

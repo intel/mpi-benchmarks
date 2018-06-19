@@ -251,7 +251,7 @@ template <> bool BenchmarkSuite<BS_EXT>::declare_args(args_parser &parser, std::
                 "is estimated in preparatory runs that use ~ 1 second overhead\n"
                 "\n"
                 "Default:\n"
-                "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n" 
+                "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n"
                 "(new default in IMB_3.2)\n");
     parser.add<float>("mem", 1.0f).
            set_caption("max. per process memory for overall message buffers").
@@ -284,17 +284,17 @@ template <> bool BenchmarkSuite<BS_EXT>::declare_args(args_parser &parser, std::
                "running PingPong with P=X, Q=2 would measure inter-node performance\n"
                "(assuming MPI default would apply 'normal' mapping, i.e. fill nodes\n"
                "first priority)\n"
-               "\n"   
+               "\n"
                "Default:\n"
                "Q=1\n");
     parser.add_vector<int>("msglog", "0:22", ':', 1, 2).
            set_caption("min_msglog:max_msglog").
            set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
            set_description(
-                "The argument after -msglog min:max, min and max are positive integer numbers, min<max\n"
-                "where min is power of 2 so that second smallest data transfer size is max(unit,2^min)\n"
-                "(the smallest always being 0), where unit = sizeof(float) for reductions, unit = 1 else\n"
-                "max is power of 2 so that 2^max is largest messages size, max must be less than 31\n");
+               "the argument after -msglog is min:max, where min and max are non-negative integer numbers,\n"
+               "min < max, min is such that the second smallest data transfer size is max(unit, 2^min)\n"
+               "(the smallest always being 0), where unit = sizeof(float) for reductions, and unit = 1,\n"
+               "otherwise. max is such that 2^max is largest messages size, and max must be less than 31\n");
     parser.add<bool>("imb_barrier", false).set_caption("on or off").
            set_description(
                "Use internal MPI-independent barrier syncronization implementation,\n"

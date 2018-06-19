@@ -137,6 +137,8 @@ Output variables:
         r_num = size / r_size;
     }
 
+    size *= c_info->size_scale;
+
     *time =0.;
     if (c_info->rank != -1) {
         IMB_do_n_barriers (c_info->communicator, N_BARR);

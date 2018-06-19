@@ -222,7 +222,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                 "-iter 2000        (override MSGSPERSAMPLE by value 2000)\n"
                 "-iter 1000,100    (override OVERALL_VOL by 100)\n"
                 "-iter 1000,40,150 (override MSGS_NONAGGR by 150)\n"
-                "\n"   
+                "\n"
                 "Default:\n"
                 "iteration control through parameters MSGSPERSAMPLE,OVERALL_VOL,MSGS_NONAGGR => IMB_settings.h\n");
     parser.add<string>("iter_policy", "dynamic").set_caption("iter_policy").
@@ -251,7 +251,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                 "is estimated in preparatory runs that use ~ 1 second overhead\n"
                 "\n"
                 "Default:\n"
-                "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n" 
+                "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n"
                 "(new default in IMB_3.2)\n");
     parser.add<float>("mem", 1.0f).
            set_caption("max. per process memory for overall message buffers").
@@ -284,17 +284,17 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "running PingPong with P=X, Q=2 would measure inter-node performance\n"
                "(assuming MPI default would apply 'normal' mapping, i.e. fill nodes\n"
                "first priority)\n"
-               "\n"   
+               "\n"
                "Default:\n"
                "Q=1\n");
     parser.add_vector<int>("msglog", "0:22", ':', 1, 2).
            set_caption("min_msglog:max_msglog").
            set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
            set_description(
-                "The argument after -msglog min:max, min and max are positive integer numbers, min<max\n"
-                "where min is power of 2 so that second smallest data transfer size is max(unit,2^min)\n"
-                "(the smallest always being 0), where unit = sizeof(float) for reductions, unit = 1 else\n"
-                "max is power of 2 so that 2^max is largest messages size, max must be less than 31\n");
+               "the argument after -msglog is min:max, where min and max are non-negative integer numbers,\n"
+               "min < max, min is such that the second smallest data transfer size is max(unit, 2^min)\n"
+               "(the smallest always being 0), where unit = sizeof(float) for reductions, and unit = 1,\n"
+               "otherwise. max is such that 2^max is largest messages size, and max must be less than 31\n");
     parser.add<bool>("root_shift", false).set_caption("on or off").
            set_description(
                "Controls root change at each iteration step for certain collective benchmarks,\n"
@@ -315,7 +315,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
                "\n"
                "Default:\n"
-               "off\n");                   
+               "off\n");
     parser.add<bool>("touch_cache", false).set_caption("on or off").
            set_description(
                "The argument after -touch_cache is a one from possible strings:\n"
@@ -326,7 +326,51 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "off\n");
-
+    parser.add<string>("data_type", "byte").set_caption("data type").
+           set_description(
+                "The argument after -data_type is a one from possible strings,\n"
+                "Specifying that type will be used:\n"
+                "byte,char,int,float\n"
+                "\n"
+                "Example:\n"
+                "-data_type char\n"
+                "\n"
+                "Default:\n"
+                "byte\n");
+    parser.add<string>("red_data_type", "float").set_caption("data type for reductions").
+           set_description(
+                "The argument after -red_data_type is a one from possible strings,\n"
+                "Specifying that type will be used:\n"
+                "char,int,float\n"
+                "\n"
+                "Example:\n"
+                "-red_data_type int\n"
+                "\n"
+                "Default:\n"
+                "float\n");
+    parser.add<string>("contig_type", "base").set_caption("contig type").
+           set_description(
+                "The argument after -contig_type is a one from possible strings,\n"
+                "Specifying that type will be used:\n"
+                "base, base_vec, resize, resize_vec\n"
+                "\n"
+                "base - simple MPI type, like MPI_INT, MPI_CHAR, etc.\n"
+                "base_vec - vector of 'simple MPI type'\n"
+                "resize - simple MPI type with extent(type) = 2 * size(type)\n"
+                "resize_vec - vector of 'resize type'\n"
+                "\n"
+                "Example:\n"
+                "-contig_type resize\n"
+                "\n"
+                "Default:\n"
+                "base\n");
+   parser.add<bool>("zero_size", true).set_caption("on or off").
+           set_description(
+               "Do not run benchmarks with message size 0,\n"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -338,6 +382,56 @@ void preprocess_list(T &list) {
     T tmp;
     transform(list.begin(), list.end(), inserter(tmp, tmp.end()), tolower);
     list = tmp;
+}
+
+template <typename T>
+void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype) {
+    MPI_Aint extent;
+    int      size,
+             step,
+             count,
+             i;
+    MPI_Type_extent(*datatype, &extent);
+    MPI_Type_size(*datatype, &size);
+    step = extent / size;
+    count = extent / sizeof(T) * (*len);
+    for (i = 0; i < count ; i += step)
+        ((T*)in_out_buf)[i] += ((T*)in_buf)[i];
+}
+
+MPI_Op get_op(MPI_Datatype type, MPI_Datatype base_type) {
+    MPI_Op op = MPI_SUM;
+    switch (base_type) {
+        case MPI_CHAR:
+            MPI_Op_create(&(contig_sum<char>), 1, &op);
+            break;
+        case MPI_INT:
+            MPI_Op_create(&(contig_sum<int>), 1, &op);
+            break;
+        case MPI_FLOAT:
+            MPI_Op_create(&(contig_sum<float>), 1, &op);
+            break;
+    }
+    return op;
+}
+
+string type_to_name(MPI_Datatype type) {
+    string name = "null";
+    switch (type) {
+        case MPI_BYTE:
+            name = "MPI_BYTE";
+            break;
+        case MPI_CHAR:
+            name = "MPI_CHAR";
+            break;
+        case MPI_INT:
+            name = "MPI_INT";
+            break;
+        case MPI_FLOAT:
+            name = "MPI_FLOAT";
+            break;
+    }
+    return name;
 }
 
 template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, const vector<string> &benchs,
@@ -383,7 +477,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
 
         c_info.group_mode = -1;
         glob.NP_min=2;
-    }  
+    }
     bool cmd_line_error = false;
 
     // npmin
@@ -470,7 +564,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         cmd_line_error = true;
     if (c_info.max_msg_log < c_info.min_msg_log)
         cmd_line_error = true;
-    
+
     // root_shift
     c_info.root_shift = (parser.get<bool>("root_shift") ? 1 : 0);
 
@@ -486,6 +580,90 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         c_info.touch_cache = 1;
     }
 
+    // data_type
+    string given_data_type = parser.get<string>("data_type");
+    if (given_data_type == "byte") {
+        c_info.s_data_type = MPI_BYTE;
+        c_info.r_data_type = MPI_BYTE;
+    } else if (given_data_type == "char") {
+        c_info.s_data_type = MPI_CHAR;
+        c_info.r_data_type = MPI_CHAR;
+    } else if (given_data_type == "int") {
+        c_info.s_data_type = MPI_INT;
+        c_info.r_data_type = MPI_INT;
+    } else if (given_data_type == "float") {
+        c_info.s_data_type = MPI_FLOAT;
+        c_info.r_data_type = MPI_FLOAT;
+    } else {
+        output << "Invalid data_type " << given_data_type << endl;
+        output << "    Set data_type byte" << endl;
+    }
+
+    MPI_Datatype base_dt = c_info.s_data_type;
+
+    // red_data_type
+    string given_red_data_type = parser.get<string>("red_data_type");
+    if (given_red_data_type == "char") {
+        c_info.red_data_type = MPI_CHAR;
+    } else if (given_red_data_type == "int") {
+        c_info.red_data_type = MPI_INT;
+    } else if (given_red_data_type == "float") {
+        c_info.red_data_type = MPI_FLOAT;
+    } else {
+        output << "Invalid red_data_type " << given_red_data_type << endl;
+        output << "    Set red_data_type float" << endl;
+    }
+
+    MPI_Datatype base_red_dt = c_info.red_data_type;
+
+    // contig_type
+    string given_contig_type = parser.get<string>("contig_type");
+    if (given_contig_type == "base") {
+        c_info.size_scale = 1;
+        c_info.contig_type = CT_BASE;
+    } else if (given_contig_type == "base_vec") {
+        c_info.size_scale = 1;
+        c_info.contig_type = CT_BASE_VEC;
+    } else if (given_contig_type == "resize") {
+        int base_dt_size,
+            base_red_dt_size;
+        c_info.contig_type = CT_RESIZE;
+        c_info.size_scale = 2;
+        MPI_Type_size(base_dt, &base_dt_size);
+        MPI_Type_size(base_red_dt, &base_red_dt_size);
+        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.s_data_type));
+        MPI_Type_commit(&(c_info.s_data_type));
+        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.r_data_type));
+        MPI_Type_commit(&(c_info.r_data_type));
+        MPI_Type_create_resized(base_red_dt, base_red_dt_size, 2 * base_red_dt_size, &(c_info.red_data_type));
+        MPI_Type_commit(&(c_info.red_data_type));
+    } else if (given_contig_type == "resize_vec") {
+        int base_dt_size,
+            base_red_dt_size;
+        c_info.contig_type = CT_RESIZE_VEC;
+        c_info.size_scale = 2;
+        MPI_Type_size(base_dt, &base_dt_size);
+        MPI_Type_size(base_red_dt, &base_red_dt_size);
+        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.s_data_type));
+        MPI_Type_commit(&(c_info.s_data_type));
+        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.r_data_type));
+        MPI_Type_commit(&(c_info.r_data_type));
+        MPI_Type_create_resized(base_red_dt, base_red_dt_size, 2 * base_red_dt_size, &(c_info.red_data_type));
+        MPI_Type_commit(&(c_info.red_data_type));
+    } else {
+        output << "Invalid contig_type " << given_contig_type << endl;
+        output << "    Set contig_type base" << endl;
+    }
+
+    // zero_size
+    c_info.touch_cache = 0;
+    if (parser.get<bool>("zero_size") == false) {
+        c_info.zero_size = 0;
+    }
+
+    if (c_info.contig_type > 0)
+        c_info.op_type = get_op(c_info.red_data_type, base_red_dt);
+
     if (cmd_line_error)
         return false;
 
@@ -496,7 +674,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
 #endif
-    
+
 #if BASIC_INPUT_EXPERIMENT == 0
     struct Bench *BList;
     char *argv[] = { "" };
@@ -513,13 +691,13 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");
         } else {
-            fprintf(unit,"# Minimum message length in bytes:   %d\n",0);
+            fprintf(unit,"# Minimum message length in bytes:   %d\n", c_info.zero_size ? 0: 1<<c_info.min_msg_log);
             fprintf(unit,"# Maximum message length in bytes:   %d\n", 1<<c_info.max_msg_log);
         }
 
         fprintf(unit,"#\n");
-        fprintf(unit,"# MPI_Datatype                   :   MPI_BYTE \n");
-        fprintf(unit,"# MPI_Datatype for reductions    :   MPI_FLOAT\n");
+        fprintf(unit,"# MPI_Datatype                   :   %s \n", type_to_name(base_dt).c_str());
+        fprintf(unit,"# MPI_Datatype for reductions    :   %s \n", type_to_name(base_red_dt).c_str());
         fprintf(unit,"# MPI_Op                         :   MPI_SUM  \n");
         fprintf(unit,"# \n");
         fprintf(unit,"# \n");

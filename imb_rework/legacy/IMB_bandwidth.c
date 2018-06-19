@@ -220,6 +220,8 @@ void IMB_uni_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sc
     s_tag = 1;
     r_tag = s_tag;
 
+    size *= c_info->size_scale;
+
     if (c_info->rank != -1)
         peers = c_info->num_procs / 2;
     else {
@@ -452,6 +454,8 @@ void IMB_bi_bandwidth_touch(struct comm_info* c_info, int size,  struct iter_sch
 
     s_tag = 1;
     r_tag = s_tag;
+
+    size *= c_info->size_scale;
 
     if (c_info->rank != -1)
         peers = c_info->num_procs / 2;

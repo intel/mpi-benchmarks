@@ -1361,6 +1361,9 @@ void IMB_set_default(struct comm_info* c_info) {
     c_info->red_data_type = MPI_DATATYPE_NULL;
     c_info->op_type = MPI_OP_NULL;
     c_info->pair0 = c_info->pair1 = -2;
+    c_info->size_scale = 0;
+    c_info->contig_type = CT_BASE;
+    c_info->zero_size  = 1;
     c_info->select_tag = 0;
     c_info->select_source = 0;
     c_info->s_buffer = NULL;

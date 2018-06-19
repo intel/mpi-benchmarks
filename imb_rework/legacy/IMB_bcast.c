@@ -143,6 +143,8 @@ Output variables:
 
     *time = 0.;
 
+    size *= c_info->size_scale;
+
     if (c_info->rank != -1) {
         int root = 0;
         IMB_do_n_barriers(c_info->communicator, N_BARR);

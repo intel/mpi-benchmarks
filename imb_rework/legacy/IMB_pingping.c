@@ -144,6 +144,8 @@ Output variables:
     s_tag = 1;
     r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
 
+    size *= c_info->size_scale;
+
     dest = -1;
     if (c_info->rank == c_info->pair0)
         dest = c_info->pair1;

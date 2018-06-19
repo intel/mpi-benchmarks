@@ -163,6 +163,9 @@ Output variables:
 
     *time = 0.;
 
+    size *= c_info->size_scale;
+    s_buff_size *= c_info->size_scale;
+
     if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
@@ -176,8 +179,8 @@ Output variables:
                         size);
             }
             t1 = MPI_Wtime();
-            ierr = MPI_Reduce_scatter((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                                      (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+            ierr = MPI_Reduce_scatter((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                      (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                                       c_info->reccnt, c_info->red_data_type, c_info->op_type, c_info->communicator);
             MPI_ERRHAND(ierr);
             t2 = MPI_Wtime();
@@ -208,11 +211,10 @@ void IMB_ireduce_scatter(struct comm_info* c_info,
     double      t_pure = 0.,
                 t_comp = 0.,
                 t_ovrlp = 0.;
+    size_t pos1, pos2;
 
 #ifdef CHECK
-    size_t      pos = 0,
-                pos1 = 0,
-                pos2 = 0;
+    size_t      pos = 0;
     int         Locsize = 0;
 
     defect = 0.;
@@ -222,17 +224,28 @@ void IMB_ireduce_scatter(struct comm_info* c_info,
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
 
-#ifdef CHECK
     if (size > 0) {
         for (i = 0; i < c_info->num_procs; i++) {
             IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
+            c_info->reccnt[i] = (pos2 - pos1 + 1) / s_size;
+#ifdef CHECK
             if (i == c_info->rank) {
                 pos = pos1;
                 Locsize = s_size * c_info->reccnt[i];
             }
+#endif // CHECK
+        }
+    } else {
+        for (i = 0; i < c_info->num_procs; i++) {
+            c_info->reccnt[i] = 0;
+#ifdef CHECK
+            if (i == c_info->rank) {
+                pos = 0;
+                Locsize = 0;
+            }
+#endif // CHECK
         }
     }
-#endif // CHECK
 
     if (c_info->rank != -1) {
         IMB_ireduce_scatter_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
