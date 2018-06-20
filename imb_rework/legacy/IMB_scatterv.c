@@ -150,14 +150,6 @@ Output variables:
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            if (c_info->touch_cache) {
-                memmove((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                        (char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                        size * c_info->num_procs);
-                memmove((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                        (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                        size);
-            }
             t1 = MPI_Wtime();
             ierr = MPI_Scatterv((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                 c_info->sndcnt, c_info->sdispl,

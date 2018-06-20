@@ -316,16 +316,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "off\n");
-    parser.add<bool>("touch_cache", false).set_caption("on or off").
-           set_description(
-               "The argument after -touch_cache is a one from possible strings:\n"
-               "off,on\n"
-               "\n"
-               "Example:\n"
-               "-update_buf on\n"
-               "\n"
-               "Default:\n"
-               "off\n");
     parser.add<string>("data_type", "byte").set_caption("data type").
            set_description(
                 "The argument after -data_type is a one from possible strings,\n"
@@ -574,12 +564,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
-    // touch_cache
-    c_info.touch_cache = 0;
-    if (parser.get<bool>("touch_cache")) {
-        c_info.touch_cache = 1;
-    }
-
     // data_type
     string given_data_type = parser.get<string>("data_type");
     if (given_data_type == "byte") {
@@ -656,7 +640,6 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
     // zero_size
-    c_info.touch_cache = 0;
     if (parser.get<bool>("zero_size") == false) {
         c_info.zero_size = 0;
     }

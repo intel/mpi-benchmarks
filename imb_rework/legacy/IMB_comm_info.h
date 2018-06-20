@@ -140,8 +140,6 @@ struct comm_info {
 
     MPI_Errhandler  ERR;
 
-    int     touch_cache;
-
 #ifdef MPIIO
     /*   FILE INFORMATION     */
     char*       filename;

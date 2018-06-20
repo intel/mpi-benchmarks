@@ -153,10 +153,6 @@ Output variables:
             MPI_Barrier(c_info->communicator);
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            if (c_info->touch_cache)
-                memcpy((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                       (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                       size);
             *time -= MPI_Wtime();
             ierr = MPI_Sendrecv((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                 s_num, c_info->s_data_type, dest, s_tag,
