@@ -70,10 +70,8 @@ For more documentation than found here, see
 int IMB_internal_barrier = 0;
 /*
 
-
                       MPI-independent implementation of barrier syncronization.
                       Implements  Dissemination barrier algorithm.
-
 
 Input variables:
 
@@ -82,25 +80,24 @@ Input variables:
 
 */
 
-void IMB_Barrier ( MPI_Comm comm )
-{
+void IMB_Barrier(MPI_Comm comm) {
     int size = 0;
     int rank = 0;
 
     int mask = 0x1;
-    int dst,src;
+    int dst, src;
 
     int tmp = 0;
 
-    MPI_Comm_size( comm, &size );
-    MPI_Comm_rank( comm, &rank );
+    MPI_Comm_size(comm, &size);
+    MPI_Comm_rank(comm, &rank);
 
-    for( ; mask < size; mask <<=1 ) {
+    for (; mask < size; mask <<= 1) {
         dst = (rank + mask) % size;
         src = (rank - mask + size) % size;
-        MPI_Sendrecv( &tmp, 0, MPI_BYTE, dst, IMB_BARRIER_TAG,
-                      &tmp, 0, MPI_BYTE, src, IMB_BARRIER_TAG,
-                      comm, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(&tmp, 0, MPI_BYTE, dst, IMB_BARRIER_TAG,
+                     &tmp, 0, MPI_BYTE, src, IMB_BARRIER_TAG,
+                     comm, MPI_STATUS_IGNORE);
     }
 }
 

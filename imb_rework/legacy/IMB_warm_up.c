@@ -82,55 +82,45 @@ For more documentation than found here, see
 Use ITERATIONS object;
 perform warmup with the minimum message size, no longer with the maximum one;
 */
-void IMB_warm_up (struct Bench* Bmark, struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS, int iter)
+void IMB_warm_up(struct Bench* Bmark, struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS, int iter) {
 /* >> IMB 3.1  */
 /*
 
-                      
                       'Warm up' run of the particular benchmark, so the
                       system can eventually set up internal structures before
                       the actual benchmark
-                      
 
+Input variables:
 
-Input variables: 
-
--c_info               (type struct comm_info*)                      
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--Bmark                (type struct Bench*)                      
+-Bmark                (type struct Bench*)
                       (For explanation of struct Bench type:
                       describes all aspects of modes of a benchmark;
                       see [1] for more information)
-                      
+
                       The actual benchmark
-                      
+
 IMB 3.1 <<
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 >> IMB 3.1
 
-
--iter                 (type int)                      
+-iter                 (type int)
                       Number of the outer iteration of the benchmark. Only
                       for iter==0, the WamrUp is carried out
-                      
-
 
 */
-{
     struct cmode MD;
 
     MD.AGGREGATE = 1;
 
-    if( c_info->rank >= 0 )
-    {
+    if (c_info->rank >= 0) {
 #ifndef MPIIO
-        if( iter == 0 )
-        {
-/* IMB 3.1: other warm up settings */
+        if (iter == 0) {
+            /* IMB 3.1: other warm up settings */
             double t[MAX_TIME_ID];
             int n_sample = ITERATIONS->n_sample;
 
@@ -143,9 +133,9 @@ IMB 3.1 <<
             Bmark->Benchmark(c_info, size, ITERATIONS, Bmark->RUN_MODES, t);
 
 #else    
-            /* It is erroneous to pass unitialized MD to the bench. it may 
+            /* It is erroneous to pass unitialized MD to the bench. it may
              * depend on the particular mode values! Keep it for existing benchmarks
-             * to save their bahvior */        
+             * to save their bahvior */
             Bmark->Benchmark(c_info, size, ITERATIONS, &MD, t);
 #endif            
 

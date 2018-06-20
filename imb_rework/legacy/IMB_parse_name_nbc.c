@@ -77,147 +77,128 @@ For more documentation than found here, see
 
 #include "IMB_prototypes.h"
 
- 
-int IMB_get_def_cases(char*** defc, char*** Gcmt)
+
+int IMB_get_def_cases(char*** defc, char*** Gcmt) {
 /*
 
-                      
                       Initializes default benchmark names (defc) and accompanying
                       comments (Gcmt)
-                      
 
+In/out variables:
 
-In/out variables: 
-
--defc                 (type char***)                      
+-defc                 (type char***)
                       List of benchkark names (strings)
-                      
 
--Gcmt                 (type char***)                      
+-Gcmt                 (type char***)
                       List of general comments (strings)
-                      
-
 
 */
-{
     *defc = &DEFC[0];
     *Gcmt = &Gral_cmt[0];
-    return (int) (sizeof(DEFC)/sizeof(char*));
+    return (int)(sizeof(DEFC) / sizeof(char*));
 }
 
-int IMB_get_all_cases(char*** allc)
+int IMB_get_all_cases(char*** allc) {
 /*
 
-                      
                       Initializes default benchmark names (defc) and accompanying
                       comments (Gcmt)
-                      
 
+In/out variables:
 
-In/out variables: 
-
--defc                 (type char***)                      
+-defc                 (type char***)
                       List of benchkark names (strings)
-                      
 
--Gcmt                 (type char***)                      
+-Gcmt                 (type char***)
                       List of general comments (strings)
-                      
-
 
 */
-{
     *allc = &ALLC[0];
-    return (int) (sizeof(ALLC)/sizeof(char*));
+    return (int)(sizeof(ALLC) / sizeof(char*));
 }
 
 
-void IMB_set_bmark(struct Bench* Bmark)
+void IMB_set_bmark(struct Bench* Bmark) {
 /*
 
+In/out variables:
 
-
-In/out variables: 
-
--Bmark                (type struct Bench*)                      
+-Bmark                (type struct Bench*)
                       (For explanation of struct Bench type:
                       describes all aspects of modes of a benchmark;
                       see [1] for more information)
-                      
+
                       On input, only the name of the benchmark is set.
                       On output, all necessary run modes are set accordingly
-                      
-
 
 */
-{
-    Bmark->N_Modes                  = 1;
-    Bmark->RUN_MODES[0].AGGREGATE   =-1;
+    Bmark->N_Modes = 1;
+    Bmark->RUN_MODES[0].AGGREGATE = -1;
     Bmark->RUN_MODES[0].NONBLOCKING = strstr(Bmark->name, "_pure") ? 0 : 1;
     Bmark->RUN_MODES[0].type = Collective;
 
-    Bmark->reduction      = 0;
-    Bmark->Ntimes         = Bmark->RUN_MODES[0].NONBLOCKING ? 3 : 1;
+    Bmark->reduction = 0;
+    Bmark->Ntimes = Bmark->RUN_MODES[0].NONBLOCKING ? 3 : 1;
     Bmark->bench_comments = NIL_COMMENT;
 
-    if (!strcmp(Bmark->name,"ibcast")) {
+    if (!strcmp(Bmark->name, "ibcast")) {
         Bmark->Benchmark = IMB_ibcast;
-    } else if (!strcmp(Bmark->name,"ibcast_pure")) {
+    } else if (!strcmp(Bmark->name, "ibcast_pure")) {
         Bmark->Benchmark = IMB_ibcast_pure;
-    } else if (!strcmp(Bmark->name,"iallgather")) {
+    } else if (!strcmp(Bmark->name, "iallgather")) {
         Bmark->Benchmark = IMB_iallgather;
-    } else if (!strcmp(Bmark->name,"iallgather_pure")) {
+    } else if (!strcmp(Bmark->name, "iallgather_pure")) {
         Bmark->Benchmark = IMB_iallgather_pure;
-    } else if (!strcmp(Bmark->name,"iallgatherv")) {
+    } else if (!strcmp(Bmark->name, "iallgatherv")) {
         Bmark->Benchmark = IMB_iallgatherv;
-    } else if (!strcmp(Bmark->name,"iallgatherv_pure")) {
+    } else if (!strcmp(Bmark->name, "iallgatherv_pure")) {
         Bmark->Benchmark = IMB_iallgatherv_pure;
-    } else if (!strcmp(Bmark->name,"igather")) {
+    } else if (!strcmp(Bmark->name, "igather")) {
         Bmark->Benchmark = IMB_igather;
-    } else if (!strcmp(Bmark->name,"igather_pure")) {
+    } else if (!strcmp(Bmark->name, "igather_pure")) {
         Bmark->Benchmark = IMB_igather_pure;
-    } else if (!strcmp(Bmark->name,"igatherv")) {
+    } else if (!strcmp(Bmark->name, "igatherv")) {
         Bmark->Benchmark = IMB_igatherv;
-    } else if (!strcmp(Bmark->name,"igatherv_pure")) {
+    } else if (!strcmp(Bmark->name, "igatherv_pure")) {
         Bmark->Benchmark = IMB_igatherv_pure;
-    } else if (!strcmp(Bmark->name,"iscatter")) {
+    } else if (!strcmp(Bmark->name, "iscatter")) {
         Bmark->Benchmark = IMB_iscatter;
-    } else if (!strcmp(Bmark->name,"iscatter_pure")) {
+    } else if (!strcmp(Bmark->name, "iscatter_pure")) {
         Bmark->Benchmark = IMB_iscatter_pure;
-    } else if (!strcmp(Bmark->name,"iscatterv")) {
+    } else if (!strcmp(Bmark->name, "iscatterv")) {
         Bmark->Benchmark = IMB_iscatterv;
-    } else if (!strcmp(Bmark->name,"iscatterv_pure")) {
+    } else if (!strcmp(Bmark->name, "iscatterv_pure")) {
         Bmark->Benchmark = IMB_iscatterv_pure;
-    }else if (!strcmp(Bmark->name,"ialltoall")) {
+    } else if (!strcmp(Bmark->name, "ialltoall")) {
         Bmark->Benchmark = IMB_ialltoall;
-    } else if (!strcmp(Bmark->name,"ialltoall_pure")) {
+    } else if (!strcmp(Bmark->name, "ialltoall_pure")) {
         Bmark->Benchmark = IMB_ialltoall_pure;
-    } else if (!strcmp(Bmark->name,"ialltoallv")) {
+    } else if (!strcmp(Bmark->name, "ialltoallv")) {
         Bmark->Benchmark = IMB_ialltoallv;
-    } else if (!strcmp(Bmark->name,"ialltoallv_pure")) {
+    } else if (!strcmp(Bmark->name, "ialltoallv_pure")) {
         Bmark->Benchmark = IMB_ialltoallv_pure;
-    } else if (!strcmp(Bmark->name,"ireduce")) {
+    } else if (!strcmp(Bmark->name, "ireduce")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_ireduce;
-    } else if (!strcmp(Bmark->name,"ireduce_pure")) {
+    } else if (!strcmp(Bmark->name, "ireduce_pure")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_ireduce_pure;
-    } else if (!strcmp(Bmark->name,"ireduce_scatter")) {
+    } else if (!strcmp(Bmark->name, "ireduce_scatter")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_ireduce_scatter;
-    } else if (!strcmp(Bmark->name,"ireduce_scatter_pure")) {
+    } else if (!strcmp(Bmark->name, "ireduce_scatter_pure")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_ireduce_scatter_pure;
-    } else if (!strcmp(Bmark->name,"iallreduce")) {
+    } else if (!strcmp(Bmark->name, "iallreduce")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_iallreduce;
-    } else if (!strcmp(Bmark->name,"iallreduce_pure")) {
+    } else if (!strcmp(Bmark->name, "iallreduce_pure")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_iallreduce_pure;
-    } else if (!strcmp(Bmark->name,"ibarrier")) {
+    } else if (!strcmp(Bmark->name, "ibarrier")) {
         Bmark->Benchmark = IMB_ibarrier;
         Bmark->RUN_MODES[0].type = Sync;
-    } else if (!strcmp(Bmark->name,"ibarrier_pure")) {
+    } else if (!strcmp(Bmark->name, "ibarrier_pure")) {
         Bmark->Benchmark = IMB_ibarrier_pure;
         Bmark->RUN_MODES[0].type = Sync;
     } else {

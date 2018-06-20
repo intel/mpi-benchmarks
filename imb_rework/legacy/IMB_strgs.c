@@ -80,57 +80,43 @@ For more documentation than found here, see
 
 
 
-char* IMB_str(const char* Bname)
+char* IMB_str(const char* Bname) {
 /*
 
-                      
                       Copies string Bname to new memory which is returned
-                      
 
+Input variables:
 
-Input variables: 
-
--Bname                (type char*)                      
+-Bname                (type char*)
                       String to be copied
-                      
 
-
-Return value          (type char*)                      
+Return value          (type char*)
                       Copy of Bname with newly allocated memory
-                      
-
 
 */
-{
-    char* strg = (char*) IMB_v_alloc( 1+strlen(Bname),"str" );
+    char* strg = (char*)IMB_v_alloc(1 + strlen(Bname), "str");
 
-    if(strg)
-	return strcpy(strg,Bname);
-    else 
-	return NULL;
+    if (strg)
+        return strcpy(strg, Bname);
+    else
+        return NULL;
 }
 
 
 /***************************************************************************/
-void IMB_lwr(char* Bname)
+void IMB_lwr(char* Bname) {
 /*
 
+In/out variables:
 
-
-In/out variables: 
-
--Bname                (type char*)                      
+-Bname                (type char*)
                       Uper case alphabetic characters are converted to lower case
-                      
-
 
 */
-{
     int i;
-
-    for(i=0; i<strlen(Bname); i++)
-	if ( Bname[i] >= 'A' && Bname[i] <= 'Z' )
-	    Bname[i] = Bname[i] - ('A'-'a');
+    for (i = 0; i < strlen(Bname); i++)
+        if (Bname[i] >= 'A' && Bname[i] <= 'Z')
+            Bname[i] = Bname[i] - ('A' - 'a');
 }
 
 
@@ -139,81 +125,61 @@ In/out variables:
 
 
 
-int IMB_str_atoi(char s[])
+int IMB_str_atoi(char s[]) {
 /*
 
-                      
                       Evaluates int value of a numeric string
-                      
 
+Input variables:
 
-Input variables: 
-
--s                    (type char [])                      
+-s                    (type char [])
                       String with only numeric characters
-                      
 
-
-Return value          (type int)                      
+Return value          (type int)
                       Numeric value
-                      
-
 
 */
-{
-    int i,n,len ;
 
-    n=0;
-    len=strlen(s);
+    int i, n, len;
 
-    for(i=0; s[i] >= '0' && s[i] <= '9' || s[i]==' '; ++i)
-    {
-	if (s[i]!=' ') 
-	{
-	    n=10*n+(s[i]-'0');
-	}
+    n = 0;
+    len = strlen(s);
+
+    for (i = 0; s[i] >= '0' && s[i] <= '9' || s[i] == ' '; ++i) {
+        if (s[i] != ' ')
+            n = 10 * n + (s[i] - '0');
     }
-/* IMB_3.0 */
-    if (len==0 || i<len)
-    {
-	n=-1;
-    }
+    /* IMB_3.0 */
+    if (len == 0 || i < len)
+        n = -1;
     return n;
 }
 
 
 /* str_erase   */
-void IMB_str_erase(char* string, int Nblnc)
+void IMB_str_erase(char* string, int Nblnc) {
 /*
 
-                      
                       Fills blancs into a string
-                      
 
+Input variables:
 
-Input variables: 
-
--Nblnc                (type int)                      
+-Nblnc                (type int)
                       #blancs to fill
-                      
 
+In/out variables:
 
-In/out variables: 
-
--string               (type char*)                      
+-string               (type char*)
                       Null terminated string with Nblnc many blancs
-                      
-
 
 */
-{
-    if( Nblnc > 0 )
-    {
-	int i;
-	for(i=0;i<Nblnc; i++ ) string[i]=' ';
+    if (Nblnc > 0) {
+        int i;
+        for (i = 0; i < Nblnc; i++)
+            string[i] = ' ';
 
-	i=max(0,Nblnc);
-	string[i]='\0';
+        i = max(0, Nblnc);
+        string[i] = '\0';
     }
 }
 

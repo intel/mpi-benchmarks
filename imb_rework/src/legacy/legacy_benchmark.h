@@ -85,9 +85,9 @@ class OriginalBenchmark : public Benchmark {
         LEGACY_GLOBALS glob;
     public:
         using Benchmark::scope;
-        virtual void allocate_internals() { 
+        virtual void allocate_internals() {
             BMark[0].name = NULL;
-            if (descr.get() == NULL) 
+            if (descr.get() == NULL)
                 descr = new reworked_Bmark_descr;
         }
         virtual bool init_description();
@@ -102,7 +102,7 @@ class OriginalBenchmark : public Benchmark {
 
             assert(RANK == c_info.w_rank);
             assert(FULL_NP == c_info.w_num_procs);
- 
+
             BMark->name = strdup(name);
             descr->IMB_set_bmark(BMark, fn_ptr);
             descr->helper_sync_legacy_globals_1(c_info, glob, BMark);
@@ -116,12 +116,34 @@ class OriginalBenchmark : public Benchmark {
         }
         virtual void run(const scope_item &item) {
             int size = item.len;
-            int np = item.np; 
+            int np = item.np;
             int imod = *(item.extra_fields.as<int>());
+            MPI_Datatype base_s_dt, base_r_dt, base_red_dt;
             if (!initialized)
                 return;
             if (descr->stop_iterations)
                 return;
+            if ((c_info.contig_type == CT_BASE_VEC || c_info.contig_type == CT_RESIZE_VEC) &&
+                size != 0) {
+
+                int size_dt;
+
+                base_s_dt   = c_info.s_data_type;
+                MPI_Type_size(base_s_dt, &size_dt);
+                MPI_Type_vector(size / size_dt, 1, 1, base_s_dt, &(c_info.s_data_type));
+                MPI_Type_commit(&(c_info.s_data_type));
+
+                base_r_dt   = c_info.r_data_type;
+                MPI_Type_size(base_r_dt, &size_dt);
+                MPI_Type_vector(size / size_dt, 1, 1, base_r_dt, &(c_info.r_data_type));
+                MPI_Type_commit(&(c_info.r_data_type));
+
+                base_red_dt = c_info.red_data_type;
+                MPI_Type_size(base_red_dt, &size_dt);
+                MPI_Type_vector(size / size_dt, 1, 1, base_red_dt, &(c_info.red_data_type));
+                MPI_Type_commit(&(c_info.red_data_type));
+            }
+
             if (np != glob.NP || imod != glob.imod) {
                 glob.NP = np;
                 glob.imod = imod;
@@ -160,6 +182,18 @@ class OriginalBenchmark : public Benchmark {
             MPI_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);
+            if ((c_info.contig_type == CT_BASE_VEC || c_info.contig_type == CT_RESIZE_VEC) &&
+                size != 0) {
+
+                MPI_Type_free(&(c_info.s_data_type));
+                c_info.s_data_type = base_s_dt;
+
+                MPI_Type_free(&(c_info.r_data_type));
+                c_info.r_data_type = base_r_dt;
+
+                MPI_Type_free(&(c_info.red_data_type));
+                c_info.red_data_type = base_red_dt;
+            }
             IMB_del_s_buf(&c_info);
             IMB_del_r_buf(&c_info);
             glob.header = 0;
@@ -173,7 +207,7 @@ class OriginalBenchmark : public Benchmark {
         }
         ~OriginalBenchmark() {
             free(BMark[0].name);
-        } 
+        }
         DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
 };
 

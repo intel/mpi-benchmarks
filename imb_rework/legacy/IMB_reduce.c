@@ -93,69 +93,64 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_reduce(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                MODES RUN_MODE, double* time)
+                MODES RUN_MODE, double* time) {
 /*
 
-                      
-                      MPI-1 benchmark kernel
-                      Benchmarks MPI_Reduce
-                      
+                          MPI-1 benchmark kernel
+                          Benchmarks MPI_Reduce
 
+Input variables:
 
-Input variables: 
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)                      
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
+-RUN_MODE                 (type MODES)
+                          (only MPI-2 case: see [1])
 
--RUN_MODE             (type MODES)                      
-                      (only MPI-2 case: see [1])
+Output variables:
 
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
-  int    i;
-  Type_Size s_size;
-  int s_num;
-  double t1, t2;
-  
+    int    i;
+    Type_Size s_size;
+    int s_num;
+    double t1, t2;
+
 #ifdef CHECK
-  defect=0.;
+    defect = 0.;
 #endif
 
-  ierr = 0;
+    ierr = 0;
 
-  /*  GET SIZE OF DATA TYPE */  
-  MPI_Type_size(c_info->red_data_type,&s_size);
-  if (s_size!=0) s_num=size/s_size;
-  
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->red_data_type, &s_size);
+
+    if (s_size != 0)
+        s_num = size / s_size;
+
+    size *= c_info->size_scale;
+
     *time = 0.;
-    if(c_info->rank != -1)
-    {
+    if (c_info->rank != -1) {
         int root = 0;
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i=0;i< ITERATIONS->n_sample;i++)
-        {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t1 = MPI_Wtime();
-            ierr = MPI_Reduce((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                              (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+            ierr = MPI_Reduce((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                              (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                               s_num,
-                              c_info->red_data_type,c_info->op_type,
+                              c_info->red_data_type, c_info->op_type,
                               root,
                               c_info->communicator);
             MPI_ERRHAND(ierr);
@@ -163,12 +158,11 @@ Output variables:
             *time += (t2 - t1);
 
 #ifdef CHECK
-            if( c_info->rank == root )
-            {
-                 CHK_DIFF("Reduce",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-                          size, size, asize, 
-                          put, 0, ITERATIONS->n_sample, i,
-                          -1, &defect);
+            if (c_info->rank == root) {
+                CHK_DIFF("Reduce", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
+                         size, size, asize,
+                         put, 0, ITERATIONS->n_sample, i,
+                         -1, &defect);
             }
 #endif
             /*  CHANGE THE ROOT NODE */
@@ -187,8 +181,7 @@ void IMB_ireduce(struct comm_info* c_info,
                  int size,
                  struct iter_schedule* ITERATIONS,
                  MODES RUN_MODE,
-                 double* time)
-{
+                 double* time) {
     int         i = 0;
     Type_Size   s_size;
     int         s_num = 0;
@@ -199,17 +192,17 @@ void IMB_ireduce(struct comm_info* c_info,
                 t_ovrlp = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->red_data_type,&s_size);
+    MPI_Type_size(c_info->red_data_type, &s_size);
     if (s_size != 0) {
         s_num = size / s_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         int root = 0;
         IMB_ireduce_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
@@ -218,7 +211,7 @@ void IMB_ireduce(struct comm_info* c_info,
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i = 0; i < ITERATIONS->n_sample; i++) {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_ovrlp -= MPI_Wtime();
             ierr = MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
@@ -247,7 +240,7 @@ void IMB_ireduce(struct comm_info* c_info,
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         t_ovrlp /= ITERATIONS->n_sample;
-        t_comp  /= ITERATIONS->n_sample;
+        t_comp /= ITERATIONS->n_sample;
     }
 
     time[0] = t_pure;
@@ -261,8 +254,7 @@ void IMB_ireduce_pure(struct comm_info* c_info,
                       int size,
                       struct iter_schedule* ITERATIONS,
                       MODES RUN_MODE,
-                      double* time)
-{
+                      double* time) {
     int         i = 0;
     Type_Size   s_size;
     int         s_num = 0;
@@ -270,22 +262,22 @@ void IMB_ireduce_pure(struct comm_info* c_info,
     double      t_pure = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->red_data_type,&s_size);
+    MPI_Type_size(c_info->red_data_type, &s_size);
     if (s_size != 0) {
         s_num = size / s_size;
     }
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         int root = 0;
 
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-        for(i = 0; i < ITERATIONS->n_sample; i++) {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
             ierr = MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,

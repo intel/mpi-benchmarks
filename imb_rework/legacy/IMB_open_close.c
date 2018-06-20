@@ -93,68 +93,57 @@ Hans-Joachim Plum, Intel GmbH
 /* ===================================================================== */
 
 void IMB_open_close(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                    MODES RUN_MODE, double* time)
+                    MODES RUN_MODE, double* time) {
 /*
 
-                      
-                      MPI-IO benchmark kernel
-                      MPI_File_open + MPI_File_close
-                      
+                          MPI-IO benchmark kernel
+                          MPI_File_open + MPI_File_close
 
+Input variables:
 
-Input variables: 
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
+-size                     (type int)
+                          Basic message size in bytes
 
--size                 (type int)                      
-                      Basic message size in bytes
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--ITERATIONS           (type struct iter_schedule *)
-                      Repetition scheduling
+-RUN_MODE                 (type MODES)
+                          Mode (aggregate/non aggregate; blocking/nonblocking);
+                          see "IMB_benchmark.h" for definition
 
--RUN_MODE             (type MODES)                      
-                      Mode (aggregate/non aggregate; blocking/nonblocking);
-                      see "IMB_benchmark.h" for definition
+Output variables:
 
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
-  double t1, t2;
-  int    i, dum;
-  MPI_Status stat;
+    double t1, t2;
+    int    i, dum;
+    MPI_Status stat;
 
-  ierr = 0;
+    ierr = 0;
 
-  if(c_info->rank!=-1)
-    {
-      for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    if (c_info->rank != -1) {
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
 
-      t1 = MPI_Wtime();
-      for(i=0;i< ITERATIONS->n_sample;i++)
-	{
-        ierr = MPI_File_open(c_info->File_comm, c_info->filename,
-                             c_info->amode, c_info->info, &c_info->fh);
-        MPI_ERRHAND(ierr);
-        ierr=MPI_File_write
-          (c_info->fh, (void*)&dum, 1 ,c_info->etype,&stat);
-        ierr = MPI_File_close(&c_info->fh);
-        MPI_ERRHAND(ierr);
-	}
-      t2 = MPI_Wtime();
-      *time=(t2 - t1)/(ITERATIONS->n_sample);
-    }
-  else
-    { 
-      *time = 0.; 
+        t1 = MPI_Wtime();
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            ierr = MPI_File_open(c_info->File_comm, c_info->filename,
+                                 c_info->amode, c_info->info, &c_info->fh);
+            MPI_ERRHAND(ierr);
+            ierr = MPI_File_write(c_info->fh, (void*)&dum, 1, c_info->etype, &stat);
+            ierr = MPI_File_close(&c_info->fh);
+            MPI_ERRHAND(ierr);
+        }
+        t2 = MPI_Wtime();
+        *time = (t2 - t1) / (ITERATIONS->n_sample);
+    } else {
+        *time = 0.;
     }
 }
 

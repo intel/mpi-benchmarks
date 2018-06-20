@@ -97,7 +97,7 @@ char aux_string[out_fields*ow_format];
 char format [out_fields*7];
 
 /* ARRAY OF CASES, EITHER DEFAULT OR ARGUMENT LIST */
-char **cases ;           
+char **cases ;
 
 /* Error status  */
 
@@ -120,6 +120,6 @@ double MFlops = -1.;
 int num_alloc=0, num_free=0;
 
 #ifdef USE_MPI_INIT_THREAD
-int mpi_thread_environment = MPI_THREAD_SINGLE;
-int mpi_thread_desired	   = MPI_THREAD_MULTIPLE;
+int mpi_thread_environment  = MPI_THREAD_SINGLE;
+int mpi_thread_desired      = MPI_THREAD_MULTIPLE;
 #endif /*USE_MPI_INIT_THREAD*/

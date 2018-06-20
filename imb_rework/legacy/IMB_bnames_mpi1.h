@@ -65,49 +65,49 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "PingPong" 
-  ,"PingPing" 
-  ,"Sendrecv"
-  ,"Exchange" 
-  ,"Allreduce" 
-  ,"Reduce" 
-  ,"Reduce_scatter" 
-  ,"Allgather" 
-  ,"Allgatherv" 
-  ,"Gather" 
-  ,"Gatherv" 
-  ,"Scatter" 
-  ,"Scatterv" 
-  ,"Alltoall"
-  ,"Alltoallv"
-  ,"Bcast" 
-  ,"Barrier" 
+    "PingPong",
+    "PingPing",
+    "Sendrecv",
+    "Exchange",
+    "Allreduce",
+    "Reduce",
+    "Reduce_scatter",
+    "Allgather",
+    "Allgatherv",
+    "Gather",
+    "Gatherv",
+    "Scatter",
+    "Scatterv",
+    "Alltoall",
+    "Alltoallv",
+    "Bcast",
+    "Barrier"
 };
 
 /* NAMES OF BENCHMARKS (ALL CASE)*/
 char *ALLC[] = {
-   "PingPongSpecificSource"
-  ,"PingPongAnySource"
-  ,"PingPingSpecificSource"
-  ,"PingPingAnySource"
-  ,"PingPong" 
-  ,"PingPing" 
-  ,"Sendrecv"
-  ,"Exchange" 
-  ,"Allreduce" 
-  ,"Reduce" 
-  ,"Reduce_scatter" 
-  ,"Allgather" 
-  ,"Allgatherv" 
-  ,"Gather" 
-  ,"Gatherv" 
-  ,"Scatter" 
-  ,"Scatterv" 
-  ,"Alltoall"
-  ,"Alltoallv"
-  ,"Bcast" 
-  ,"Barrier" 
-  ,"Uniband" 
-  ,"Biband" 
+    "PingPongSpecificSource",
+    "PingPongAnySource",
+    "PingPingSpecificSource",
+    "PingPingAnySource",
+    "PingPong",
+    "PingPing",
+    "Sendrecv",
+    "Exchange",
+    "Allreduce",
+    "Reduce",
+    "Reduce_scatter",
+    "Allgather",
+    "Allgatherv",
+    "Gather",
+    "Gatherv",
+    "Scatter",
+    "Scatterv",
+    "Alltoall",
+    "Alltoallv",
+    "Bcast",
+    "Barrier",
+    "Uniband",
+    "Biband"
 };
 

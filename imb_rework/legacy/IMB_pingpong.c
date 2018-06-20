@@ -92,130 +92,115 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_pingpong(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                  MODES RUN_MODE, double* time)
+                  MODES RUN_MODE, double* time) {
 /*
 
-                      
-                      MPI-1 benchmark kernel
-                      2 process MPI_Send + MPI_Recv  pair
-                      
+                          MPI-1 benchmark kernel
+                          2 process MPI_Send + MPI_Recv  pair
+
+Input variables:
+
+-c_info                   (type struct comm_info*)
+                          Collection of all base data for MPI;
+                          see [1] for more information
 
 
-Input variables: 
+-size                     (type int)
+                          Basic message size in bytes
 
--c_info               (type struct comm_info*)                      
-                      Collection of all base data for MPI;
-                      see [1] for more information
-                      
+-ITERATIONS               (type struct iter_schedule *)
+                          Repetition scheduling
 
--size                 (type int)                      
-                      Basic message size in bytes
+-RUN_MODE                 (type MODES)
+                          (only MPI-2 case: see [1])
 
--ITERATIONS           (type struct iter_schedule *)                      
-                      Repetition scheduling
+Output variables:
 
--RUN_MODE             (type MODES)                      
-                      (only MPI-2 case: see [1])
-
-
-Output variables: 
-
--time                 (type double*)                      
-                      Timing result per sample
-
+-time                     (type double*)
+                          Timing result per sample
 
 */
-{
-    double t1, t2;
     int    i;
 
-    Type_Size s_size,r_size;
+    Type_Size s_size, r_size;
     int s_num, r_num;
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
 
 #ifdef CHECK 
-    defect=0;
+    defect = 0;
 #endif
     ierr = 0;
 
-    /*  GET SIZE OF DATA TYPE */  
-    MPI_Type_size(c_info->s_data_type,&s_size);
-    MPI_Type_size(c_info->r_data_type,&r_size);
+    /*  GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
 
-    if ((s_size!=0) && (r_size!=0))
-    {
-	s_num=size/s_size;
-	r_num=size/r_size;
+    if ((s_size != 0) && (r_size != 0)) {
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
 
     s_tag = 1;
     r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
 
-    if (c_info->rank == c_info->pair0)
-    {
-	/*  CALCULATE SOURCE AND DESTINATION */ 
-	dest = c_info->pair1;
-	source = c_info->select_source ? dest : MPI_ANY_SOURCE;
+    size *= c_info->size_scale;
 
-	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
+    *time = 0.;
+    if (c_info->rank == c_info->pair0) {
+        /*  CALCULATE SOURCE AND DESTINATION */
+        dest = c_info->pair1;
+        source = c_info->select_source ? dest : MPI_ANY_SOURCE;
 
-	t1 = MPI_Wtime();
-	for(i=0;i<ITERATIONS->n_sample;i++)
-	{
-	    ierr = MPI_Send((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-			    s_num,c_info->s_data_type,dest,
-			    s_tag,c_info->communicator);
-	    MPI_ERRHAND(ierr);
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
 
-	    ierr = MPI_Recv((char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-			    r_num,c_info->r_data_type,source,
-			    r_tag,c_info->communicator,&stat);
-	    MPI_ERRHAND(ierr);
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            *time -= MPI_Wtime();
+            ierr = MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                            s_num, c_info->s_data_type, dest,
+                            s_tag, c_info->communicator);
+            MPI_ERRHAND(ierr);
 
-	    CHK_DIFF("PingPong",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-		     size, size, asize,
-		     put, 0, ITERATIONS->n_sample, i,
-		     dest, &defect);
-	} /*for*/
+            ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                            r_num, c_info->r_data_type, source,
+                            r_tag, c_info->communicator, &stat);
+            MPI_ERRHAND(ierr);
 
-	t2 = MPI_Wtime();
-	*time=(t2 - t1)/ITERATIONS->n_sample;
+            *time += MPI_Wtime();
+            CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
+                     size, size, asize,
+                     put, 0, ITERATIONS->n_sample, i,
+                     dest, &defect);
+        } /*for*/
+    } else if (c_info->rank == c_info->pair1) {
+        dest = c_info->pair0;
+        source = c_info->select_source ? dest : MPI_ANY_SOURCE;
+
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
+
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            *time -= MPI_Wtime();
+            ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                            r_num, c_info->r_data_type, source,
+                            r_tag, c_info->communicator, &stat);
+            MPI_ERRHAND(ierr);
+
+            ierr = MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                            s_num, c_info->s_data_type, dest,
+                            s_tag, c_info->communicator);
+            MPI_ERRHAND(ierr);
+
+            *time += MPI_Wtime();
+            CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
+                     size, size, asize,
+                     put, 0, ITERATIONS->n_sample, i,
+                     dest, &defect);
+        } /*for*/
     }
-    else if (c_info->rank == c_info->pair1)
-    {
-	dest =c_info->pair0 ;
-	source = c_info->select_source ? dest : MPI_ANY_SOURCE;
-
-	for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
-
-	t1 = MPI_Wtime();
-	for(i=0;i<ITERATIONS->n_sample;i++)
-	{
-	    ierr = MPI_Recv((char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-			    r_num,c_info->r_data_type,source,
-			    r_tag,c_info->communicator,&stat);
-	    MPI_ERRHAND(ierr);
-
-	    ierr = MPI_Send((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-			    s_num,c_info->s_data_type,dest,
-			    s_tag,c_info->communicator);
-	    MPI_ERRHAND(ierr);
-
-	    CHK_DIFF("PingPong",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-		     size, size, asize,
-		     put, 0, ITERATIONS->n_sample, i,
-		     dest, &defect);
-	} /*for*/
-	t2 = MPI_Wtime();
-
-	*time=(t2 - t1)/ITERATIONS->n_sample;
-    }
-    else 
-    { 
-	*time = 0.;
-    }
+    *time /= ITERATIONS->n_sample;
 }
 
 

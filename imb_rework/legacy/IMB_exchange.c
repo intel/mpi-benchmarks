@@ -90,122 +90,110 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_exchange(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
-                  MODES RUN_MODE, double* time)
+                  MODES RUN_MODE, double* time) {
 /*
 
-                      
                       MPI-1 benchmark kernel
                       Chainwise exchange; MPI_Isend (left+right) + MPI_Recv (right+left)
-                      
 
+Input variables:
 
-Input variables: 
-
--c_info               (type struct comm_info*)                      
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
+Output variables:
 
-Output variables: 
-
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
-{
-  double t1, t2;
-  int  i;
-  
-  Type_Size s_size, r_size;
-  int s_num, r_num;
-  int s_tag, r_tag;
-  int left, right;
-  MPI_Status  stat[2];
-  MPI_Request request[2];
-  
-#ifdef CHECK 
-  defect=0;
+    int  i;
+
+    Type_Size s_size, r_size;
+    int s_num, r_num;
+    int s_tag, r_tag;
+    int left, right;
+    MPI_Status  stat[2];
+    MPI_Request request[2];
+
+#ifdef CHECK
+    defect = 0;
 #endif
-  ierr = 0;
+    ierr = 0;
 
-  /*GET SIZE OF DATA TYPE's in s_size and r_size*/
-  MPI_Type_size(c_info->s_data_type,&s_size);
-  MPI_Type_size(c_info->r_data_type,&r_size);
-  if ((s_size!=0) && (r_size!=0))
+    /*GET SIZE OF DATA TYPE's in s_size and r_size*/
+    MPI_Type_size(c_info->s_data_type, &s_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
+    if ((s_size != 0) && (r_size != 0))
     {
-      s_num=size/s_size;
-      r_num=size/r_size;
-    } 
-  s_tag = 1;
-  r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
-
-  
-  if(c_info->rank != -1)
-    {
-      if(c_info->rank < c_info->num_procs-1)   right  = c_info->rank+1;
-      if(c_info->rank > 0)                     left   = c_info->rank-1;
-      
-      if(c_info->rank == c_info->num_procs-1)  right  = 0;
-      if(c_info->rank == 0)                    left   = c_info->num_procs-1 ;
-      
-      if((c_info->rank >= 0) && (c_info->rank <= c_info->num_procs-1))
-	{
-          for(i=0; i<N_BARR; i++) MPI_Barrier(c_info->communicator);
-
-	  t1 = MPI_Wtime();
-	  for(i=0; i< ITERATIONS->n_sample; i++)
-	    { 
-	      ierr= MPI_Isend((char*)c_info->s_buffer+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                              s_num,c_info->s_data_type,
-			      right,s_tag,c_info->communicator,&request[0]);
-	      MPI_ERRHAND(ierr);
-	      ierr= MPI_Isend((char*)c_info->s_buffer+size+i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                              s_num,c_info->s_data_type,
-			      left ,s_tag,c_info->communicator,&request[1]);
-	      MPI_ERRHAND(ierr);
-
-	      ierr= MPI_Recv( (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                              r_num,c_info->r_data_type,
-			      left ,r_tag,c_info->communicator,stat);
-	      MPI_ERRHAND(ierr);
-
-              CHK_DIFF("Exchange",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                       0, size, size, 1, 
-                       put, 0, ITERATIONS->n_sample, i,
-                       left, &defect);
-
-	      ierr= MPI_Recv( (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                              r_num,c_info->r_data_type,
-			      right,r_tag,c_info->communicator,stat);
-	      MPI_ERRHAND(ierr);
-	      
-              CHK_DIFF("Exchange",c_info, (char*)c_info->r_buffer+i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                       s_num, size, size, 1, 
-                       put, 0, ITERATIONS->n_sample, i,
-                       right, &defect);
-
-	      ierr= MPI_Waitall(2,request,stat);
-	      MPI_ERRHAND(ierr);   
-	    }
-	  t2 = MPI_Wtime();
-	  *time=(t2 - t1)/ITERATIONS->n_sample;
-	}
+        s_num = size / s_size;
+        r_num = size / r_size;
     }
-  else
-    { 
-      *time = 0.; 
+    s_tag = 1;
+    r_tag = c_info->select_tag ? s_tag : MPI_ANY_TAG;
+
+    size *= c_info->size_scale;
+
+    *time = 0;
+    if (c_info->rank != -1) {
+        if (c_info->rank < c_info->num_procs - 1)   right = c_info->rank + 1;
+        if (c_info->rank > 0)                       left = c_info->rank - 1;
+        if (c_info->rank == c_info->num_procs - 1)  right = 0;
+        if (c_info->rank == 0)                      left = c_info->num_procs - 1;
+
+        if ((c_info->rank >= 0) && (c_info->rank <= c_info->num_procs - 1)) {
+            for (i = 0; i < N_BARR; i++)
+                MPI_Barrier(c_info->communicator);
+
+            for (i = 0; i < ITERATIONS->n_sample; i++) {
+                *time -= MPI_Wtime();
+                ierr = MPI_Isend((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                 s_num, c_info->s_data_type,
+                                 right, s_tag, c_info->communicator, &request[0]);
+                MPI_ERRHAND(ierr);
+                ierr = MPI_Isend((char*)c_info->s_buffer + size + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                 s_num, c_info->s_data_type,
+                                 left, s_tag, c_info->communicator, &request[1]);
+                MPI_ERRHAND(ierr);
+
+                ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                r_num, c_info->r_data_type,
+                                left, r_tag, c_info->communicator, stat);
+                MPI_ERRHAND(ierr);
+
+                CHK_DIFF("Exchange", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                         0, size, size, 1,
+                         put, 0, ITERATIONS->n_sample, i,
+                         left, &defect);
+
+                ierr = MPI_Recv((char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                r_num, c_info->r_data_type,
+                                right, r_tag, c_info->communicator, stat);
+                MPI_ERRHAND(ierr);
+
+                CHK_DIFF("Exchange", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                         s_num, size, size, 1,
+                         put, 0, ITERATIONS->n_sample, i,
+                         right, &defect);
+
+                ierr = MPI_Waitall(2, request, stat);
+                MPI_ERRHAND(ierr);
+                *time += MPI_Wtime();
+            }
+        }
     }
+    *time /= ITERATIONS->n_sample;
 }
 
 

@@ -65,22 +65,22 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "Window",
-   "Unidir_Get",
-   "Unidir_Put",
-   "Bidir_Get",
-   "Bidir_Put",
-   "Accumulate"
+    "Window",
+    "Unidir_Get",
+    "Unidir_Put",
+    "Bidir_Get",
+    "Bidir_Put",
+    "Accumulate"
 };
 
 
 /* NAMES OF BENCHMARKS (ALL CASE)*/
 char *ALLC[] = {
-   "Window",
-   "Unidir_Get",
-   "Unidir_Put",
-   "Bidir_Get",
-   "Bidir_Put",
-   "Accumulate"
+    "Window",
+    "Unidir_Get",
+    "Unidir_Put",
+    "Bidir_Get",
+    "Bidir_Put",
+    "Accumulate"
 };
 

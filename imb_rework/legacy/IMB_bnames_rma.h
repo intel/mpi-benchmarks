@@ -65,50 +65,47 @@ For more documentation than found here, see
 
 /* NAMES OF BENCHMARKS (DEFAULT CASE)*/
 char *DEFC[] = {
-   "Unidir_put",
-   "Unidir_get",
-   "Bidir_put",
-   "Bidir_get",
-   "One_put_all",
-   "One_get_all",
-   "All_put_all",
-   "All_get_all",
-   "Put_local",
-   "Put_all_local",
-   "Exchange_put",
-   "Exchange_get",
-   "Accumulate",
-   "Get_accumulate",
-   "Fetch_and_op",
-   "Compare_and_swap",
-   "Truly_passive_put"
+    "Unidir_put",
+    "Unidir_get",
+    "Bidir_put",
+    "Bidir_get",
+    "One_put_all",
+    "One_get_all",
+    "All_put_all",
+    "All_get_all",
+    "Put_local",
+    "Put_all_local",
+    "Exchange_put",
+    "Exchange_get",
+    "Accumulate",
+    "Get_accumulate",
+    "Fetch_and_op",
+    "Compare_and_swap",
+    "Truly_passive_put"
 };
 
 
-/* Get_local and Get_all_local are not included to the def 
+/* Get_local and Get_all_local are not included to the def
  * case, because they are supposed to be very similar to
  * Unidir_get and One_get_all correspondingly */
 char *ALLC[] = {
-   "Unidir_put",
-   "Unidir_get",
-   "Bidir_put",
-   "Bidir_get",
-   "One_put_all",
-   "One_get_all",
-   "All_put_all",
-   "All_get_all",
-   "Put_local",
-   "Get_local",      
-   "Put_all_local",
-   "Get_all_local",
-   "Exchange_put",
-   "Exchange_get",
-   "Accumulate",
-   "Get_accumulate",
-   "Fetch_and_op",
-   "Compare_and_swap",
-   "Truly_passive_put"
+    "Unidir_put",
+    "Unidir_get",
+    "Bidir_put",
+    "Bidir_get",
+    "One_put_all",
+    "One_get_all",
+    "All_put_all",
+    "All_get_all",
+    "Put_local",
+    "Get_local",
+    "Put_all_local",
+    "Get_all_local",
+    "Exchange_put",
+    "Exchange_get",
+    "Accumulate",
+    "Get_accumulate",
+    "Fetch_and_op",
+    "Compare_and_swap",
+    "Truly_passive_put"
 };
-
-
-

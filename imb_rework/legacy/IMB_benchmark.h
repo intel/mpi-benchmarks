@@ -68,8 +68,7 @@ For more documentation than found here, see
 
 /* Classification of benchmarks */
 
-typedef enum 
-{ 
+typedef enum {
     BTYPE_INVALID=-1,
     SingleTransfer,
     ParallelTransfer,
@@ -81,16 +80,14 @@ typedef enum
 } BTYPES;
 
 
-typedef struct cmode 
-{
+typedef struct cmode {
     int AGGREGATE ;   /* -1/0/1 for default/NON AGGREGATE/AGGREGATE */
     int NONBLOCKING  ;   /* 0/1 for no/yes */
     int BIDIR;           /* 0/1 for no/yes */
-    BTYPES type;      
+    BTYPES type;
 } *MODES;
 
-typedef enum
-{
+typedef enum {
     imode_off         = 0,
     imode_dynamic     = 1,
     imode_multiple_np = 2,
@@ -99,13 +96,12 @@ typedef enum
 } IMODE;
 
 /* IMB 3.1 << */
-struct iter_schedule
-{
+struct iter_schedule {
     int     msgspersample, msgs_nonaggr, overall_vol;
     /* evtl override for default parameters MSGSPERSAMPLE, MSGS_NONAGGR, OVERALL_VOL */
 
     int     n_sample, n_sample_prev;
-    
+
     /* dynamic adaptation eventually */
     IMODE   iter_policy;   /* enum for request */
     int*    numiters;      /* #iterations in case of -msglen request */
@@ -130,14 +126,13 @@ typedef enum { put, get, no } DIRECTION;
 
 #ifdef MPIIO
 
-typedef enum 
-{ 
-    nothing=-1,
-    priv, 
-    explic, 
-    indv_block, 
-    indv_cyclic, 
-    shared 
+typedef enum {
+    nothing = -1,
+    priv,
+    explic,
+    indv_block,
+    indv_cyclic,
+    shared
 } POSITIONING;
 #else
 
@@ -153,34 +148,32 @@ typedef int POSITIONING;
 #define SAMPLE_FAILED_TIME_OUT      (-111113)
 /* >> IMB 3.1  */
 
-struct Bench
-{
+struct Bench {
     char*  name;
-    char** bench_comments;       				/* Comments from header => Comments.h */
+    char** bench_comments;                                  /* Comments from header => Comments.h */
 
     DIRECTION access;
 
-    int reduction;               				/* reduction-type y/n */
+    int reduction;                                          /* reduction-type y/n */
 
     int N_Modes;
     struct cmode RUN_MODES[X_MODES];
 
-    void (*Benchmark)(struct comm_info* c_info,int size,	/* Pointer to function runnning the benchmark */
+    void (*Benchmark)(struct comm_info* c_info,int size,    /* Pointer to function runnning the benchmark */
 /* IMB 3.1 << */
-		      struct iter_schedule* ITERATIONS,MODES RUN_MODE,double* time);
+                      struct iter_schedule* ITERATIONS,MODES RUN_MODE,double* time);
 /* >> IMB 3.1  */
-                              
 
-    double 	scale_time, scale_bw;				/* Scaling of timings and bandwidth */
-    int		Ntimes;
+    double  scale_time, scale_bw;                           /* Scaling of timings and bandwidth */
+    int     Ntimes;
 /* IMB 3.1 << */
-    int		sample_failure;
-// only for -DCHECK purposes: 
-    int 	success;
+    int     sample_failure;
+// only for -DCHECK purposes:
+    int     success;
 /* >> IMB 3.1  */
 
 #ifdef MPI1
-    int		select_source;	/* to distinguish PingPong/PingPing with and without MPI_ANY_SOURCE*/
+    int     select_source;                                  /* to distinguish PingPong/PingPing with and without MPI_ANY_SOURCE*/
 #endif
 
 #ifdef MPIIO
@@ -189,7 +182,7 @@ struct Bench
 };
 /* IMB_3.0 */
 
-#define LIST_END 	-2
-#define LIST_INVALID 	-1
+#define LIST_END        -2
+#define LIST_INVALID    -1
 
 #endif

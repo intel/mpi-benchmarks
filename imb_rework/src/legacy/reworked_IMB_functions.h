@@ -56,8 +56,7 @@ static int do_nonblocking_;
 typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
 
-
-enum descr_t { 
+enum descr_t {
     REDUCTION, SELECT_SOURCE,
     GET, PUT, NO,
     SINGLE_TRANSFER, PARALLEL_TRANSFER, COLLECTIVE, SINGLE_ELEMENT_TRANSFER, MULT_PASSIVE_TRANSFER,
@@ -88,8 +87,8 @@ struct reworked_Bmark_descr {
     reworked_Bmark_descr() : stop_iterations(false), sample_time(0) {}
     typedef std::set<descr_t> descr_set;
     descr_set flags;
-    std::vector<std::string> comments; 
-    std::vector<const char *> cmt; 
+    std::vector<std::string> comments;
+    std::vector<const char *> cmt;
     bool stop_iterations;
     int time_limit[2];
     double sample_time;
@@ -109,7 +108,7 @@ struct reworked_Bmark_descr {
                 return SingleElementTransfer;
             case MULT_PASSIVE_TRANSFER:
                 return MultPassiveTransfer;
-            default: 
+            default:
                 return BTYPE_INVALID;
         }
         return BTYPE_INVALID;
@@ -190,7 +189,7 @@ struct reworked_Bmark_descr {
 
 #if (defined RMA || defined EXT || defined MPIIO)
         Bmark->N_Modes = flags.count(N_MODES_1) > 0 ? 1 : 2;
-#ifdef RMA 
+#ifdef RMA
         Bmark->RUN_MODES[0].AGGREGATE   = 0;
         Bmark->RUN_MODES[1].AGGREGATE   = 1;
 #else
@@ -248,7 +247,7 @@ struct reworked_Bmark_descr {
         if (flags.count(NONBLOCKING)) {
             Bmark->RUN_MODES[0].NONBLOCKING = 1;
 #ifndef EXT
-           do_nonblocking_ = 1; 
+           do_nonblocking_ = 1;
 #endif
         }
         if (flags.count(NTIMES_3) > 0) {
@@ -257,13 +256,13 @@ struct reworked_Bmark_descr {
         Bmark->Benchmark = fn;
         for (size_t i = 0; i < comments.size(); i++) {
             cmt.push_back(comments[i].c_str());
-        } 
+        }
         cmt.push_back(NULL);
         Bmark->bench_comments = const_cast<char **>(&cmt[0]);
 
         descr_set types;
-        types.insert(SINGLE_TRANSFER); 
-        types.insert(PARALLEL_TRANSFER); 
+        types.insert(SINGLE_TRANSFER);
+        types.insert(PARALLEL_TRANSFER);
         types.insert(COLLECTIVE);
         types.insert(PARALLEL_TRANSFER_MSG_RATE);
         types.insert(SYNC);
@@ -277,7 +276,7 @@ struct reworked_Bmark_descr {
                 found = true;
             }
         }
-        if (!found) 
+        if (!found)
             result = false;
         Bmark->scale_time = 1.0;
         Bmark->scale_bw = 1.0;
@@ -316,6 +315,10 @@ struct reworked_Bmark_descr {
                     len = c_info.msglen[iter];
                 } else {
                     if( iter == 0 ) {
+                        if (!c_info.zero_size) {
+                            iter++;
+                            continue;
+                        }
                         len = 0;
                     } else if (iter == 1) {
                         len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
@@ -347,7 +350,7 @@ struct reworked_Bmark_descr {
                  (c_info.n_lens > 0  && iter < c_info.n_lens))))
                 break;
         }
-       
+
         {
             int &NP_min = glob.NP_min;
             int &ci_np = c_info.w_num_procs;
@@ -367,7 +370,7 @@ struct reworked_Bmark_descr {
             while (do_it) {
 //                std::cout << ">> " << ci_np << " " << NP << std::endl;
                 scope.add_np(NP);
-                
+
                 // CALCULATE THE NUMBER OF PROCESSES FOR NEXT STEP
                 if (NP >= ci_np) { do_it = false; }
                 else {
@@ -414,11 +417,11 @@ struct reworked_Bmark_descr {
 
         if (c_info->rank < 0) {
             return;
-        } 
+        }
 
         if (ITERATIONS->iter_policy == imode_off) {
             ITERATIONS->n_sample = x_sample = ITERATIONS->msgspersample;
-        } else if ((ITERATIONS->iter_policy == imode_multiple_np) || 
+        } else if ((ITERATIONS->iter_policy == imode_multiple_np) ||
                    (ITERATIONS->iter_policy == imode_auto && root_based)) {
             /* n_sample for benchmarks with uneven distribution of works
                must be greater or equal and multiple to num_procs.
@@ -476,13 +479,13 @@ struct reworked_Bmark_descr {
                 result = false;
         }
         if (!result) {
-            throw std::logic_error("wrong recv or send buffer requirement description on a benchmark"); 
+            throw std::logic_error("wrong recv or send buffer requirement description on a benchmark");
         }
 //        printf(">> s_len=%ld, r_len=%ld\n", s_len, r_len);
 //---------------------------------------------------------------------------------------------------
 // --- STEP 3: set s_alloc and r_alloc AND all these ITERATIONS->s_offs,r_offs,...
 //---------------------------------------------------------------------------------------------------
- 
+
         /* IMB 3.1: new memory management for -off_cache */
         if (BMODE->type == Sync) {
             ITERATIONS->use_off_cache=0;
@@ -523,7 +526,7 @@ struct reworked_Bmark_descr {
 #endif
 
 // --- STEP 4: detect too much memory situation
-//--------------------------------------------------------------------------------        
+//--------------------------------------------------------------------------------
         c_info->used_mem = 1.f*(s_alloc+r_alloc)/MEM_UNIT;
 
 #ifdef DEBUG
@@ -552,7 +555,7 @@ struct reworked_Bmark_descr {
         }
 
 
-// --- call IMB_set_buf, IMB_init_transfer        
+// --- call IMB_set_buf, IMB_init_transfer
 // -------------------------------------------------------------------------------------
         if (s_alloc > 0  && r_alloc > 0) {
             if (ITERATIONS->use_off_cache) {
@@ -682,11 +685,10 @@ struct reworked_Bmark_descr {
                 DBGF_I1("final #samples ",ITERATIONS->n_sample);
             }
 #endif
-            
+
 // --- call Benchmark
 // -------------------------------------------------------------------------------------
 //
- 
         } else { /*if( (ITERATIONS->iter_policy == imode_dynamic) || (ITERATIONS->iter_policy == imode_auto && !root_based) )*/
             double time[MAX_TIME_ID];
             Bmark->Benchmark(c_info,size,ITERATIONS,BMODE,&time[0]);
@@ -701,8 +703,7 @@ struct reworked_Bmark_descr {
 
     }
 
-    void helper_sync_legacy_globals_1(comm_info &c_info, LEGACY_GLOBALS &glob, 
-struct Bench *Bmark) {
+    void helper_sync_legacy_globals_1(comm_info &c_info, LEGACY_GLOBALS &glob, struct Bench *Bmark) {
         // NP_min is already initialized by IMB_basic_input
         glob.ci_np = c_info.w_num_procs;
         if (Bmark->RUN_MODES[0].type == ParallelTransferMsgRate) {
@@ -738,8 +739,7 @@ struct Bench *Bmark) {
 #endif /*EXT*/
     }
 
-    void helper_sync_legacy_globals_2(comm_info &c_info, LEGACY_GLOBALS &glob,
-struct Bench *Bmark) {
+    void helper_sync_legacy_globals_2(comm_info &c_info, LEGACY_GLOBALS &glob, struct Bench *Bmark) {
         glob.MAXMSG=(1<<c_info.max_msg_log)/glob.unit_size * glob.unit_size;
         glob.header=1;
         Bmark->sample_failure = 0;
@@ -760,7 +760,7 @@ struct Bench *Bmark) {
 //            stop_iterations = true;
     }
 
-    void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &, 
+    void helper_time_check(comm_info &c_info, LEGACY_GLOBALS &,
                            Bench *Bmark, iter_schedule &ITERATIONS) {
         if (!Bmark->sample_failure) {
             time_limit[1] = 0;

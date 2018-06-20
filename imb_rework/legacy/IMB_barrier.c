@@ -79,7 +79,7 @@ For more documentation than found here, see
 /*************************************************************************/
 
 /* ===================================================================== */
-/* 
+/*
 IMB 3.1 changes
 July 2007
 Hans-Joachim Plum, Intel GmbH
@@ -92,62 +92,54 @@ Hans-Joachim Plum, Intel GmbH
 
 
 void IMB_barrier(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
-                 MODES RUN_MODE, double* time)
+                 MODES RUN_MODE, double* time) {
 /*
 
-                      
                       MPI-1 benchmark kernel
                       Benchmarks MPI_Barrier
-                      
 
 
-Input variables: 
+Input variables:
 
--c_info               (type struct comm_info*)                      
+-c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-                      
 
--size                 (type int)                      
+-size                 (type int)
                       Basic message size in bytes
 
 -ITERATIONS           (type struct iter_schedule *)
                       Repetition scheduling
 
--RUN_MODE             (type MODES)                      
+-RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
 
-Output variables: 
+Output variables:
 
--time                 (type double*)                      
+-time                 (type double*)
                       Timing result per sample
 
 
 */
-{
-  double t1, t2;
-  int    i;
+    double t1, t2;
+    int    i;
 
-  ierr = 0;
+    ierr = 0;
 
-  if(c_info->rank!=-1)
-  {
-      IMB_do_n_barriers (c_info->communicator, N_BARR);
+    if (c_info->rank != -1) {
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
 
-      t1 = MPI_Wtime();
-      for(i=0;i< ITERATIONS->n_sample;i++)
-      {
-          ierr= MPI_Barrier(c_info->communicator);
-          MPI_ERRHAND(ierr);
-      }
-      t2 = MPI_Wtime();
-      *time=(t2 - t1)/(ITERATIONS->n_sample);
-  }
-  else
-  { 
-      *time = 0.; 
-  }
+        t1 = MPI_Wtime();
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            ierr = MPI_Barrier(c_info->communicator);
+            MPI_ERRHAND(ierr);
+        }
+        t2 = MPI_Wtime();
+        *time = (t2 - t1) / ITERATIONS->n_sample;
+    }
+    else
+        *time = 0.;
 }
 
 #elif defined NBC // MPI1
@@ -158,8 +150,7 @@ void IMB_ibarrier(struct comm_info* c_info,
                   int size,
                   struct iter_schedule* ITERATIONS,
                   MODES RUN_MODE,
-                  double* time)
-{
+                  double* time) {
     int         i = 0;
     MPI_Request request;
     MPI_Status  status;
@@ -181,7 +172,7 @@ void IMB_ibarrier(struct comm_info* c_info,
         IMB_do_n_barriers (c_info->communicator, N_BARR);
 
         t_ovrlp = MPI_Wtime();
-        for(i=0; i < ITERATIONS->n_sample; i++) {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             ierr = MPI_Ibarrier(c_info->communicator, &request);
             MPI_ERRHAND(ierr);
 
@@ -206,23 +197,22 @@ void IMB_ibarrier_pure(struct comm_info* c_info,
                        int size,
                        struct iter_schedule* ITERATIONS,
                        MODES RUN_MODE,
-                       double* time)
-{
+                       double* time) {
     int         i = 0;
     MPI_Request request;
     MPI_Status  status;
     double      t_pure = 0.;
 
 #ifdef CHECK
-    defect=0.;
+    defect = 0.;
 #endif
     ierr = 0;
 
-    if(c_info->rank != -1) {
+    if (c_info->rank != -1) {
         IMB_do_n_barriers (c_info->communicator, N_BARR);
 
         t_pure = MPI_Wtime();
-        for(i = 0; i < ITERATIONS->n_sample; i++) {
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
             ierr = MPI_Ibarrier(c_info->communicator, &request);
             MPI_ERRHAND(ierr);
             MPI_Wait(&request, &status);
