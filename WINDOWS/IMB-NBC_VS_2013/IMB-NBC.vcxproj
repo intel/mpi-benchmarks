@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4219D5A9-6972-4B1C-9F07-EB97EEF4EDDA}</ProjectGuid>
+    <RootNamespace>IMBNBC</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;NBC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level1</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\debug\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <ImportLibrary>
+      </ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;NBC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level1</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%I_MPI_ROOT%\intel64\lib\release\impi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src_cpp\imb.cpp" />
+    <ClCompile Include="..\..\src_cpp\args_parser.cpp" />
+    <ClCompile Include="..\..\src_cpp\args_parser_utests.cpp" />
+    <ClCompile Include="..\..\src_cpp\scope.cpp" />
+    <ClCompile Include="..\..\src_cpp\NBC\NBC_suite.cpp" />
+    <ClCompile Include="..\..\src_cpp\NBC\NBC_benchmark.cpp" />
+    <ClCompile Include="..\..\src_cpp\benchmark_suites_collection.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src_c\IMB_allgather.c" />
+    <ClCompile Include="..\..\src_c\IMB_allgatherv.c" />
+    <ClCompile Include="..\..\src_c\IMB_allreduce.c" />
+    <ClCompile Include="..\..\src_c\IMB_alltoall.c" />
+    <ClCompile Include="..\..\src_c\IMB_alltoallv.c" />
+    <ClCompile Include="..\..\src_c\IMB_barrier.c" />
+    <ClCompile Include="..\..\src_c\IMB_bcast.c" />
+    <ClCompile Include="..\..\src_c\IMB_benchlist.c" />
+    <ClCompile Include="..\..\src_c\IMB_chk_diff.c" />
+    <ClCompile Include="..\..\src_c\IMB_cpu_exploit.c" />
+    <ClCompile Include="..\..\src_c\IMB_declare.c" />
+    <ClCompile Include="..\..\src_c\IMB_err_handler.c" />
+    <ClCompile Include="..\..\src_c\IMB_g_info.c" />
+    <ClCompile Include="..\..\src_c\IMB_gather.c" />
+    <ClCompile Include="..\..\src_c\IMB_gatherv.c" />
+    <ClCompile Include="..\..\src_c\IMB_init.c" />
+    <ClCompile Include="..\..\src_c\IMB_init_transfer.c" />
+    <ClCompile Include="..\..\src_c\IMB_mem_manager.c" />
+    <ClCompile Include="..\..\src_c\IMB_output.c" />
+    <ClCompile Include="..\..\src_c\IMB_parse_name_nbc.c" />
+    <ClCompile Include="..\..\src_c\IMB_reduce.c" />
+    <ClCompile Include="..\..\src_c\IMB_reduce_scatter.c" />
+    <ClCompile Include="..\..\src_c\IMB_scatter.c" />
+    <ClCompile Include="..\..\src_c\IMB_scatterv.c" />
+    <ClCompile Include="..\..\src_c\IMB_sendrecv.c" />
+    <ClCompile Include="..\..\src_c\IMB_strgs.c" />
+    <ClCompile Include="..\..\src_c\IMB_utils.c" />
+    <ClCompile Include="..\..\src_c\IMB_warm_up.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src_cpp\helpers\original_benchmark.h" />
+    <ClInclude Include="..\..\src_cpp\helpers\helper_IMB_functions.h" />
+    <ClInclude Include="..\..\src_cpp\args_parser.h" />
+    <ClInclude Include="..\..\src_cpp\benchmark.h" />
+    <ClInclude Include="..\..\src_cpp\benchmark_suite_base.h" />
+    <ClInclude Include="..\..\src_cpp\benchmark_suite.h" />
+    <ClInclude Include="..\..\src_cpp\benchmark_suites_collection.h" />
+    <ClInclude Include="..\..\src_cpp\smart_ptr.h" />
+    <ClInclude Include="..\..\src_cpp\utils.h" />
+    <ClInclude Include="..\..\src_cpp\scope.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="IMB-NBC.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
