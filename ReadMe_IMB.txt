@@ -42,7 +42,7 @@ files and folders appear on your system:
 
     +-- \imb            Intel(R) MPI Benchmarks product directory
          |
-         +-- \src_c             Product c source code and Makefiles.
+         +-- \src_c             Product source "C" code and Makefiles.
          |
          +-- \license           Product license files.
          |    |              
@@ -52,7 +52,7 @@ files and folders appear on your system:
          |                                       use of the Intel(R) MPI 
          |                                       Benchmarks name and trademark.
          |
-         +-- \src_cpp              Product cpp source code and Makefiles. 
+         +-- \src_cpp              Product source "CPP" code and Makefiles. 
          |
          +-- \WINDOWS              Microsoft* Visual Studio* project files. 
          |

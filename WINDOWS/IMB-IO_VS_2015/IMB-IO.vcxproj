@@ -105,8 +105,8 @@
     <ClCompile Include="..\..\src_cpp\args_parser.cpp" />
     <ClCompile Include="..\..\src_cpp\args_parser_utests.cpp" />
     <ClCompile Include="..\..\src_cpp\scope.cpp" />
-    <ClCompile Include="..\..\src_cpp\IO/IO_suite.cpp" />
-    <ClCompile Include="..\..\src_cpp\IO/IO_benchmark.cpp" />
+    <ClCompile Include="..\..\src_cpp\IO\IO_suite.cpp" />
+    <ClCompile Include="..\..\src_cpp\IO\IO_benchmark.cpp" />
     <ClCompile Include="..\..\src_cpp\benchmark_suites_collection.cpp" />
   </ItemGroup>
   <ItemGroup>

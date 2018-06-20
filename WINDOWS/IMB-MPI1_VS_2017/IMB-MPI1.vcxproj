@@ -106,8 +106,8 @@
     <ClCompile Include="..\..\src_cpp\args_parser.cpp" />
     <ClCompile Include="..\..\src_cpp\args_parser_utests.cpp" />
     <ClCompile Include="..\..\src_cpp\scope.cpp" />
-    <ClCompile Include="..\..\src_cpp\MPI1/MPI1_suite.cpp" />
-    <ClCompile Include="..\..\src_cpp\MPI1/MPI1_benchmark.cpp" />
+    <ClCompile Include="..\..\src_cpp\MPI1\MPI1_suite.cpp" />
+    <ClCompile Include="..\..\src_cpp\MPI1\MPI1_benchmark.cpp" />
     <ClCompile Include="..\..\src_cpp\benchmark_suites_collection.cpp" />
   </ItemGroup>
 

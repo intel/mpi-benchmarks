@@ -106,12 +106,12 @@
     <ClCompile Include="..\..\src_cpp\args_parser.cpp" />
     <ClCompile Include="..\..\src_cpp\args_parser_utests.cpp" />
     <ClCompile Include="..\..\src_cpp\scope.cpp" />
-    <ClCompile Include="..\..\src_cpp\MT/MT_suite.cpp" />
-    <ClCompile Include="..\..\src_cpp\MT/MT_benchmark.cpp" />
+    <ClCompile Include="..\..\src_cpp\MT\MT_suite.cpp" />
+    <ClCompile Include="..\..\src_cpp\MT\MT_benchmark.cpp" />
     <ClCompile Include="..\..\src_cpp\benchmark_suites_collection.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src_cpp\MT/MT_benchmark.h" />
+    <ClInclude Include="..\..\src_cpp\MT\MT_benchmark.h" />
     <ClInclude Include="..\..\src_cpp\args_parser.h" />
     <ClInclude Include="..\..\src_cpp\benchmark.h" />
     <ClInclude Include="..\..\src_cpp\benchmark_suite_base.h" />
