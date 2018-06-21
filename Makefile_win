@@ -50,44 +50,44 @@
 all: IMB-MPI1 IMB-MT IMB-RMA IMB-EXT IMB-IO IMB-NBC
 
 IMB-MPI1:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win TARGET=MPI1
 	cd ..
-	copy .\src\IMB-MPI1.exe
+	copy .\src_cpp\IMB-MPI1.exe
 
 IMB-NBC:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win IMB-NBC
 	cd ..
-	copy .\src\IMB-NBC.exe
+	copy .\src_cpp\IMB-NBC.exe
 
 IMB-RMA:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win TARGET=RMA
 	cd ..
-	copy .\src\IMB-RMA.exe
+	copy .\src_cpp\IMB-RMA.exe
 
 IMB-EXT:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win IMB-EXT
 	cd ..
-	copy .\src\IMB-EXT.exe
+	copy .\src_cpp\IMB-EXT.exe
 
 IMB-IO:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win IMB-IO
 	cd ..
-	copy .\src\IMB-IO.exe
+	copy .\src_cpp\IMB-IO.exe
 
 
 IMB-MT:
-	cd .\src
+	cd .\src_cpp
 	nmake -f Makefile_win TARGET=MT
 	cd ..
-	copy .\src\IMB-MT.exe
+	copy .\src_cpp\IMB-MT.exe
 
 clean:
-	cd ./src
+	cd ./src_cpp
 	nmake -f Makefile_win clean TARGET=MT
 	nmake -f Makefile_win clean TARGET=MPI1
 	nmake -f Makefile_win clean TARGET=RMA
