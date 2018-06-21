@@ -51,5 +51,5 @@
 
 C_SRC_DIR= ../src_c
 
-CPPFLAGS = $(CPPFLAGS) -I$(C_SRC_DIR)
-CFLAGS   = $(CFLAGS) -I$(C_SRC_DIR)
+CPPFLAGS = $(CPPFLAGS) -I../helpers -I$(C_SRC_DIR)
+CFLAGS   = $(CFLAGS) -I../helpers -I$(C_SRC_DIR)
