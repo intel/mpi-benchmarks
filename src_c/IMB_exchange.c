@@ -156,8 +156,8 @@ Output variables:
             for (i = 0; i < N_BARR; i++)
                 MPI_Barrier(c_info->communicator);
 
+            *time -= MPI_Wtime();
             for (i = 0; i < ITERATIONS->n_sample; i++) {
-                *time -= MPI_Wtime();
                 ierr = MPI_Isend((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
                                  s_num, c_info->s_data_type,
                                  right, s_tag, c_info->communicator, &request[0]);
@@ -189,8 +189,8 @@ Output variables:
 
                 ierr = MPI_Waitall(2, request, stat);
                 MPI_ERRHAND(ierr);
-                *time += MPI_Wtime();
             }
+            *time += MPI_Wtime();
         }
     }
     *time /= ITERATIONS->n_sample;
