@@ -156,8 +156,8 @@ Output variables:
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
 
+        *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            *time -= MPI_Wtime();
             ierr = MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                             s_num, c_info->s_data_type, dest,
                             s_tag, c_info->communicator);
@@ -168,12 +168,12 @@ Output variables:
                             r_tag, c_info->communicator, &stat);
             MPI_ERRHAND(ierr);
 
-            *time += MPI_Wtime();
             CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                      size, size, asize,
                      put, 0, ITERATIONS->n_sample, i,
                      dest, &defect);
         } /*for*/
+        *time += MPI_Wtime();
     } else if (c_info->rank == c_info->pair1) {
         dest = c_info->pair0;
         source = c_info->select_source ? dest : MPI_ANY_SOURCE;
@@ -181,8 +181,8 @@ Output variables:
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
 
+        *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            *time -= MPI_Wtime();
             ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                             r_num, c_info->r_data_type, source,
                             r_tag, c_info->communicator, &stat);
@@ -193,12 +193,12 @@ Output variables:
                             s_tag, c_info->communicator);
             MPI_ERRHAND(ierr);
 
-            *time += MPI_Wtime();
             CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                      size, size, asize,
                      put, 0, ITERATIONS->n_sample, i,
                      dest, &defect);
         } /*for*/
+        *time += MPI_Wtime();
     }
     *time /= ITERATIONS->n_sample;
 }

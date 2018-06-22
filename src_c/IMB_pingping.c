@@ -160,8 +160,8 @@ Output variables:
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
 
+        *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            *time -= MPI_Wtime();
             ierr = MPI_Isend((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                              s_num,
                              c_info->s_data_type, dest, s_tag,
@@ -175,12 +175,12 @@ Output variables:
             ierr = MPI_Wait(&request, &stat);
             MPI_ERRHAND(ierr);
 
-            *time += MPI_Wtime();
             CHK_DIFF("PingPing", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                      0, size, size, asize,
                      put, 0, ITERATIONS->n_sample, i,
                      dest, &defect);
         }
+        *time += MPI_Wtime();
         *time /= ITERATIONS->n_sample;
     }
 }
