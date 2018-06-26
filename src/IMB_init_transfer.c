@@ -166,31 +166,35 @@ In/out variables:
     if( Bmark->fpointer == indv_block || Bmark->fpointer == shared ||
 	Bmark->fpointer == explicit )
     {
-	int bllen[3];
+	int bllen[1];
+	MPI_Aint displ[1];
+	MPI_Datatype types[1];
 
-	MPI_Aint displ[3];
-	MPI_Datatype types[3];
-
-	bllen[0]=1; displ[0] = 0; types[0] = MPI_LB;
-
-	bllen[1] = baslen;
-	displ[1] = pos1;
-	types[1] = c_info->etype;
-
-	bllen[2] = 1;
-	displ[2] = size;
-	types[2] = MPI_UB;
+	bllen[0] = baslen;
+	displ[0] = pos1;
+	types[0] = c_info->etype;
 
 	if( Bmark->fpointer == indv_block )
 	{
 	    /* July 2002 fix V2.2.1: handle empty view case separately */
 	    if( baslen>0 )
 	    {
+		MPI_Datatype tmp;
+
 		/* end change */
-		ierr=MPI_Type_struct(3,bllen,displ,types,&c_info->view);
+		ierr=MPI_Type_create_struct(1,bllen,displ,types,&tmp);
+		IMB_err_hand(1,ierr);
+		ierr=MPI_Type_commit(&tmp);
+		IMB_err_hand(1,ierr);
+
+		ierr=MPI_Type_create_resized (tmp, 0, size, &c_info->view);
 		IMB_err_hand(1,ierr);
 		ierr=MPI_Type_commit(&c_info->view);
 		IMB_err_hand(1,ierr);
+
+		ierr=MPI_Type_free(&tmp);
+		IMB_err_hand(1,ierr);
+
 		c_info->filetype = c_info->view;
 
 		/* July 2002 fix V2.2.1: handle empty case */
@@ -205,7 +209,7 @@ In/out variables:
 	if( Bmark->access == get )
 	    IMB_set_buf(c_info, c_info->File_rank, 1, 0, 0, (baslen>0)? baslen-1 : 0 );
 
-	c_info->split.Locsize = bllen[1];
+	c_info->split.Locsize = bllen[0];
 	c_info->split.Offset  = pos1;
 	c_info->split.Totalsize = size;
     }
