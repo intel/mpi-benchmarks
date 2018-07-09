@@ -155,7 +155,7 @@ In/out variables:
 
 
 /***************************************************************************/
-void IMB_alloc_buf(struct comm_info* c_info, char* where, size_t s_len, 
+void IMB_alloc_buf(struct comm_info* c_info, char* where, size_t s_len,
                    size_t r_len) {
 /*
 

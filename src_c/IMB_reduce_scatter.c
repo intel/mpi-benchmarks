@@ -140,32 +140,16 @@ Output variables:
     MPI_Type_size(c_info->red_data_type, &s_size);
 
     for (i = 0; i < c_info->num_procs; i++) {
-        if (size > 0) {
-            IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
-            c_info->reccnt[i] = (pos2 - pos1 + 1) / s_size;
-            s_buff_size += c_info->reccnt[i] * s_size;
-#ifdef CHECK
-            if (i == c_info->rank) {
-                pos = pos1;
-                Locsize = s_size * c_info->reccnt[i];
-            }
-#endif
-        } else {
-            c_info->reccnt[i] = 0;
-#ifdef CHECK
-            if (i == c_info->rank) {
-                pos = 0;
-                Locsize = 0;
-            }
-#endif
-        }
+        c_info->reccnt[i] = size / s_size;
     }
+#ifdef CHECK
+    Locsize = s_size * c_info->reccnt[c_info->rank];
+    pos = Locsize * c_info->rank;
+#endif
 
     *time = 0.;
 
     size *= c_info->size_scale;
-    s_buff_size *= c_info->size_scale;
-
     if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
@@ -178,7 +162,7 @@ Output variables:
             t2 = MPI_Wtime();
             *time += (t2 - t1);
 
-            CHK_DIFF("Reduce_scatter", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+            CHK_DIFF("Reduce_scatter", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                      pos, Locsize, size, asize, put, 0, ITERATIONS->n_sample, i, -1, &defect);
 
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
@@ -218,8 +202,7 @@ void IMB_ireduce_scatter(struct comm_info* c_info,
 
     if (size > 0) {
         for (i = 0; i < c_info->num_procs; i++) {
-            IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
-            c_info->reccnt[i] = (pos2 - pos1 + 1) / s_size;
+            c_info->reccnt[i] = size / s_size;
 #ifdef CHECK
             if (i == c_info->rank) {
                 pos = pos1;
@@ -307,8 +290,7 @@ void IMB_ireduce_scatter_pure(struct comm_info* c_info,
 
     for (i = 0; i < c_info->num_procs; i++) {
         if (size > 0) {
-            IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
-            c_info->reccnt[i] = (pos2 - pos1 + 1) / s_size;
+            c_info->reccnt[i] = size / s_size;
 #ifdef CHECK
             if (i == c_info->rank) {
                 pos = pos1;

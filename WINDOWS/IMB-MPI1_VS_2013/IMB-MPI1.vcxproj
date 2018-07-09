@@ -137,6 +137,7 @@
     <ClCompile Include="..\..\src_c\IMB_pingpong.c" />
     <ClCompile Include="..\..\src_c\IMB_reduce.c" />
     <ClCompile Include="..\..\src_c\IMB_reduce_scatter.c" />
+    <ClCompile Include="..\..\src_c\IMB_reduce_scatter_block.c" />
     <ClCompile Include="..\..\src_c\IMB_scatter.c" />
     <ClCompile Include="..\..\src_c\IMB_scatterv.c" />
     <ClCompile Include="..\..\src_c\IMB_sendrecv.c" />

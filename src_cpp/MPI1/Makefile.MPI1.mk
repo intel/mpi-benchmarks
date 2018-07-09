@@ -79,6 +79,7 @@ $(C_SRC_DIR)/IMB_pingping.c \
 $(C_SRC_DIR)/IMB_pingpong.c \
 $(C_SRC_DIR)/IMB_reduce.c \
 $(C_SRC_DIR)/IMB_reduce_scatter.c \
+$(C_SRC_DIR)/IMB_reduce_scatter_block.c \
 $(C_SRC_DIR)/IMB_scatter.c \
 $(C_SRC_DIR)/IMB_scatterv.c \
 $(C_SRC_DIR)/IMB_sendrecv.c \
