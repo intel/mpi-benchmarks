@@ -147,8 +147,8 @@ Output variables:
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t1 = MPI_Wtime();
-            ierr = MPI_Reduce((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                              (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+            ierr = MPI_Reduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                              (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
                               s_num,
                               c_info->red_data_type, c_info->op_type,
                               root,
@@ -159,7 +159,7 @@ Output variables:
 
 #ifdef CHECK
             if (c_info->rank == root) {
-                CHK_DIFF("Reduce", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
+                CHK_DIFF("Reduce", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                          size, size, asize,
                          put, 0, ITERATIONS->n_sample, i,
                          -1, &defect);
