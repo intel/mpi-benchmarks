@@ -376,12 +376,12 @@ void preprocess_list(T &list) {
 
 template <typename T>
 void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype) {
-    MPI_Aint extent;
+    MPI_Aint extent, lb;
     int      size,
              step,
              count,
              i;
-    MPI_Type_extent(*datatype, &extent);
+    MPI_Type_get_extent(*datatype, &lb, &extent);
     MPI_Type_size(*datatype, &size);
     step = extent / size;
     count = extent / sizeof(T) * (*len);
@@ -391,35 +391,36 @@ void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype
 
 MPI_Op get_op(MPI_Datatype type, MPI_Datatype base_type) {
     MPI_Op op = MPI_SUM;
-    switch (base_type) {
-        case MPI_CHAR:
-            MPI_Op_create(&(contig_sum<char>), 1, &op);
-            break;
-        case MPI_INT:
+    if (base_type == MPI_CHAR) {
+        MPI_Op_create(&(contig_sum<char>), 1, &op);
+    } else {
+        if (base_type ==  MPI_INT) {
             MPI_Op_create(&(contig_sum<int>), 1, &op);
-            break;
-        case MPI_FLOAT:
-            MPI_Op_create(&(contig_sum<float>), 1, &op);
-            break;
+        } else {
+            if(base_type == MPI_FLOAT) {
+                MPI_Op_create(&(contig_sum<float>), 1, &op);
+            }
+        }
     }
     return op;
 }
 
 string type_to_name(MPI_Datatype type) {
     string name = "null";
-    switch (type) {
-        case MPI_BYTE:
-            name = "MPI_BYTE";
-            break;
-        case MPI_CHAR:
+    if (type == MPI_BYTE) {
+        name = "MPI_BYTE";
+    } else {
+        if (type == MPI_CHAR) {
             name = "MPI_CHAR";
-            break;
-        case MPI_INT:
-            name = "MPI_INT";
-            break;
-        case MPI_FLOAT:
-            name = "MPI_FLOAT";
-            break;
+        } else {
+            if (type == MPI_INT) {
+                name = "MPI_INT";
+            } else {
+                if (type == MPI_FLOAT) {
+                    name = "MPI_FLOAT";
+                }
+            }
+        }
     }
     return name;
 }
