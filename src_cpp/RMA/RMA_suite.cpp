@@ -253,6 +253,14 @@ template <> bool BenchmarkSuite<BS_RMA>::declare_args(args_parser &parser, std::
                 "Default:\n"
                 "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n"
                 "(new default in IMB_3.2)\n");
+    parser.add<string>("aggregate_mode", "multi").set_caption("aggregate_mode").
+            set_description("The argument after -aggregate_mode is a one from possible strings.\n"
+                "Specifying that aggregate_mode will turn on/turn off aggregate condition.\n"
+                "MODES: aggregate, non_aggregate, multi"
+                "Example:\n"
+                "-aggregate_mode aggregate\n"
+                "Default:\n"
+                "-aggregate_mode multi\n");
     parser.add<float>("mem", 1.0f).
            set_caption("max. per process memory for overall message buffers").
            set_description(
@@ -417,6 +425,13 @@ template <> bool BenchmarkSuite<BS_RMA>::prepare(const args_parser &parser, cons
     if (given_iter_policy == "off") { ITERATIONS.iter_policy = imode_off; }
     if (given_iter_policy == "multiple_np") { ITERATIONS.iter_policy = imode_multiple_np; }
     if (given_iter_policy == "auto") { ITERATIONS.iter_policy = imode_auto; }
+
+    // aggregate
+    string given_aggregate_mode = parser.get<string>("aggregate_mode");
+    if (given_aggregate_mode == "multi")         { c_info.aggregate_mode = AM_turn_multi;}
+    if (given_aggregate_mode == "aggregate")     { c_info.aggregate_mode = AM_turn_on;   }
+    if (given_aggregate_mode == "non_aggregate") { c_info.aggregate_mode = AM_turn_off;  }
+
 
     // time
     ITERATIONS.secs = parser.get<float>("time");

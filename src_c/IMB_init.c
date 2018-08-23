@@ -1348,6 +1348,7 @@ void IMB_set_default(struct comm_info* c_info) {
        see [1] for more information
 
 */
+    c_info->aggregate_mode = AM_turn_multi;
     c_info->w_num_procs = 0;
     c_info->w_rank = -1;
     c_info->NP = 0;

@@ -74,6 +74,14 @@ typedef enum {
     CT_RESIZE_VEC  = 3
 } CONTIG_TYPES;
 
+typedef enum{
+    //AM_error      = -1,
+    AM_turn_off   =  0,
+    AM_turn_on    =  1,
+    AM_turn_multi =  2
+
+} AGGREGATE_MODE;
+
 #ifdef MPIIO
 typedef struct { int Locsize; MPI_Offset Offset; int Totalsize;} SPLITTING;
 #endif
@@ -94,7 +102,7 @@ struct comm_info {
     int         root_shift;         /* switch for root change at each iteration */
     int         sync;               /* switch for rank synchronization after each iter */
     int         size_scale;
-
+    
     CONTIG_TYPES    contig_type;
     MPI_Datatype    s_data_type;    /* data type of sent data                   */
     MPI_Datatype    r_data_type;    /* data type of received data               */
@@ -119,6 +127,8 @@ struct comm_info {
     /* message  buffers                        */
     /* >> IMB 3.1  */
 
+    AGGREGATE_MODE aggregate_mode;  /*turn on different types of aggregate modes*/
+    
     int     n_lens;         /* # of selected lengths by -msglen option */
     int*    msglen;         /* list of  "       "                  "   */
 

@@ -404,6 +404,22 @@ struct Bmark_descr {
 //
 //
 //
+        int choice_aggregate_mode=c_info->aggregate_mode;
+        if (choice_aggregate_mode == AM_turn_off){
+              BMODE->AGGREGATE                 = AM_turn_off;
+              Bmark->RUN_MODES[0].AGGREGATE    = AM_turn_off;
+
+        } else if (choice_aggregate_mode == AM_turn_on){
+                BMODE->AGGREGATE               = AM_turn_on;
+                 Bmark->RUN_MODES[1].AGGREGATE  = AM_turn_on;
+
+        } else if (choice_aggregate_mode == AM_turn_multi){
+            Bmark->N_Modes                  = AM_turn_on;
+            Bmark->RUN_MODES[0].AGGREGATE   = AM_turn_on;
+
+            Bmark->N_Modes                  = AM_turn_off;
+            Bmark->RUN_MODES[1].AGGREGATE   = AM_turn_off;
+        }
 // --- STEP 1: set x_sample and ITERATIONS->n_sample
         x_sample = BMODE->AGGREGATE ? ITERATIONS->msgspersample : ITERATIONS->msgs_nonaggr;
 
