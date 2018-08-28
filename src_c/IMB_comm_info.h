@@ -74,13 +74,14 @@ typedef enum {
     CT_RESIZE_VEC  = 3
 } CONTIG_TYPES;
 
-typedef enum{
-    //AM_error      = -1,
-    AM_turn_off   =  0,
-    AM_turn_on    =  1,
-    AM_turn_multi =  2
-
-} AGGREGATE_MODE;
+#if (defined EXT || defined RMA || defined MPIIO)
+    typedef enum {
+        AM_ERROR       = -1,
+        AM_TURN_OFF    =  0,
+        AM_TURN_ON     =  1,
+        AM_TURN_MULTI  =  2
+    } AGGREGATE_MODE;
+#endif
 
 #ifdef MPIIO
 typedef struct { int Locsize; MPI_Offset Offset; int Totalsize;} SPLITTING;
@@ -102,7 +103,7 @@ struct comm_info {
     int         root_shift;         /* switch for root change at each iteration */
     int         sync;               /* switch for rank synchronization after each iter */
     int         size_scale;
-    
+
     CONTIG_TYPES    contig_type;
     MPI_Datatype    s_data_type;    /* data type of sent data                   */
     MPI_Datatype    r_data_type;    /* data type of received data               */
@@ -127,8 +128,6 @@ struct comm_info {
     /* message  buffers                        */
     /* >> IMB 3.1  */
 
-    AGGREGATE_MODE aggregate_mode;  /*turn on different types of aggregate modes*/
-    
     int     n_lens;         /* # of selected lengths by -msglen option */
     int*    msglen;         /* list of  "       "                  "   */
 
@@ -179,6 +178,10 @@ struct comm_info {
     MPI_Win         WIN;
     MPI_Info        info;
     MPI_Errhandler  ERRW;
+#endif
+
+#if (defined EXT || defined RMA || defined MPIIO)
+    AGGREGATE_MODE aggregate_mode;  /*turn on different types of aggregate modes*/
 #endif
 
 };

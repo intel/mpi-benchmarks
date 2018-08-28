@@ -255,8 +255,11 @@ template <> bool BenchmarkSuite<BS_RMA>::declare_args(args_parser &parser, std::
                 "(new default in IMB_3.2)\n");
     parser.add<string>("aggregate_mode", "multi").set_caption("aggregate_mode").
             set_description("The argument after -aggregate_mode is a one from possible strings.\n"
-                "Specifying that aggregate_mode will turn on/turn off aggregate condition.\n"
-                "MODES: aggregate, non_aggregate, multi"
+                "Specifying that aggregate_mode will be used: \n"
+                "MODES: aggregate, non_aggregate, multi\n"
+                "aggregate     - turn on only AGGREGATE launch\n"
+                "non_aggregate - turn on only NON-AGGREGATE launch\n"
+                "multi         - turn on both AGGREGATE and NON-AGGREGATE launches\n"
                 "Example:\n"
                 "-aggregate_mode aggregate\n"
                 "Default:\n"
@@ -428,10 +431,10 @@ template <> bool BenchmarkSuite<BS_RMA>::prepare(const args_parser &parser, cons
 
     // aggregate
     string given_aggregate_mode = parser.get<string>("aggregate_mode");
-    if (given_aggregate_mode == "multi")         { c_info.aggregate_mode = AM_turn_multi;}
-    if (given_aggregate_mode == "aggregate")     { c_info.aggregate_mode = AM_turn_on;   }
-    if (given_aggregate_mode == "non_aggregate") { c_info.aggregate_mode = AM_turn_off;  }
-
+    if (given_aggregate_mode == "multi")         { c_info.aggregate_mode = AM_TURN_MULTI;}
+    if (given_aggregate_mode == "aggregate")     { c_info.aggregate_mode = AM_TURN_ON;   }
+    if (given_aggregate_mode == "non_aggregate") { c_info.aggregate_mode = AM_TURN_OFF;  }
+    if (c_info.aggregate_mode == AM_ERROR)       { c_info.aggregate_mode = AM_TURN_MULTI;}
 
     // time
     ITERATIONS.secs = parser.get<float>("time");

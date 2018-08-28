@@ -1348,7 +1348,6 @@ void IMB_set_default(struct comm_info* c_info) {
        see [1] for more information
 
 */
-    c_info->aggregate_mode = AM_turn_multi;
     c_info->w_num_procs = 0;
     c_info->w_rank = -1;
     c_info->NP = 0;
@@ -1428,6 +1427,10 @@ void IMB_set_default(struct comm_info* c_info) {
     c_info->info = MPI_INFO_NULL;
     c_info->ERRW = MPI_ERRHANDLER_NULL;
 #endif /*EXT || RMA*/
+
+#if (defined EXT || defined RMA || defined MPIIO)
+    c_info->aggregate_mode = AM_ERROR;
+#endif /*EXT || RMA || MPIIO*/
 }
 
 static void IMB_init_Blist_item_pool() {
