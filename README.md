@@ -62,30 +62,22 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
-New in Intel(R) MPI Benchmarks 2019 Beta
+New in Intel(R) MPI Benchmarks 2019
 ----------------------------------------
-- Intel(R) MPI Benchmarks 2019 (Beta) are now available for Windows*.
-- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
-- Added a new benchmark BarrierMT for IMB-MT.
-- Bug fixes.
-
-New in Intel(R) MPI Benchmarks 2019 Technical Preview
------------------------------------------------------
 - New IMB-MT benchmarks.
   The benchmarks implement the multithreaded version of some of the IMB-MPI1
-  benchmarks using the OpenMP* paradigm.
-  
+  benchmarks using the OpenMP* paradigm. 
 - New benchmarks infrastructure implemented in C++.
   The IMB-MPI1, IMB-RMA and IMB-MT implementation is now based on the new C++
   infrastructure (IMB-NBC, IMB-EXT and IMB-IO still use the legacy one).
-  The legacy infrastructure is preserved in legacy subdirectory.
-
+  The legacy infrastructure is preserved in src_c subdirectory.
 - Changes in syntax for the -include and -exclude options.
   Benchmarks to include and exclude now must be separated by a comma rather
   than a space. Benchmarks to launch can be separated by a comma or a space.
-
 - Iteration policy can no longer be set with the -iter option. Use -iter_policy
   instead.
+- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
+- Added a new benchmark BarrierMT for IMB-MT.
 
 New in Intel(R) MPI Benchmarks 2018 Update 1
 --------------------------------------------
