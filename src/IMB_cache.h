@@ -1,2 +1,0 @@
-#define CACHE_SIZE 1024
-#define CACHE_LINE_SIZE 64

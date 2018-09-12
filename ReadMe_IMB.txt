@@ -1,7 +1,7 @@
---------------------------------------------------
-Intel(R) MPI Benchmarks 2018 Update 1
+---------------------------------
+Intel(R) MPI Benchmarks 2019
 README
---------------------------------------------------
+---------------------------------
 
 --------
 Contents
@@ -11,8 +11,8 @@ Contents
 - Product Directories
 - What's New
 - Command-Line Control
-- Build Instructions for Linux* OS
-- Build Instructions for Windows* OS
+- Building Instructions for Linux* OS
+- Building Instructions for Windows* OS
 - Copyright and License Information
 - Legal Information
 
@@ -25,11 +25,10 @@ You can run all of the supported benchmarks, or a subset specified in the
 command line using one executable file. Use command-line parameters to specify
 various settings, such as time measurement, message lengths, and selection of 
 communicators. For details, see the Intel(R) MPI Benchmarks User's Guide 
-located at: https://software.intel.com/en-us/imb-user-guide
+located in the <install-dir>/doc directory.
 
-When installed as part of Intel(R) MPI Library, the default location of
-the Intel(R) MPI Benchmarks is:
-  - C:\Program Files (x86)\IntelSWTools\imb on Windows* OS	 
+By default, Intel(R) MPI Benchmarks is installed at:
+  - C:\Program Files (x86)\IntelSWTools\imb on Windows* OS 
   - /opt/intel/imb on Linux* OS
 
 Before using the Intel(R) MPI Benchmarks, please read the license agreements 
@@ -43,6 +42,8 @@ files and folders appear on your system:
 
     +-- \imb            Intel(R) MPI Benchmarks product directory
          |
+         +-- \src_c             Product source "C" code and Makefiles.
+         |
          +-- \license           Product license files.
          |    |              
          |    +--license.txt    Source code license granted to you.
@@ -51,7 +52,7 @@ files and folders appear on your system:
          |                                       use of the Intel(R) MPI 
          |                                       Benchmarks name and trademark.
          |
-         +-- \src                  Product source code and Makefiles. 
+         +-- \src_cpp              Product source "CPP" code and Makefiles. 
          |
          +-- \WINDOWS              Microsoft* Visual Studio* project files. 
          |
@@ -61,10 +62,35 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Beta
+----------------------------------------
+- Intel(R) MPI Benchmarks 2019 (Beta) are now available for Windows*.
+- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
+- Added a new benchmark BarrierMT for IMB-MT.
+- Bug fixes.
+
+New in Intel(R) MPI Benchmarks 2019 Technical Preview
+-----------------------------------------------------
+- New IMB-MT benchmarks.
+  The benchmarks implement the multithreaded version of some of the IMB-MPI1
+  benchmarks using the OpenMP* paradigm.
+  
+- New benchmarks infrastructure implemented in C++.
+  The IMB-MPI1, IMB-RMA and IMB-MT implementation is now based on the new C++
+  infrastructure (IMB-NBC, IMB-EXT and IMB-IO still use the legacy one).
+  The legacy infrastructure is preserved in legacy subdirectory.
+
+- Changes in syntax for the -include and -exclude options.
+  Benchmarks to include and exclude now must be separated by a comma rather
+  than a space. Benchmarks to launch can be separated by a comma or a space.
+
+- Iteration policy can no longer be set with the -iter option. Use -iter_policy
+  instead.
+
 New in Intel(R) MPI Benchmarks 2018 Update 1
 --------------------------------------------
 - Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012 
-support is removed.
+  support is removed.
 
 New in Intel(R) MPI Benchmarks 2018
 --------------------------------------------
@@ -134,20 +160,10 @@ You can see the Intel(R) MPI Benchmarks User's Guide for details on the
 command-line parameters.
 
 -----------------------------------------
-Build Instructions for Linux* OS
+Building Instructions for Linux* OS
 -----------------------------------------
-
-1) Set up the environment for the compiler and Intel(R) MPI Library.
-   For the Intel(R) compilers, run:
-   
-   source <compiler_dir>/bin/compilervars.sh intel64
-   
-   For the Intel(R) MPI Library, run:
-   
-   source <intel_mpi_dir>/intel64/bin/mpivars.sh
-
-2) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or mpicc.
-3) Run one or more Makefile commands below:
+1) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or mpicc.
+2) Run one or more Makefile commands below:
 
    make clean - remove legacy binary object files and executable files
    make MPI1 - build the executable file for the IMB-MPI1 component
@@ -157,22 +173,56 @@ Build Instructions for Linux* OS
    make RMA - build the executable file for IMB-RMA benchmarks
    make all - build all executable files available
    
-4) Run the benchmarks as follows:
+3) Run the benchmarks as follows:
 
    mpirun -n <number_of_processes> IMB-<component> [arguments]
 
    where <component> is one of the make targets above.
-   For details, refer to the Intel(R) MPI Benchmarks User's Guide.
+   For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
+   https://software.intel.com/en-us/imb-user-guide-2018-beta
 
 -----------------------------------------
-Build Instructions for Windows* OS
+Building Instructions for Windows* OS
 -----------------------------------------
 Use the enclosed solution files located in the component-specific 
 subdirectories under the imb/WINDOWS directory. Click on the respective 
 ".vcproj" or ".vcxproj" project file and use the Microsoft* Visual Studio* 
 menu to run the associated benchmark application.
 
-Use F7 or Build > Build Solution to create an executable.
+Building "x64" Executable Files 
+-------------------------------
+1) Check that the Include, Lib, and Path environment variables are set as follows:
+    %I_MPI_ROOT%\intel64\include
+    %I_MPI_ROOT%\intel64\lib
+    %I_MPI_ROOT%\mpi\intel64\bin
+   The %I_MPI_ROOT% environment variable is set to the Intel(R) MPI Library 
+   installation directory.
+
+2) Open the ".vcproj" or ".vcxproj" file for the component you would like to 
+   build. From the Visual Studio Project panel:
+   a) Change the "Solution Platforms" dialog box to "x64".
+   b) Change the "Solution Configurations" dialog box to "Release".
+   c) Check other settings as required, for example:
+    General > Project Defaults
+       - Set "Character Set" to "Use Multi-Byte Character Set"
+    C/C++ > General 
+       - Set "Additional Include Directories" to 
+           "$(I_MPI_ROOT)\intel64\include"
+       - Set "Warning Level" to "Level 1 (/W1)"
+    C/C++ > Preprocessor
+       - For the "Preprocessor definitions" within the Visual Studio 
+         projects, add the conditional compilation macros WIN_IMB and 
+         _CRT_SECURE_NO_DEPRECATE. Depending on the components you intend to 
+         use, add one or more of the following macros: 
+         MPI1, EXT, MPIIO, NBC, RMA.
+    Linker > Input
+       - Set "Additional Dependencies" to "$(I_MPI_ROOT)\intel64\lib\impi.lib". 
+         Make sure to add quotes.
+
+3) Use F7 or Build > Build Solution to create an executable.
+
+   For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
+   https://software.intel.com/en-us/imb-user-guide-2018-beta
 
 ----------------------
 Copyright and Licenses

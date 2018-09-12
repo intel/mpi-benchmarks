@@ -1,6 +1,6 @@
 # Intel(R) MPI Benchmarks
 [![Common Public License Version 1.0](https://img.shields.io/badge/license-Common%20Public%20License%20Version%201.0-green.svg)](license/license.txt)
-![v2018](https://img.shields.io/badge/v.2018-Gold-orange.svg)
+![v2019](https://img.shields.io/badge/v.2019-Gold-orange.svg)
 --------------------------------------------------
 
 --------
@@ -42,6 +42,8 @@ files and folders appear on your system:
 
     +-- \imb            Intel(R) MPI Benchmarks product directory
          |
+         +-- \src_c             Product source "C" code and Makefiles.
+         |
          +-- \license           Product license files.
          |    |              
          |    +--license.txt    Source code license granted to you.
@@ -50,7 +52,7 @@ files and folders appear on your system:
          |                                       use of the Intel(R) MPI 
          |                                       Benchmarks name and trademark.
          |
-         +-- \src                  Product source code and Makefiles. 
+         +-- \src_cpp              Product source "CPP" code and Makefiles. 
          |
          +-- \WINDOWS              Microsoft* Visual Studio* project files. 
          |
@@ -60,6 +62,31 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Beta
+----------------------------------------
+- Intel(R) MPI Benchmarks 2019 (Beta) are now available for Windows*.
+- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
+- Added a new benchmark BarrierMT for IMB-MT.
+- Bug fixes.
+
+New in Intel(R) MPI Benchmarks 2019 Technical Preview
+-----------------------------------------------------
+- New IMB-MT benchmarks.
+  The benchmarks implement the multithreaded version of some of the IMB-MPI1
+  benchmarks using the OpenMP* paradigm.
+  
+- New benchmarks infrastructure implemented in C++.
+  The IMB-MPI1, IMB-RMA and IMB-MT implementation is now based on the new C++
+  infrastructure (IMB-NBC, IMB-EXT and IMB-IO still use the legacy one).
+  The legacy infrastructure is preserved in legacy subdirectory.
+
+- Changes in syntax for the -include and -exclude options.
+  Benchmarks to include and exclude now must be separated by a comma rather
+  than a space. Benchmarks to launch can be separated by a comma or a space.
+
+- Iteration policy can no longer be set with the -iter option. Use -iter_policy
+  instead.
+
 New in Intel(R) MPI Benchmarks 2018 Update 1
 --------------------------------------------
 - Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012 
