@@ -178,7 +178,7 @@ BENCHMARK(IMB_allreduce, Allreduce)
 {
     descr->flags.insert(DEFAULT);
     descr->flags.insert(COLLECTIVE);
-    descr->flags.insert(REDUCTION);    
+    descr->flags.insert(REDUCTION);
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
     return true;
@@ -189,7 +189,7 @@ BENCHMARK(IMB_reduce, Reduce)
     descr->flags.insert(DEFAULT);
     descr->flags.insert(COLLECTIVE);
     descr->flags.insert(REDUCTION);
-    descr->flags.insert(HAS_ROOT);    
+    descr->flags.insert(HAS_ROOT);
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
     return true;
@@ -199,8 +199,8 @@ BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
 {
     descr->flags.insert(DEFAULT);
     descr->flags.insert(COLLECTIVE);
-    descr->flags.insert(REDUCTION);    
-    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_I);
     return true;
 }

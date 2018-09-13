@@ -63,8 +63,7 @@ goods and services.
 
 using namespace std;
 
-// FIXME!!! change it to some positive integer value when it is a release time
-const int args_parser::version = 0;
+const int args_parser::version = 1;
 
 args_parser::value &args_parser::value::operator=(const args_parser::value &other) {
     assert(other.initialized);
