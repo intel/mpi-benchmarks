@@ -74,6 +74,15 @@ typedef enum {
     CT_RESIZE_VEC  = 3
 } CONTIG_TYPES;
 
+#if (defined EXT || defined RMA || defined MPIIO)
+    typedef enum {
+        AM_ERROR       = -1,
+        AM_TURN_OFF    =  0,
+        AM_TURN_ON     =  1,
+        AM_TURN_MULTI  =  2
+    } AGGREGATE_MODE;
+#endif
+
 #ifdef MPIIO
 typedef struct { int Locsize; MPI_Offset Offset; int Totalsize;} SPLITTING;
 #endif
@@ -169,6 +178,10 @@ struct comm_info {
     MPI_Win         WIN;
     MPI_Info        info;
     MPI_Errhandler  ERRW;
+#endif
+
+#if (defined EXT || defined RMA || defined MPIIO)
+    AGGREGATE_MODE aggregate_mode;  /*turn on different types of aggregate modes*/
 #endif
 
 };

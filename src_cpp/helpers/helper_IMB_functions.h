@@ -705,6 +705,20 @@ struct Bmark_descr {
 
     void helper_sync_globals_1(comm_info &c_info, GLOBALS &glob, struct Bench *Bmark) {
         // NP_min is already initialized by IMB_basic_input
+
+#if (defined EXT || defined MPIIO || RMA)
+        if (Bmark->N_Modes == 2) {
+            int choice_aggregate_mode = c_info.aggregate_mode;
+            if (choice_aggregate_mode == AM_TURN_OFF) {
+                Bmark->N_Modes                  = 1;
+                Bmark->RUN_MODES[0].AGGREGATE   = AM_TURN_OFF;
+            } else if (choice_aggregate_mode == AM_TURN_ON) {
+                Bmark->N_Modes                  = 1;
+                Bmark->RUN_MODES[0].AGGREGATE   = AM_TURN_ON;
+            }
+        }
+#endif
+
         glob.ci_np = c_info.w_num_procs;
         if (Bmark->RUN_MODES[0].type == ParallelTransferMsgRate) {
             glob.ci_np -= glob.ci_np % 2;
