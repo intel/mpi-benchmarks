@@ -320,7 +320,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
            set_description(
                 "The argument after -data_type is a one from possible strings,\n"
                 "Specifying that type will be used:\n"
-                "byte,char,int,float\n"
+                "byte, char, int, float, double\n"
                 "\n"
                 "Example:\n"
                 "-data_type char\n"
@@ -331,7 +331,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
            set_description(
                 "The argument after -red_data_type is a one from possible strings,\n"
                 "Specifying that type will be used:\n"
-                "char,int,float\n"
+                "char, int, float, double\n"
                 "\n"
                 "Example:\n"
                 "-red_data_type int\n"
@@ -376,12 +376,12 @@ void preprocess_list(T &list) {
 
 template <typename T>
 void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype) {
-    MPI_Aint extent;
+    MPI_Aint extent, lb;
     int      size,
              step,
              count,
              i;
-    MPI_Type_extent(*datatype, &extent);
+    MPI_Type_get_extent(*datatype, &lb, &extent);
     MPI_Type_size(*datatype, &size);
     step = extent / size;
     count = extent / sizeof(T) * (*len);
@@ -389,38 +389,37 @@ void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype
         ((T*)in_out_buf)[i] += ((T*)in_buf)[i];
 }
 
-MPI_Op get_op(MPI_Datatype type, MPI_Datatype base_type) {
+MPI_Op get_op(MPI_Datatype type) {
     MPI_Op op = MPI_SUM;
-    switch (base_type) {
-        case MPI_CHAR:
-            MPI_Op_create(&(contig_sum<char>), 1, &op);
-            break;
-        case MPI_INT:
-            MPI_Op_create(&(contig_sum<int>), 1, &op);
-            break;
-        case MPI_FLOAT:
-            MPI_Op_create(&(contig_sum<float>), 1, &op);
-            break;
-    }
+    MPI_Datatype mpi_char = MPI_CHAR;
+    MPI_Datatype mpi_int = MPI_INT;
+    MPI_Datatype mpi_float = MPI_FLOAT;
+    MPI_Datatype mpi_double = MPI_DOUBLE;
+    size_t type_size = sizeof(MPI_Datatype);
+
+    if (!memcmp(&type, &mpi_char, type_size)) { MPI_Op_create(&(contig_sum<char>), 1, &op); }
+    else if (!memcmp(&type, &mpi_int, type_size)) { MPI_Op_create(&(contig_sum<int>), 1, &op); }
+    else if (!memcmp(&type, &mpi_float, type_size)) { MPI_Op_create(&(contig_sum<float>), 1, &op); }
+    else if (!memcmp(&type, &mpi_double, type_size)) { MPI_Op_create(&(contig_sum<double>), 1, &op); }
+
     return op;
 }
 
 string type_to_name(MPI_Datatype type) {
     string name = "null";
-    switch (type) {
-        case MPI_BYTE:
-            name = "MPI_BYTE";
-            break;
-        case MPI_CHAR:
-            name = "MPI_CHAR";
-            break;
-        case MPI_INT:
-            name = "MPI_INT";
-            break;
-        case MPI_FLOAT:
-            name = "MPI_FLOAT";
-            break;
-    }
+    MPI_Datatype mpi_byte = MPI_BYTE;
+    MPI_Datatype mpi_char = MPI_CHAR;
+    MPI_Datatype mpi_int = MPI_INT;
+    MPI_Datatype mpi_float = MPI_FLOAT;
+    MPI_Datatype mpi_double = MPI_DOUBLE;
+    size_t type_size = sizeof(MPI_Datatype);
+
+    if (!memcmp(&type, &mpi_byte, type_size)) { name = "MPI_BYTE"; }
+    else if (!memcmp(&type, &mpi_char, type_size)) { name = "MPI_CHAR"; }
+    else if (!memcmp(&type, &mpi_int, type_size)) { name = "MPI_INT"; }
+    else if (!memcmp(&type, &mpi_float, type_size)) { name = "MPI_FLOAT"; }
+    else if (!memcmp(&type, &mpi_double, type_size)) { name = "MPI_DOUBLE"; }
+
     return name;
 }
 
@@ -578,6 +577,9 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     } else if (given_data_type == "float") {
         c_info.s_data_type = MPI_FLOAT;
         c_info.r_data_type = MPI_FLOAT;
+    } else if (given_data_type == "double") {
+        c_info.s_data_type = MPI_DOUBLE;
+        c_info.r_data_type = MPI_DOUBLE;
     } else {
         output << "Invalid data_type " << given_data_type << endl;
         output << "    Set data_type byte" << endl;
@@ -593,6 +595,8 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         c_info.red_data_type = MPI_INT;
     } else if (given_red_data_type == "float") {
         c_info.red_data_type = MPI_FLOAT;
+    } else if (given_red_data_type == "double") {
+        c_info.red_data_type = MPI_DOUBLE;
     } else {
         output << "Invalid red_data_type " << given_red_data_type << endl;
         output << "    Set red_data_type float" << endl;
@@ -645,7 +649,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
     if (c_info.contig_type > 0)
-        c_info.op_type = get_op(c_info.red_data_type, base_red_dt);
+        c_info.op_type = get_op(base_red_dt);
 
     if (cmd_line_error)
         return false;
