@@ -62,30 +62,43 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
-New in Intel(R) MPI Benchmarks 2019 Beta
+New in Intel(R) MPI Benchmarks 2019 Update 1
 ----------------------------------------
-- Intel(R) MPI Benchmarks 2019 (Beta) are now available for Windows*.
-- Added a new option -noheader for IMB-MT to disable printing of benchmark headers.
-- Added a new benchmark BarrierMT for IMB-MT.
-- Bug fixes.
+- Added new Reduce_scatter_block benchmark for IMB-MPI1.
+- Added new aggregate_mode option that specifies the mode for IMB-IO, IMB-EXT and IMB-RMA.
+- Updated the following options:
+    - -data_type now supports double.
+    - -red_data_type now supports double.
 
-New in Intel(R) MPI Benchmarks 2019 Technical Preview
------------------------------------------------------
+
+New in Intel(R) MPI Benchmarks 2019
+----------------------------------------
 - New IMB-MT benchmarks.
-  The benchmarks implement the multithreaded version of some of the IMB-MPI1
+  The benchmarks implement the multi-threaded version of IMB-MPI1
   benchmarks using the OpenMP* paradigm.
-  
 - New benchmarks infrastructure implemented in C++.
-  The IMB-MPI1, IMB-RMA and IMB-MT implementation is now based on the new C++
-  infrastructure (IMB-NBC, IMB-EXT and IMB-IO still use the legacy one).
-  The legacy infrastructure is preserved in legacy subdirectory.
-
-- Changes in syntax for the -include and -exclude options.
+  The IMB-MPI1, IMB-RMA, IMB-NBC, IMB-EXT, IMB-IO, and IMB-MT implementation is now based on the new C++
+  infrastructure.
+  The legacy infrastructure is preserved in the src_c subdirectory.
+- Syntax changes for the -include and -exclude options.
   Benchmarks to include and exclude now must be separated by a comma rather
   than a space. Benchmarks to launch can be separated by a comma or a space.
-
-- Iteration policy can no longer be set with the -iter option. Use -iter_policy
+- Iteration policy can no longer be set with the -iter option. Use the -iter_policy
   instead.
+- Added a new benchmark BarrierMT for IMB-MT.
+- Added new options:
+    - -noheader for IMB-MT disables printing of benchmark headers.
+    - -data_type for IMB-MPI1 specifies the type to be used for communication.
+    - -red_data_type for IMB-MPI1 specifies the type to be used for reduction.
+    - -contig_type for IMB-MPI1 specifies the type to be used.
+    - -zero_size for IMB-MPI1 disable runs with message size 0.
+- Bug fixes.
+- Code cleanup.
+
+New in Intel(R) MPI Benchmarks 2018 Update 1
+--------------------------------------------
+- Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012
+  support is removed.
 
 New in Intel(R) MPI Benchmarks 2018
 --------------------------------------------
