@@ -192,9 +192,9 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
     prepared = true;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0 && !noheader) {
-        output << "#---------------------------------------------------------" << std::endl;
+        output << "#------------------------------------------------------------------" << std::endl;
         output << "#    Intel(R) MPI Benchmarks " << "2019 Update 1" << ", MT part    " << std::endl;
-        output << "#---------------------------------------------------------" << std::endl;
+        output << "#------------------------------------------------------------------" << std::endl;
         output << "#" << std::endl;
     }
     return true;
