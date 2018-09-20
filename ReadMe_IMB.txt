@@ -67,10 +67,12 @@ New in Intel(R) MPI Benchmarks 2019
 - New IMB-MT benchmarks.
   The benchmarks implement the multi-threaded version of IMB-MPI1 benchmarks 
   using the OpenMP* paradigm.
-- New benchmarks infrastructure implemented in C++.
+- New benchmarks infrastructure for easier benchmarks extension is 
+  implemented in C++ (See the guide: 
+  https://software.intel.com/en-us/articles/creating-custom-benchmarks-for-imb-2019).
   The IMB-MPI1, IMB-RMA, IMB-NBC, IMB-EXT, IMB-IO, and IMB-MT implementation 
-  is now based on the new C++ infrastructure.
-  The legacy infrastructure is preserved in the src_c subdirectory.
+  is now based on the new C++ infrastructure. The legacy infrastructure is 
+  preserved in the src_c subdirectory.
 - Syntax changes for the -include and -exclude options.
   Benchmarks to include and exclude now must be separated by a comma rather
   than a space. Benchmarks to launch can be separated by a comma or a space.
