@@ -58,6 +58,8 @@ endif
 ifndef TARGET
 TARGET=example
 ANNOUNCE=1
+else
+ANNOUNCE=0
 endif
 
 ifdef TARGET
@@ -171,8 +173,8 @@ override CPPFLAGS += -DWITH_YAML_CPP
 endif
 
 announce:
-	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"; fi
-	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
+	@if test "$(ANNOUNCE)" -eq "1"; then echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"; fi
+	@if test "$(ANNOUNCE)" -eq "1"; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
 
 $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
