@@ -315,7 +315,14 @@ template <> bool BenchmarkSuite<BS_NBC>::declare_args(args_parser &parser, std::
                "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
                "\n"
                "Default:\n"
-               "off\n");                   
+               "off\n");
+   parser.add<bool>("zero_size", true).set_caption("on or off").
+           set_description(
+               "Do not run benchmarks with message size 0,\n"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -469,6 +476,11 @@ template <> bool BenchmarkSuite<BS_NBC>::prepare(const args_parser &parser, cons
     // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
+    // zero_size
+    if (parser.get<bool>("zero_size") == false) {
+        c_info.zero_size = 0;
+    }
+
     if (cmd_line_error)
         return false;
 
@@ -496,7 +508,7 @@ template <> bool BenchmarkSuite<BS_NBC>::prepare(const args_parser &parser, cons
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");
         } else {
-            fprintf(unit,"# Minimum message length in bytes:   %d\n",0);
+            fprintf(unit,"# Minimum message length in bytes:   %d\n", c_info.zero_size ? 0: 1<<c_info.min_msg_log);
             fprintf(unit,"# Maximum message length in bytes:   %d\n", 1<<c_info.max_msg_log);
         }
 
