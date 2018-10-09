@@ -64,6 +64,7 @@ goods and services.
 using namespace std;
 
 extern void check_parser();
+extern size_t IMB_buffer_alignment;
 
 int main(int argc, char * *argv)
 {
@@ -118,11 +119,14 @@ int main(int argc, char * *argv)
         parser.add_vector<string>("exclude", "").set_caption("benchmark[,benchmark,[...]").
                set_description("The argument after -exclude is one or more benchmark names separated by comma");
 
+        parser.add<int>("alignment", 2097152).set_caption("alignment").
+            set_description("Buffer alignment\n\nDefault:\n2097152\n");
+
         // Extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
         parser.add_vector<string>("(benchmarks)", "").set_caption("benchmark[,benchmark,[...]]"); 
-        parser.set_default_current_group();
 
+        parser.set_default_current_group();
 
         // Now fill in bechmark suite related args
         if (!BenchmarkSuitesCollection::declare_args(parser, output)) {
@@ -176,6 +180,16 @@ int main(int argc, char * *argv)
         parser.get_unknown_args(requested_benchmarks);
         parser.get<string>("include", to_include);
         parser.get<string>("exclude", to_exclude);
+
+        int alignment = parser.get<int>("alignment");
+        if (alignment < sizeof(void*)) {
+            alignment = sizeof(void*);
+        }
+        int power2 = 1;
+        while (power2 < alignment) {
+            power2 *= 2;
+        }
+        IMB_buffer_alignment = power2;
 
         string filename = parser.get<string>("input");
         if (filename != "") {
