@@ -86,6 +86,7 @@ For more documentation than found here, see
 #include "IMB_prototypes.h"
 
 #include <limits.h> /* for INT_MAX declaration*/
+#include <stdint.h>
 
 void* IMB_v_alloc(size_t Len, char* where) {
 /*
@@ -153,6 +154,31 @@ In/out variables:
 }
 #endif /*0*/
 
+extern size_t IMB_buffer_alignment;
+
+void* IMB_aligned_buffer_alloc(size_t *size, char* where) {
+    void *p;
+    void *q;
+    size_t a = IMB_buffer_alignment;
+    size_t asize = (a + *size + a - 1) & ~(a - 1);
+    p = IMB_v_alloc(asize, where);
+    q = (void *)((uintptr_t)p + sizeof(void*));
+    if (((uintptr_t)q) & (a - 1)) {
+        uintptr_t offset = a - (((uintptr_t)q) & (a - 1));
+        q = (void *)((uintptr_t)q + offset);
+    }
+    *((void **)((uintptr_t)q - sizeof(void*))) = p;
+    *size = ((uintptr_t)p + asize - (uintptr_t)q);
+    return q;
+}
+
+void IMB_aligned_buffer_free(void **B) {
+    if (*B) {
+        void *p = *((void **)((uintptr_t)(*B) - sizeof(void*)));
+        IMB_v_free(&p);
+        *B = NULL;
+    }
+}
 
 /***************************************************************************/
 void IMB_alloc_buf(struct comm_info* c_info, char* where, size_t s_len,
@@ -182,56 +208,26 @@ In/out variables:
                       Send/Recv buffer components get allocated
 
 */
-/* July 2002 V2.2.1 change: use MPI_Alloc_mem */
-#if ( defined EXT || defined MPIIO || RMA )
-    MPI_Aint slen = (MPI_Aint)(max(1, s_len));
-    MPI_Aint rlen = (MPI_Aint)(max(1, r_len));
-    int ierr;
-#else
     s_len = max(1, s_len);
     r_len = max(1, r_len);
-#endif
 
     if (c_info->s_alloc < s_len) {
-        /* July 2002 V2.2.1 change: use MPI_Alloc_mem */
-#if ( defined EXT || defined MPIIO || RMA)
-        if (c_info->s_buffer)
-            MPI_Free_mem(c_info->s_buffer);
-
-        ierr = MPI_Alloc_mem(slen, MPI_INFO_NULL, &c_info->s_buffer);
-        MPI_ERRHAND(ierr);
-        c_info->s_alloc = slen;
-#else
-        IMB_v_free((void**)&c_info->s_buffer);
-
-        s_len *= c_info->size_scale;
-
-        c_info->s_buffer = IMB_v_alloc(s_len, where);
-        c_info->s_alloc = s_len;
-#endif
-
+        size_t size;
+        IMB_aligned_buffer_free((void**)&c_info->s_buffer);
+        size = s_len * ((size_t)c_info->size_scale);
+        size = (size + IMB_buffer_alignment - 1) & ~(IMB_buffer_alignment - 1);
+        c_info->s_buffer = IMB_aligned_buffer_alloc(&size, where);
+        c_info->s_alloc = size / ((size_t)c_info->size_scale);
         c_info->s_data = (assign_type*)c_info->s_buffer;
     }
 
     if (c_info->r_alloc < r_len) {
-        /* July 2002 V2.2.1 change: use MPI_Alloc_mem */
-#if ( defined EXT || defined MPIIO || RMA)
-        if (c_info->r_buffer)
-            MPI_Free_mem(c_info->r_buffer);
-
-        ierr = MPI_Alloc_mem(rlen, MPI_INFO_NULL, &c_info->r_buffer);
-        MPI_ERRHAND(ierr);
-        c_info->r_alloc = rlen;
-#else
-        IMB_v_free((void**)&c_info->r_buffer);
-
-        r_len *= c_info->size_scale;
-
-
-        c_info->r_buffer = IMB_v_alloc(r_len, where);
-        c_info->r_alloc = r_len;
-#endif
-
+        size_t size;
+        IMB_aligned_buffer_free((void**)&c_info->r_buffer);
+        size = r_len * ((size_t)c_info->size_scale);
+        size = (size + IMB_buffer_alignment - 1) & ~(IMB_buffer_alignment - 1);
+        c_info->r_buffer = IMB_aligned_buffer_alloc(&size, where);
+        c_info->r_alloc = size / ((size_t)c_info->size_scale);
         c_info->r_data = (assign_type*)c_info->r_buffer;
     }
 }
@@ -965,14 +961,8 @@ In/out variables:
                       see [1] for more information
 
 */
-/* July 2002 V2.2.1 change: use MPI_Free_mem */
     if (c_info->s_alloc > 0) {
-#if (defined EXT || defined MPIIO || defined RMA)
-        MPI_Free_mem(c_info->s_buffer);
-#else
-        IMB_v_free((void**)&c_info->s_buffer);
-#endif
-
+        IMB_aligned_buffer_free((void**)&c_info->s_buffer);
         c_info->s_alloc = 0;
         c_info->s_buffer = NULL;
 
@@ -991,14 +981,8 @@ In/out variables:
                       see [1] for more information
 
 */
-/* July 2002 V2.2.1 change: use MPI_Free_mem */
     if (c_info->r_alloc > 0) {
-#if (defined EXT || defined MPIIO || defined RMA)
-        MPI_Free_mem(c_info->r_buffer);
-#else
-        IMB_v_free((void**)&c_info->r_buffer);
-#endif
-
+        IMB_aligned_buffer_free((void**)&c_info->r_buffer);
         c_info->r_alloc = 0;
         c_info->r_buffer = NULL;
 
