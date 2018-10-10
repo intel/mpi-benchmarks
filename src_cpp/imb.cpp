@@ -64,7 +64,7 @@ goods and services.
 using namespace std;
 
 extern void check_parser();
-size_t IMB_buffer_alignment = (2 * 1024 * 1024);
+extern "C" size_t IMB_buffer_alignment = (2 * 1024 * 1024);
 
 int main(int argc, char * *argv)
 {
