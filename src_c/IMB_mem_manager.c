@@ -154,7 +154,7 @@ In/out variables:
 }
 #endif /*0*/
 
-extern size_t IMB_buffer_alignment;
+size_t IMB_buffer_alignment = (2 * 1024 * 1024);
 
 void* IMB_aligned_buffer_alloc(size_t *size, char* where) {
     void *p;
