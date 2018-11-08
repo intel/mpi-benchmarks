@@ -1,6 +1,6 @@
 # Intel(R) MPI Benchmarks
 [![Common Public License Version 1.0](https://img.shields.io/badge/license-Common%20Public%20License%20Version%201.0-green.svg)](license/license.txt)
-![v2019](https://img.shields.io/badge/v.2019-Gold-orange.svg)
+![v2019.1](https://img.shields.io/badge/v.2019.1-Update-orange.svg)
 --------------------------------------------------
 
 --------
