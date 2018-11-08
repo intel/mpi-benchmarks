@@ -1,7 +1,7 @@
----------------------------------
-Intel(R) MPI Benchmarks 2019
+--------------------------------------
+Intel(R) MPI Benchmarks 2019 Update 1
 README
----------------------------------
+--------------------------------------
 
 --------
 Contents
@@ -62,22 +62,31 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Update 1
+----------------------------------------
+- Added the Reduce_scatter_block benchmark for IMB-MPI1.
+- Added the aggregate_mode option that specifies the mode for IMB-IO, IMB-EXT and IMB-RMA.
+- Added the alignment option that controls buffer alignment.
+- Updated the following options:
+    - -data_type now supports double.
+    - -red_data_type now supports double.
+
+
 New in Intel(R) MPI Benchmarks 2019
 ----------------------------------------
 - New IMB-MT benchmarks.
-  The benchmarks implement the multi-threaded version of IMB-MPI1 benchmarks 
-  using the OpenMP* paradigm.
-- New benchmarks infrastructure for easier benchmarks extension is 
-  implemented in C++ (See the guide: 
-  https://software.intel.com/en-us/articles/creating-custom-benchmarks-for-imb-2019).
-  The IMB-MPI1, IMB-RMA, IMB-NBC, IMB-EXT, IMB-IO, and IMB-MT implementation 
-  is now based on the new C++ infrastructure. The legacy infrastructure is 
-  preserved in the src_c subdirectory.
+  The benchmarks implement the multi-threaded version of IMB-MPI1
+  benchmarks using the OpenMP* paradigm.
+- New benchmarks infrastructure for easier benchmarks extension is implemented in C++
+  (See the guide: https://software.intel.com/en-us/articles/creating-custom-benchmarks-for-imb-2019).
+  The IMB-MPI1, IMB-RMA, IMB-NBC, IMB-EXT, IMB-IO and IMB-MT implementation is now based on the new C++
+  infrastructure.
+  The legacy infrastructure is preserved in the src_c subdirectory.
 - Syntax changes for the -include and -exclude options.
   Benchmarks to include and exclude now must be separated by a comma rather
   than a space. Benchmarks to launch can be separated by a comma or a space.
-- Iteration policy can no longer be set with the -iter option. Use the 
-  -iter_policy instead.
+- Iteration policy can no longer be set with the -iter option. Use the -iter_policy
+  instead.
 - Added a new benchmark BarrierMT for IMB-MT.
 - Added new options:
     - -noheader for IMB-MT disables printing of benchmark headers.
@@ -90,7 +99,7 @@ New in Intel(R) MPI Benchmarks 2019
 
 New in Intel(R) MPI Benchmarks 2018 Update 1
 --------------------------------------------
-- Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012 
+- Support for the Microsoft* Visual Studio* 2017. Microsoft* Visual Studio* 2012
   support is removed.
 
 New in Intel(R) MPI Benchmarks 2018
@@ -103,16 +112,15 @@ New in Intel(R) MPI Benchmarks 2018
 New in Intel(R) MPI Benchmarks 2017 Update 1
 --------------------------------------------
 - Added a new option -imb_barrier.
-- The PingPong and PingPing benchmarks are now equivalent to 
-  PingPongSpecificSource and PingPingSpecificSource, respectively. Their old 
-  behavior (with MPI_ANY_SOURCE) is available in PingPongAnySource and 
-  PingPingAnySource.
+- The PingPong and PingPing benchmarks are now equivalent to PingPongSpecificSource
+  and PingPingSpecificSource, respectively. Their old behavior (with MPI_ANY_SOURCE)
+  is available in PingPongAnySource and PingPingAnySource.
 
 New in Intel(R) MPI Benchmarks 2017
 -------------------------------------------
 - Changed default values for the -sync and -root_shift options.
 - Support for the Microsoft* Visual Studio* 2015. Microsoft* Visual Studio* 2010
-  support is removed.
+support is removed.
 - Bug fixes.
 
 New in Intel(R) MPI Benchmarks 4.1 Update 1
@@ -122,13 +130,11 @@ New in Intel(R) MPI Benchmarks 4.1 Update 1
 New in Intel(R) MPI Benchmarks 4.1
 -------------------------------------------
 - Introduced two new benchmarks: uniband and biband.
-- Introduced two new command-line options for collective benchmarks: -sync and 
-  -root_shift.
+- Introduced two new command-line options for collective benchmarks: -sync and -root_shift.
 
 New in Intel(R) MPI Benchmarks 4.0 Update 2
 -------------------------------------------
-- Fix of a bug where benchmarking was failing on certain message lengths with 
-  -DCHECK.
+- Fix of a bug where benchmarking was failing on certain message lengths with -DCHECK.
 
 New in Intel(R) MPI Benchmarks 4.0 Update 1
 -------------------------------------------
@@ -137,20 +143,19 @@ New in Intel(R) MPI Benchmarks 4.0 Update 1
 New in Intel(R) MPI Benchmarks 4.0
 -------------------------------------------
 - Introduced new components IMB-NBC and IMB-RMA that conform to the MPI-3.0 
-  standard.
-  Note: These components can only be built and used with MPI libraries that 
-  conform to the MPI-3 standard.
+standard.
+  Note: These components can only be built and used with MPI libraries that conform 
+  to the MPI-3 standard.
 - Added new targets to the Linux* OS Makefiles:
     - NBC for building IMB-NBC
     - RMA for building IMB-RMA 
-- Updated Microsoft* Visual Studio* solutions to include the IMB-NBC and IMB-RMA
-  targets.
+- Updated Microsoft* Visual Studio* solutions to include the IMB-NBC and 
+IMB-RMA targets.
 - Consolidated all first-use documents in ReadMe_IMB.txt to improve usability.
-- Introduced a new feature to set the appropriate algorithm for automatic 
-  calculation of iterations. The algorithm can be set through the -iter and 
-  -iter_policy options.
+- Introduced a new feature to set the appropriate algorithm for automatic calculation
+of iterations. The algorithm can be set through the -iter and -iter_policy options.
 - Support for the Microsoft* Visual Studio* 2013. Microsoft* Visual Studio* 2008
-  support is removed.
+support is removed.
 
 --------------------
 Command-Line Control
@@ -167,8 +172,7 @@ command-line parameters.
 -----------------------------------------
 Building Instructions for Linux* OS
 -----------------------------------------
-1) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or 
-   mpicc.
+1) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or mpicc.
 2) Run one or more Makefile commands below:
 
    make clean - remove legacy binary object files and executable files

@@ -205,6 +205,16 @@ BENCHMARK(IMB_reduce_scatter, Reduce_scatter)
     return true;
 }
 
+BENCHMARK(IMB_reduce_scatter_block, Reduce_scatter_block)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(COLLECTIVE);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    return true;
+}
+
 BENCHMARK(IMB_allgather, Allgather)
 {
     descr->flags.insert(DEFAULT);

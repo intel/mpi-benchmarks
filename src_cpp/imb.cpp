@@ -70,7 +70,7 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
-    const char *program_name = "Intel(R) MPI Benchmarks 2019";
+    const char *program_name = "Intel(R) MPI Benchmarks 2019 Update 1";
     std::ostringstream output;
 
     // Some unit tests for args parser
@@ -121,8 +121,8 @@ int main(int argc, char * *argv)
         // Extra non-option arguments 
         parser.set_current_group("EXTRA_ARGS");
         parser.add_vector<string>("(benchmarks)", "").set_caption("benchmark[,benchmark,[...]]"); 
-        parser.set_default_current_group();
 
+        parser.set_default_current_group();
 
         // Now fill in bechmark suite related args
         if (!BenchmarkSuitesCollection::declare_args(parser, output)) {

@@ -70,6 +70,7 @@ extern "C" {
 #include "IMB_comm_info.h"
 #include "IMB_prototypes.h"
 #include "IMB_declare.h"
+extern size_t IMB_buffer_alignment;
 }
 
 #include "helper_IMB_functions.h"
@@ -255,6 +256,17 @@ template <> bool BenchmarkSuite<BS_IO>::declare_args(args_parser &parser, std::o
                 "Default:\n"
                 "A fixed time limit SECS_PER_SAMPLE =>IMB_settings.h; currently set to 10\n"
                 "(new default in IMB_3.2)\n");
+    parser.add<string>("aggregate_mode", "multi").set_caption("aggregate_mode").
+            set_description("The argument after -aggregate_mode is a one from possible strings.\n"
+                "Specifying that aggregate_mode will be used: \n"
+                "MODES: aggregate, non_aggregate, multi\n"
+                "aggregate     - turn on only AGGREGATE launch\n"
+                "non_aggregate - turn on only NON-AGGREGATE launch\n"
+                "multi         - turn on both AGGREGATE and NON-AGGREGATE launches\n"
+                "Example:\n"
+                "-aggregate_mode aggregate\n"
+                "Default:\n"
+                "-aggregate_mode multi\n");
     parser.add<float>("mem", 1.0f).
            set_caption("max. per process memory for overall message buffers").
            set_description(
@@ -304,6 +316,8 @@ template <> bool BenchmarkSuite<BS_IO>::declare_args(args_parser &parser, std::o
                "\n"
                "Default:\n"
                "off\n");
+    parser.add<int>("alignment", 2097152).set_caption("alignment").
+           set_description("Buffer alignment\n\nDefault:\n2097152\n");
     parser.set_default_current_group();
     return true;
 }
@@ -406,6 +420,13 @@ template <> bool BenchmarkSuite<BS_IO>::prepare(const args_parser &parser, const
     if (given_iter_policy == "multiple_np") { ITERATIONS.iter_policy = imode_multiple_np; }
     if (given_iter_policy == "auto") { ITERATIONS.iter_policy = imode_auto; }
 
+    // aggregate
+    string given_aggregate_mode = parser.get<string>("aggregate_mode");
+    if (given_aggregate_mode == "multi")         { c_info.aggregate_mode = AM_TURN_MULTI;}
+    if (given_aggregate_mode == "aggregate")     { c_info.aggregate_mode = AM_TURN_ON;   }
+    if (given_aggregate_mode == "non_aggregate") { c_info.aggregate_mode = AM_TURN_OFF;  }
+    if (c_info.aggregate_mode == AM_ERROR)       { c_info.aggregate_mode = AM_TURN_MULTI;}
+
     // time
     ITERATIONS.secs = parser.get<float>("time");
 
@@ -450,6 +471,16 @@ template <> bool BenchmarkSuite<BS_IO>::prepare(const args_parser &parser, const
     
     // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
+
+    int alignment = parser.get<int>("alignment");
+    if (alignment < sizeof(void*)) {
+        alignment = sizeof(void*);
+    }
+    int power2 = 1;
+    while (power2 < alignment) {
+        power2 *= 2;
+    }
+    IMB_buffer_alignment = power2;
 
     if (cmd_line_error)
         return false;
