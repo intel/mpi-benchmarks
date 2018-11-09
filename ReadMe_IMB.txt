@@ -64,8 +64,9 @@ What's New
 ----------
 New in Intel(R) MPI Benchmarks 2019 Update 1
 ----------------------------------------
-- Added new Reduce_scatter_block benchmark for IMB-MPI1.
-- Added new aggregate_mode option that specifies the mode for IMB-IO, IMB-EXT and IMB-RMA.
+- Added the Reduce_scatter_block benchmark for IMB-MPI1.
+- Added the aggregate_mode option that specifies the mode for IMB-IO, IMB-EXT and IMB-RMA.
+- Added the alignment option that controls buffer alignment.
 - Updated the following options:
     - -data_type now supports double.
     - -red_data_type now supports double.

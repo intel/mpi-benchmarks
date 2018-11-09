@@ -68,6 +68,7 @@ extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
 #include "IMB_prototypes.h"
+extern size_t IMB_buffer_alignment;
 }
 
 #include "helper_IMB_functions.h"
@@ -361,6 +362,8 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "on\n");
+   parser.add<int>("alignment", 2097152).set_caption("alignment").
+           set_description("Buffer alignment\n\nDefault:\n2097152\n");
     parser.set_default_current_group();
     return true;
 }
@@ -647,6 +650,16 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     if (parser.get<bool>("zero_size") == false) {
         c_info.zero_size = 0;
     }
+
+    int alignment = parser.get<int>("alignment");
+    if (alignment < sizeof(void*)) {
+        alignment = sizeof(void*);
+    }
+    int power2 = 1;
+    while (power2 < alignment) {
+        power2 *= 2;
+    }
+    IMB_buffer_alignment = power2;
 
     if (c_info.contig_type > 0)
         c_info.op_type = get_op(base_red_dt);
