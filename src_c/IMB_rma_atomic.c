@@ -78,7 +78,8 @@ void IMB_rma_accumulate(struct comm_info* c_info, int size,
                         MODES run_mode, double* time) {
     double res_time = -1.;
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     /* IMB 3.1 << */
     int r_off;
     int i;
@@ -140,7 +141,8 @@ void IMB_rma_get_accumulate(struct comm_info* c_info, int size,
                             MODES run_mode, double* time) {
     double res_time = -1.;
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     int r_off;
     int i;
     int root = c_info->pair1;

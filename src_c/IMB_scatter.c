@@ -117,7 +117,8 @@ Output variables:
 */
     int    i;
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     double t1, t2;
 
 #ifdef CHECK
@@ -307,7 +308,7 @@ Output variables:
     Type_Size   s_size,
                 r_size;
     int         s_num = 0,
-                r_num;
+                r_num = 0;
     MPI_Request request;
     MPI_Status  status;
     double      t_pure = 0.;

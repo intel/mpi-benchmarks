@@ -130,7 +130,7 @@ Output variables:
     int    i;
 
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
 
 #ifdef CHECK
     defect = 0.;

@@ -129,7 +129,7 @@ Output variables:
     double t1, t2;
     int    i;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     void* bc_buf;
 
 #ifdef CHECK
