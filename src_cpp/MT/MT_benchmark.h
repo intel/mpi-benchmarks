@@ -155,6 +155,10 @@ struct input_benchmark_data {
         bool anytag;
     } pt2pt;
     struct {
+        int size;
+        MPI_Request *requests;
+    } window;
+    struct {
         int *cnt;
         int *displs;
     } collective_vector;
@@ -213,6 +217,7 @@ class BenchmarkMTBase : public Benchmark {
         PT2PT,
         SEPARATE_MEASURING,
         COLLECTIVE_VECTOR,
+        WINDOW,
         SEND_TO_ALL,
         RECV_FROM_ALL,
         SEND_TO_2,
@@ -221,6 +226,7 @@ class BenchmarkMTBase : public Benchmark {
         TIME_DIVIDE_BY_2,
         TIME_DIVIDE_BY_4,
         TIME_DIVIDE_BY_100,
+        TIME_DIVIDE_BY_WINDOW_SIZE,
         SCALE_BW_TWICE,
         SCALE_BW_FOUR,
         OUT_BYTES,
@@ -245,6 +251,7 @@ class BenchmarkMTBase : public Benchmark {
     int mode_multiple;
     int stride;
     int num_threads;
+    int window_size;
     barropt_t barrier_option;
     malopt_t malloc_option;
     int malloc_align;
@@ -266,7 +273,7 @@ class BenchmarkMTBase : public Benchmark {
         output_benchmark_data &odata_local = *odata[omp_get_thread_num()];
         idata_local.collective.root = 0;
         idata_local.pt2pt.stride = stride;
-        
+
         idata_local.checks.check = do_checks;
 
         idata_local.threading.mode_multiple = mode_multiple;
@@ -322,6 +329,7 @@ class BenchmarkMTBase : public Benchmark {
         GET_GLOBAL(int, mode_multiple);
         GET_GLOBAL(int, stride);
         GET_GLOBAL(int, num_threads);
+        GET_GLOBAL(int, window_size);
         GET_GLOBAL(int, malloc_align);
         GET_GLOBAL(malopt_t, malloc_option);
         GET_GLOBAL(barropt_t, barrier_option);
@@ -384,7 +392,11 @@ class BenchmarkMTBase : public Benchmark {
             if (flags.count(COLLECTIVE_VECTOR)) {
                 idata[idata.size()-1]->collective_vector.cnt = (int *)malloc(world_size * sizeof(int));
                 idata[idata.size()-1]->collective_vector.displs = (int *)malloc(world_size * sizeof(int));
-            }        
+            }
+            if (flags.count(WINDOW)) {
+                idata[idata.size()-1]->window.size = window_size;
+                idata[idata.size()-1]->window.requests = (MPI_Request *)malloc(2 * window_size * sizeof(MPI_Request));
+            }
         }
   }
     virtual void run(const scope_item &item) { 
@@ -424,6 +436,7 @@ class BenchmarkMTBase : public Benchmark {
             if (flags.count(TIME_DIVIDE_BY_2)) divider *= 2.0;
             if (flags.count(TIME_DIVIDE_BY_4)) divider *= 4.0;
             if (flags.count(TIME_DIVIDE_BY_100)) divider *= 100.0;
+            if (flags.count(TIME_DIVIDE_BY_WINDOW_SIZE)) divider *= window_size;
             if (flags.count(SCALE_BW_TWICE)) bw_multiplier *= 2.0;
             if (flags.count(SCALE_BW_FOUR)) bw_multiplier *= 4.0;
 
@@ -436,6 +449,8 @@ class BenchmarkMTBase : public Benchmark {
                     cout << "#-----------------------------------------------------------------------------" << endl;
                     cout << "# Benchmarking " << get_name() << endl;
                     cout << "# #processes = " << nresults / num_threads << " (threads: " << num_threads << ")" << endl;
+                    if (flags.count(WINDOW))
+                        cout << "# window_size = " << window_size << endl;
                     cout << "#-----------------------------------------------------------------------------" << endl;
  
                     if (flags.count(OUT_BYTES)) cout << out_field("#bytes"); //"#bytes";
@@ -477,8 +492,11 @@ class BenchmarkMTBase : public Benchmark {
     virtual void finalize() {
         for (int thread_num = 0; thread_num < num_threads; thread_num++) {
             if (flags.count(COLLECTIVE_VECTOR)) {
-               free(idata[thread_num]->collective_vector.cnt);
-               free(idata[thread_num]->collective_vector.displs);
+                free(idata[thread_num]->collective_vector.cnt);
+                free(idata[thread_num]->collective_vector.displs);
+            }
+            if (flags.count(WINDOW)) {
+                free(idata[thread_num]->window.requests);
             }
         }
     }

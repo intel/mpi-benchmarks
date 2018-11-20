@@ -321,8 +321,6 @@ DECLARE_INHERITED_BENCHMARKMT(BenchmarkSuite<BS_MT>, mt_exchange, ExchangeMT)
     flags.insert(OUT_BW);
 }
 
-static const int MAX_WIN_SIZE = 100;
-
 template <bool set_src, int tag>
 int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype type,
                  MPI_Comm comm, int rank, int size, input_benchmark_data *idata,
@@ -331,7 +329,8 @@ int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype typ
     int stride = idata->pt2pt.stride;
     if (!set_stride(rank, size, stride, group))
         return 0;
-    MPI_Request requests[MAX_WIN_SIZE];
+    int window_size = idata->window.size;
+    MPI_Request *requests = idata->window.requests;
     char ack = 0;
     INIT_ARRAY(true, in, (rank + 1) * i);
     INIT_ARRAY(true, out, -1);
@@ -339,16 +338,16 @@ int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype typ
     int left = rank - stride;
     for (int i = 0; i < repeat; i++) {
         if (group % 2 == 0) {
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+            for (int w = 0; w < window_size; w++) {
                 MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w]);
             }
-            MPI_Waitall(MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall(window_size, requests, MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, right, tag, comm, MPI_STATUS_IGNORE);
         } else {
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+            for (int w = 0; w < window_size; w++) {
                 MPI_Irecv(out, count, type, set_src ? left : MPI_ANY_SOURCE, tag, comm, &requests[w]);
             }
-            MPI_Waitall(MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall(window_size, requests, MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     }
@@ -360,7 +359,8 @@ int mt_uniband(int repeat, int, void *in, void *out, int count, MPI_Datatype typ
 DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_uniband<true, 0>), UniBandMT)
 {
     flags.insert(PT2PT);
-    flags.insert(TIME_DIVIDE_BY_100);
+    flags.insert(WINDOW);
+    flags.insert(TIME_DIVIDE_BY_WINDOW_SIZE);
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
@@ -376,7 +376,8 @@ int mt_biband(int repeat, int, void *in, void *out, int count, MPI_Datatype type
     int stride = idata->pt2pt.stride;
     if (!set_stride(rank, size, stride, group))
         return 0;
-    MPI_Request requests[2 * MAX_WIN_SIZE];
+    int window_size = idata->window.size;
+    MPI_Request *requests = idata->window.requests;
     char ack = 0;
     INIT_ARRAY(1, in, (rank + 1) * i);
     INIT_ARRAY(1, out, -1);
@@ -384,22 +385,22 @@ int mt_biband(int repeat, int, void *in, void *out, int count, MPI_Datatype type
     int left = rank - stride;
     for (int i = 0; i < repeat; i++) {
         if (group % 2 == 0) {
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+            for (int w = 0; w < window_size; w++) {
                 MPI_Irecv(out, count, type, set_src ? right : MPI_ANY_SOURCE, tag, comm, &requests[w]);
             }
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
-                MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
+            for (int w = 0; w < window_size; w++) {
+                MPI_Isend(in, count, type, right, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + window_size]);
             }
-            MPI_Waitall(2 * MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall(2 * window_size, requests, MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, right, tag, comm, MPI_STATUS_IGNORE);
         } else {
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
+            for (int w = 0; w < window_size; w++) {
                 MPI_Irecv(out, count, type, set_src ? left : MPI_ANY_SOURCE, tag, comm, &requests[w]);
             }
-            for (int w = 0; w < MAX_WIN_SIZE; w++) {
-                MPI_Isend(in, count, type, left, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + MAX_WIN_SIZE]);
+            for (int w = 0; w < window_size; w++) {
+                MPI_Isend(in, count, type, left, (tag == MPI_ANY_TAG ? 0 : tag), comm, &requests[w + window_size]);
             }
-            MPI_Waitall(2 * MAX_WIN_SIZE, requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall(2 * window_size, requests, MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, left, (tag == MPI_ANY_TAG ? 0 : tag), comm);
         }
     }
@@ -412,8 +413,9 @@ int mt_biband(int repeat, int, void *in, void *out, int count, MPI_Datatype type
 DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_biband<true, 0>), BiBandMT)
 {
     flags.insert(PT2PT);
+    flags.insert(WINDOW);
     flags.insert(TIME_DIVIDE_BY_2);
-    flags.insert(TIME_DIVIDE_BY_100);
+    flags.insert(TIME_DIVIDE_BY_WINDOW_SIZE);
     flags.insert(OUT_BYTES);
     flags.insert(OUT_REPEAT);
     flags.insert(OUT_TIME_AVG);
