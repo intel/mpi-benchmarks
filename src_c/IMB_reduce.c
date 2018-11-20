@@ -122,7 +122,7 @@ Output variables:
 */
     int    i;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     double t1, t2;
 
 #ifdef CHECK

@@ -125,7 +125,8 @@ Output variables:
     double t1, t2;
 
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     /* IMB 3.1 << */
     int r_off;
     /* >> IMB 3.1  */

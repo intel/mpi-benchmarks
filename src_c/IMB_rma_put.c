@@ -83,7 +83,7 @@ void IMB_rma_single_put(struct comm_info* c_info, int size,
     int target = -1;
     int sender = 0;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     int i;
 #ifdef CHECK 
     char *recv = (char *)c_info->r_buffer;
@@ -167,7 +167,7 @@ void IMB_rma_put_all(struct comm_info* c_info, int size,
     int peer = 0;
     int sender = 0;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     int i;
     ierr = 0;
 
@@ -223,7 +223,7 @@ void IMB_rma_put_local(struct comm_info* c_info, int size,
                        MODES run_mode, double* time) {
     double res_time = -1.;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     int i;
     ierr = 0;
 
@@ -285,7 +285,7 @@ void IMB_rma_put_all_local(struct comm_info* c_info, int size,
     int target = 0;
     int peer = 0;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     int i;
     ierr = 0;
 
@@ -341,7 +341,7 @@ void IMB_rma_exchange_put(struct comm_info* c_info, int size,
     int left = -1;
     int right = -1;
     Type_Size s_size;
-    int s_num;
+    int s_num = 0;
     int i;
 #ifdef CHECK 
     char *recv = (char *)c_info->r_buffer;
@@ -470,7 +470,7 @@ void IMB_rma_passive_put(struct comm_info* c_info, int size,
     double t_with_comp = 0.;
 
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0, r_num = 0;
 
     time[0] = 0.;
     time[1] = 0.;

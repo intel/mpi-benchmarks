@@ -82,7 +82,7 @@ void IMB_rma_single_get(struct comm_info* c_info, int size,
     int target = -1;
     int receiver = 0;
     Type_Size r_size;
-    int r_num;
+    int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
 #ifdef CHECK 
@@ -173,7 +173,7 @@ void IMB_rma_get_all(struct comm_info* c_info, int size,
     int peer = 0;
     int receiver = 0;
     Type_Size r_size;
-    int r_num;
+    int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
     ierr = 0;
@@ -233,7 +233,7 @@ void IMB_rma_get_local(struct comm_info* c_info, int size,
                        MODES run_mode, double* time) {
     double res_time = -1.;
     Type_Size r_size;
-    int r_num;
+    int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
     ierr = 0;
@@ -306,7 +306,7 @@ void IMB_rma_get_all_local(struct comm_info* c_info, int size,
     int target = 0;
     int peer = 0;
     Type_Size r_size;
-    int  r_num;
+    int  r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
     ierr = 0;
@@ -363,7 +363,7 @@ void IMB_rma_exchange_get(struct comm_info* c_info, int size,
     int left = -1;
     int right = -1;
     Type_Size r_size;
-    int r_num;
+    int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
 #ifdef CHECK 
