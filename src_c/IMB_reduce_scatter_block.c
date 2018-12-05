@@ -137,7 +137,7 @@ Output variables:
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
 
-    s_num = size / s_size;
+    s_num = size / s_size / c_info->num_procs;
 #ifdef CHECK
     Locsize = s_size * s_num;
     pos = Locsize * c_info->rank;
