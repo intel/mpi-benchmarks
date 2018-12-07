@@ -114,6 +114,9 @@ bool load_msg_sizes(const char *filename)
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
 
+    if (c_info.msglen == NULL)
+        return false;
+
     isz=-1;
 
     while(fgets(inp_line,72,t)) {
