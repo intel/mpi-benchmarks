@@ -109,7 +109,7 @@ $(BINARY): $(OBJ)
 	$(CC) $(LDFLAGS) $^ -o $@
 
 $(BUILDDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -D$(TARGET) -c $< -o $@
+	$(CC) $(CFLAGS) -D$(TARGET) -DIMB2018 -c $< -o $@
 
 clean:
 	rm -rf $(BUILDDIR) $(OBJ) $(BINARY)
