@@ -69,7 +69,7 @@ SRC = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c  IMB_mem_manager.c IMB_init_fi
 IMB_benchlist.c IMB_parse_name_io.c IMB_strgs.c \
 IMB_err_handler.c IMB_g_info.c  IMB_warm_up.c IMB_output.c IMB_cpu_exploit.c\
 IMB_open_close.c IMB_write.c IMB_read.c IMB_init_transfer.c IMB_chk_diff.c
-CFLAGS += -DMPIIO
+override CFLAGS += -DMPIIO
 endif
 ifeq "$(TARGET)" "NBC"
 SRC = IMB.c IMB_utils.c IMB_declare.c  IMB_init.c IMB_mem_manager.c IMB_parse_name_nbc.c  IMB_benchlist.c IMB_strgs.c \
