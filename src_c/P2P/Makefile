@@ -1,4 +1,4 @@
-#*****************************************************************************
+# *****************************************************************************
 # *                                                                           *
 # * Copyright 2016-2018 Intel Corporation.                                    *
 # *                                                                           *
@@ -47,43 +47,36 @@
 #
 #  ***************************************************************************
 
-all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
+TARGET=P2P
+BINARY:=IMB-P2P
 
-IMB-MPI1:
-	make -j 8 -C src_cpp -f Makefile TARGET=MPI1
-	@cp src_cpp/IMB-MPI1 .
+override CFLAGS += -O3 -Wall -Wextra -pedantic -Wno-long-long
+override LDFLAGS += -lm
 
-IMB-NBC:
-	make -j 8 -C src_cpp -f Makefile TARGET=NBC
-	@cp src_cpp/IMB-NBC .
+ifeq ($(origin CC),default)
+CC=mpiicc
+endif
 
-IMB-EXT:
-	make -j 8 -C src_cpp -f Makefile TARGET=EXT
-	@cp src_cpp/IMB-EXT .
+all: $(BINARY)
 
-IMB-RMA:
-	make -j 8 -C src_cpp -f Makefile TARGET=RMA
-	@cp src_cpp/IMB-RMA .
+IMB_SRC = imb_p2p.c
+IMB_SRC += imb_p2p_pingpong.c
+IMB_SRC += imb_p2p_pingping.c
+IMB_SRC += imb_p2p_unirandom.c
+IMB_SRC += imb_p2p_birandom.c
+IMB_SRC += imb_p2p_corandom.c
 
-IMB-IO:
-	make -j 8 -C src_cpp -f Makefile TARGET=IO
-	@cp src_cpp/IMB-IO .
+IMB_OBJ = $(IMB_SRC:.c=.o)
 
-IMB-MT: | IMB-MPI1
-	make -j 8 -C src_cpp -f Makefile TARGET=MT
-	@cp src_cpp/IMB-MT .
+$(BINARY): $(IMB_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-IMB-P2P:
-	make -j 8 -C src_c/P2P -f Makefile TARGET=P2P
-	@cp src_c/P2P/IMB-P2P .
-
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	make -C src_cpp -f Makefile TARGET=MPI1 clean
-	make -C src_cpp -f Makefile TARGET=NBC clean
-	make -C src_cpp -f Makefile TARGET=RMA clean
-	make -C src_cpp -f Makefile TARGET=EXT clean
-	make -C src_cpp -f Makefile TARGET=IO clean
-	make -C src_cpp -f Makefile TARGET=MT clean
-	make -C src_c/P2P -f Makefile TARGET=P2P clean
-	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
+	rm -f $(IMB_OBJ) $(BINARY)
+
+$(IMB_OBJ): $(HEADERS) Makefile
+
+.PHONY: clean all
