@@ -119,7 +119,6 @@ Output variables:
                           Timing result per sample
 
 */
-    double t1, t2;
     int    i;
 
     Type_Size s_size, r_size;

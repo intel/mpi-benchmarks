@@ -122,7 +122,6 @@ Output variables:
                       Timing result per sample
 
 */
-    double t1, t2;
 
     Type_Size s_size, r_size;
     int s_num = 0,
@@ -130,10 +129,8 @@ Output variables:
     /* IMB 3.1 << */
     int r_off;
     /* >> IMB 3.1  */
-    int s_tag, r_tag;
-    int dest, source, root;
+    int root;
     int i;
-    MPI_Status stat;
 
 
 #ifdef CHECK 

@@ -125,13 +125,11 @@ Output variables:
                           Timing result per sample
 
 */
-    double t1, t2;
 
     Type_Size s_size, r_size;
     int s_num = 0,
         r_num = 0;
-    int dest, source, sender;
-    MPI_Status stat;
+    int dest, sender;
 
     ierr = 0;
     /*  GET SIZE OF DATA TYPE */
@@ -200,14 +198,11 @@ Output variables:
                           Timing result per sample
 
 */
-    double t1, t2;
 
     Type_Size s_size, r_size;
     int s_num = 0,
         r_num = 0;
-    int dest, source, sender;
-    int ierr;
-    MPI_Status stat;
+    int dest, sender;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);

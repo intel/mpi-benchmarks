@@ -115,7 +115,7 @@ In/out variables:
 
 #if defined MPIIO
 #include <limits.h>
-    int ne, baslen, mod;
+    int baslen;
     int ierr;
     size_t pos1, pos2;
 

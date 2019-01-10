@@ -109,7 +109,7 @@ Output variables:
 
 */
     double t1, t2;
-    int    i, dum;
+    int    i;
 
     ierr = 0;
 
