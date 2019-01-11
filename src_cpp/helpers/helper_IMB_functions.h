@@ -52,7 +52,9 @@ goods and services.
 
 #include <algorithm>
 
+#ifdef MPIIO
 static int do_nonblocking_;
+#endif
 typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
 
@@ -246,7 +248,7 @@ struct Bmark_descr {
 
         if (flags.count(NONBLOCKING)) {
             Bmark->RUN_MODES[0].NONBLOCKING = 1;
-#ifndef EXT
+#ifdef MPIIO
            do_nonblocking_ = 1;
 #endif
         }

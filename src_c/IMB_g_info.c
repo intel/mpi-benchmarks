@@ -135,12 +135,12 @@ void IMB_make_sys_info() {
                       (outcome of the 'uname' command)
 
 */
-    int dont_care, mpi_subversion, mpi_version;
+    int mpi_subversion, mpi_version;
     /* IMB 3.1 << */
 #ifndef WIN_IMB
     struct utsname info;
     uname(&info);
-    dont_care = MPI_Get_version(&mpi_version, &mpi_subversion);
+    MPI_Get_version(&mpi_version, &mpi_subversion);
 
     fprintf(unit, "# Machine               : %s\n", info.machine);
     fprintf(unit, "# System                : %s\n", info.sysname);
@@ -153,7 +153,7 @@ void IMB_make_sys_info() {
     DWORD bufCharCount = INFO_BUFFER_SIZE;
     char *substr_ptr;
 
-    dont_care = MPI_Get_version(&mpi_version, &mpi_subversion);
+    MPI_Get_version(&mpi_version, &mpi_subversion);
 
     info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
     GetVersionEx((OSVERSIONINFO *)&info);

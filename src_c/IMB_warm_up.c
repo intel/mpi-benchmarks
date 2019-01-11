@@ -113,12 +113,15 @@ IMB 3.1 <<
                       for iter==0, the WamrUp is carried out
 
 */
+#ifndef MPIIO
+
+#ifndef RMA
     struct cmode MD;
 
     MD.AGGREGATE = 1;
+#endif
 
     if (c_info->rank >= 0) {
-#ifndef MPIIO
         if (iter == 0) {
             /* IMB 3.1: other warm up settings */
             double t[MAX_TIME_ID];
@@ -141,7 +144,7 @@ IMB 3.1 <<
 
             ITERATIONS->n_sample = n_sample;
         }
-#endif
     }
+#endif
 }
 

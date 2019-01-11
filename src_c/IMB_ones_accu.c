@@ -129,11 +129,11 @@ Output variables:
     /* IMB 3.1 << */
     int r_off;
     /* >> IMB 3.1  */
-    int root;
     int i;
 
 
 #ifdef CHECK 
+    int root = (c_info->rank == 0);
     defect = 0;
 #endif
     ierr = 0;
@@ -147,8 +147,6 @@ Output variables:
     r_num = s_num;
     r_off = ITERATIONS->r_offs / r_size;
     /* >> IMB 3.1  */
-
-    root = (c_info->rank == 0);
 
     if (c_info->rank < 0)
         *time = 0.;

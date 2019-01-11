@@ -773,9 +773,8 @@ Input variables:
 
 */
 #define X_PER_ROW 16
-    int i, j, i0, irest;
+    int i, j, i0;
 
-    irest = M%X_PER_ROW;
     for (j = 0; j < (M + X_PER_ROW - 1) / X_PER_ROW; j++) {
         i0 = j*X_PER_ROW;
 
