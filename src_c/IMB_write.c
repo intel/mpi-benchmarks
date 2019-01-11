@@ -249,7 +249,7 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
 */
     int i, j;
-    int Locsize, Totalsize, Ioffs;
+    int Locsize, Totalsize;
     MPI_Status stat;
     MPI_Offset Offset;
 
@@ -377,7 +377,7 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
 */
     int i, j;
-    int Locsize, Totalsize, Ioffs;
+    int Locsize, Totalsize;
     MPI_Offset Offset;
 
     MPI_Status*  STAT, stat;

@@ -212,10 +212,8 @@ Output variables:
 
 */
     int         i = 0;
-    Type_Size   s_size,
-                r_size;
-    int         s_num = 0,
-                r_num = 0;
+    Type_Size   r_size;
+    int         r_num = 0;
     MPI_Request request;
     MPI_Status  status;
     double      t_pure = 0.,
@@ -228,10 +226,8 @@ Output variables:
     ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
-    if ((s_size != 0) && (r_size != 0)) {
-        s_num = size / s_size;
+    if (r_size != 0) {
         r_num = size / r_size;
     }
 

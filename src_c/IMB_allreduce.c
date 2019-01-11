@@ -126,7 +126,6 @@ Output variables:
 
 
 */
-    double t1, t2;
     int    i;
 
     Type_Size s_size;

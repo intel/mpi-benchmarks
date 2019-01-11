@@ -122,7 +122,6 @@ static void IMB_init_Blist_item_pool();
 static void IMB_free_Blist_item_pool();
 
 static void IMB_add_to_list_tail(const char*, int*, int*, int *);
-static void IMB_print_list(int list_head_index);
 static void IMB_remove_invalid_items(int* p_list_head, int* p_list_tail, int* n_cases);
 static void IMB_remove_item_from_list(const char* name, int* p_list_head, int* p_list_tail, int *n_cases);
 
@@ -1512,18 +1511,6 @@ static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* l
     (*n)++;
     if (chained_bname != NULL)
         IMB_add_to_list_tail(chained_bname + 1, list_head_index, list_tail_index, n);
-}
-
-static void IMB_print_list(int list_head_index) {
-    int index = list_head_index;
-    struct Blist_item* blist_item;
-
-    while (index != -1) {
-        blist_item = &pool[index];
-        index = blist_item->next_index;
-        printf("%s ", blist_item->bname);
-    }
-
 }
 
 static void IMB_remove_invalid_items(int* p_list_head, int* p_list_tail, int *n_cases) {

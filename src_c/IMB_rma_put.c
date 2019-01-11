@@ -469,8 +469,8 @@ void IMB_rma_passive_put(struct comm_info* c_info, int size,
     double t_pure = 0.;
     double t_with_comp = 0.;
 
-    Type_Size s_size, r_size;
-    int s_num = 0, r_num = 0;
+    Type_Size s_size;
+    int s_num = 0;
 
     time[0] = 0.;
     time[1] = 0.;
@@ -479,10 +479,8 @@ void IMB_rma_passive_put(struct comm_info* c_info, int size,
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
-    MPI_Type_size(c_info->r_data_type, &r_size);
-    if ((s_size != 0) && (r_size != 0)) {
+    if (s_size != 0) {
         s_num = size / s_size;
-        r_num = size / r_size;
     } else
         return;
 

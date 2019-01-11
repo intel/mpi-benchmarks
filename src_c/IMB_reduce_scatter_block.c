@@ -121,7 +121,6 @@ Output variables:
 */
     double t1, t2;
     int    i, s_num = 0;
-    size_t pos1, pos2;
 #ifdef CHECK
     size_t pos;
     int    Locsize;
