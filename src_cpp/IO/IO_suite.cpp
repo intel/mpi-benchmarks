@@ -49,7 +49,7 @@ goods and services.
 */
 
 #if defined MPI1 || defined NBC || defined RMA || defined EXT
-#error Legacy benchmark components can't be linked together
+#error Legacy benchmark components cant be linked together
 #endif
 
 #include <set>
@@ -476,7 +476,7 @@ template <> bool BenchmarkSuite<BS_IO>::prepare(const args_parser &parser, const
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
     int alignment = parser.get<int>("alignment");
-    if (alignment < sizeof(void*)) {
+    if (alignment < (int)sizeof(void*)) {
         alignment = sizeof(void*);
     }
     int power2 = 1;

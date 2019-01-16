@@ -126,7 +126,6 @@ Output variables:
         r_num = 0;
     int dest, sender;
 
-    ierr = 0;
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);

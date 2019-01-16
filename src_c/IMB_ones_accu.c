@@ -131,12 +131,11 @@ Output variables:
     /* >> IMB 3.1  */
     int i;
 
-
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     int root = (c_info->rank == 0);
     defect = 0;
 #endif
-    ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
@@ -156,15 +155,13 @@ Output variables:
             *time = MPI_Wtime();
 
             for (i = 0; i < ITERATIONS->n_sample; i++) {
-                ierr = MPI_Accumulate((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                      s_num, c_info->red_data_type,
-                                      0, i % ITERATIONS->r_cache_iter * r_off,
-                                      r_num, c_info->red_data_type, c_info->op_type,
-                                      c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Accumulate((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                           s_num, c_info->red_data_type,
+                                           0, i % ITERATIONS->r_cache_iter * r_off,
+                                           r_num, c_info->red_data_type, c_info->op_type,
+                                           c_info->WIN));
 
-                ierr = MPI_Win_fence(0, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 #ifdef CHECK
                 if (root) {
                     CHK_DIFF("Accumulate", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
@@ -194,17 +191,14 @@ Output variables:
             for (i = 0; i < ITERATIONS->n_sample; i++)
 #endif
             {
-                ierr = MPI_Accumulate(
-                    (char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                    s_num, c_info->red_data_type,
-                    0, i%ITERATIONS->r_cache_iter*r_off,
-                    r_num, c_info->red_data_type, c_info->op_type,
-                    c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Accumulate((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                           s_num, c_info->red_data_type,
+                                           0, i%ITERATIONS->r_cache_iter*r_off,
+                                           r_num, c_info->red_data_type, c_info->op_type,
+                                           c_info->WIN));
             }
 
-            ierr = MPI_Win_fence(0, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
             *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
 

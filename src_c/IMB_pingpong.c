@@ -130,9 +130,9 @@ Output variables:
     MPI_Status stat;
 
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
-    ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -159,15 +159,13 @@ Output variables:
 
         *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                            s_num, c_info->s_data_type, dest,
-                            s_tag, c_info->communicator);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                 s_num, c_info->s_data_type, dest,
+                                 s_tag, c_info->communicator));
 
-            ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                            r_num, c_info->r_data_type, source,
-                            r_tag, c_info->communicator, &stat);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                 r_num, c_info->r_data_type, source,
+                                 r_tag, c_info->communicator, &stat));
 
             CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                      size, size, asize,
@@ -184,15 +182,13 @@ Output variables:
 
         *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                            r_num, c_info->r_data_type, source,
-                            r_tag, c_info->communicator, &stat);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Recv((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                 r_num, c_info->r_data_type, source,
+                                 r_tag, c_info->communicator, &stat));
 
-            ierr = MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                            s_num, c_info->s_data_type, dest,
-                            s_tag, c_info->communicator);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Send((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                 s_num, c_info->s_data_type, dest,
+                                 s_tag, c_info->communicator));
 
             CHK_DIFF("PingPong", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                      size, size, asize,

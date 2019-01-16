@@ -86,9 +86,9 @@ void IMB_rma_single_get(struct comm_info* c_info, int size,
     int i;
     char *recv = (char *)c_info->r_buffer;
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
-    ierr = 0;
 
     if (c_info->rank == c_info->pair0) {
         target = c_info->pair1;
@@ -118,27 +118,22 @@ void IMB_rma_single_get(struct comm_info* c_info, int size,
         if (run_mode->AGGREGATE) {
             res_time = MPI_Wtime();
             for (i = 0; i < iterations->n_sample; i++) {
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                               r_num, c_info->r_data_type, target,
-                               i%iterations->s_cache_iter*iterations->s_offs,
-                               r_num, c_info->s_data_type, c_info->WIN);
-
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, target,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
             }
-            ierr = MPI_Win_flush(target, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_flush(target, c_info->WIN));
             res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
         } else if (!run_mode->AGGREGATE) {
             res_time = MPI_Wtime();
             for (i = 0; i < iterations->n_sample; i++) {
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                               r_num, c_info->r_data_type, target,
-                               i%iterations->s_cache_iter*iterations->s_offs,
-                               r_num, c_info->s_data_type, c_info->WIN);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, target,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
 
-                MPI_ERRHAND(ierr);
-                ierr = MPI_Win_flush(target, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Win_flush(target, c_info->WIN));
             }
             res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
         }
@@ -176,7 +171,6 @@ void IMB_rma_get_all(struct comm_info* c_info, int size,
     int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
-    ierr = 0;
 
     if (c_info->rank < 0) {
         *time = res_time;
@@ -203,15 +197,13 @@ void IMB_rma_get_all(struct comm_info* c_info, int size,
                 if (target == c_info->rank)
                     continue; /* do not get from itself*/
 
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                                       r_num, c_info->r_data_type, target,
-                                       i%iterations->s_cache_iter*iterations->s_offs,
-                                       r_num, c_info->s_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, target,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
             }
         }
-        ierr = MPI_Win_flush_all(c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_flush_all(c_info->WIN));
         res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
 
         MPI_Win_unlock_all(c_info->WIN);
@@ -235,8 +227,10 @@ void IMB_rma_get_local(struct comm_info* c_info, int size,
     Type_Size r_size;
     int r_num = 0;
     int i;
+#ifdef CHECK
+    int asize = (int) sizeof(assign_type);
+#endif
     char *recv = (char *)c_info->r_buffer;
-    ierr = 0;
 
     if (c_info->rank < 0) {
         *time = res_time;
@@ -254,25 +248,21 @@ void IMB_rma_get_local(struct comm_info* c_info, int size,
         if (run_mode->AGGREGATE) {
             res_time = MPI_Wtime();
             for (i = 0; i < iterations->n_sample; i++) {
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                               r_num, c_info->r_data_type, c_info->pair1,
-                               i%iterations->s_cache_iter*iterations->s_offs,
-                               r_num, c_info->s_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, c_info->pair1,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
             }
-            ierr = MPI_Win_flush_local(c_info->pair1, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_flush_local(c_info->pair1, c_info->WIN));
             res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
         } else if (!run_mode->AGGREGATE) {
             res_time = MPI_Wtime();
             for (i = 0; i < iterations->n_sample; i++) {
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                               r_num, c_info->r_data_type, c_info->pair1,
-                               i%iterations->s_cache_iter*iterations->s_offs,
-                               r_num, c_info->s_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
-                ierr = MPI_Win_flush_local(c_info->pair1, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, c_info->pair1,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
+                MPI_ERRHAND(MPI_Win_flush_local(c_info->pair1, c_info->WIN));
             }
             res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
         }
@@ -309,7 +299,6 @@ void IMB_rma_get_all_local(struct comm_info* c_info, int size,
     int  r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
-    ierr = 0;
 
     if (c_info->rank < 0) {
         *time = res_time;
@@ -333,15 +322,13 @@ void IMB_rma_get_all_local(struct comm_info* c_info, int size,
                 if (target == c_info->rank)
                     continue; /* do not get from itself*/
 
-                ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                               r_num, c_info->r_data_type, target,
-                               i%iterations->s_cache_iter*iterations->s_offs,
-                               r_num, c_info->s_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                                    r_num, c_info->r_data_type, target,
+                                    i%iterations->s_cache_iter*iterations->s_offs,
+                                    r_num, c_info->s_data_type, c_info->WIN));
             }
         }
-        ierr = MPI_Win_flush_local_all(c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_flush_local_all(c_info->WIN));
         res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
 
         MPI_Win_unlock_all(c_info->WIN);
@@ -366,10 +353,10 @@ void IMB_rma_exchange_get(struct comm_info* c_info, int size,
     int r_num = 0;
     int i;
     char *recv = (char *)c_info->r_buffer;
-#ifdef CHECK 
+#ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
-    ierr = 0;
 
     if (c_info->rank < 0) {
         *time = res_time;
@@ -396,27 +383,22 @@ void IMB_rma_exchange_get(struct comm_info* c_info, int size,
 
     res_time = MPI_Wtime();
     for (i = 0; i < iterations->n_sample; i++) {
-        ierr = MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
-                       r_num, c_info->r_data_type, right,
-                       i%iterations->s_cache_iter*iterations->s_offs,
-                       r_num, c_info->s_data_type, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Get((void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
+                            r_num, c_info->r_data_type, right,
+                            i%iterations->s_cache_iter*iterations->s_offs,
+                            r_num, c_info->s_data_type, c_info->WIN));
 
-        ierr = MPI_Get((void*)(recv + size + i%iterations->r_cache_iter*iterations->r_offs),
-                       r_num, c_info->r_data_type, left,
-                       size + i%iterations->s_cache_iter*iterations->s_offs,
-                       r_num, c_info->s_data_type, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Get((void*)(recv + size + i%iterations->r_cache_iter*iterations->r_offs),
+                            r_num, c_info->r_data_type, left,
+                            size + i%iterations->s_cache_iter*iterations->s_offs,
+                            r_num, c_info->s_data_type, c_info->WIN));
 
         if (left != right) {
-            ierr = MPI_Win_flush(left, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_flush(left, c_info->WIN));
 
-            ierr = MPI_Win_flush(right, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_flush(right, c_info->WIN));
         } else {
-            ierr = MPI_Win_flush(left, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_flush(left, c_info->WIN));
         }
     }
     res_time = (MPI_Wtime() - res_time) / iterations->n_sample;
@@ -437,7 +419,7 @@ void IMB_rma_exchange_get(struct comm_info* c_info, int size,
         CHK_DIFF("MPI_Get", c_info, (void*)(recv + i%iterations->r_cache_iter*iterations->r_offs),
                  0, size, size, asize, get, 0, iterations->n_sample, i, right, &defect);
     }
-#endif     
+#endif
 
     *time = res_time;
     return;

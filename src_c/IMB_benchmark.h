@@ -131,7 +131,6 @@ typedef enum {
     priv,
     explic,
     indv_block,
-    indv_cyclic,
     shared
 } POSITIONING;
 #else

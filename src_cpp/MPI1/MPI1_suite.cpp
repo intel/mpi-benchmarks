@@ -49,7 +49,7 @@ goods and services.
 */
 
 #if defined RMA || defined NBC || defined MPIIO || defined EXT
-#error Legacy benchmark components can't be linked together
+#error Legacy benchmark components cant be linked together
 #endif
 
 #include <set>
@@ -114,8 +114,10 @@ bool load_msg_sizes(const char *filename)
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
 
-    if (c_info.msglen == NULL)
+    if (c_info.msglen == NULL) {
+        fclose(t);
         return false;
+    }
 
     isz=-1;
 
@@ -140,6 +142,7 @@ bool load_msg_sizes(const char *filename)
                 isz++;
                 c_info.msglen[isz]=sz;
             } else {
+                fclose(t);
                 return false;
             }
         } /*if( inp_line[0] != '#' && strlen(inp_line)-1 )*/
@@ -655,7 +658,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
     int alignment = parser.get<int>("alignment");
-    if (alignment < sizeof(void*)) {
+    if (alignment < (int)sizeof(void*)) {
         alignment = sizeof(void*);
     }
     int power2 = 1;

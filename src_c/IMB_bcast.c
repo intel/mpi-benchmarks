@@ -135,7 +135,6 @@ Output variables:
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -154,13 +153,11 @@ Output variables:
             bc_buf = (root == c_info->rank) ? c_info->s_buffer : c_info->r_buffer;
 
             t1 = MPI_Wtime();
-            ierr = MPI_Bcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                             s_num, c_info->s_data_type,
-                             root, c_info->communicator);
+            MPI_ERRHAND(MPI_Bcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                  s_num, c_info->s_data_type,
+                                  root, c_info->communicator));
             t2 = MPI_Wtime();
             *time += (t2 - t1);
-
-            MPI_ERRHAND(ierr);
 
             CHK_DIFF("Bcast", c_info,
                      (char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
@@ -227,7 +224,6 @@ Output variables:
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -250,13 +246,12 @@ Output variables:
                    : c_info->r_buffer;
 
             t_ovrlp -= MPI_Wtime();
-            ierr = MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                               s_num,
-                               c_info->s_data_type,
-                               root,
-                               c_info->communicator,
-                               &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                   s_num,
+                                   c_info->s_data_type,
+                                   root,
+                                   c_info->communicator,
+                                   &request));
 
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
@@ -333,7 +328,6 @@ Output variables:
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -352,13 +346,12 @@ Output variables:
                    : c_info->r_buffer;
 
             t_pure -= MPI_Wtime();
-            ierr = MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                              s_num,
-                              c_info->s_data_type,
-                              root,
-                              c_info->communicator,
-                              &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ibcast((char*)bc_buf + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                   s_num,
+                                   c_info->s_data_type,
+                                   root,
+                                   c_info->communicator,
+                                   &request));
             MPI_Wait(&request, &status);
             t_pure += MPI_Wtime();
 

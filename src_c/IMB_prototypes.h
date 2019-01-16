@@ -425,6 +425,10 @@ void IMB_rma_compare_and_swap(struct comm_info* c_info, int size,
 void IMB_rma_passive_put(struct comm_info* c_info, int size,
                          struct iter_schedule* iterations,
                          MODES run_mode, double* time);
+
+void IMB_user_set_info(MPI_Info* opt_info);
+
+
 #endif /*RMA*/
 
 
@@ -474,9 +478,7 @@ void IMB_free_file(struct comm_info * c_info);
 
 void IMB_del_file(struct comm_info* c_info);
 
-int IMB_open_file(struct comm_info* c_info);
-
-void IMB_user_set_info(MPI_Info* opt_info);
+void IMB_open_file(struct comm_info* c_info);
 
 
 #endif /*MPIIO*/
