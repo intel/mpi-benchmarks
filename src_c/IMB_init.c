@@ -1487,6 +1487,7 @@ static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* l
         return;
 
     blist_item->bname = (char *)malloc(strlen(Bname) + 1);
+    if (blist_item->bname == NULL) exit(1);
     duplicated_benchmark_names[duplicated_benchmark_names_cnt++] = memcpy(blist_item->bname, Bname, strlen(Bname) + 1);
     if (duplicated_benchmark_names_cnt == 1000)
         duplicated_benchmark_names_cnt--;

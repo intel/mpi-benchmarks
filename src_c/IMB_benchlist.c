@@ -148,9 +148,17 @@ Input variables:
 
     for (index = 0; index < ncases; index++)
     {
-        char* TMP1 = IMB_str(all_cases[index]);
-        char *TMP2 = IMB_str(name);
-        int  iret = IMB_strcasecmp(TMP1, TMP2);
+        char* TMP1;
+        char* TMP2;
+        int  iret;
+
+        TMP1 = IMB_str(all_cases[index]);
+        if (TMP1 == NULL) exit(1);
+
+        TMP2 = IMB_str(name);
+        if (TMP2 == NULL) exit(1);
+
+        iret = IMB_strcasecmp(TMP1, TMP2);
 
         IMB_v_free((void**)&TMP1);
         IMB_v_free((void**)&TMP2);
@@ -175,6 +183,8 @@ void IMB_construct_blist_default(struct Bench** P_BList) {
         Bmark = &(*P_BList)[i];
         Bmark->name = IMB_str(def_cases[i]);
 
+        if (Bmark->name == NULL) exit(1);
+
         IMB_lwr(Bmark->name);
 
         Bmark->bench_comments = &NIL_COMMENT[0];
@@ -192,6 +202,9 @@ void IMB_construct_blist_default(struct Bench** P_BList) {
 
 void IMB_construct_blist(struct Bench* Bmark, const char* bname) {
     Bmark->name = IMB_str((char *)bname);
+
+    if (Bmark->name == NULL) exit(1);
+
     IMB_lwr(Bmark->name);
 
     Bmark->bench_comments = &NIL_COMMENT[0];

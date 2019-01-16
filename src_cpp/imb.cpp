@@ -216,6 +216,9 @@ int main(int argc, char * *argv)
                 for (set<string>::iterator it_b = benchmarks.begin(); 
                      it_b != benchmarks.end(); ++it_b) {
                     smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it_b);
+
+                    if (b.get() == NULL) exit(1);
+
                     string bn = b->get_name();
                     vector<string> comments = b->get_comments();
                     output << "    " << bn;
