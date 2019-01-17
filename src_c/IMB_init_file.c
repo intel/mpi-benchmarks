@@ -212,15 +212,16 @@ Return value          (type int)
     IMB_del_file(c_info); // if exists
 
     if (c_info->File_rank == 0) {
-        int ierr, size, total, i;
+        int ierr, total, i;
+        int size = 0;
         MPI_Status stat;
 
         /* << IMB 3.1. fixes of size */
         if (c_info->n_lens > 0) {
-            size = 0;
             for (i = 0; i < c_info->n_lens; i++)
                 size = max(size, c_info->msglen[i]);
-        } else
+        }
+        if (size == 0)
             size = 1 << c_info->max_msg_log;
 
         total = max(size, ITERATIONS->overall_vol);
@@ -298,9 +299,8 @@ In/out variables:
 */
     if (c_info->filename != (char*)NULL) IMB_v_free((void**)&c_info->filename);
     if (c_info->datarep != (char*)NULL) IMB_v_free((void**)&c_info->datarep);
-    if (c_info->filename != (char*)NULL)
-        if (c_info->view != MPI_DATATYPE_NULL)
-            MPI_Type_free(&c_info->view);
+    if (c_info->view != MPI_DATATYPE_NULL)
+        MPI_Type_free(&c_info->view);
     if (c_info->info != MPI_INFO_NULL)
         MPI_Info_free(&c_info->info);
     if (c_info->fh != MPI_FILE_NULL)
