@@ -836,7 +836,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 c_info->n_lens = n_lens;
 
                 if (t && n_lens > 0) {
-                    char inp_line[72], S[32];
+                    char inp_line[72], S[72];
                     int sz, isz;
 
                     IMB_i_alloc(int, c_info->msglen, n_lens, "Basic_Input");
@@ -870,13 +870,13 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     } /*while(fgets(inp_line,72,t))*/
 
                     n_lens = c_info->n_lens = isz + 1;
-                    fclose(t);
 
                     if (n_lens == 0) {
                         fprintf(stderr, "Sizes File %s invalid or doesnt exist\n", (*argv)[iarg_msg]);
                         ok = -1;
                     }
                 } /*if( t && n_lens>0 )*/
+                if (t != NULL) fclose(t);
             } /*if( iarg_msg>=0 )*/
 
             IMB_i_alloc(int, ALL_INFO, N_baseinfo + n_cases, "Basic_Input");

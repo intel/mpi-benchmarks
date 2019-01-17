@@ -108,13 +108,15 @@ bool load_msg_sizes(const char *filename)
 
     c_info.n_lens = n_lens;
 
-    char S[32];
+    char S[72];
     int sz, isz;
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
 
-    if (c_info.msglen == NULL)
+    if (c_info.msglen == NULL) {
+        fclose(t);
         return false;
+    }
 
     isz=-1;
 
@@ -139,6 +141,7 @@ bool load_msg_sizes(const char *filename)
                 isz++;
                 c_info.msglen[isz]=sz;
             } else {
+                fclose(t);
                 return false;
             }
         } /*if( inp_line[0] != '#' && strlen(inp_line)-1 )*/

@@ -97,9 +97,6 @@ goods and services.
         MPI_Type_size(type, &type_size);                                                              \
         for (size_t i = 0; i < count * type_size / sizeof(int); i++)                                  \
             if( ((int *)(arr))[i] != (int)(val) ) {                                                   \
-                if (0)                                                                                \
-                    fprintf(stderr,"Rank %d tid (%d---?) FAILED at index %ld: got %d, expected %d\n", \
-                            rank, 0, i, ((int *)(arr))[i], (int)(val));                               \
                 odata->checks.failures++;                                                             \
             }                                                                                         \
     }
