@@ -139,7 +139,11 @@ Output variables:
     MPI_Type_size(c_info->red_data_type, &s_size);
 
     for (i = 0; i < c_info->num_procs; i++) {
+#ifdef IMB2018
+        c_info->reccnt[i] = ((size / s_size) * (i+1) / c_info->num_procs) - ((size / s_size) * i / c_info->num_procs);
+#else
         c_info->reccnt[i] = size / s_size;
+#endif
     }
 #ifdef CHECK
     Locsize = s_size * c_info->reccnt[c_info->rank];

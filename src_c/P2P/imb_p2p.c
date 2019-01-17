@@ -161,12 +161,15 @@ static void print_main_header(int argc, char **argv) {
     size_t j;
     int i, mpi_subversion, mpi_version;
     time_t t;
+    struct tm *local_time;
 #ifndef WIN_IMB
     struct utsname info;
 #endif
     time(&t);
     print_title();
-    fprintf(unit, "# Date                  : %s", asctime(localtime(&t)));
+    local_time = localtime(&t);
+    if (local_time == NULL) exit(1);
+    fprintf(unit, "# Date                  : %s", asctime(local_time));
 #ifndef WIN_IMB
     uname(&info);
     MPI_Get_version(&mpi_version, &mpi_subversion);
@@ -295,6 +298,7 @@ static void add_benchmark(const char * name, imb_p2p_procedure_t procedure) {
                                                                                      sizeof(imb_p2p_benchmark_t) * (imb_p2p_config.benchmarks.capacity * 2));
         imb_p2p_config.benchmarks.capacity *= 2;
     }
+    if (!imb_p2p_config.benchmarks.array) exit(1);
     imb_p2p_config.benchmarks.array[imb_p2p_config.benchmarks.length].name = name;
     imb_p2p_config.benchmarks.array[imb_p2p_config.benchmarks.length].run = procedure;
     imb_p2p_config.benchmarks.length++;
@@ -325,6 +329,7 @@ static void add_message(size_t size) {
                                                                       sizeof(size_t) * (imb_p2p_config.messages.capacity * 2));
         imb_p2p_config.messages.capacity *= 2;
     }
+    if (!imb_p2p_config.messages.array) exit(1);
     imb_p2p_config.messages.array[imb_p2p_config.messages.length] = size;
     imb_p2p_config.messages.length++;
     if (imb_p2p_config.messages.min_size > size) {

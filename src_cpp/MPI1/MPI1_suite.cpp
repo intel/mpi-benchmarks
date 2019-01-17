@@ -108,7 +108,7 @@ bool load_msg_sizes(const char *filename)
 
     c_info.n_lens = n_lens;
 
-    char S[32];
+    char S[72];
     int sz, isz;
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
