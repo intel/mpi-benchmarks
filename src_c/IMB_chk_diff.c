@@ -88,6 +88,7 @@ For more documentation than found here, see
 
 #include <limits.h>
 
+static int asize = (int) sizeof(assign_type);
 
 void IMB_chk_dadd(void* AUX, int Locsize, size_t buf_pos,
                   int rank0, int rank1) {
@@ -250,6 +251,9 @@ Input variables:
             case shared:
                 Offset = (MPI_Offset)(-1);
                 break;
+
+            case nothing:
+                exit(1);
         }
 
         if (fpos == shared)
@@ -528,16 +532,13 @@ Output variables:
                 j2 = j_sample;
             }
 
-            ierr = MPI_File_seek(restore, (MPI_Offset)(j1*Totalsize), MPI_SEEK_SET);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_File_seek(restore, (MPI_Offset)(j1*Totalsize), MPI_SEEK_SET));
 
             for (j = j1; j <= j2 && faultpos == CHK_NO_FAULT /*faultpos<0*/; j++) {
                 IMB_Assert(Totalsize <= INT_MAX);
 
-                ierr = MPI_File_read(restore, c_info->r_buffer,
-                                    (int)Totalsize, c_info->etype, &stat);
+                MPI_ERRHAND(MPI_File_read(restore, c_info->r_buffer, (int)Totalsize, c_info->etype, &stat));
 
-                MPI_ERRHAND(ierr);
                 RECEIVED = c_info->r_buffer;
 
                 if (source == -3) {

@@ -117,6 +117,7 @@ In/out variables:
 #include <limits.h>
     int baslen;
     int ierr;
+    int asize = (int) sizeof(assign_type);
     size_t pos1, pos2;
 
     if (c_info->File_rank < 0 || Bmark->access == no) return;
@@ -196,14 +197,11 @@ In/out variables:
         c_info->split.Totalsize = size;
     }
 
-    ierr = IMB_open_file(c_info);
+    IMB_open_file(c_info);
 
 #elif defined  EXT
     MPI_Aint sz;
     int s_size, r_size;
-    int ierr;
-
-    ierr = 0;
 
     if (Bmark->reduction) {
         MPI_Type_size(c_info->red_data_type, &s_size);
@@ -221,22 +219,17 @@ In/out variables:
         /* >> IMB 3.1  */
 
         if (Bmark->access == put) {
-            ierr = MPI_Win_create(c_info->r_buffer, sz, r_size, c_info->info,
-                                  c_info->communicator, &c_info->WIN);
-            MPI_ERRHAND(ierr);
-            ierr = MPI_Win_fence(0, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_create(c_info->r_buffer, sz, r_size, c_info->info,
+                                       c_info->communicator, &c_info->WIN));
+            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
         } else if (Bmark->access == get) {
-            ierr = MPI_Win_create(c_info->s_buffer, sz, s_size, c_info->info,
-                                  c_info->communicator, &c_info->WIN);
-            MPI_ERRHAND(ierr);
-            ierr = MPI_Win_fence(0, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_create(c_info->s_buffer, sz, s_size, c_info->info,
+                                       c_info->communicator, &c_info->WIN));
+            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
         }
     }
 #elif defined RMA
     int s_size, r_size;
-    int ierr = 0;
 
     if (Bmark->reduction) {
         MPI_Type_size(c_info->red_data_type, &s_size);
@@ -250,13 +243,12 @@ In/out variables:
         IMB_user_set_info(&c_info->info);
 
         if (Bmark->access == put) {
-            ierr = MPI_Win_create(c_info->r_buffer, acc_size, r_size, c_info->info,
-                                  c_info->communicator, &c_info->WIN);
+            MPI_ERRHAND(MPI_Win_create(c_info->r_buffer, acc_size, r_size, c_info->info,
+                                       c_info->communicator, &c_info->WIN));
         } else if (Bmark->access == get) {
-            ierr = MPI_Win_create(c_info->s_buffer, acc_size, r_size, c_info->info,
-                                  c_info->communicator, &c_info->WIN);
+            MPI_ERRHAND(MPI_Win_create(c_info->s_buffer, acc_size, r_size, c_info->info,
+                                       c_info->communicator, &c_info->WIN));
         }
-        MPI_ERRHAND(ierr);
     }
 #endif 
 

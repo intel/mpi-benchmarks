@@ -126,10 +126,9 @@ Output variables:
     double t1, t2;
 
 #ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0.;
 #endif
-
-    ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
@@ -147,13 +146,12 @@ Output variables:
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t1 = MPI_Wtime();
-            ierr = MPI_Reduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                              (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                              s_num,
-                              c_info->red_data_type, c_info->op_type,
-                              root,
-                              c_info->communicator);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Reduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                   (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                   s_num,
+                                   c_info->red_data_type, c_info->op_type,
+                                   root,
+                                   c_info->communicator));
             t2 = MPI_Wtime();
             *time += (t2 - t1);
 
@@ -192,9 +190,9 @@ void IMB_ireduce(struct comm_info* c_info,
                 t_ovrlp = 0.;
 
 #ifdef CHECK
+    int         asize = (int) sizeof(assign_type);
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
@@ -213,15 +211,14 @@ void IMB_ireduce(struct comm_info* c_info,
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_ovrlp -= MPI_Wtime();
-            ierr = MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                               (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                               s_num,
-                               c_info->red_data_type,
-                               c_info->op_type,
-                               i % c_info->num_procs, // root = round robin
-                               c_info->communicator,
-                               &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                    (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                    s_num,
+                                    c_info->red_data_type,
+                                    c_info->op_type,
+                                    i % c_info->num_procs, // root = round robin
+                                    c_info->communicator,
+                                    &request));
 
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
@@ -262,9 +259,9 @@ void IMB_ireduce_pure(struct comm_info* c_info,
     double      t_pure = 0.;
 
 #ifdef CHECK
+    int         asize = (int) sizeof(assign_type);
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
@@ -279,15 +276,14 @@ void IMB_ireduce_pure(struct comm_info* c_info,
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
-            ierr = MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                               (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                               s_num,
-                               c_info->red_data_type,
-                               c_info->op_type,
-                               root,
-                               c_info->communicator,
-                               &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ireduce((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                    (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                    s_num,
+                                    c_info->red_data_type,
+                                    c_info->op_type,
+                                    root,
+                                    c_info->communicator,
+                                    &request));
             MPI_Wait(&request, MPI_STATUS_IGNORE);
             t_pure += MPI_Wtime();
 

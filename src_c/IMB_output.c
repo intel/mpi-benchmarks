@@ -164,8 +164,6 @@ Input variables:
     const int DO_OUT = (c_info->w_rank == 0) ? 1 : 0;
     const int GROUP_OUT = (c_info->group_mode > 0) ? 1 : 0;
 
-    ierr = 0;
-
     if (DO_OUT) {
         /* Fix IMB_1.0.1: NULL all_times before allocation */
         IMB_v_free((void**)&all_times);
@@ -185,13 +183,11 @@ Input variables:
         scaled_time[i] = time[i] * SCALE * Bmark->scale_time;
 
     /* collect all times  */
-    ierr = MPI_Gather(scaled_time, Bmark->Ntimes, MPI_DOUBLE, all_times, Bmark->Ntimes, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_ERRHAND(ierr);
+    MPI_ERRHAND(MPI_Gather(scaled_time, Bmark->Ntimes, MPI_DOUBLE, all_times, Bmark->Ntimes, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 
 #ifdef CHECK      
     /* collect all defects */
-    ierr = MPI_Gather(&defect, 1, MPI_DOUBLE, all_defect, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_ERRHAND(ierr);
+    MPI_ERRHAND(MPI_Gather(&defect, 1, MPI_DOUBLE, all_defect, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD));
 #endif
 
     if (DO_OUT) {
@@ -926,7 +922,7 @@ void IMB_print_header(int out_format, struct Bench* bmark,
     }
 
     help = aux_string;
-    while (token = strtok(help, "&")) {
+    while ((token = strtok(help, "&"))) {
         sprintf(format, "%%%ds", ow_format);
         fprintf(unit, format, token);
         help = NULL;

@@ -452,6 +452,11 @@ DECLARE_INHERITED_BENCHMARKMT2(BenchmarkSuite<BS_MT>, GLUE_TYPENAME2(mt_biband<t
 
 MT_COLLECTIVE_BEGIN(barrier) {
     UNUSED(size);
+    UNUSED(in);
+    UNUSED(out);
+    UNUSED(count);
+    UNUSED(type);
+    UNUSED(rank);
     MT_CYCLE_BEGIN
         if (idata->threading.mode_multiple) {
 #pragma omp barrier

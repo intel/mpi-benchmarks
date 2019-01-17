@@ -93,6 +93,7 @@ void IMB_general_info() {
 */
     /*void IMB_make_sys_info();*/
     time_t T;
+    struct tm *local_time;
 
     time(&T);
     fprintf(unit, "#------------------------------------------------------------\n");
@@ -111,7 +112,9 @@ void IMB_general_info() {
 
 
     fprintf(unit, "#------------------------------------------------------------\n");
-    fprintf(unit, "# Date                  : %s", asctime(localtime(&T)));
+    local_time = localtime(&T);
+    if (local_time == NULL) exit(1);
+    fprintf(unit, "# Date                  : %s", asctime(local_time));
 
     IMB_make_sys_info();
     fprintf(unit, "\n");

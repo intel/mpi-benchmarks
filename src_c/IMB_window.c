@@ -111,31 +111,24 @@ Output variables:
     double t1, t2;
     int    i;
 
-    ierr = 0;
-
     if (c_info->rank != -1) {
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
 
         t1 = MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Win_create(c_info->r_buffer, size, 1, MPI_INFO_NULL,
-                                  c_info->communicator, &c_info->WIN);
-            MPI_ERRHAND(ierr);
-            ierr = MPI_Win_fence(0, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_create(c_info->r_buffer, size, 1, MPI_INFO_NULL,
+                                       c_info->communicator, &c_info->WIN));
+            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
             /* July 2002 fix V2.2.1, empty window case */
             if (size > 0) {
-                ierr = MPI_Put(c_info->s_buffer, 1, c_info->s_data_type,
-                               c_info->rank, 0, 1, c_info->r_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Put(c_info->s_buffer, 1, c_info->s_data_type,
+                                    c_info->rank, 0, 1, c_info->r_data_type, c_info->WIN));
             }
 
-            ierr = MPI_Win_fence(0, c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
-            ierr = MPI_Win_free(&c_info->WIN);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Win_free(&c_info->WIN));
         }
         t2 = MPI_Wtime();
         *time = (t2 - t1) / (ITERATIONS->n_sample);

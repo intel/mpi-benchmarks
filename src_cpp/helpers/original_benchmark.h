@@ -67,7 +67,6 @@ extern "C" {
                                  memcpy(&NAME, p, sizeof(TYPE)); }
 
 
-extern "C" { void IMB_Barrier(MPI_Comm comm); }
 
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {

@@ -49,7 +49,7 @@ goods and services.
 */
 
 #if defined RMA || defined NBC || defined MPIIO || defined EXT
-#error Legacy benchmark components can't be linked together
+#error Legacy benchmark components cannot be linked together
 #endif
 
 #include <set>
@@ -113,8 +113,10 @@ bool load_msg_sizes(const char *filename)
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
 
-    if (c_info.msglen == NULL)
+    if (c_info.msglen == NULL) {
+        fclose(t);
         return false;
+    }
 
     isz=-1;
 
@@ -139,6 +141,7 @@ bool load_msg_sizes(const char *filename)
                 isz++;
                 c_info.msglen[isz]=sz;
             } else {
+                fclose(t);
                 return false;
             }
         } /*if( inp_line[0] != '#' && strlen(inp_line)-1 )*/

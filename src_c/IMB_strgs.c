@@ -145,7 +145,7 @@ Return value          (type int)
     n = 0;
     len = strlen(s);
 
-    for (i = 0; s[i] >= '0' && s[i] <= '9' || s[i] == ' '; ++i) {
+    for (i = 0; (s[i] >= '0' && s[i] <= '9') || s[i] == ' '; ++i) {
         if (s[i] != ' ')
             n = 10 * n + (s[i] - '0');
     }

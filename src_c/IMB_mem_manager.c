@@ -88,6 +88,8 @@ For more documentation than found here, see
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
+static int asize = (int) sizeof(assign_type);
+
 void* IMB_v_alloc(size_t size, char* where) {
 /*
 
@@ -725,12 +727,10 @@ In/out variables:
 
 #ifdef MPIIO
         if (Bmark->access != no) {
-            ierr = MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET));
 
             if (Bmark->fpointer == shared) {
-                ierr = MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET));
             }
         }
 #endif /*MPIIO*/
@@ -759,12 +759,10 @@ In/out variables:
             time[1] = time[0];
 #ifdef MPIIO
             if (Bmark->access != no) {
-                ierr = MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET));
 
                 if (Bmark->fpointer == shared) {
-                    ierr = MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET));
                 }
             }
 #endif /*MPIIO*/

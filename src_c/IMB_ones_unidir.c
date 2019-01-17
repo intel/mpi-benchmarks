@@ -131,7 +131,6 @@ Output variables:
         r_num = 0;
     int dest, sender;
 
-    ierr = 0;
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
@@ -282,10 +281,10 @@ Output variables:
                           Timing result per sample
 
 */
-    int i, ierr;
+    int i;
     int s_size;
-
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
 
@@ -302,19 +301,16 @@ Output variables:
         if (sender) {
             for (i = 0; i < ITERATIONS->n_sample; i++) {
                 /* "Send ", i.e. synchronize window */
-                ierr = MPI_Win_fence(0, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
             }
         } else {
             for (i = 0; i < ITERATIONS->n_sample; i++) {
                 /* "Receive" */
-                ierr = MPI_Get((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                               r_num, c_info->r_data_type,
-                               dest, i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                               s_num, c_info->s_data_type, c_info->WIN);
-                ierr = MPI_Win_fence(0, c_info->WIN);
-
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Get((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                    r_num, c_info->r_data_type,
+                                    dest, i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                    s_num, c_info->s_data_type, c_info->WIN));
+                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
                 DIAGNOSTICS("MPI_Get: ", c_info, c_info->r_buffer, r_num, r_num, i, 0);
 
@@ -369,10 +365,11 @@ Output variables:
                           Timing result per sample
 
 */
-    int i, ierr;
+    int i;
     char* recv;
 
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
 
@@ -381,8 +378,7 @@ Output variables:
     else {
         recv = (char*)c_info->r_buffer;
 
-        ierr = MPI_Win_fence(0, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
@@ -391,13 +387,12 @@ Output variables:
 
         if (!sender)
             for (i = 0; i < ITERATIONS->n_sample; i++) {
-                ierr = MPI_Get((void*)(recv + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs),
-                               r_num, c_info->r_data_type,
-                               dest, i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                               s_num, c_info->s_data_type, c_info->WIN);
+                MPI_ERRHAND(MPI_Get((void*)(recv + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs),
+                                    r_num, c_info->r_data_type,
+                                    dest, i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                    s_num, c_info->s_data_type, c_info->WIN));
             }
-        ierr = MPI_Win_fence(0, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
         *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
 
@@ -455,16 +450,14 @@ Output variables:
                           Timing result per sample
 
 */
-    int i, ierr, r_size;
-    char* recv;
+    int i, r_size;
 
 #ifdef CHECK 
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
 
     MPI_Type_size(c_info->r_data_type, &r_size);
-
-    recv = (char*)c_info->r_buffer;
 
     if (c_info->rank < 0)
         *time = 0.;
@@ -477,22 +470,20 @@ Output variables:
         if (sender) {
             for (i = 0; i < ITERATIONS->n_sample; i++) {
                 /* Send */
-                ierr = MPI_Put((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                               s_num, c_info->s_data_type,
-                               dest, i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                               r_num, c_info->r_data_type, c_info->WIN);
-                ierr = MPI_Win_fence(0, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Put((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                    s_num, c_info->s_data_type,
+                                    dest, i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                    r_num, c_info->r_data_type, c_info->WIN));
+                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
             }
         } else {
             for (i = 0; i < ITERATIONS->n_sample; i++) {
                 /* "Receive", i.e. synchronize the window */
-                ierr = MPI_Win_fence(0, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
                 DIAGNOSTICS("MPI_Put: ", c_info, c_info->r_buffer, r_num, r_num, i, 0);
 
-                CHK_DIFF("MPI_Put", c_info, (void*)(recv + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs), 0,
+                CHK_DIFF("MPI_Put", c_info, (void*)((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs), 0,
                     size, size, asize,
                     get, 0, ITERATIONS->n_sample, i,
                     dest, &defect);
@@ -546,10 +537,11 @@ Output variables:
                           Timing result per sample
 
 */
-    int i, ierr;
-    char* send, *recv;
+    int i;
+    char* send;
 
-#ifdef CHECK 
+#ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
 
@@ -557,10 +549,8 @@ Output variables:
         *time = 0.;
     else {
         send = (char*)c_info->s_buffer;
-        recv = (char*)c_info->r_buffer;
 
-        ierr = MPI_Win_fence(0, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
@@ -569,21 +559,19 @@ Output variables:
 
         if (sender)
             for (i = 0; i < ITERATIONS->n_sample; i++) {
-                ierr = MPI_Put((void*)(send + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs),
-                               s_num, c_info->s_data_type,
-                               dest, i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                               r_num, c_info->r_data_type, c_info->WIN);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_Put((void*)(send + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs),
+                                    s_num, c_info->s_data_type,
+                                    dest, i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                    r_num, c_info->r_data_type, c_info->WIN));
             }
 
-        ierr = MPI_Win_fence(0, c_info->WIN);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
 
         *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
 
         if (!sender)
             for (i = 0; i < ITERATIONS->n_sample; i++) {
-                CHK_DIFF("MPI_Put", c_info, (void*)(recv + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs), 0,
+                CHK_DIFF("MPI_Put", c_info, (void*)((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs), 0,
                          size, size, asize,
                          get, 0, ITERATIONS->n_sample, i,
                          dest, &defect);

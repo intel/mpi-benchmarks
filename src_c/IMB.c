@@ -125,7 +125,9 @@ Return value          (type int)
     /* >> IMB 3.1  */
     MODES  BMODE;
     double time[MAX_TIME_ID];
-
+#ifdef EXT
+    int    asize = (int) sizeof(assign_type);
+#endif
     Type_Size unit_size;
 
 #ifdef USE_MPI_INIT_THREAD
@@ -388,7 +390,7 @@ Return value          (type int)
     IMB_free_all(&C_INFO, &BList, &ITERATIONS);
 
 #ifdef CHECK
-    if num_alloc == num_free)
+    if (num_alloc == num_free)
         ierr=0;
     else {
         fprintf(stderr, "pr %d: calls to IMB_v_alloc %d / IMB_v_free %d (doesn't seem ok, are unequal!)\n", C_INFO.w_rank,num_alloc,num_free);
