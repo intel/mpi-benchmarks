@@ -49,7 +49,7 @@ goods and services.
 */
 
 #if defined MPI1 || defined NBC || defined MPIIO || defined RMA
-#error Legacy benchmark components cant be linked together
+#error Legacy benchmark components cannot be linked together
 #endif
 
 #include <set>
