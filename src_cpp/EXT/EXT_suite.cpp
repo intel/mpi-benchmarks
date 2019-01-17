@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -68,7 +68,6 @@ extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
 #include "IMB_prototypes.h"
-extern size_t IMB_buffer_alignment;
 }
 
 #include "helper_IMB_functions.h"
@@ -317,8 +316,6 @@ template <> bool BenchmarkSuite<BS_EXT>::declare_args(args_parser &parser, std::
                "\n"
                "Default:\n"
                "off\n");
-    parser.add<int>("alignment", 2097152).set_caption("alignment").
-           set_description("Buffer alignment\n\nDefault:\n2097152\n");
     parser.set_default_current_group();
     return true;
 }
@@ -472,16 +469,6 @@ template <> bool BenchmarkSuite<BS_EXT>::prepare(const args_parser &parser, cons
     
      // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
-
-    int alignment = parser.get<int>("alignment");
-    if (alignment < (int)sizeof(void*)) {
-        alignment = sizeof(void*);
-    }
-    int power2 = 1;
-    while (power2 < alignment) {
-        power2 *= 2;
-    }
-    IMB_buffer_alignment = power2;
 
     if (cmd_line_error)
         return false;

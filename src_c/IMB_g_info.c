@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -69,7 +69,7 @@ For more documentation than found here, see
 
 
 
-char* VERSION="2019 Update 1";
+char* VERSION="2019 Update 2";
 
 #include <stdio.h>
 #include <time.h>
