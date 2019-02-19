@@ -367,6 +367,13 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "on\n");
+   parser.add<bool>("warm_up", true).set_caption("on or off").
+           set_description(
+               "Use additional cycles before runing benchmark(for all size.)"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -652,6 +659,10 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     // zero_size
     if (parser.get<bool>("zero_size") == false) {
         c_info.zero_size = 0;
+    }
+
+    if (parser.get<bool>("warm_up") == false) {
+        c_info.warm_up = 0;
     }
 
     if (c_info.contig_type > 0)
