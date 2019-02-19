@@ -66,7 +66,7 @@ For more documentation than found here, see
 
 
 
-#include <time.h>
+
 
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
@@ -124,11 +124,8 @@ IMB 3.1 <<
     if (c_info->rank >= 0) {
         if (c_info->warm_up) {
             /* IMB 3.1: other warm up settings */
-            double t[MAX_TIME_ID], t1 = .0;
+            double t[MAX_TIME_ID];
             int n_sample = ITERATIONS->n_sample;
-            struct timespec sleep_time;
-            sleep_time.tv_sec = 0;
-            sleep_time.tv_nsec = SLEEP_NANOSEC;
 
             ITERATIONS->n_sample /= WARMUP_PERCENT;
             if ((ITERATIONS->n_sample == 0) && (n_sample > 1))
@@ -136,8 +133,6 @@ IMB 3.1 <<
 #ifdef MPI1
             c_info->select_source = Bmark->select_source;
 #endif
-
-            t1 = MPI_Wtime();
 
 #ifdef RMA
             Bmark->Benchmark(c_info, size, ITERATIONS, Bmark->RUN_MODES, t);
@@ -149,12 +144,6 @@ IMB 3.1 <<
             Bmark->Benchmark(c_info, size, ITERATIONS, &MD, t);
 #endif
 
-            t1 = ((MPI_Wtime() - t1) * NANOSEC_IN_SEC) / WARMUP_PERCENT;
-
-            if (t1 > sleep_time.tv_nsec)
-                sleep_time.tv_nsec = t1;
-
-            nanosleep(&sleep_time, NULL);
             ITERATIONS->n_sample = n_sample;
         }
     }

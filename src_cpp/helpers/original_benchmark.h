@@ -66,7 +66,39 @@ extern "C" {
                                  assert(p != NULL); \
                                  memcpy(&NAME, p, sizeof(TYPE)); }
 
+#ifdef WIN_IMB
 
+#include <windows.h>
+#define DEFAUL_SLEEP_TIME_MILLISEC 100
+#define MILLISEC_IN_SEC 1000
+
+#define SLEEP(t)                                                   \
+  do                                                               \
+  {                                                                \
+      if ((t * MILLISEC_IN_SEC) / 10 > DEFAUL_SLEEP_TIME_MILLISEC) \
+          Sleep((t * MILLISEC_IN_SEC) / 10);                       \
+      else                                                         \
+          Sleep(DEFAUL_SLEEP_TIME_MSEC);                           \
+  } while (0)
+
+#else
+
+#include <time.h>
+#define DEFAUL_SLEEP_TIME_NANOSEC 100000000
+#define NANOSEC_IN_SEC 1000000000
+
+#define SLEEP(t)                                                   \
+  do                                                               \
+  {                                                                \
+      struct timespec sleep_time;                                  \
+      sleep_time.tv_sec = 0;                                       \
+      sleep_time.tv_nsec = DEFAUL_SLEEP_TIME_NANOSEC;              \
+      if ((t * NANOSEC_IN_SEC) / 10 > DEFAUL_SLEEP_TIME_NANOSEC)   \
+          sleep_time.tv_nsec = (t * NANOSEC_IN_SEC) / 10;          \
+      nanosleep(&sleep_time, NULL);                                \
+  } while (0)
+
+#endif
 
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
@@ -117,6 +149,7 @@ class OriginalBenchmark : public Benchmark {
             int size = item.len;
             int np = item.np;
             int imod = *(item.extra_fields.as<int>());
+            double t;
             MPI_Datatype base_s_dt, base_r_dt, base_red_dt;
             if (!initialized)
                 return;
@@ -176,7 +209,10 @@ class OriginalBenchmark : public Benchmark {
             bool failed = (descr->stop_iterations || (BMark->sample_failure));
             if (!failed) {
                 IMB_warm_up(BMark, &c_info, size, &ITERATIONS, glob.iter);
+                t = MPI_Wtime();
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
+                t = MPI_Wtime() - t;
+                SLEEP(t);
             }
             MPI_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);

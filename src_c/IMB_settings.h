@@ -139,9 +139,6 @@ DON'T change anything below here !!
 
 #define SECS_PER_SAMPLE 10
 
-#define NANOSEC_IN_SEC 1000000000
-#define SLEEP_NANOSEC  100000000
-
 #define WARMUP_PERCENT 10
 #define N_BARR   2
 
