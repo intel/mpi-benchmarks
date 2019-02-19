@@ -330,6 +330,13 @@ template <> bool BenchmarkSuite<BS_RMA>::declare_args(args_parser &parser, std::
                "\n"
                "Default:\n"
                "off\n");
+    parser.add<bool>("warm_up", true).set_caption("on or off").
+           set_description(
+               "Use additional cycles before runing benchmark(for all size.)"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -489,6 +496,10 @@ template <> bool BenchmarkSuite<BS_RMA>::prepare(const args_parser &parser, cons
 
     // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
+
+    if (parser.get<bool>("warm_up") == false) {
+        c_info.warm_up = 0;
+    }
 
     if (cmd_line_error)
         return false;

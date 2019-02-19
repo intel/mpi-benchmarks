@@ -319,6 +319,13 @@ template <> bool BenchmarkSuite<BS_EXT>::declare_args(args_parser &parser, std::
                "\n"
                "Default:\n"
                "off\n");
+    parser.add<bool>("warm_up", true).set_caption("on or off").
+           set_description(
+              "Use additional cycles before runing benchmark(for all size.)"
+              "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+              "\n"
+              "Default:\n"
+              "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -469,7 +476,7 @@ template <> bool BenchmarkSuite<BS_EXT>::prepare(const args_parser &parser, cons
         cmd_line_error = true;
     if (c_info.max_msg_log < c_info.min_msg_log)
         cmd_line_error = true;
-    
+
      // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
@@ -482,8 +489,12 @@ template <> bool BenchmarkSuite<BS_EXT>::prepare(const args_parser &parser, cons
         ITERATIONS.numiters = (int *)malloc(c_info.n_lens * sizeof(int));
     }
 
+    if (parser.get<bool>("warm_up") == false) {
+        c_info.warm_up = 0;
+    }
+
 #endif
-    
+
 #if BASIC_INPUT_EXPERIMENT == 0
     struct Bench *BList;
     char *argv[] = { "" };

@@ -1393,6 +1393,8 @@ void IMB_set_default(struct comm_info* c_info) {
 
     c_info->ERR = MPI_ERRHANDLER_NULL;
 
+    c_info->warm_up = 1;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
 

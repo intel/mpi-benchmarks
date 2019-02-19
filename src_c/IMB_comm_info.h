@@ -149,6 +149,8 @@ struct comm_info {
 
     MPI_Errhandler  ERR;
 
+    int warm_up;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
     char*       filename;

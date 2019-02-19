@@ -139,7 +139,7 @@ DON'T change anything below here !!
 
 #define SECS_PER_SAMPLE 10
 
-#define N_WARMUP 2
+#define WARMUP_PERCENT 10
 #define N_BARR   2
 
 #ifdef CHECK
