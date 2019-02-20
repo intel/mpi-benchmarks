@@ -78,6 +78,7 @@ $(C_SRC_DIR)/IMB_parse_name_mpi1.c \
 $(C_SRC_DIR)/IMB_pingping.c \
 $(C_SRC_DIR)/IMB_pingpong.c \
 $(C_SRC_DIR)/IMB_reduce.c \
+$(C_SRC_DIR)/IMB_reduce_local.c \
 $(C_SRC_DIR)/IMB_reduce_scatter.c \
 $(C_SRC_DIR)/IMB_reduce_scatter_block.c \
 $(C_SRC_DIR)/IMB_scatter.c \
