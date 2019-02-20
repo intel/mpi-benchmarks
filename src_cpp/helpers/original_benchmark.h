@@ -69,22 +69,22 @@ extern "C" {
 #ifdef WIN_IMB
 
 #include <windows.h>
-#define DEFAUL_SLEEP_TIME_MILLISEC 100
+#define DEFAULT_SLEEP_TIME_MILLISEC 100
 #define MILLISEC_IN_SEC 1000
 
 #define SLEEP(t)                                                   \
   do                                                               \
   {                                                                \
-      if ((t * MILLISEC_IN_SEC) / 10 > DEFAUL_SLEEP_TIME_MILLISEC) \
+      if ((t * MILLISEC_IN_SEC) / 10 > DEFAULT_SLEEP_TIME_MILLISEC)\
           Sleep((t * MILLISEC_IN_SEC) / 10);                       \
       else                                                         \
-          Sleep(DEFAUL_SLEEP_TIME_MSEC);                           \
+          Sleep(DEFAULT_SLEEP_TIME_MILLISEC);                      \
   } while (0)
 
 #else
 
 #include <time.h>
-#define DEFAUL_SLEEP_TIME_NANOSEC 100000000
+#define DEFAULT_SLEEP_TIME_NANOSEC 100000000
 #define NANOSEC_IN_SEC 1000000000
 
 #define SLEEP(t)                                                   \
@@ -92,8 +92,8 @@ extern "C" {
   {                                                                \
       struct timespec sleep_time;                                  \
       sleep_time.tv_sec = 0;                                       \
-      sleep_time.tv_nsec = DEFAUL_SLEEP_TIME_NANOSEC;              \
-      if ((t * NANOSEC_IN_SEC) / 10 > DEFAUL_SLEEP_TIME_NANOSEC)   \
+      sleep_time.tv_nsec = DEFAULT_SLEEP_TIME_NANOSEC;             \
+      if ((t * NANOSEC_IN_SEC) / 10 > DEFAULT_SLEEP_TIME_NANOSEC)  \
           sleep_time.tv_nsec = (t * NANOSEC_IN_SEC) / 10;          \
       nanosleep(&sleep_time, NULL);                                \
   } while (0)
