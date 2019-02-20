@@ -77,20 +77,6 @@ For more documentation than found here, see
 
 /*******************************************************************************/
 
-/* ===================================================================== */
-/* 
-IMB 3.1 changes
-July 2007
-Hans-Joachim Plum, Intel GmbH
-
-- replace "int n_sample" by iteration scheduling object "ITERATIONS"
-  (see => IMB_benchmark.h)
-
-- proceed with offsets in send / recv buffers to eventually provide
-  out-of-cache data
-*/
-/* ===================================================================== */
-
 
 void IMB_reduce_local(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
                 MODES RUN_MODE, double* time) {
