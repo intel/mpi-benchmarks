@@ -68,6 +68,7 @@ C_OBJ = IMB_declare.obj \
              IMB_reduce_scatter.obj \
              IMB_reduce_scatter_block.obj \
              IMB_reduce.obj \
+             IMB_reduce_local.obj \
              IMB_exchange.obj \
              IMB_bcast.obj \
              IMB_barrier.obj \

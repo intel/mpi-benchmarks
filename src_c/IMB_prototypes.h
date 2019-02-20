@@ -101,6 +101,9 @@ void IMB_pingpong(struct comm_info* c_info, int size, struct iter_schedule* ITER
 void IMB_reduce(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
                 MODES RUN_MODE, double* time);
 
+void IMB_reduce_local(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
+                      MODES RUN_MODE, double* time);
+
 void IMB_reduce_scatter(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
                         MODES RUN_MODE, double* time);
 
