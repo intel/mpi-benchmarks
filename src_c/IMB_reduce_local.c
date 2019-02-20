@@ -126,8 +126,6 @@ Output variables:
 
     *time = 0.;
     if (c_info->rank != -1) {
-        int root = 0;
-
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
@@ -139,16 +137,11 @@ Output variables:
             t2 = MPI_Wtime();
             *time += (t2 - t1);
 
-#ifdef CHECK
-            if (c_info->rank == root) {
-                CHK_DIFF("Reduce_local", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
-                         size, size, asize,
-                         put, 0, ITERATIONS->n_sample, i,
-                         -1, &defect);
-            }
-#endif
-            /*  CHANGE THE ROOT NODE */
-            root = (root + c_info->root_shift) % c_info->num_procs;
+            CHK_DIFF("Reduce_local", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
+                     size, size, asize,
+                     put, 0, ITERATIONS->n_sample, i,
+                     -1, &defect);
+
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
         }
         *time /= ITERATIONS->n_sample;
