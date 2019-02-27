@@ -212,9 +212,9 @@ class OriginalBenchmark : public Benchmark {
                 t = MPI_Wtime();
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
                 t = MPI_Wtime() - t;
-                SLEEP(t);
             }
             MPI_Barrier(MPI_COMM_WORLD);
+            SLEEP(t);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);
             if ((c_info.contig_type == CT_BASE_VEC || c_info.contig_type == CT_RESIZE_VEC) &&
