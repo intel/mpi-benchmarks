@@ -87,15 +87,17 @@ extern "C" {
 #define DEFAULT_SLEEP_TIME_NANOSEC 100000000
 #define NANOSEC_IN_SEC 1000000000
 
-#define SLEEP(t)                                                   \
-  do                                                               \
-  {                                                                \
-      struct timespec sleep_time;                                  \
-      sleep_time.tv_sec = 0;                                       \
-      sleep_time.tv_nsec = DEFAULT_SLEEP_TIME_NANOSEC;             \
-      if ((t * NANOSEC_IN_SEC) / 10 > DEFAULT_SLEEP_TIME_NANOSEC)  \
-          sleep_time.tv_nsec = (t * NANOSEC_IN_SEC) / 10;          \
-      nanosleep(&sleep_time, NULL);                                \
+#define SLEEP(t)                                                            \
+  do                                                                        \
+  {                                                                         \
+      struct timespec sleep_time;                                           \
+      double t_sleep = t / 10;                                              \
+      sleep_time.tv_sec = (int) t_sleep;                                    \
+      sleep_time.tv_nsec = ((t_sleep - (int)t_sleep) * NANOSEC_IN_SEC);     \
+      if (sleep_time.tv_sec == 0 &&                                         \
+          sleep_time.tv_nsec < DEFAULT_SLEEP_TIME_NANOSEC)                  \
+          sleep_time.tv_nsec = DEFAULT_SLEEP_TIME_NANOSEC;                  \
+      nanosleep(&sleep_time, NULL);                                         \
   } while (0)
 
 #endif
@@ -212,9 +214,9 @@ class OriginalBenchmark : public Benchmark {
                 t = MPI_Wtime();
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
                 t = MPI_Wtime() - t;
+                MPI_Barrier(MPI_COMM_WORLD);
+                SLEEP(t);
             }
-            MPI_Barrier(MPI_COMM_WORLD);
-            SLEEP(t);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);
             if ((c_info.contig_type == CT_BASE_VEC || c_info.contig_type == CT_RESIZE_VEC) &&
