@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -52,7 +52,9 @@ goods and services.
 
 #include <algorithm>
 
+#ifdef MPIIO
 static int do_nonblocking_;
+#endif
 typedef void (*original_benchmark_func_t)(struct comm_info* c_info, int size,
                 struct iter_schedule* ITERATIONS, MODES RUN_MODE, double* time);
 
@@ -246,7 +248,7 @@ struct Bmark_descr {
 
         if (flags.count(NONBLOCKING)) {
             Bmark->RUN_MODES[0].NONBLOCKING = 1;
-#ifndef EXT
+#ifdef MPIIO
            do_nonblocking_ = 1;
 #endif
         }
@@ -323,7 +325,7 @@ struct Bmark_descr {
                     } else if (iter == 1) {
                         len = ((1<<c_info.min_msg_log) + glob.unit_size - 1)/glob.unit_size*glob.unit_size;
 #ifdef EXT
-                        len = std::min(len, asize);
+                        len = std::min(len, (int) sizeof(assign_type));
 #endif
                     } else {
                         len = std::min(glob.MAXMSG, len + len);
@@ -395,6 +397,7 @@ struct Bmark_descr {
     /* IMB 3.1 << */
         size_t s_len, r_len, s_alloc, r_alloc;
         int init_size, irep, i_s, i_r, x_sample;
+        int asize = (int) sizeof(assign_type);
 
 
 //----------------------------------------------------------------------
@@ -607,12 +610,10 @@ struct Bmark_descr {
 
 #ifdef MPIIO
             if( Bmark->access != no) {
-                ierr = MPI_File_seek(c_info->fh, 0 ,MPI_SEEK_SET);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_File_seek(c_info->fh, 0 ,MPI_SEEK_SET));
 
                 if( Bmark->fpointer == shared) {
-                    ierr = MPI_File_seek_shared(c_info->fh, 0 ,MPI_SEEK_SET);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0 ,MPI_SEEK_SET));
                 }
             }
 #endif /*MPIIO*/
@@ -640,12 +641,10 @@ struct Bmark_descr {
                 time[1] = time[0];
 #ifdef MPIIO
                 if( Bmark->access != no) {
-                    ierr = MPI_File_seek(c_info->fh, 0 ,MPI_SEEK_SET);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_seek(c_info->fh, 0 ,MPI_SEEK_SET));
 
                     if ( Bmark->fpointer == shared) {
-                        ierr = MPI_File_seek_shared(c_info->fh, 0 ,MPI_SEEK_SET);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0 ,MPI_SEEK_SET));
                     }
                 }
 #endif /*MPIIO*/

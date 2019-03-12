@@ -1,6 +1,6 @@
 #*****************************************************************************
 # *                                                                           *
-# * Copyright 2016-2018 Intel Corporation.                                    *
+# * Copyright 2016-2019 Intel Corporation.                                    *
 # *                                                                           *
 # *****************************************************************************
 #
@@ -58,6 +58,8 @@ endif
 ifndef TARGET
 TARGET=example
 ANNOUNCE=1
+else
+ANNOUNCE=0
 endif
 
 ifdef TARGET
@@ -75,7 +77,7 @@ ifeq ($(origin CXX),default)
 CXX=mpiicpc
 endif
 override CPPFLAGS += -I.
-override CFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
+override CFLAGS += -O0 -Wall -Wno-long-long
 override CXXFLAGS += -O0 -Wall -Wextra -pedantic -Wno-long-long
 ifdef WITH_OPENMP
 override CFLAGS += -fopenmp
@@ -171,8 +173,8 @@ override CPPFLAGS += -DWITH_YAML_CPP
 endif
 
 announce:
-	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"; fi
-	@if [ "$(ANNOUNCE)" == "1" ]; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
+	@if test "$(ANNOUNCE)" -eq "1"; then echo "NOTE: Building target: $(TARGET), binary name: $(BINARY)"; fi
+	@if test "$(ANNOUNCE)" -eq "1"; then echo "NOTE: Use make TARGET=<DIR_NAME> to select a target suite"; fi
 
 $(BINARY): $(IMB_OBJ) $(BECHMARK_SUITE_OBJ) $(ADDITIONAL_OBJ) $(YAML_CPP_LIB)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -106,7 +106,8 @@ Output variables:
     int i;
 
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
@@ -114,7 +115,6 @@ Output variables:
 
     int ws, peers;
     char ack;
-    ierr = 0;
 
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
@@ -143,13 +143,13 @@ Output variables:
         dest = (c_info->rank + peers);
         for(i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                s_num,
-                                c_info->s_data_type,
-                                dest,
-                                s_tag,
-                                c_info->communicator,
-                                &requests[ws]);
+                MPI_ERRHAND(MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                      s_num,
+                                      c_info->s_data_type,
+                                      dest,
+                                      s_tag,
+                                      c_info->communicator,
+                                      &requests[ws]));
 
             MPI_Waitall(MAX_WIN_SIZE, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
@@ -159,13 +159,13 @@ Output variables:
         source = (c_info->rank - peers);
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                    r_num,
-                                    c_info->r_data_type,
-                                    source,
-                                    r_tag,
-                                    c_info->communicator,
-                                    &requests[ws]);
+                MPI_ERRHAND(MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                      r_num,
+                                      c_info->r_data_type,
+                                      source,
+                                      r_tag,
+                                      c_info->communicator,
+                                      &requests[ws]));
 
             MPI_Waitall(MAX_WIN_SIZE, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);
@@ -213,7 +213,8 @@ Output variables:
     int i;
 
     Type_Size s_size, r_size;
-    int s_num,r_num;
+    int s_num = 0,
+        r_num = 0;
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
@@ -222,7 +223,6 @@ Output variables:
 
     int ws, peers;
     char ack;
-    ierr = 0;
 
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
@@ -251,22 +251,22 @@ Output variables:
         dest = (c_info->rank + peers);
         for(i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                r_num,
-                                c_info->r_data_type,
-                                dest,
-                                r_tag,
-                                c_info->communicator,
-                                &requests[ws]);
+                MPI_ERRHAND(MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                      r_num,
+                                      c_info->r_data_type,
+                                      dest,
+                                      r_tag,
+                                      c_info->communicator,
+                                      &requests[ws]));
 
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                s_num,
-                                c_info->s_data_type,
-                                dest,
-                                s_tag,
-                                c_info->communicator,
-                                &requests[ws + MAX_WIN_SIZE]);
+                MPI_ERRHAND(MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                      s_num,
+                                      c_info->s_data_type,
+                                      dest,
+                                      s_tag,
+                                      c_info->communicator,
+                                      &requests[ws + MAX_WIN_SIZE]));
 
             MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
@@ -276,21 +276,21 @@ Output variables:
         source = (c_info->rank - peers);
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                        r_num,
-                        c_info->r_data_type,
-                        source,
-                        r_tag,
-                        c_info->communicator,
-                        &requests[ws]);
+                MPI_ERRHAND(MPI_Irecv((char*)c_info->r_buffer + ws % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                      r_num,
+                                      c_info->r_data_type,
+                                      source,
+                                      r_tag,
+                                      c_info->communicator,
+                                      &requests[ws]));
             for (ws = 0; ws < MAX_WIN_SIZE; ws++)
-                ierr = MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                        s_num,
-                        c_info->s_data_type,
-                        source,
-                        s_tag,
-                        c_info->communicator,
-                        &requests[ws + MAX_WIN_SIZE]);
+                MPI_ERRHAND(MPI_Isend((char*)c_info->s_buffer + ws % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                      s_num,
+                                      c_info->s_data_type,
+                                      source,
+                                      s_tag,
+                                      c_info->communicator,
+                                      &requests[ws + MAX_WIN_SIZE]));
 
             MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);

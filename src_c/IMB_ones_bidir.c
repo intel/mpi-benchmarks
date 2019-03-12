@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -120,14 +120,12 @@ Output variables:
                           Timing result per sample
 
 */
-    double t1, t2;
 
     Type_Size s_size, r_size;
-    int s_num, r_num;
-    int dest, source, sender;
-    MPI_Status stat;
+    int s_num = 0,
+        r_num = 0;
+    int dest, sender;
 
-    ierr = 0;
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
@@ -191,13 +189,11 @@ Output variables:
                           Timing result per sample
 
 */
-    double t1, t2;
 
     Type_Size s_size, r_size;
-    int s_num, r_num;
-    int dest, source, sender;
-    int ierr;
-    MPI_Status stat;
+    int s_num = 0,
+        r_num = 0;
+    int dest, sender;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);

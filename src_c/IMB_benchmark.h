@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -131,7 +131,6 @@ typedef enum {
     priv,
     explic,
     indv_block,
-    indv_cyclic,
     shared
 } POSITIONING;
 #else

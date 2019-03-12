@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -125,12 +125,12 @@ Output variables:
     double t1, t2;
     int    i;
     Type_Size s_size, r_size;
-    int    s_num, r_num;
+    int    s_num = 0,
+           r_num = 0;
 
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -157,14 +157,13 @@ Output variables:
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t1 = MPI_Wtime();
-            ierr = MPI_Alltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                c_info->sndcnt, c_info->sdispl,
-                                c_info->s_data_type,
-                                (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                c_info->reccnt, c_info->rdispl,
-                                c_info->r_data_type,
-                                c_info->communicator);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Alltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                      c_info->sndcnt, c_info->sdispl,
+                                      c_info->s_data_type,
+                                      (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                      c_info->reccnt, c_info->rdispl,
+                                      c_info->r_data_type,
+                                      c_info->communicator));
             t2 = MPI_Wtime();
             *time += (t2 - t1);
 
@@ -221,10 +220,6 @@ Output variables:
 */
 {
     int         i = 0;
-    Type_Size   s_size,
-                r_size;
-    int         s_num = 0,
-                r_num = 0;
     MPI_Request request;
     MPI_Status  status;
     double      t_pure = 0.,
@@ -234,15 +229,8 @@ Output variables:
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
-    MPI_Type_size(c_info->s_data_type, &s_size);
-    MPI_Type_size(c_info->r_data_type, &r_size);
-    if ((s_size != 0) && (r_size != 0)) {
-        s_num = size / s_size;
-        r_num = size / r_size;
-    }
 
     if (c_info->rank != -1) {
         /* GET PURE TIME. DISPLACEMENTS AND RECEIVE COUNTS WILL BE INITIALIZED HERE */
@@ -255,17 +243,16 @@ Output variables:
 
         for (i = 0; i < ITERATIONS->n_sample; i++) {
             t_ovrlp -= MPI_Wtime();
-            ierr = MPI_Ialltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                  c_info->sndcnt,
-                                  c_info->sdispl,
-                                  c_info->s_data_type,
-                                  (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                  c_info->reccnt,
-                                  c_info->rdispl,
-                                  c_info->r_data_type,
-                                  c_info->communicator,
-                                  &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ialltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                       c_info->sndcnt,
+                                       c_info->sdispl,
+                                       c_info->s_data_type,
+                                       (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                       c_info->reccnt,
+                                       c_info->rdispl,
+                                       c_info->r_data_type,
+                                       c_info->communicator,
+                                       &request));
 
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
@@ -333,7 +320,7 @@ Output variables:
     Type_Size   s_size,
                 r_size;
     int         s_num = 0,
-                r_num;
+                r_num = 0;
     MPI_Request request;
     MPI_Status  status;
     double      t_pure = 0.;
@@ -341,7 +328,6 @@ Output variables:
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -364,17 +350,16 @@ Output variables:
 
         for(i = 0; i < ITERATIONS->n_sample; i++) {
             t_pure -= MPI_Wtime();
-            ierr = MPI_Ialltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                  c_info->sndcnt,
-                                  c_info->sdispl,
-                                  c_info->s_data_type,
-                                  (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
-                                  c_info->reccnt,
-                                  c_info->rdispl,
-                                  c_info->r_data_type,
-                                  c_info->communicator,
-                                  &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ialltoallv((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                       c_info->sndcnt,
+                                       c_info->sdispl,
+                                       c_info->s_data_type,
+                                       (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                       c_info->reccnt,
+                                       c_info->rdispl,
+                                       c_info->r_data_type,
+                                       c_info->communicator,
+                                       &request));
             MPI_Wait(&request, &status);
             t_pure += MPI_Wtime();
             CHK_DIFF("Ialltoallv_pure", c_info,

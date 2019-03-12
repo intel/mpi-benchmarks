@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -125,20 +125,16 @@ Output variables:
     int    i, dum;
     MPI_Status stat;
 
-    ierr = 0;
-
     if (c_info->rank != -1) {
         for (i = 0; i < N_BARR; i++)
             MPI_Barrier(c_info->communicator);
 
         t1 = MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_File_open(c_info->File_comm, c_info->filename,
-                                 c_info->amode, c_info->info, &c_info->fh);
-            MPI_ERRHAND(ierr);
-            ierr = MPI_File_write(c_info->fh, (void*)&dum, 1, c_info->etype, &stat);
-            ierr = MPI_File_close(&c_info->fh);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_File_open(c_info->File_comm, c_info->filename,
+                                      c_info->amode, c_info->info, &c_info->fh));
+            MPI_ERRHAND(MPI_File_write(c_info->fh, (void*)&dum, 1, c_info->etype, &stat));
+            MPI_ERRHAND(MPI_File_close(&c_info->fh));
         }
         t2 = MPI_Wtime();
         *time = (t2 - t1) / (ITERATIONS->n_sample);

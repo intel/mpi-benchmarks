@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -78,7 +78,7 @@ For more documentation than found here, see
 #include "IMB_comments.h"
 
 #include "IMB_prototypes.h"
-
+#include <ctype.h>
 
 int IMB_get_def_cases(char*** defc, char*** Gcmt) {
     *defc = &DEFC[0];

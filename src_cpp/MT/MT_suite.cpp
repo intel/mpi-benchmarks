@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -69,6 +69,7 @@ namespace NS_MT {
     int mode_multiple;
     int stride;
     int num_threads;
+    int window_size;
     int rank;
     bool prepared = false;
     std::vector<int> count;
@@ -90,6 +91,7 @@ template <> bool BenchmarkSuite<BS_MT>::declare_args(args_parser &parser,
     parser.add<int>("stride", 0);
     parser.add<int>("warmup",  100);
     parser.add<int>("repeat", 1000);
+    parser.add<int>("window_size", 64);
     parser.add<std::string>("barrier", "on").set_caption("on|off|special");
     parser.add_vector<int>("count", "1,2,4,8").
         set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING);
@@ -176,14 +178,15 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
         output << get_name() << ": " << "Only int data type is supported with check option" << std::endl;
         return false;
     }
-    
+
     num_threads = 1;
     if (mode_multiple) {
 #pragma omp parallel default(shared)
-#pragma omp master        
+#pragma omp master
         num_threads = omp_get_num_threads();
-    } 
+    }
     input.resize(num_threads);
+    window_size = parser.get<int>("window_size");
     for (int thread_num = 0; thread_num < num_threads; thread_num++) {
         input[thread_num].comm = duplicate_comm(mode_multiple, thread_num);
         input[thread_num].warmup = parser.get<int>("warmup");
@@ -193,7 +196,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0 && !noheader) {
         output << "#------------------------------------------------------------------" << std::endl;
-        output << "#    Intel(R) MPI Benchmarks " << "2019 Update 1" << ", MT part    " << std::endl;
+        output << "#    Intel(R) MPI Benchmarks " << "2019 Update 2" << ", MT part    " << std::endl;
         output << "#------------------------------------------------------------------" << std::endl;
         output << "#" << std::endl;
     }
@@ -215,8 +218,9 @@ template <> any BenchmarkSuite<BS_MT>::get_parameter(const std::string &key)
 {
     using namespace NS_MT;
     any result;
-    HANDLE_PARAMETER(std::vector<thread_local_data_t>, input);    
+    HANDLE_PARAMETER(std::vector<thread_local_data_t>, input);
     HANDLE_PARAMETER(int, num_threads);
+    HANDLE_PARAMETER(int, window_size);
     HANDLE_PARAMETER(int, mode_multiple);
     HANDLE_PARAMETER(int, stride);
     HANDLE_PARAMETER(int, malloc_align);

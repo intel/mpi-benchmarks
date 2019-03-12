@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -73,6 +73,10 @@ For more documentation than found here, see
 #include <assert.h>
 #include "IMB_appl_errors.h"
 #include "IMB_err_check.h"
+
+#ifndef WIN_IMB
+#include <strings.h>
+#endif
 
 /* THERE IS INCOSISTENT DEFINITION OF MPI_Type_Size arguments */
 typedef int Type_Size;          /*correct MPI standard  */
@@ -191,9 +195,6 @@ extern double *all_defect;
 #define A_ABS(x) fabs((x))
 #endif
 
-static int asize = (int) sizeof(assign_type);
-static int ierr;
-
 typedef enum {
     MIN = 0,        // Min time by ranks
     MAX,            // Max time by ranks
@@ -247,6 +248,7 @@ extern int IMB_internal_barrier;
         (B) = (type*) IMB_v_alloc(sizeof(type)*(Len), where);   \
     }
 
+void IMB_Barrier(MPI_Comm comm);
 #define IMB_do_n_barriers(comm, iter)       \
     {                                       \
         int _ii;                            \

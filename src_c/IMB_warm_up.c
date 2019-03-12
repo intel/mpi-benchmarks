@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -113,18 +113,23 @@ IMB 3.1 <<
                       for iter==0, the WamrUp is carried out
 
 */
+#ifndef MPIIO
+
+#ifndef RMA
     struct cmode MD;
 
     MD.AGGREGATE = 1;
+#endif
 
     if (c_info->rank >= 0) {
-#ifndef MPIIO
-        if (iter == 0) {
+        if (c_info->warm_up) {
             /* IMB 3.1: other warm up settings */
             double t[MAX_TIME_ID];
             int n_sample = ITERATIONS->n_sample;
 
-            ITERATIONS->n_sample = N_WARMUP;
+            ITERATIONS->n_sample /= WARMUP_PERCENT;
+            if ((ITERATIONS->n_sample == 0) && (n_sample > 1))
+                ITERATIONS->n_sample = 1;
 #ifdef MPI1
             c_info->select_source = Bmark->select_source;
 #endif
@@ -132,16 +137,16 @@ IMB 3.1 <<
 #ifdef RMA
             Bmark->Benchmark(c_info, size, ITERATIONS, Bmark->RUN_MODES, t);
 
-#else    
+#else
             /* It is erroneous to pass unitialized MD to the bench. it may
              * depend on the particular mode values! Keep it for existing benchmarks
              * to save their bahvior */
             Bmark->Benchmark(c_info, size, ITERATIONS, &MD, t);
-#endif            
+#endif
 
             ITERATIONS->n_sample = n_sample;
         }
-#endif
     }
+#endif
 }
 

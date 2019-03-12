@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -66,9 +66,9 @@ For more documentation than found here, see
 #define _ERR_CHECK_H
 
 #ifdef CHECK
-#define MPI_ERRHAND(ierr) IMB_err_hand(1,ierr)
+#define MPI_ERRHAND(ierr_func) IMB_err_hand(1,ierr_func)
 #else
-#define MPI_ERRHAND(ierr)
+#define MPI_ERRHAND(ierr_func) ierr_func
 #endif
 
 #endif

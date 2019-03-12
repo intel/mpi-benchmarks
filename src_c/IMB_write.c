@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -249,11 +249,12 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
 */
     int i, j;
-    int Locsize, Totalsize, Ioffs;
+    int Locsize, Totalsize;
     MPI_Status stat;
     MPI_Offset Offset;
-
-    ierr = 0;
+#ifdef CHECK
+    int asize = (int) sizeof(assign_type);
+#endif
 
     *time = 0.;
     if (c_info->File_rank >= 0) {
@@ -316,8 +317,7 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
             if (pos == indv_block) {
                 for (j = 0; j < j_sample; j++) {
-                    ierr = GEN_File_write(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_write(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Write standard ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
                 }
@@ -325,9 +325,7 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 for (j = 0; j < j_sample; j++) {
                     Offset = c_info->split.Offset + (MPI_Offset)((i + j)*Totalsize);
 
-                    ierr = GEN_File_write_at
-                        (c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_write_at(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Write explicit ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
                 }
@@ -335,9 +333,7 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 for (j = 0; j < j_sample; j++)
                 {
 
-                    ierr = GEN_File_write_shared
-                        (c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_write_shared(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Write shared ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
 
@@ -377,13 +373,14 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
 */
     int i, j;
-    int Locsize, Totalsize, Ioffs;
+    int Locsize, Totalsize;
+#ifdef CHECK
+    int asize = (int) sizeof(assign_type);
+#endif
     MPI_Offset Offset;
 
     MPI_Status*  STAT, stat;
     MPI_Request* REQUESTS;
-
-    ierr = 0;
 
     *time = 0;
 
@@ -416,49 +413,37 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
             if (pos == indv_block) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-                    ierr = MPI_File_write_all_begin
-                        (c_info->fh, c_info->s_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_all_begin(c_info->fh, c_info->s_buffer, Locsize, c_info->etype));
                     DIAGNOSTICS("IWrite coll. ", c_info, c_info->s_buffer, Locsize, Totalsize, j, pos);
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_write_all_end
-                        (c_info->fh, c_info->s_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_all_end(c_info->fh, c_info->s_buffer, &stat));
                 }
             } else if (pos == explic) {
                 for (j = 0; j < i_sample*j_sample; j++) {
                     Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
 
-                    ierr = MPI_File_write_at_all_begin
-                        (c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_at_all_begin(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype));
 
                     DIAGNOSTICS("IWrite expl coll. ", c_info, c_info->s_buffer, Locsize, Totalsize, j, pos);
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_write_at_all_end
-                        (c_info->fh, c_info->s_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_at_all_end(c_info->fh, c_info->s_buffer, &stat));
                 }
             } else if (pos == shared) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-                    ierr = MPI_File_write_ordered_begin
-                        (c_info->fh, c_info->s_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_ordered_begin(c_info->fh, c_info->s_buffer, Locsize, c_info->etype));
 
                     DIAGNOSTICS("IWrite shared coll. ", c_info, c_info->s_buffer, Locsize, Totalsize, j, pos);
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_write_ordered_end
-                        (c_info->fh, c_info->s_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_write_ordered_end(c_info->fh, c_info->s_buffer, &stat));
                 }
             }
             // IMB_3.1 fix: use the following triple operation to assure write completion
@@ -497,8 +482,7 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 if (pos == indv_block) {
                     for (j = 0; j < j_sample; j++)
                     {
-                        ierr = MPI_File_iwrite(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_iwrite(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]));
                         DIAGNOSTICS("IWrite standard ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
                     }
                 } else if (pos == explic) {
@@ -506,17 +490,13 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
                     {
                         Offset = c_info->split.Offset + (MPI_Offset)((i + j)*Totalsize);
 
-                        ierr = MPI_File_iwrite_at
-                            (c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_iwrite_at(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
                         DIAGNOSTICS("IWrite expl ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
                     }
                 } else if (pos == shared) {
                     for (j = 0; j < j_sample; j++) {
-                        ierr = MPI_File_iwrite_shared
-                            (c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_iwrite_shared(c_info->fh, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
                         DIAGNOSTICS("IWrite shared ", c_info, c_info->s_buffer, Locsize, Totalsize, i + j, pos);
                     }

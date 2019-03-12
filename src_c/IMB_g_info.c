@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -72,7 +72,7 @@ For more documentation than found here, see
 #ifdef IMB2018
 char* VERSION="2018";
 #else
-char* VERSION="2019 Update 1";
+char* VERSION="2019 Update 2";
 #endif
 
 #include <stdio.h>
@@ -97,6 +97,7 @@ void IMB_general_info() {
 */
     /*void IMB_make_sys_info();*/
     time_t T;
+    struct tm *local_time;
 
     time(&T);
     fprintf(unit, "#------------------------------------------------------------\n");
@@ -115,7 +116,9 @@ void IMB_general_info() {
 
 
     fprintf(unit, "#------------------------------------------------------------\n");
-    fprintf(unit, "# Date                  : %s", asctime(localtime(&T)));
+    local_time = localtime(&T);
+    if (local_time == NULL) exit(1);
+    fprintf(unit, "# Date                  : %s", asctime(local_time));
 
     IMB_make_sys_info();
     fprintf(unit, "\n");
@@ -139,12 +142,12 @@ void IMB_make_sys_info() {
                       (outcome of the 'uname' command)
 
 */
-    int dont_care, mpi_subversion, mpi_version;
+    int mpi_subversion, mpi_version;
     /* IMB 3.1 << */
 #ifndef WIN_IMB
     struct utsname info;
     uname(&info);
-    dont_care = MPI_Get_version(&mpi_version, &mpi_subversion);
+    MPI_Get_version(&mpi_version, &mpi_subversion);
 
     fprintf(unit, "# Machine               : %s\n", info.machine);
     fprintf(unit, "# System                : %s\n", info.sysname);
@@ -157,7 +160,7 @@ void IMB_make_sys_info() {
     DWORD bufCharCount = INFO_BUFFER_SIZE;
     char *substr_ptr;
 
-    dont_care = MPI_Get_version(&mpi_version, &mpi_subversion);
+    MPI_Get_version(&mpi_version, &mpi_subversion);
 
     info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
     GetVersionEx((OSVERSIONINFO *)&info);

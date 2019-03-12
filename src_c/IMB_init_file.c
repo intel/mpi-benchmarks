@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -136,6 +136,7 @@ Return value          (type int)
 */
     int error = 0;
     int fnlen;
+    int asize = (int) sizeof(assign_type);
 
     IMB_free_file(c_info);
 
@@ -211,15 +212,16 @@ Return value          (type int)
     IMB_del_file(c_info); // if exists
 
     if (c_info->File_rank == 0) {
-        int ierr, size, total, i;
+        int ierr, total, i;
+        int size = 0;
         MPI_Status stat;
 
         /* << IMB 3.1. fixes of size */
         if (c_info->n_lens > 0) {
-            size = 0;
             for (i = 0; i < c_info->n_lens; i++)
                 size = max(size, c_info->msglen[i]);
-        } else
+        }
+        if (size == 0)
             size = 1 << c_info->max_msg_log;
 
         total = max(size, ITERATIONS->overall_vol);
@@ -297,9 +299,8 @@ In/out variables:
 */
     if (c_info->filename != (char*)NULL) IMB_v_free((void**)&c_info->filename);
     if (c_info->datarep != (char*)NULL) IMB_v_free((void**)&c_info->datarep);
-    if (c_info->filename != (char*)NULL)
-        if (c_info->view != MPI_DATATYPE_NULL)
-            MPI_Type_free(&c_info->view);
+    if (c_info->view != MPI_DATATYPE_NULL)
+        MPI_Type_free(&c_info->view);
     if (c_info->info != MPI_INFO_NULL)
         MPI_Info_free(&c_info->info);
     if (c_info->fh != MPI_FILE_NULL)
@@ -331,21 +332,21 @@ In/out variables:
         if (c_info->filename != (char*)NULL) {
             if (c_info->File_rank == 0) {
                 // touch file
-                ierr = MPI_File_open(MPI_COMM_SELF, c_info->filename,
+                MPI_File_open(MPI_COMM_SELF, c_info->filename,
                                      c_info->amode, MPI_INFO_NULL, &c_info->fh);
 
                 if (c_info->fh != MPI_FILE_NULL)
                     MPI_File_close(&c_info->fh);
 
                 /* IMB_3.0: simplify file deletion */
-                ierr = MPI_File_delete(c_info->filename, MPI_INFO_NULL);
+                MPI_File_delete(c_info->filename, MPI_INFO_NULL);
             }
         }
         MPI_Barrier(c_info->File_comm);
     }
 }
 
-int IMB_open_file(struct comm_info* c_info) {
+void IMB_open_file(struct comm_info* c_info) {
 /*
 
 In/out variables:
@@ -356,20 +357,12 @@ In/out variables:
 
                       File associated to MPI_File component is opened, view is set
 
-Return value          (type int)
-                      Error code (identical with MPI error code if occurs)
-
 */
-    int ierr;
-    ierr = 0;
     if (c_info->File_comm != MPI_COMM_NULL) {
-        ierr = MPI_File_open(c_info->File_comm, c_info->filename,
-                             c_info->amode, c_info->info, &c_info->fh);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_File_open(c_info->File_comm, c_info->filename,
+                                  c_info->amode, c_info->info, &c_info->fh));
 
-        ierr = MPI_File_set_view(c_info->fh, c_info->disp, c_info->etype,
-                                 c_info->filetype, c_info->datarep, c_info->info);
-        MPI_ERRHAND(ierr);
+        MPI_ERRHAND(MPI_File_set_view(c_info->fh, c_info->disp, c_info->etype,
+                                      c_info->filetype, c_info->datarep, c_info->info));
     }
-    return ierr;
 }

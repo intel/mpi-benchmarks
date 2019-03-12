@@ -1,6 +1,6 @@
 #*****************************************************************************
 # *                                                                           *
-# * Copyright 2016-2018 Intel Corporation.                                    *
+# * Copyright 2016-2019 Intel Corporation.                                    *
 # *                                                                           *
 # *****************************************************************************
 #
@@ -47,31 +47,35 @@
 #
 #  ***************************************************************************
 
-all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT
+all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
 
 IMB-MPI1:
-	make -j8 -C src_cpp -f Makefile TARGET=MPI1
+	make -j 8 -C src_cpp -f Makefile TARGET=MPI1
 	@cp src_cpp/IMB-MPI1 .
 
 IMB-NBC:
-	make -C src_cpp -f Makefile TARGET=NBC
+	make -j 8 -C src_cpp -f Makefile TARGET=NBC
 	@cp src_cpp/IMB-NBC .
 
 IMB-EXT:
-	make -C src_cpp -f Makefile TARGET=EXT
+	make -j 8 -C src_cpp -f Makefile TARGET=EXT
 	@cp src_cpp/IMB-EXT .
 
 IMB-RMA:
-	make -C src_cpp -f Makefile TARGET=RMA
+	make -j 8 -C src_cpp -f Makefile TARGET=RMA
 	@cp src_cpp/IMB-RMA .
 
 IMB-IO:
-	make -C src_cpp -f Makefile TARGET=IO
+	make -j 8 -C src_cpp -f Makefile TARGET=IO
 	@cp src_cpp/IMB-IO .
 
 IMB-MT: | IMB-MPI1
-	make -j8 -C src_cpp -f Makefile TARGET=MT
+	make -j 8 -C src_cpp -f Makefile TARGET=MT
 	@cp src_cpp/IMB-MT .
+
+IMB-P2P:
+	make -j 8 -C src_c/P2P -f Makefile TARGET=P2P
+	@cp src_c/P2P/IMB-P2P .
 
 
 clean:
@@ -81,4 +85,5 @@ clean:
 	make -C src_cpp -f Makefile TARGET=EXT clean
 	make -C src_cpp -f Makefile TARGET=IO clean
 	make -C src_cpp -f Makefile TARGET=MT clean
-	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT
+	make -C src_c/P2P -f Makefile TARGET=P2P clean
+	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P

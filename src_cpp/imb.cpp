@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -70,7 +70,7 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
-    const char *program_name = "Intel(R) MPI Benchmarks 2019 Update 1";
+    const char *program_name = "Intel(R) MPI Benchmarks 2019 Update 2";
     std::ostringstream output;
 
     // Some unit tests for args parser
@@ -216,6 +216,9 @@ int main(int argc, char * *argv)
                 for (set<string>::iterator it_b = benchmarks.begin(); 
                      it_b != benchmarks.end(); ++it_b) {
                     smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it_b);
+
+                    if (b.get() == NULL) exit(1);
+
                     string bn = b->get_name();
                     vector<string> comments = b->get_comments();
                     output << "    " << bn;

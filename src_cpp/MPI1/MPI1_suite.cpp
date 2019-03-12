@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -49,7 +49,7 @@ goods and services.
 */
 
 #if defined RMA || defined NBC || defined MPIIO || defined EXT
-#error Legacy benchmark components can't be linked together
+#error Legacy benchmark components cannot be linked together
 #endif
 
 #include <set>
@@ -68,7 +68,6 @@ extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
 #include "IMB_prototypes.h"
-extern size_t IMB_buffer_alignment;
 }
 
 #include "helper_IMB_functions.h"
@@ -109,10 +108,15 @@ bool load_msg_sizes(const char *filename)
 
     c_info.n_lens = n_lens;
 
-    char S[32];
+    char S[72];
     int sz, isz;
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
+
+    if (c_info.msglen == NULL) {
+        fclose(t);
+        return false;
+    }
 
     isz=-1;
 
@@ -137,6 +141,7 @@ bool load_msg_sizes(const char *filename)
                 isz++;
                 c_info.msglen[isz]=sz;
             } else {
+                fclose(t);
                 return false;
             }
         } /*if( inp_line[0] != '#' && strlen(inp_line)-1 )*/
@@ -362,8 +367,13 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "on\n");
-   parser.add<int>("alignment", 2097152).set_caption("alignment").
-           set_description("Buffer alignment\n\nDefault:\n2097152\n");
+   parser.add<bool>("warm_up", true).set_caption("on or off").
+           set_description(
+               "Use additional cycles before runing benchmark(for all size.)"
+               "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"
+               "\n"
+               "Default:\n"
+               "on\n");
     parser.set_default_current_group();
     return true;
 }
@@ -651,15 +661,9 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         c_info.zero_size = 0;
     }
 
-    int alignment = parser.get<int>("alignment");
-    if (alignment < sizeof(void*)) {
-        alignment = sizeof(void*);
+    if (parser.get<bool>("warm_up") == false) {
+        c_info.warm_up = 0;
     }
-    int power2 = 1;
-    while (power2 < alignment) {
-        power2 *= 2;
-    }
-    IMB_buffer_alignment = power2;
 
     if (c_info.contig_type > 0)
         c_info.op_type = get_op(base_red_dt);

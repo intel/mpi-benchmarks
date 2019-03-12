@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2018 Intel Corporation.                                    *
+ * Copyright 2016-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -66,8 +66,41 @@ extern "C" {
                                  assert(p != NULL); \
                                  memcpy(&NAME, p, sizeof(TYPE)); }
 
+#ifdef WIN_IMB
 
-extern "C" { void IMB_Barrier(MPI_Comm comm); }
+#include <windows.h>
+#define DEFAULT_SLEEP_TIME_MILLISEC 100
+#define MILLISEC_IN_SEC 1000
+
+#define SLEEP(t)                                                   \
+  do                                                               \
+  {                                                                \
+      if ((t * MILLISEC_IN_SEC) / 10 > DEFAULT_SLEEP_TIME_MILLISEC)\
+          Sleep((t * MILLISEC_IN_SEC) / 10);                       \
+      else                                                         \
+          Sleep(DEFAULT_SLEEP_TIME_MILLISEC);                      \
+  } while (0)
+
+#else
+
+#include <time.h>
+#define DEFAULT_SLEEP_TIME_NANOSEC 100000000
+#define NANOSEC_IN_SEC 1000000000
+
+#define SLEEP(t)                                                            \
+  do                                                                        \
+  {                                                                         \
+      struct timespec sleep_time;                                           \
+      double t_sleep = t / 10;                                              \
+      sleep_time.tv_sec = (int) t_sleep;                                    \
+      sleep_time.tv_nsec = ((t_sleep - (int)t_sleep) * NANOSEC_IN_SEC);     \
+      if (sleep_time.tv_sec == 0 &&                                         \
+          sleep_time.tv_nsec < DEFAULT_SLEEP_TIME_NANOSEC)                  \
+          sleep_time.tv_nsec = DEFAULT_SLEEP_TIME_NANOSEC;                  \
+      nanosleep(&sleep_time, NULL);                                         \
+  } while (0)
+
+#endif
 
 template <class bs, original_benchmark_func_t fn_ptr>
 class OriginalBenchmark : public Benchmark {
@@ -118,6 +151,7 @@ class OriginalBenchmark : public Benchmark {
             int size = item.len;
             int np = item.np;
             int imod = *(item.extra_fields.as<int>());
+            double t;
             MPI_Datatype base_s_dt, base_r_dt, base_red_dt;
             if (!initialized)
                 return;
@@ -177,9 +211,12 @@ class OriginalBenchmark : public Benchmark {
             bool failed = (descr->stop_iterations || (BMark->sample_failure));
             if (!failed) {
                 IMB_warm_up(BMark, &c_info, size, &ITERATIONS, glob.iter);
+                t = MPI_Wtime();
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
+                t = MPI_Wtime() - t;
+                MPI_Barrier(MPI_COMM_WORLD);
+                SLEEP(t);
             }
-            MPI_Barrier(MPI_COMM_WORLD);
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);
             if ((c_info.contig_type == CT_BASE_VEC || c_info.contig_type == CT_RESIZE_VEC) &&

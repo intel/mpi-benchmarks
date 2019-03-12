@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -122,7 +122,6 @@ static void IMB_init_Blist_item_pool();
 static void IMB_free_Blist_item_pool();
 
 static void IMB_add_to_list_tail(const char*, int*, int*, int *);
-static void IMB_print_list(int list_head_index);
 static void IMB_remove_invalid_items(int* p_list_head, int* p_list_tail, int* n_cases);
 static void IMB_remove_item_from_list(const char* name, int* p_list_head, int* p_list_tail, int *n_cases);
 
@@ -837,7 +836,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 c_info->n_lens = n_lens;
 
                 if (t && n_lens > 0) {
-                    char inp_line[72], S[32];
+                    char inp_line[72], S[72];
                     int sz, isz;
 
                     IMB_i_alloc(int, c_info->msglen, n_lens, "Basic_Input");
@@ -871,13 +870,13 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     } /*while(fgets(inp_line,72,t))*/
 
                     n_lens = c_info->n_lens = isz + 1;
-                    fclose(t);
 
                     if (n_lens == 0) {
                         fprintf(stderr, "Sizes File %s invalid or doesnt exist\n", (*argv)[iarg_msg]);
                         ok = -1;
                     }
                 } /*if( t && n_lens>0 )*/
+                if (t != NULL) fclose(t);
             } /*if( iarg_msg>=0 )*/
 
             IMB_i_alloc(int, ALL_INFO, N_baseinfo + n_cases, "Basic_Input");
@@ -1394,6 +1393,8 @@ void IMB_set_default(struct comm_info* c_info) {
 
     c_info->ERR = MPI_ERRHANDLER_NULL;
 
+    c_info->warm_up = 1;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
 
@@ -1487,7 +1488,9 @@ static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* l
     if (Bname[0] == 0)
         return;
 
-    duplicated_benchmark_names[duplicated_benchmark_names_cnt++] = blist_item->bname = strdup(Bname);
+    blist_item->bname = (char *)malloc(strlen(Bname) + 1);
+    if (blist_item->bname == NULL) exit(1);
+    duplicated_benchmark_names[duplicated_benchmark_names_cnt++] = memcpy(blist_item->bname, Bname, strlen(Bname) + 1);
     if (duplicated_benchmark_names_cnt == 1000)
         duplicated_benchmark_names_cnt--;
 
@@ -1512,18 +1515,6 @@ static void IMB_add_to_list_tail(const char* Bname, int *list_head_index, int* l
     (*n)++;
     if (chained_bname != NULL)
         IMB_add_to_list_tail(chained_bname + 1, list_head_index, list_tail_index, n);
-}
-
-static void IMB_print_list(int list_head_index) {
-    int index = list_head_index;
-    struct Blist_item* blist_item;
-
-    while (index != -1) {
-        blist_item = &pool[index];
-        index = blist_item->next_index;
-        printf("%s ", blist_item->bname);
-    }
-
 }
 
 static void IMB_remove_invalid_items(int* p_list_head, int* p_list_tail, int *n_cases) {

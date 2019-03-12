@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -88,14 +88,16 @@ For more documentation than found here, see
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
-void* IMB_v_alloc(size_t Len, char* where) {
+static int asize = (int) sizeof(assign_type);
+
+void* IMB_v_alloc(size_t size, char* where) {
 /*
 
                       Allocates void* memory
 
 Input variables:
 
--Len                  (type int)
+-size                 (type size_t)
                       #bytes to allocate
 
 -where                (type char*)
@@ -105,79 +107,27 @@ Return value          (type void*)
                       Allocated pointer
 
 */
-    void* B;
-
-    Len = max(asize, Len);
-
-    if ((B = (void*)malloc(Len)) == NULL) {
+    int mpi_error;
+    void *ptr = NULL;
+    if (size < sizeof(size_t)) {
+        size = sizeof(size_t);
+    }
+    mpi_error = MPI_Alloc_mem(size, MPI_INFO_NULL, (void *)&ptr);
+    if ((mpi_error != MPI_SUCCESS) || (ptr == NULL)) {
         printf("Memory allocation failed. code position: %s. tried to alloc."
 #ifdef WIN_IMB
-            " %I64u bytes\n",
+               " %I64u bytes\n",
 #else
-            " %lu bytes\n",
+               " %lu bytes\n",
 #endif
-        where, Len);
-        return NULL;
+        where, size);
     }
 #ifdef DEBUG
     if (dbg_file)
-        fprintf(dbg_file, "alloc %p %s\n", B, where);
+        fprintf(dbg_file, "alloc %p %s\n", ptr, where);
 #endif
-
     num_alloc++;
-    return B;
-}
-
-#if 0  
-/***************************************************************************/
-void IMB_i_alloc(int** B, size_t Len, char* where ) {
-/*
-
-                          Allocates int memory
-
-Input variables:
-
--Len                      (type int)
-                          #int's to allocate
-
--where                    (type char*)
-                          Comment (marker for calling place)
-
-In/out variables:
-
--B                        (type int**)
-                          *B contains allocated memory
-
-*/
-    Len = max(1, Len);
-    *B = (int*)IMB_v_alloc(sizeof(int)*Len, where);
-}
-#endif /*0*/
-
-size_t IMB_buffer_alignment = (2 * 1024 * 1024);
-
-void* IMB_aligned_buffer_alloc(size_t *size, char* where) {
-    void *p;
-    void *q;
-    size_t a = IMB_buffer_alignment;
-    size_t asize = (a + *size + a - 1) & ~(a - 1);
-    p = IMB_v_alloc(asize, where);
-    q = (void *)((uintptr_t)p + sizeof(void*));
-    if (((uintptr_t)q) & (a - 1)) {
-        uintptr_t offset = a - (((uintptr_t)q) & (a - 1));
-        q = (void *)((uintptr_t)q + offset);
-    }
-    *((void **)((uintptr_t)q - sizeof(void*))) = p;
-    *size = ((uintptr_t)p + asize - (uintptr_t)q);
-    return q;
-}
-
-void IMB_aligned_buffer_free(void **B) {
-    if (*B) {
-        void *p = *((void **)((uintptr_t)(*B) - sizeof(void*)));
-        IMB_v_free(&p);
-        *B = NULL;
-    }
+    return ptr;
 }
 
 /***************************************************************************/
@@ -213,20 +163,18 @@ In/out variables:
 
     if (c_info->s_alloc < s_len) {
         size_t size;
-        IMB_aligned_buffer_free((void**)&c_info->s_buffer);
+        IMB_v_free((void**)&c_info->s_buffer);
         size = s_len * ((size_t)c_info->size_scale);
-        size = (size + IMB_buffer_alignment - 1) & ~(IMB_buffer_alignment - 1);
-        c_info->s_buffer = IMB_aligned_buffer_alloc(&size, where);
+        c_info->s_buffer = IMB_v_alloc(size, where);
         c_info->s_alloc = size / ((size_t)c_info->size_scale);
         c_info->s_data = (assign_type*)c_info->s_buffer;
     }
 
     if (c_info->r_alloc < r_len) {
         size_t size;
-        IMB_aligned_buffer_free((void**)&c_info->r_buffer);
+        IMB_v_free((void**)&c_info->r_buffer);
         size = r_len * ((size_t)c_info->size_scale);
-        size = (size + IMB_buffer_alignment - 1) & ~(IMB_buffer_alignment - 1);
-        c_info->r_buffer = IMB_aligned_buffer_alloc(&size, where);
+        c_info->r_buffer = IMB_v_alloc(size, where);
         c_info->r_alloc = size / ((size_t)c_info->size_scale);
         c_info->r_data = (assign_type*)c_info->r_buffer;
     }
@@ -289,7 +237,7 @@ In/out variables:
         if (dbg_file)
             fprintf(dbg_file, "delete %p \n", *B);
 #endif
-        free(*B);
+        MPI_Free_mem(*B);
         num_free++;
     }
 
@@ -779,12 +727,10 @@ In/out variables:
 
 #ifdef MPIIO
         if (Bmark->access != no) {
-            ierr = MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET));
 
             if (Bmark->fpointer == shared) {
-                ierr = MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET));
             }
         }
 #endif /*MPIIO*/
@@ -813,12 +759,10 @@ In/out variables:
             time[1] = time[0];
 #ifdef MPIIO
             if (Bmark->access != no) {
-                ierr = MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET);
-                MPI_ERRHAND(ierr);
+                MPI_ERRHAND(MPI_File_seek(c_info->fh, 0, MPI_SEEK_SET));
 
                 if (Bmark->fpointer == shared) {
-                    ierr = MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_seek_shared(c_info->fh, 0, MPI_SEEK_SET));
                 }
             }
 #endif /*MPIIO*/
@@ -962,7 +906,7 @@ In/out variables:
 
 */
     if (c_info->s_alloc > 0) {
-        IMB_aligned_buffer_free((void**)&c_info->s_buffer);
+        IMB_v_free((void**)&c_info->s_buffer);
         c_info->s_alloc = 0;
         c_info->s_buffer = NULL;
 
@@ -982,7 +926,7 @@ In/out variables:
 
 */
     if (c_info->r_alloc > 0) {
-        IMB_aligned_buffer_free((void**)&c_info->r_buffer);
+        IMB_v_free((void**)&c_info->r_buffer);
         c_info->r_alloc = 0;
         c_info->r_buffer = NULL;
 

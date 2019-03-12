@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -148,6 +148,8 @@ struct comm_info {
     /* >> IMB 3.2.3  */
 
     MPI_Errhandler  ERR;
+
+    int warm_up;
 
 #ifdef MPIIO
     /*   FILE INFORMATION     */

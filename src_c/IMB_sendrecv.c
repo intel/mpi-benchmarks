@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -120,16 +120,17 @@ Output variables:
 */
     int i;
     Type_Size s_size, r_size;
-    int s_num, r_num;
+    int s_num = 0,
+        r_num = 0;
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    *time = 0.;
 
 #ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0;
 #endif
-    ierr = 0;
+    *time = 0.;
 
     /*  GET SIZE OF DATA TYPE's in s_size and r_size */
     MPI_Type_size(c_info->s_data_type, &s_size);
@@ -154,12 +155,11 @@ Output variables:
 
         *time -= MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Sendrecv((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
-                                s_num, c_info->s_data_type, dest, s_tag,
-                                (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                                r_num, c_info->r_data_type, source, r_tag,
-                                c_info->communicator, &stat);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Sendrecv((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
+                                     s_num, c_info->s_data_type, dest, s_tag,
+                                     (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
+                                     r_num, c_info->r_data_type, source, r_tag,
+                                     c_info->communicator, &stat));
 
             CHK_DIFF("Sendrecv", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                      0, size, size, asize,

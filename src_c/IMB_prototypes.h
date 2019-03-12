@@ -3,7 +3,7 @@
 
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -100,6 +100,9 @@ void IMB_pingpong(struct comm_info* c_info, int size, struct iter_schedule* ITER
 
 void IMB_reduce(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
                 MODES RUN_MODE, double* time);
+
+void IMB_reduce_local(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
+                      MODES RUN_MODE, double* time);
 
 void IMB_reduce_scatter(struct comm_info* c_info, int size, struct iter_schedule* ITERATIONS,
                         MODES RUN_MODE, double* time);
@@ -425,6 +428,10 @@ void IMB_rma_compare_and_swap(struct comm_info* c_info, int size,
 void IMB_rma_passive_put(struct comm_info* c_info, int size,
                          struct iter_schedule* iterations,
                          MODES run_mode, double* time);
+
+void IMB_user_set_info(MPI_Info* opt_info);
+
+
 #endif /*RMA*/
 
 
@@ -474,9 +481,7 @@ void IMB_free_file(struct comm_info * c_info);
 
 void IMB_del_file(struct comm_info* c_info);
 
-int IMB_open_file(struct comm_info* c_info);
-
-void IMB_user_set_info(MPI_Info* opt_info);
+void IMB_open_file(struct comm_info* c_info);
 
 
 #endif /*MPIIO*/

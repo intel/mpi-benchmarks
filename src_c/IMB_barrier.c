@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -125,15 +125,12 @@ Output variables:
     double t1, t2;
     int    i;
 
-    ierr = 0;
-
     if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
 
         t1 = MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Barrier(c_info->communicator);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Barrier(c_info->communicator));
         }
         t2 = MPI_Wtime();
         *time = (t2 - t1) / ITERATIONS->n_sample;
@@ -161,7 +158,6 @@ void IMB_ibarrier(struct comm_info* c_info,
 #ifdef CHECK
     defect=0.;
 #endif
-    ierr = 0;
 
     if(c_info->rank != -1) {
         IMB_ibarrier_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
@@ -173,8 +169,7 @@ void IMB_ibarrier(struct comm_info* c_info,
 
         t_ovrlp = MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Ibarrier(c_info->communicator, &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ibarrier(c_info->communicator, &request));
 
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
@@ -206,15 +201,13 @@ void IMB_ibarrier_pure(struct comm_info* c_info,
 #ifdef CHECK
     defect = 0.;
 #endif
-    ierr = 0;
 
     if (c_info->rank != -1) {
         IMB_do_n_barriers (c_info->communicator, N_BARR);
 
         t_pure = MPI_Wtime();
         for (i = 0; i < ITERATIONS->n_sample; i++) {
-            ierr = MPI_Ibarrier(c_info->communicator, &request);
-            MPI_ERRHAND(ierr);
+            MPI_ERRHAND(MPI_Ibarrier(c_info->communicator, &request));
             MPI_Wait(&request, &status);
         }
         t_pure = (MPI_Wtime() - t_pure) / ITERATIONS->n_sample;

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2018 Intel Corporation.                                    *
+ * Copyright 2003-2019 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -302,9 +302,9 @@ Output variables:
         MPI_Datatype datatype, MPI_Status *status);
 
 #ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0.;
 #endif
-    ierr = 0;
 
     *time = 0.;
 
@@ -351,8 +351,7 @@ Output variables:
             if (pos == indv_block) {
                 for (j = 0; j < j_sample; j++) {
 
-                    ierr = GEN_File_read(c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_read(c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Read standard ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
 
@@ -366,10 +365,7 @@ Output variables:
                 for (j = 0; j < j_sample; j++) {
                     Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
 
-                    ierr = GEN_File_read_at
-                        (c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &stat);
-
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_read_at(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Read explicit ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
 
@@ -382,12 +378,9 @@ Output variables:
             } else if (pos == shared) {
                 for (j = 0; j < j_sample; j++) {
 
-                    ierr = GEN_File_read_shared
-                        (c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(GEN_File_read_shared(c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &stat));
 
                     DIAGNOSTICS("Read shared ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
-
 
 #ifdef CHECK
                     IMB_chk_diff("Read_shared", c_info, c_info->r_buffer, 0,
@@ -426,9 +419,9 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
     MPI_Offset Offset;
 
 #ifdef CHECK
+    int asize = (int) sizeof(assign_type);
     defect = 0.;
 #endif
-    ierr = 0;
 
     *time = 0.;
 
@@ -450,16 +443,12 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
             if (pos == indv_block) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-                    ierr = MPI_File_read_all_begin
-                        (c_info->fh, c_info->r_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_read_all_begin(c_info->fh, c_info->r_buffer, Locsize, c_info->etype));
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_read_all_end
-                        (c_info->fh, c_info->r_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_read_all_end(c_info->fh, c_info->r_buffer, &stat));
 
                     DIAGNOSTICS("IRead coll. ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
 
@@ -473,17 +462,12 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
 
                     Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
 
-                    ierr = MPI_File_read_at_all_begin
-                        (c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
-
+                    MPI_ERRHAND(MPI_File_read_at_all_begin(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype));
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_read_at_all_end
-                        (c_info->fh, c_info->r_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_read_at_all_end(c_info->fh, c_info->r_buffer, &stat));
 
                     DIAGNOSTICS("IRead expl coll. ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
                     CHK_DIFF("Coll. IRead_expl", c_info, c_info->r_buffer, 0,
@@ -493,16 +477,12 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 }
             } else if (pos == shared) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-                    ierr = MPI_File_read_ordered_begin
-                        (c_info->fh, c_info->r_buffer, Locsize, c_info->etype);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_read_ordered_begin(c_info->fh, c_info->r_buffer, Locsize, c_info->etype));
 
                     if (do_ovrlp)
                         IMB_cpu_exploit(TARGET_CPU_SECS, 0);
 
-                    ierr = MPI_File_read_ordered_end
-                        (c_info->fh, c_info->r_buffer, &stat);
-                    MPI_ERRHAND(ierr);
+                    MPI_ERRHAND(MPI_File_read_ordered_end(c_info->fh, c_info->r_buffer, &stat));
 
                     DIAGNOSTICS("IRead shared coll. ", c_info, c_info->r_buffer, Locsize, Totalsize, j, pos);
                     CHK_DIFF("Coll. IRead_shared", c_info, c_info->r_buffer, 0,
@@ -538,10 +518,7 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 }
                 if (pos == indv_block) {
                     for (j = 0; j < j_sample; j++) {
-                        ierr = MPI_File_iread
-                            (c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
-
+                        MPI_ERRHAND(MPI_File_iread(c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
 #if (defined CHECK || defined DEBUG)
                         MPI_Wait(REQUESTS + j, STAT);
@@ -557,9 +534,7 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                     for (j = 0; j < j_sample; j++) {
                         Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
 
-                        ierr = MPI_File_iread_at
-                            (c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_iread_at(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
 #if (defined CHECK || defined DEBUG)
                         MPI_Wait(REQUESTS + j, STAT);
@@ -573,9 +548,7 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                     }
                 } else if (pos == shared) {
                     for (j = 0; j < j_sample; j++) {
-                        ierr = MPI_File_iread_shared
-                            (c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]);
-                        MPI_ERRHAND(ierr);
+                        MPI_ERRHAND(MPI_File_iread_shared(c_info->fh, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
 #if (defined CHECK || defined DEBUG)
                         MPI_Wait(REQUESTS + j, STAT);
