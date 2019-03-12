@@ -64,9 +64,9 @@ What's New
 ----------
 New in Intel(R) MPI Benchmarks 2019 Update 2
 ----------------------------------------
-- New IMB-MT benchmarks.
+- New IMB-P2P benchmarks.
 - Added the Reduce_local benchmark for IMB-MPI1.
-- Deleted the alignment option.
+- Deleted the alignment option (-alignment).
 - Bug fixes.
 - Code cleanup.
 
