@@ -1114,6 +1114,8 @@ int IMB_init_communicator(struct comm_info* c_info, int NP) {
 */
     int i, snd, cnt, proc, *aux_ptr;
 
+    int result = -1;
+
     MPI_Group group, w_group;
     MPI_Status stat;
 
@@ -1133,7 +1135,10 @@ int IMB_init_communicator(struct comm_info* c_info, int NP) {
     } else
         c_info->rank = -1;
 
-    if (c_info->communicator == MPI_COMM_WORLD) {
+    if(c_info->communicator != MPI_COMM_NULL)
+          MPI_Comm_compare(MPI_COMM_WORLD, c_info->communicator, &result);
+
+    if (result == MPI_IDENT || result == MPI_CONGRUENT) {
         c_info->n_groups = 1;
         c_info->g_sizes[0] = c_info->w_num_procs;
 
