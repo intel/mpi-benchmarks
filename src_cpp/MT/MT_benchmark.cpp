@@ -73,12 +73,14 @@ goods and services.
         return OLDNAME(repeat, skip, in, out, count, type, comm, rank, size, idata, odata); \
     }
 
-#define DECLARE_INHERITED_BENCHMARKMT2(BS, FUNC, NAME) template class BenchmarkMT<BS, FUNC>; \
+#define DECLARE_INHERITED_BENCHMARKMT2(BS, FUNC, NAME) \
     DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME3(BenchmarkMT<BS, FUNC>), NAME)                  \
+    template class BenchmarkMT<BS, FUNC>;                                                    \
     template <> void BenchmarkMT<BS, FUNC >::init_flags()
 
-#define DECLARE_INHERITED_BENCHMARKMT(BS, FUNC, NAME) template class BenchmarkMT<BS, FUNC>; \
+#define DECLARE_INHERITED_BENCHMARKMT(BS, FUNC, NAME) \
     DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME2(BenchmarkMT<BS, FUNC>), NAME)                 \
+    template class BenchmarkMT<BS, FUNC>;                                                   \
     template <> void BenchmarkMT<BS, FUNC >::init_flags()
 
 
