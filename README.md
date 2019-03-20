@@ -25,7 +25,8 @@ You can run all of the supported benchmarks, or a subset specified in the
 command line using one executable file. Use command-line parameters to specify
 various settings, such as time measurement, message lengths, and selection of 
 communicators. For details, see the Intel(R) MPI Benchmarks User's Guide 
-located in the <install-dir>/doc directory.
+located at: 
+https://software.intel.com/en-us/articles/creating-custom-benchmarks-for-imb-2019.
 
 By default, Intel(R) MPI Benchmarks is installed at:
   - C:\Program Files (x86)\IntelSWTools\imb on Windows* OS 
