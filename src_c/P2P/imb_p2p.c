@@ -56,7 +56,7 @@ goods and services.
 #define INFO_BUFFER_SIZE 32767
 #endif
 
-static const char * VERSION = "2019 Update 2";
+static const char * VERSION = "2019 Update 3";
 FILE* unit = NULL;
 imb_p2p_configuration_t imb_p2p_config = { 0 };
 
