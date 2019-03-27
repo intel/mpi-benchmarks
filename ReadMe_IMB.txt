@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2019 Update 2
+Intel(R) MPI Benchmarks 2019 Update 3
 README
 --------------------------------------
 
@@ -62,6 +62,15 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Update 2
+----------------------------------------
+- New IMB-P2P benchmarks.
+- Added the Reduce_local benchmark for IMB-MPI1.
+- Deleted the alignment option (-alignment).
+- Bug fixes.
+- Code cleanup.
+
+
 New in Intel(R) MPI Benchmarks 2019 Update 1
 ----------------------------------------
 - Added the Reduce_scatter_block benchmark for IMB-MPI1.
