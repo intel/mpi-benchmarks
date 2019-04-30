@@ -295,7 +295,7 @@ int main(int argc, char * *argv)
             MPI_Init_thread(&argc, (char ***)&argv, required_mode, &provided_mode);
             MPI_Comm_size(MPI_COMM_WORLD, &size);
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-            if (required_mode != provided_mode) {
+            if (required_mode > provided_mode) {
                 throw logic_error("can't setup a required MPI threading mode");
             }
         }
