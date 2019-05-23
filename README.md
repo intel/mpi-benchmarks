@@ -63,6 +63,11 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Update 3
+----------------------------------------
+- Added the warm_up option that enabled additional cycles before running benchmark(for all size.)
+- Bug fixes.
+
 New in Intel(R) MPI Benchmarks 2019 Update 2
 ----------------------------------------
 - New IMB-P2P benchmarks.
