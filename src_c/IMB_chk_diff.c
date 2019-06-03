@@ -693,7 +693,10 @@ Output variables:
     } else if (source == -1) {
         IMB_alloc_aux(Locsize, "chk_diff 7");
 
-        IMB_chk_dadd(AUX, Locsize, buf_pos, 0, c_info->num_procs - 1);
+        if (mode == local)
+            IMB_ass_buf(AUX, c_info->rank, buf_pos, Locsize, 1);
+        else
+            IMB_chk_dadd(AUX, Locsize, buf_pos, 0, c_info->num_procs - 1);
 
         defloc = IMB_ddiff((assign_type *)AUX, (assign_type *)RECEIVED, Locsize / asize, &faultpos);
 
@@ -736,6 +739,9 @@ Output variables:
         err_flag = 1;
 
     *diff = max(*diff, defloc);
+
+    if (mode == local)
+        IMB_ass_buf(RECEIVED, c_info->rank, buf_pos, Locsize - 1, 0);
 }
 
 

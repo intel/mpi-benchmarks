@@ -123,7 +123,6 @@ Output variables:
         s_num = size / s_size;
 
     size *= c_info->size_scale;
-
     *time = 0.;
     if (c_info->rank != -1) {
         IMB_do_n_barriers(c_info->communicator, N_BARR);
@@ -136,10 +135,9 @@ Output variables:
                                          c_info->red_data_type, c_info->op_type));
             t2 = MPI_Wtime();
             *time += (t2 - t1);
-
             CHK_DIFF("Reduce_local", c_info, (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0,
                      size, size, asize,
-                     put, 0, ITERATIONS->n_sample, i,
+                     local, 0, ITERATIONS->n_sample, i,
                      -1, &defect);
 
             IMB_do_n_barriers(c_info->communicator, c_info->sync);
