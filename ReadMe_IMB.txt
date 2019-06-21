@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2019 Update 3
+Intel(R) MPI Benchmarks 2020
 README
 --------------------------------------
 
