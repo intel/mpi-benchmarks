@@ -68,12 +68,23 @@ enum barropt_t {
     BARROPT_SPECIAL
 };
 
+#define THREAD_NUM_STR_LEN_MAX 16
+#define THREAD_NUM_KEY "thread_id"
+
 static inline MPI_Comm duplicate_comm(int mode_multiple, int thread_num)
 {
-    UNUSED(thread_num);
     MPI_Comm comm =  MPI_COMM_WORLD, new_comm;
-    if(mode_multiple) {
+    MPI_Info info;
+    char thread_num_str[THREAD_NUM_STR_LEN_MAX] = { 0 };
+
+    if (mode_multiple) {
         MPI_Comm_dup(comm, &new_comm);
+        MPI_Info_create(&info);
+        snprintf(thread_num_str, THREAD_NUM_STR_LEN_MAX, "%d", thread_num);
+        MPI_Info_set(info, THREAD_NUM_KEY, thread_num_str);
+        MPI_Comm_set_info(new_comm, info);
+        MPI_Info_free(&info);
+        printf("create new comm with [%s:%s]\n", THREAD_NUM_KEY, thread_num_str);
         return new_comm;
     }
     return comm;
