@@ -273,11 +273,7 @@ In/out variables:
     if (pos2 >= pos1) {
         size_t a_pos1, a_pos2, i, j;
         a_pos1 = pos1 / asize;
-
-        if (pos2 >= pos1)
-            a_pos2 = pos2 / asize;
-        else
-            a_pos2 = a_pos1 - 1;
+        a_pos2 = pos2 / asize;
 
         if (value)
             for (i = a_pos1, j = 0; i <= a_pos2; i++, j++)
