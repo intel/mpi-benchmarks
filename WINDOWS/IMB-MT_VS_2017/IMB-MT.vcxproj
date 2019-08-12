@@ -59,7 +59,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' != ''">%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\latest\include;$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' != ''">%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\include;$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' == ''">$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
@@ -76,7 +76,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\debug;%I_MPI_ROOT%\latest\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\debug;%I_MPI_ROOT%\lib\debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -86,7 +86,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' != ''">%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\latest\include;$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' != ''">%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\include;$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(I_MPI_ROOT)' == ''">$(ProjectDir)\..\..\src_cpp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;MT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -104,7 +104,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\release;%I_MPI_ROOT%\latest\lib\release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\release;%I_MPI_ROOT%\lib\release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
