@@ -58,7 +58,7 @@ void imb_p2p_birandom() {
     if (nranks < 2) {
         if (rank == 0) {
             fprintf(unit, "\n");
-            fprintf(unit, "# !! Benchmark %s invalid for %d processes !!\n", IMB_P2P_BIRANDOM, nranks);
+            fprintf(unit, "# !! Benchmark %s is invalid for %d processes !!\n", IMB_P2P_BIRANDOM, nranks);
             fflush(unit);
         }
         return;

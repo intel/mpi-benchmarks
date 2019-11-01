@@ -114,6 +114,8 @@
     <ClCompile Include="..\..\src_c\P2P\imb_p2p_unirandom.c" />
     <ClCompile Include="..\..\src_c\P2P\imb_p2p_pingping.c" />
     <ClCompile Include="..\..\src_c\P2P\imb_p2p_pingpong.c" />
+    <ClCompile Include="..\..\src_c\P2P\imb_p2p_stencil2d.c" />
+    <ClCompile Include="..\..\src_c\P2P\imb_p2p_stencil3d.c" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src_c\P2P\imb_p2p.h" />
