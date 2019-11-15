@@ -57,7 +57,7 @@ void imb_p2p_pingping() {
     if ((nranks < 2) || (nranks & 1)) {
         if (imb_p2p_config.rank == 0) {
             fprintf(unit, "\n");
-            fprintf(unit, "# !! Benchmark %s invalid for %d processes !!\n", IMB_P2P_PINGPING, nranks);
+            fprintf(unit, "# !! Benchmark %s is invalid for %d processes !!\n", IMB_P2P_PINGPING, nranks);
             fflush(unit);
         }
         return;

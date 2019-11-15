@@ -49,90 +49,112 @@ goods and services.
 
 #include "imb_p2p.h"
 
-void imb_p2p_corandom() {
-    char *s_buffer;
-    char *r_buffer;
-    int *random_ring;
+#define NUMBER_OF_NEIGHBORS 4
+
+static int get_rank(int x, int y, int length_x, int length_y)
+{
+    x = (x + length_x) % length_x;
+    y = (y + length_y) % length_y;
+    return length_x * y + x;
+}
+
+void imb_p2p_stencil2d() {
+    char *send_buffers[NUMBER_OF_NEIGHBORS];
+    char *recv_buffers[NUMBER_OF_NEIGHBORS];
+    int neighbours[NUMBER_OF_NEIGHBORS];
     size_t msg_size_index;
     int nranks = imb_p2p_config.nranks;
     int rank = imb_p2p_config.rank;
-    if (nranks < 2) {
+    int i, x, y;
+    int length_x = 2;
+    int length_y = 2;
+    while ((length_x * length_y) < nranks) {
+        length_x++;
+        length_y++;
+    }
+    if ((length_x * length_y) > nranks) {
+        while ((length_y > 1) && (nranks % length_y)) {
+            length_y--;
+        }
+        length_x = nranks / length_y;
+    }
+    if ((length_x < 2) || (length_y < 2) || ((length_x * length_y) != nranks)) {
         if (rank == 0) {
             fprintf(unit, "\n");
-            fprintf(unit, "# !! Benchmark %s is invalid for %d processes !!\n", IMB_P2P_CORANDOM, nranks);
+            fprintf(unit, "# !! Benchmark %s is invalid for %d processes !!\n", IMB_P2P_STENCIL2D, nranks);
             fflush(unit);
         }
         return;
     }
+    y = rank / length_x;
+    x = rank % length_x;
+    neighbours[0] = get_rank(x - 1, y, length_x, length_y);
+    neighbours[1] = get_rank(x + 1, y, length_x, length_y);
+    neighbours[2] = get_rank(x, y - 1, length_x, length_y);
+    neighbours[3] = get_rank(x, y + 1, length_x, length_y);
     if (rank == 0) {
-        imb_p2p_print_benchmark_header(IMB_P2P_CORANDOM);
+        fprintf(unit, "\n");
+        fprintf(unit, "#----------------------------------------------------------------\n");
+        fprintf(unit, "# Benchmarking %s (%d x %d)\n", IMB_P2P_STENCIL2D, length_y, length_x);
+        fprintf(unit, "# #processes = %d\n", imb_p2p_config.nranks);
+        fprintf(unit, "#----------------------------------------------------------------\n");
+        fflush(unit);
         fprintf(unit, " %12s %12s %12s %12s %12s\n", "#bytes", "#repetitions", "t[usec]", "Mbytes/sec", "Msg/sec");
         fflush(unit);
     }
-    s_buffer = (char *)imb_p2p_alloc_mem(imb_p2p_config.messages.max_size);
-    r_buffer = (char *)imb_p2p_alloc_mem(imb_p2p_config.messages.max_size);
-    random_ring = (int *)imb_p2p_alloc_mem(nranks * sizeof(int));
-    memset(s_buffer, rank, imb_p2p_config.messages.max_size);
-    memset(r_buffer, rank, imb_p2p_config.messages.max_size);
+    for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+        send_buffers[i] = (char *)imb_p2p_alloc_mem(imb_p2p_config.messages.max_size);
+    }
+    for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+        recv_buffers[i] = (char *)imb_p2p_alloc_mem(imb_p2p_config.messages.max_size);
+    }
+    for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+        memset(send_buffers[i], rank, imb_p2p_config.messages.max_size);
+    }
+    for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+        memset(recv_buffers[i], rank, imb_p2p_config.messages.max_size);
+    }
     for (msg_size_index = 0; msg_size_index < imb_p2p_config.messages.length; msg_size_index++) {
+        MPI_Request requests[NUMBER_OF_NEIGHBORS * 2];
         size_t size = imb_p2p_config.messages.array[msg_size_index];
         size_t iteration, number_of_iterations, number_of_warm_up_iterations;
         double time;
-        int rank0, rank1;
         size_t number_of_messages = 0;
-        uint64_t random_seed = 0;
-        MPI_Request request;
-        int i;
         get_iters(size, &number_of_iterations, &number_of_warm_up_iterations);
-        for (i = 0; i < nranks; i++) {
-            random_ring[i] = i;
-        }
         imb_p2p_pause();
         imb_p2p_barrier(MPI_COMM_WORLD);
         for (iteration = 0; iteration < number_of_warm_up_iterations; iteration++) {
-            for (i = 0; i < nranks; i++) {
-                int j = get_next_random(&random_seed) % nranks;
-                int r = random_ring[i];
-                random_ring[i] = random_ring[j];
-                random_ring[j] = r;
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                touch_send_buff(size, send_buffers[i]);
             }
-            i = 0;
-            while (random_ring[i] != rank) {
-                i++;
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                MPI_Irecv(recv_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[i]);
             }
-            rank0 = random_ring[(i + nranks - 1) % nranks];
-            rank1 = random_ring[(i + 1) % nranks];
-            MPI_Irecv(r_buffer, size, MPI_BYTE, rank0, 0, MPI_COMM_WORLD, &request);
-            touch_send_buff(size, s_buffer);
-            MPI_Send(s_buffer, size, MPI_BYTE, rank1, 0, MPI_COMM_WORLD);
-            MPI_Wait(&request, MPI_STATUSES_IGNORE);
-            touch_recv_buff(size, r_buffer);
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                MPI_Isend(send_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[NUMBER_OF_NEIGHBORS + i]);
+            }
+            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, MPI_STATUSES_IGNORE);
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                touch_recv_buff(size, recv_buffers[i]);
+            }
         }
-        for (i = 0; i < nranks; i++) {
-            random_ring[i] = i;
-        }
-        random_seed = 0;
         imb_p2p_barrier(MPI_COMM_WORLD);
         time = MPI_Wtime();
         for (iteration = 0; iteration < number_of_iterations; iteration++) {
-            for (i = 0; i < nranks; i++) {
-                int j = get_next_random(&random_seed) % nranks;
-                int r = random_ring[i];
-                random_ring[i] = random_ring[j];
-                random_ring[j] = r;
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                touch_send_buff(size, send_buffers[i]);
             }
-            i = 0;
-            while (random_ring[i] != rank) {
-                i++;
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                MPI_Irecv(recv_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[i]);
             }
-            rank0 = random_ring[(i + nranks - 1) % nranks];
-            rank1 = random_ring[(i + 1) % nranks];
-            MPI_Irecv(r_buffer, size, MPI_BYTE, rank0, 0, MPI_COMM_WORLD, &request);
-            touch_send_buff(size, s_buffer);
-            MPI_Send(s_buffer, size, MPI_BYTE, rank1, 0, MPI_COMM_WORLD);
-            MPI_Wait(&request, MPI_STATUSES_IGNORE);
-            touch_recv_buff(size, r_buffer);
-            number_of_messages += 2;
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                MPI_Isend(send_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[NUMBER_OF_NEIGHBORS + i]);
+            }
+            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, MPI_STATUSES_IGNORE);
+            for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+                touch_recv_buff(size, recv_buffers[i]);
+            }
+            number_of_messages += (NUMBER_OF_NEIGHBORS * 2);
         }
         time = MPI_Wtime() - time;
         imb_p2p_pause();
@@ -165,7 +187,8 @@ void imb_p2p_corandom() {
             fflush(unit);
         }
     }
-    imb_p2p_free_mem(s_buffer);
-    imb_p2p_free_mem(r_buffer);
-    imb_p2p_free_mem(random_ring);
+    for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
+        imb_p2p_free_mem(send_buffers[i]);
+        imb_p2p_free_mem(recv_buffers[i]);
+    }
 }
