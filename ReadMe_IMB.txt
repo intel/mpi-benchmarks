@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2020
+Intel(R) MPI Benchmarks 2021.1-beta01
 README
 --------------------------------------
 
@@ -62,6 +62,19 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+
+New in Intel(R) MPI Benchmarks 2021.1-beta02
+----------------------------------------
+- New IMB-P2P Stencil2D and Stencil3D benchmarks.
+- Bug fixes.
+
+
+New in Intel(R) MPI Benchmarks 2021.1-beta01
+----------------------------------------
+- Added Visual Studio projects for IMB-P2P
+- Bug fixes.
+
+
 New in Intel(R) MPI Benchmarks 2019 Update 3
 ----------------------------------------
 - Added the warm_up option that enabled additional cycles before running benchmark(for all size.)
