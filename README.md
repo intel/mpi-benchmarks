@@ -194,13 +194,19 @@ Building Instructions for Linux* OS
    mpicc.
 2) Run one or more Makefile commands below:
 
-   make clean - remove legacy binary object files and executable files
-   make IMB-MPI1 - build the executable file for the IMB-MPI1 component
-   make IMB-EXT - build the executable file for one-sided communications benchmarks
-   make IMB-IO - build the executable file for I/O benchmarks
-   make IMB-NBC - build the executable file for IMB-NBC benchmarks
-   make IMB-RMA - build the executable file for IMB-RMA benchmarks
-   make all - build all executable files available
+   `make clean` - remove legacy binary object files and executable files
+   
+   `make IMB-MPI1` - build the executable file for the IMB-MPI1 component
+   
+   `make IMB-EXT` - build the executable file for one-sided communications benchmarks
+   
+   `make IMB-IO` - build the executable file for I/O benchmarks
+   
+   `make IMB-NBC` - build the executable file for IMB-NBC benchmarks
+   
+   `make IMB-RMA` - build the executable file for IMB-RMA benchmarks
+   
+   `make all` - build all executable files available
 
 3) Run the benchmarks as follows:
 
