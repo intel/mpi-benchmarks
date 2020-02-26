@@ -52,6 +52,8 @@
 CPPFLAGS = $(CPPFLAGS) -DRMA
 CFLAGS = $(CFLAGS) -DRMA
 C_SRC_DIR = ../$(C_SRC_DIR)
+RC_FILE = ../WINDOWS/IMB-RMA_VS_2017/IMB-RMA.rc
+RC = rc.exe
 
 C_OBJ = IMB_declare.obj \
              IMB_utils.obj \
@@ -70,7 +72,8 @@ C_OBJ = IMB_declare.obj \
              IMB_rma_put.obj \
              IMB_cpu_exploit.obj \
              IMB_rma_get.obj \
-             IMB_rma_atomic.obj
+             IMB_rma_atomic.obj \
+             IMB-RMA.res
 
 BECHMARK_SUITE_OBJ = RMA_suite.obj \
                      RMA_benchmark.obj\
@@ -87,3 +90,8 @@ BECHMARK_SUITE_OBJ = RMA_suite.obj \
 
 {RMA/}.cpp.obj:
 	$(CPP) /I"$(MPI_INCLUDE)" /I. $(CPPFLAGS) -c RMA/$*.cpp
+
+all: resources
+
+resources:
+	$(RC) /R /FO RMA/IMB-RMA.res $(RC_FILE)

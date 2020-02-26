@@ -52,6 +52,8 @@
 CPPFLAGS = $(CPPFLAGS) -DNBC
 CFLAGS = $(CFLAGS) -DNBC
 C_SRC_DIR = ../$(C_SRC_DIR)
+RC_FILE = ../WINDOWS/IMB-NBC_VS_2017/IMB-NBC.rc
+RC = rc.exe
 
 C_OBJ = IMB_allgather.obj \
              IMB_allgatherv.obj \
@@ -80,7 +82,8 @@ C_OBJ = IMB_allgather.obj \
              IMB_sendrecv.obj \
              IMB_strgs.obj \
              IMB_utils.obj \
-             IMB_warm_up.obj
+             IMB_warm_up.obj \
+             IMB-NBC.res
 
 BECHMARK_SUITE_OBJ = NBC_suite.obj \
                      NBC_benchmark.obj\
@@ -97,3 +100,8 @@ BECHMARK_SUITE_OBJ = NBC_suite.obj \
 
 {NBC/}.cpp.obj:
 	$(CPP) /I"$(MPI_INCLUDE)" /I. $(CPPFLAGS) -c NBC/$*.cpp
+
+all: resources
+
+resources:
+	$(RC) /R /FO NBC/IMB-NBC.res $(RC_FILE)
