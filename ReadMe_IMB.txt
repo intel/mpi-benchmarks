@@ -63,6 +63,12 @@ files and folders appear on your system:
 What's New
 ----------
 
+New in Intel(R) MPI Benchmarks 2021.1-beta05
+----------------------------------------
+- Added copyrights for *.exe
+- Bug fixes.
+
+
 New in Intel(R) MPI Benchmarks 2021.1-beta02
 ----------------------------------------
 - New IMB-P2P Stencil2D and Stencil3D benchmarks.
