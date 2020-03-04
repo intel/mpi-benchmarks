@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.1-beta02
+Intel(R) MPI Benchmarks 2021.1-beta05
 README
 --------------------------------------
 
