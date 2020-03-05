@@ -122,7 +122,7 @@ struct iter_schedule {
 
 #define X_MODES 2
 
-typedef enum { put, get, no } DIRECTION;
+typedef enum { put, get, no, local } DIRECTION;
 
 #ifdef MPIIO
 

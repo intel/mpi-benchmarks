@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2019 Update 3
+Intel(R) MPI Benchmarks 2019 Update 4
 README
 --------------------------------------
 
@@ -62,14 +62,20 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Update 4
+--------------------------------------------
+- Bug fixes.
+
+
 New in Intel(R) MPI Benchmarks 2019 Update 3
-----------------------------------------
+--------------------------------------------
 - Added the warm_up option that enabled additional cycles before running benchmark(for all size.)
+- Added a new benchmark Reduce_local for IMB-MPI1.
 - Bug fixes.
 
 
 New in Intel(R) MPI Benchmarks 2019 Update 2
-----------------------------------------
+--------------------------------------------
 - New IMB-P2P benchmarks.
 - Added the Reduce_local benchmark for IMB-MPI1.
 - Deleted the alignment option (-alignment).
@@ -78,7 +84,7 @@ New in Intel(R) MPI Benchmarks 2019 Update 2
 
 
 New in Intel(R) MPI Benchmarks 2019 Update 1
-----------------------------------------
+--------------------------------------------
 - Added the Reduce_scatter_block benchmark for IMB-MPI1.
 - Added the aggregate_mode option that specifies the mode for IMB-IO, IMB-EXT and IMB-RMA.
 - Added the alignment option that controls buffer alignment.
@@ -88,7 +94,7 @@ New in Intel(R) MPI Benchmarks 2019 Update 1
 
 
 New in Intel(R) MPI Benchmarks 2019
-----------------------------------------
+-----------------------------------
 - New IMB-MT benchmarks.
   The benchmarks implement the multi-threaded version of IMB-MPI1
   benchmarks using the OpenMP* paradigm.

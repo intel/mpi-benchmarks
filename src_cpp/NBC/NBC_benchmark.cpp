@@ -281,7 +281,7 @@ BENCHMARK(IMB_ireduce_pure, Ireduce_pure)
 BENCHMARK(IMB_ireduce_scatter, Ireduce_scatter)
 {
     descr->flags.insert(DEFAULT);
-    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_I);
     descr->flags.insert(NONBLOCKING);
     descr->flags.insert(NTIMES_3);
@@ -292,7 +292,7 @@ BENCHMARK(IMB_ireduce_scatter, Ireduce_scatter)
 
 BENCHMARK(IMB_ireduce_scatter_pure, Ireduce_scatter_pure)
 {
-    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_I);
     descr->flags.insert(REDUCTION);
     descr->flags.insert(COLLECTIVE);

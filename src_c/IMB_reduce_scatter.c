@@ -128,6 +128,9 @@ Output variables:
     size_t pos;
     int    Locsize;
 #endif
+#ifdef IMB2018
+    size_t pos1, pos2;
+#endif
 
     Type_Size s_size;
 
@@ -137,17 +140,35 @@ Output variables:
 
     /*  GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->red_data_type, &s_size);
-
-    for (i = 0; i < c_info->num_procs; i++) {
 #ifdef IMB2018
-        c_info->reccnt[i] = ((size / s_size) * (i+1) / c_info->num_procs) - ((size / s_size) * i / c_info->num_procs);
-#else
-        c_info->reccnt[i] = size / s_size;
+    for (i = 0; i < c_info->num_procs; i++) {
+        if (size > 0) {
+            IMB_get_rank_portion(i, c_info->num_procs, size, s_size, &pos1, &pos2);
+            c_info->reccnt[i] = (pos2 - pos1 + 1) / s_size;
+#ifdef CHECK
+            if (i == c_info->rank) {
+                pos = pos1;
+                Locsize = s_size * c_info->reccnt[i];
+            }
 #endif
+        } else {
+            c_info->reccnt[i] = 0;
+#ifdef CHECK
+            if (i == c_info->rank) {
+                pos = 0;
+                Locsize = 0;
+            }
+#endif
+        }
+    }
+#else
+    for (i = 0; i < c_info->num_procs; i++) {
+        c_info->reccnt[i] = size / s_size;
     }
 #ifdef CHECK
     Locsize = s_size * c_info->reccnt[c_info->rank];
     pos = Locsize * c_info->rank;
+#endif
 #endif
 
     *time = 0.;

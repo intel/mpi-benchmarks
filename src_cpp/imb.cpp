@@ -70,7 +70,7 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
-    const char *program_name = "Intel(R) MPI Benchmarks 2019 Update 3";
+    const char *program_name = "Intel(R) MPI Benchmarks 2019 Update 4";
     std::ostringstream output;
 
     // Some unit tests for args parser
@@ -295,7 +295,7 @@ int main(int argc, char * *argv)
             MPI_Init_thread(&argc, (char ***)&argv, required_mode, &provided_mode);
             MPI_Comm_size(MPI_COMM_WORLD, &size);
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-            if (required_mode != provided_mode) {
+            if (required_mode > provided_mode) {
                 throw logic_error("can't setup a required MPI threading mode");
             }
         }

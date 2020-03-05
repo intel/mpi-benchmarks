@@ -136,7 +136,7 @@ Return value          (type int)
 
     if ((ierr = MPI_Init_thread(&argc, &argv, mpi_thread_desired, &mpi_thread_environment)) != MPI_SUCCESS)
         IMB_err_hand(1, ierr);
-    if (mpi_thread_environment != mpi_thread_desired) {
+    if (mpi_thread_desired > mpi_thread_environment) {
         fprintf(unit, "ERROR: MPI_Init_thread was not able to set up desired threading level\n");
         IMB_err_hand(1, ierr);
     }
