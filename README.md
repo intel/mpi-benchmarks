@@ -63,6 +63,11 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2019 Update 5
+----------------------------------------
+- Added Visual Studio projects for IMB-P2P
+- Bug fixes.
+
 New in Intel(R) MPI Benchmarks 2019 Update 4
 --------------------------------------------
 - Bug fixes.

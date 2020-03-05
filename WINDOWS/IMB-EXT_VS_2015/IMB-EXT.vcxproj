@@ -58,7 +58,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\latest\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;EXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -77,7 +77,7 @@
       <ImportLibrary>
       </ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\debug;%I_MPI_ROOT%\latest\lib\debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\debug;%I_MPI_ROOT%\lib\debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +87,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\latest\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%I_MPI_ROOT%\intel64\include;%I_MPI_ROOT%\include;$(ProjectDir)\..\..\src_cpp;$(ProjectDir)\..\..\src_c;$(ProjectDir)\..\..\src_cpp\helpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;WIN_IMB;_CRT_SECURE_NO_DEPRECATE;EXT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -103,7 +103,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\release;%I_MPI_ROOT%\latest\lib\release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%I_MPI_ROOT%\intel64\lib\release;%I_MPI_ROOT%\lib\release</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
