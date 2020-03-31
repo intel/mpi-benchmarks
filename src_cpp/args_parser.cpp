@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2019 Intel Corporation.                                    *
+ * Copyright 2016-2020 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -63,7 +63,8 @@ goods and services.
 
 using namespace std;
 
-const int args_parser::version = 1;
+// FIXME!!! change it to some positive integer value when it is a release time
+const int args_parser::version = 0;
 
 args_parser::value &args_parser::value::operator=(const args_parser::value &other) {
     assert(other.initialized);

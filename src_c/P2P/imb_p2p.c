@@ -1,7 +1,7 @@
 /*
 *****************************************************************************
 *                                                                           *
-* Copyright 2016-2019 Intel Corporation.                                    *
+* Copyright 2016-2020 Intel Corporation.                                    *
 *                                                                           *
 *****************************************************************************
 
@@ -56,7 +56,7 @@ goods and services.
 #define INFO_BUFFER_SIZE 32767
 #endif
 
-static const char * VERSION = "2019 Update 5";
+static const char * VERSION = "2019 Update 6";
 FILE* unit = NULL;
 imb_p2p_configuration_t imb_p2p_config = { 0 };
 
@@ -379,6 +379,10 @@ static void initialization(int argc, char **argv) {
             add_benchmark(IMB_P2P_BIRANDOM, imb_p2p_birandom);
         } else if (!STRCASECMP(argv[i], IMB_P2P_CORANDOM)) {
             add_benchmark(IMB_P2P_CORANDOM, imb_p2p_corandom);
+        } else if (!STRCASECMP(argv[i], IMB_P2P_STENCIL2D)) {
+            add_benchmark(IMB_P2P_STENCIL2D, imb_p2p_stencil2d);
+        } else if (!STRCASECMP(argv[i], IMB_P2P_STENCIL3D)) {
+            add_benchmark(IMB_P2P_STENCIL3D, imb_p2p_stencil3d);
         } else if (!STRCASECMP(argv[i], "-msgwr")) {
             i++;
             if (i >= argc) {
@@ -626,6 +630,8 @@ static void initialization(int argc, char **argv) {
         add_benchmark(IMB_P2P_UNIRANDOM, imb_p2p_unirandom);
         add_benchmark(IMB_P2P_BIRANDOM, imb_p2p_birandom);
         add_benchmark(IMB_P2P_CORANDOM, imb_p2p_corandom);
+        add_benchmark(IMB_P2P_STENCIL2D, imb_p2p_stencil2d);
+        add_benchmark(IMB_P2P_STENCIL3D, imb_p2p_stencil3d);
     }
     if (imb_p2p_config.rank == 0) {
         print_main_header(argc, argv);
@@ -755,6 +761,8 @@ static void loading(int argc, char **argv) {
             fprintf(unit, "# %s\n", IMB_P2P_UNIRANDOM);
             fprintf(unit, "# %s\n", IMB_P2P_BIRANDOM);
             fprintf(unit, "# %s\n", IMB_P2P_CORANDOM);
+            fprintf(unit, "# %s\n", IMB_P2P_STENCIL2D);
+            fprintf(unit, "# %s\n", IMB_P2P_STENCIL3D);
             fprintf(unit, "#\n");
             fflush(unit);
             exit(0);

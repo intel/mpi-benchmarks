@@ -1,7 +1,7 @@
 /*
 *****************************************************************************
 *                                                                           *
-* Copyright 2016-2019 Intel Corporation.                                    *
+* Copyright 2016-2020 Intel Corporation.                                    *
 *                                                                           *
 *****************************************************************************
 
@@ -77,6 +77,8 @@ goods and services.
 #define IMB_P2P_UNIRANDOM "Unirandom"
 #define IMB_P2P_BIRANDOM "Birandom"
 #define IMB_P2P_CORANDOM "Corandom"
+#define IMB_P2P_STENCIL2D "Stencil2D"
+#define IMB_P2P_STENCIL3D "Stencil3D"
 
 extern FILE* unit;
 void imb_p2p_barrier(MPI_Comm comm);
@@ -86,6 +88,8 @@ void imb_p2p_pingping();
 void imb_p2p_unirandom();
 void imb_p2p_birandom();
 void imb_p2p_corandom();
+void imb_p2p_stencil2d();
+void imb_p2p_stencil3d();
 void imb_p2p_print_benchmark_header(const char * name);
 void imb_p2p_free_mem(void *ptr);
 void* imb_p2p_alloc_mem(size_t size);

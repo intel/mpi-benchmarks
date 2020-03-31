@@ -1,6 +1,6 @@
 # *****************************************************************************
 # *                                                                           *
-# * Copyright 2016-2019 Intel Corporation.                                    *
+# * Copyright 2016-2020 Intel Corporation.                                    *
 # *                                                                           *
 # *****************************************************************************
 #
@@ -65,6 +65,8 @@ IMB_SRC += imb_p2p_pingping.c
 IMB_SRC += imb_p2p_unirandom.c
 IMB_SRC += imb_p2p_birandom.c
 IMB_SRC += imb_p2p_corandom.c
+IMB_SRC += imb_p2p_stencil2d.c
+IMB_SRC += imb_p2p_stencil3d.c
 
 IMB_OBJ = $(IMB_SRC:.c=.o)
 
