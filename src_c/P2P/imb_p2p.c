@@ -56,7 +56,7 @@ goods and services.
 #define INFO_BUFFER_SIZE 32767
 #endif
 
-static const char * VERSION = "2021.1-beta06";
+static const char * VERSION = "2021.1-beta07";
 FILE* unit = NULL;
 imb_p2p_configuration_t imb_p2p_config = { 0 };
 
