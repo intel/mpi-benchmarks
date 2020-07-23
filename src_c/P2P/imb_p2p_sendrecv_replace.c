@@ -53,10 +53,10 @@ void imb_p2p_sendrecv_replace() {
     char *buffer;
     size_t msg_size_index;
     int nranks = imb_p2p_config.nranks;
-    if ((nranks < 2) || (nranks & 1)) {
+    if (nranks < 2) {
         if (imb_p2p_config.rank == 0) {
             fprintf(unit, "\n");
-            fprintf(unit, "# !! Benchmark %s is invalid for %d processes !!\n", IMB_P2P_SENDRECV_REPLACE, nranks);
+            fprintf(unit, "# !! Benchmark %s is invalid for %d process !!\n", IMB_P2P_SENDRECV_REPLACE, nranks);
             fflush(unit);
         }
         return;
