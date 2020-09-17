@@ -327,6 +327,12 @@ int main(int argc, char * *argv)
         running_sequence sequence;
         for (vector<string>::iterator it = benchmarks_to_run.begin(); 
              it != benchmarks_to_run.end(); ++it) {
+
+            string bn = *it;
+            if ((bn == "Uniband" || bn == "Biband") && rank == 0) {
+                std::cout << "Warning: " << bn << " window size will be changed in future. To set it use -window_size <int>. Default is 64" << std::endl;
+            }
+
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
                 throw logic_error("benchmark creator failed!");

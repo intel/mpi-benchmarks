@@ -181,6 +181,11 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
             "\n"
             "Default:\n"
             "multi off\n");
+    parser.add<int>("window_size", 64).set_caption("WindowSize").
+        set_description(
+            "Set uniband/biband send/recv window size\n"
+            "\n"
+            "Default: 64");
     parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
            set_caption("cache_size[,cache_line_size]").
            set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
@@ -490,6 +495,9 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
 
     // multi
     c_info.group_mode = parser.get<int>("multi");
+
+    // window_size
+    c_info.max_win_size = parser.get<int>("window_size");
 
     // off_cache
     vector<float> csize;
