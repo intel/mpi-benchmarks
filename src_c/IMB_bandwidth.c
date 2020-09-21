@@ -111,7 +111,7 @@ Output variables:
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    MPI_Request requests[c_info->max_win_size];
+    MPI_Request *requests = (MPI_Request*)malloc(c_info->max_win_size * sizeof(MPI_Request));
 
     int ws, peers;
     char ack;
@@ -173,6 +173,8 @@ Output variables:
     }
     t2 = MPI_Wtime();
     *time = (t2 - t1) / ITERATIONS->n_sample;
+
+    free(requests);
 }
 
 void IMB_bi_bandwidth(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
@@ -219,7 +221,7 @@ Output variables:
     int dest, source;
     MPI_Status stat;
     const int max_win_size2 = 2 * c_info->max_win_size;
-    MPI_Request requests[2 * c_info->max_win_size];
+    MPI_Request *requests = (MPI_Request*)malloc(2 * c_info->max_win_size * sizeof(MPI_Request));
 
     int ws, peers;
     char ack;
@@ -299,4 +301,5 @@ Output variables:
     t2 = MPI_Wtime();
     *time = (t2 - t1) / ITERATIONS->n_sample;
 
+    free(requests);
 }
