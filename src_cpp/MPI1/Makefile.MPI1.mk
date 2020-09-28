@@ -52,7 +52,7 @@ include helpers/Makefile.*.mk
 
 override CPPFLAGS += -DMPI1
 
-BECHMARK_SUITE_SRC += MPI1/MPI1_suite.cpp MPI1/MPI1_benchmark.cpp
+BECHMARK_SUITE_LOCAL_SRC += MPI1/MPI1_suite.cpp MPI1/MPI1_benchmark.cpp
 C_SRC = $(C_SRC_DIR)/IMB_allgather.c \
 $(C_SRC_DIR)/IMB_allgatherv.c \
 $(C_SRC_DIR)/IMB_allreduce.c \
@@ -86,9 +86,26 @@ $(C_SRC_DIR)/IMB_scatterv.c \
 $(C_SRC_DIR)/IMB_sendrecv.c \
 $(C_SRC_DIR)/IMB_strgs.c \
 $(C_SRC_DIR)/IMB_utils.c \
-$(C_SRC_DIR)/IMB_warm_up.c
-C_OBJ=$(subst $(C_SRC_DIR),MPI1,$(C_SRC:.c=.o))
-ADDITIONAL_OBJ += $(C_OBJ)
+$(C_SRC_DIR)/IMB_warm_up.c 
+ifdef GPU_ENABLE
+override C_SRC += $(C_SRC_DIR)/IMB_l0.c 
+override LDFLAGS += -lze_loader
+override CPPFLAGS += -DGPU_ENABLE
+SUBDIR:=GPU
+else
+SUBDIR:=CPU
+endif
 
-MPI1/%.o: $(C_SRC_DIR)/%.c
+C_OBJ=$(subst $(C_SRC_DIR),MPI1/$(SUBDIR),$(C_SRC:.c=.o))
+ADDITIONAL_OBJ += $(C_OBJ)
+BECHMARK_SUITE_LOCAL_OBJ=$(subst MPI1/,MPI1/$(SUBDIR)/,$(BECHMARK_SUITE_LOCAL_SRC:.cpp=.o))
+ADDITIONAL_OBJ += $(BECHMARK_SUITE_LOCAL_OBJ)
+
+MPI1/$(SUBDIR)/%.o: $(C_SRC_DIR)/%.c $(SUBDIR)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -DMPI1 -c -o $@ $<
+
+MPI1/$(SUBDIR)/%.o: MPI1/%.cpp $(SUBDIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DMPI1 -c -o $@ $<
+
+${SUBDIR}:
+	mkdir -p MPI1/${SUBDIR}

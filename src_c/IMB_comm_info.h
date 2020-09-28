@@ -190,6 +190,10 @@ struct comm_info {
     AGGREGATE_MODE aggregate_mode;  /*turn on different types of aggregate modes*/
 #endif
 
+#ifdef GPU_ENABLE
+    int gpu_enable;
+#endif //GPU_ENABLE
+
 };
 
 #endif

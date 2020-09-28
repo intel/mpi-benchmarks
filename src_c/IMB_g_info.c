@@ -100,22 +100,26 @@ void IMB_general_info() {
     struct tm *local_time;
 
     time(&T);
-    fprintf(unit, "#------------------------------------------------------------\n");
+    fprintf(unit, "#----------------------------------------------------------------\n");
 
 #ifdef MPI1
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-1 part    \n", VERSION);
+#ifdef GPU_ENABLE
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-1 part (GPU)\n", VERSION);
+#else
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-1 part\n", VERSION);
+#endif //GPU_ENABLE
 #elif defined EXT
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-2 part    \n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-2 part\n", VERSION);
 #elif defined MPIIO
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-IO part   \n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-IO partn", VERSION);
 #elif defined NBC
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-NBC part  \n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-NBC part\n", VERSION);
 #elif defined RMA
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-RMA part  \n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-RMA part\n", VERSION);
 #endif
 
 
-    fprintf(unit, "#------------------------------------------------------------\n");
+    fprintf(unit, "#----------------------------------------------------------------\n");
     local_time = localtime(&T);
     if (local_time == NULL) exit(1);
     fprintf(unit, "# Date                  : %s", asctime(local_time));
