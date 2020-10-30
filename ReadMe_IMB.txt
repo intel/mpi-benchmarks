@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.1-beta10
+Intel(R) MPI Benchmarks 2021.1
 README
 --------------------------------------
 
@@ -63,7 +63,7 @@ files and folders appear on your system:
 What's New
 ----------
 
-New in Intel(R) MPI Benchmarks 2021.1-beta10
+New in Intel(R) MPI Benchmarks 2021.1
 ----------------------------------------
 - Added -window_size option for IMB-MPI1
 - Bug fixes.
