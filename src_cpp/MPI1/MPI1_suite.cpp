@@ -379,6 +379,12 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "on\n");
+   parser.add<bool>("msg_pause", false).set_caption("on or off").
+           set_description(
+               "Use additional pause between different benchmarks or messages"
+               "\n"
+               "Default:\n"
+               "off\n");
     parser.set_default_current_group();
     return true;
 }
@@ -685,6 +691,11 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         ITERATIONS.numiters = (int *)malloc(c_info.n_lens * sizeof(int));
     }
 
+    // msg_pause
+    if (parser.get<bool>("msg_pause") == true) {
+        c_info.msg_pause = 1;
+    }
+                             
 #endif
 
 #if BASIC_INPUT_EXPERIMENT == 0

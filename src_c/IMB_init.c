@@ -1400,6 +1400,8 @@ void IMB_set_default(struct comm_info* c_info) {
 
     c_info->warm_up = 1;
 
+    c_info->msg_pause = 0;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
 

@@ -151,6 +151,8 @@ struct comm_info {
 
     int warm_up;
 
+    int msg_pause;
+
     int max_win_size;
 
 #ifdef MPIIO
