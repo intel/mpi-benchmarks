@@ -329,9 +329,6 @@ int main(int argc, char * *argv)
              it != benchmarks_to_run.end(); ++it) {
 
             string bn = *it;
-            if ((bn == "Uniband" || bn == "Biband") && rank == 0) {
-                std::cout << "Warning: " << bn << " window size will be changed in future. To set it use -window_size <int>. Default is 64" << std::endl;
-            }
 
             smart_ptr<Benchmark> b = BenchmarkSuitesCollection::create(*it);
             if (b.get() == NULL) {
