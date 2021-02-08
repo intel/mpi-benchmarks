@@ -47,7 +47,7 @@
 #
 #  ***************************************************************************
 
-all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P IMB-MPI1_GPU
+all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
 
 IMB-MPI1:
 	make -C src_cpp -f Makefile TARGET=MPI1
