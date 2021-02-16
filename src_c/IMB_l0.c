@@ -130,18 +130,48 @@ f_err:
     return 1;
 }
 
-void *IMB_l0_alloc(size_t size, char *where)
+void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type)
 {
     if (!l0_driver) {
         C_CHKERR(l0_initialize());
     }
-
-    ze_device_mem_alloc_desc_t l0_device_mem_desc = {
-        .flags = 0,
-        .ordinal = 0 /* this must be less than count of zeDeviceGetMemoryProperties */
-    };
     void *buf;
-    ZE_CHKERR(zeMemAllocDevice(l0_context, &l0_device_mem_desc, size, sizeof(unsigned), l0_device, &buf));
+    switch (mem_alloc_type) {
+        case MAT_DEVICE:
+        {
+            ze_device_mem_alloc_desc_t l0_device_mem_desc = {
+                .flags = 0,
+                .ordinal = 0 /* this must be less than count of zeDeviceGetMemoryProperties */
+            };
+            ZE_CHKERR(zeMemAllocDevice(l0_context, &l0_device_mem_desc, size, sizeof(unsigned), l0_device, &buf));
+            break;
+        }
+        case MAT_HOST:
+        {
+            ze_host_mem_alloc_desc_t l0_host_mem_desc = {
+                .flags = 0,
+            };
+            ZE_CHKERR(zeMemAllocHost(l0_context, &l0_host_mem_desc, size, sizeof(unsigned), &buf));
+            break;
+        }
+        case MAT_SHARED:
+        {
+            ze_device_mem_alloc_desc_t l0_device_mem_desc = {
+                .flags = 0,
+                .ordinal = 0 /* this must be less than count of zeDeviceGetMemoryProperties */
+            };
+            ze_host_mem_alloc_desc_t l0_host_mem_desc = {
+                .flags = 0,
+            };
+            ZE_CHKERR(zeMemAllocShared(l0_context, &l0_device_mem_desc, &l0_host_mem_desc, size, sizeof(unsigned), l0_device, &buf));
+            break;
+        }
+        default:
+        {
+            printf("Error: Unknown buf type\n");
+            exit(1);
+        }
+    }
 
     return buf;
 f_err:

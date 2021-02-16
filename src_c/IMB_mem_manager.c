@@ -92,29 +92,29 @@ For more documentation than found here, see
 
 
 #if defined(GPU_ENABLE) && defined(MPI1)
-#define IMB_ALLOC(buff, size, where)          \
-    do {                                      \
-        if (c_info->gpu_enable) {             \
-            buff = IMB_l0_alloc(size, where); \
-        }                                     \
-        else {                                \
-            buff = IMB_v_alloc(size, where);  \
-        }                                     \
+#define IMB_ALLOC(buff, size, where)                                  \
+    do {                                                              \
+        if (c_info->mem_alloc_type != MAT_CPU) {                      \
+            buff = IMB_l0_alloc(size, where, c_info->mem_alloc_type); \
+        }                                                             \
+        else {                                                        \
+            buff = IMB_v_alloc(size, where);                          \
+        }                                                             \
     } while (0);
 
-#define IMB_FREE(buff)            \
-    do {                          \
-        if (c_info->gpu_enable) { \
-            IMB_l0_free(buff);    \
-        }                         \
-        else {                    \
-            IMB_v_free(buff);     \
-        }                         \
+#define IMB_FREE(buff)                           \
+    do {                                         \
+        if (c_info->mem_alloc_type != MAT_CPU) { \
+            IMB_l0_free(buff);                   \
+        }                                        \
+        else {                                   \
+            IMB_v_free(buff);                    \
+        }                                        \
     } while (0);
 
 #define IMB_ASSIGN(buf, rank, pos1, pos2, value)          \
     do {                                                  \
-        if (c_info->gpu_enable) {                         \
+        if (c_info->mem_alloc_type != MAT_CPU) {          \
             IMB_l0_ass_buf(buf, rank, pos1, pos2, value); \
         }                                                 \
         else {                                            \
@@ -133,9 +133,9 @@ For more documentation than found here, see
         IMB_v_free(buff); \
     } while (0);
 
-#define IMB_ASSIGN(buf, rank, pos1, pos2, value)      \
-    do {                                              \
-        IMB_ass_buf(buf, rank, pos1, pos2, value);    \
+#define IMB_ASSIGN(buf, rank, pos1, pos2, value)   \
+    do {                                           \
+        IMB_ass_buf(buf, rank, pos1, pos2, value); \
     } while (0);
 
 #endif // defined(GPU_ENABLE) && defined(MPI1)
@@ -464,7 +464,7 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
 #endif
 
 #ifdef GPU_ENABLE
-    c_info->gpu_enable = 0;
+    c_info->mem_alloc_type = MAT_CPU;
 #endif //GPU_ENABLE
 
     IMB_init_errhand(c_info);

@@ -66,7 +66,7 @@ For more documentation than found here, see
 
 #include <stddef.h>
 
-void *IMB_l0_alloc(size_t size, char *where);
+void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type);
 void IMB_l0_free(void **B);
 void IMB_l0_ass_buf(void *buf, int rank, size_t pos1, size_t pos2, int value);
 

@@ -87,6 +87,15 @@ typedef enum {
 typedef struct { int Locsize; MPI_Offset Offset; int Totalsize;} SPLITTING;
 #endif
 
+#ifdef GPU_ENABLE
+typedef enum {
+    MAT_CPU    = 0,
+    MAT_DEVICE = 1,
+    MAT_HOST   = 2,
+    MAT_SHARED = 3
+} MEM_ALLOC_TYPE;
+#endif //GPU_ENABLE
+
 struct comm_info {
 /* Communication information as for MPI-1/2 parts */
 
@@ -191,7 +200,7 @@ struct comm_info {
 #endif
 
 #ifdef GPU_ENABLE
-    int gpu_enable;
+    MEM_ALLOC_TYPE mem_alloc_type;
 #endif //GPU_ENABLE
 
 };

@@ -386,12 +386,17 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "Default:\n"
                "off\n");
 #ifdef GPU_ENABLE
-   parser.add<bool>("gpu_enable", false).set_caption("on or off").
+   parser.add<string>("mem_alloc_type", "cpu").set_caption("buffer type").
            set_description(
-               "Use GPU buffers"
-               "\n"
-               "Default:\n"
-               "off\n");
+                "The argument after -mem_alloc_type is a one from possible strings,\n"
+                "Specifying that type will be used:\n"
+                "device, host, shared, cpu\n"
+                "\n"
+                "Example:\n"
+                "-mem_alloc_type device\n"
+                "\n"
+                "Default:\n"
+                "cpu\n");
 #endif //GPU_ENABLE
 
     parser.set_default_current_group();
@@ -706,9 +711,19 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
 #ifdef GPU_ENABLE
-    // gpu_enable
-    if (parser.get<bool>("gpu_enable") == true) {
-        c_info.gpu_enable = 1;
+    // mem_alloc_type
+    string mem_alloc_type = parser.get<string>("mem_alloc_type");
+    if (mem_alloc_type == "cpu") {
+        c_info.mem_alloc_type = MAT_CPU;
+    }
+    else if (mem_alloc_type == "device") {
+        c_info.mem_alloc_type = MAT_DEVICE;
+    }
+    else if (mem_alloc_type == "host") {
+        c_info.mem_alloc_type = MAT_HOST;
+    }
+    else if (mem_alloc_type == "shared") {
+        c_info.mem_alloc_type = MAT_SHARED;
     }
 #endif //GPU_ENABLE
 #endif
