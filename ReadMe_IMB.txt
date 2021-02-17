@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.1
+Intel(R) MPI Benchmarks 2021.2
 README
 --------------------------------------
 
@@ -62,6 +62,15 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+
+New in Intel(R) MPI Benchmarks 2021.2
+----------------------------------------
+- New IMB-MPI1-GPU benchmarks (Technical Preview).
+  The benchmarks implement the GPU version of the IMB-MPI1
+- Added -msg_pause option.
+- Changed default window_size 64 -> 256
+- Bug fixes.
+
 
 New in Intel(R) MPI Benchmarks 2021.1
 ----------------------------------------

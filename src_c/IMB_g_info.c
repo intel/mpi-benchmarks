@@ -72,7 +72,7 @@ For more documentation than found here, see
 #ifdef IMB2018
 char* VERSION="2018";
 #else
-char* VERSION="2021.1";
+char* VERSION="2021.2";
 #endif
 
 #include <stdio.h>
@@ -104,7 +104,7 @@ void IMB_general_info() {
 
 #ifdef MPI1
 #ifdef GPU_ENABLE
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-1 part (GPU)\n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s Technical Preview, MPI-1 part (GPU)\n", VERSION);
 #else
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-1 part\n", VERSION);
 #endif //GPU_ENABLE

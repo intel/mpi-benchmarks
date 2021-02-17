@@ -77,9 +77,9 @@ IMB-P2P:
 	make -C src_c/P2P -f Makefile TARGET=P2P
 	@cp src_c/P2P/IMB-P2P .
 
-IMB-MPI1_GPU:
+IMB-MPI1-GPU:
 	make -C src_cpp -f Makefile TARGET=MPI1 GPU_ENABLE=1
-	@cp src_cpp/IMB-MPI1 ./IMB-MPI1_GPU
+	@cp src_cpp/IMB-MPI1 ./IMB-MPI1-GPU
 
 
 clean:
@@ -91,4 +91,4 @@ clean:
 	make -C src_cpp -f Makefile TARGET=MT clean
 	make -C src_c/P2P -f Makefile TARGET=P2P clean
 	make -C src_cpp -f Makefile TARGET=MPI1 clean GPU_ENABLE=1
-	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P IMB-MPI1_GPU
+	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P IMB-MPI1-GPU
