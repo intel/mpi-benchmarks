@@ -88,10 +88,10 @@ For more documentation than found here, see
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
-#include "IMB_l0.h"
-
 
 #if defined(GPU_ENABLE) && defined(MPI1)
+#include "IMB_l0.h"
+
 #define IMB_ALLOC(buff, size, where)                                  \
     do {                                                              \
         if (c_info->mem_alloc_type != MAT_CPU) {                      \
