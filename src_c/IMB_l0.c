@@ -143,7 +143,7 @@ void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type)
                 .flags = 0,
                 .ordinal = 0 /* this must be less than count of zeDeviceGetMemoryProperties */
             };
-            ZE_CHKERR(zeMemAllocDevice(l0_context, &l0_device_mem_desc, size, sizeof(unsigned), l0_device, &buf));
+            ZE_CHKERR(zeMemAllocDevice(l0_context, &l0_device_mem_desc, size, IMB_L0_MEM_ALIGNMENT, l0_device, &buf));
             break;
         }
         case MAT_HOST:
@@ -151,7 +151,7 @@ void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type)
             ze_host_mem_alloc_desc_t l0_host_mem_desc = {
                 .flags = 0,
             };
-            ZE_CHKERR(zeMemAllocHost(l0_context, &l0_host_mem_desc, size, sizeof(unsigned), &buf));
+            ZE_CHKERR(zeMemAllocHost(l0_context, &l0_host_mem_desc, size, IMB_L0_MEM_ALIGNMENT, &buf));
             break;
         }
         case MAT_SHARED:
@@ -163,7 +163,7 @@ void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type)
             ze_host_mem_alloc_desc_t l0_host_mem_desc = {
                 .flags = 0,
             };
-            ZE_CHKERR(zeMemAllocShared(l0_context, &l0_device_mem_desc, &l0_host_mem_desc, size, sizeof(unsigned), l0_device, &buf));
+            ZE_CHKERR(zeMemAllocShared(l0_context, &l0_device_mem_desc, &l0_host_mem_desc, size, IMB_L0_MEM_ALIGNMENT, l0_device, &buf));
             break;
         }
         default:
