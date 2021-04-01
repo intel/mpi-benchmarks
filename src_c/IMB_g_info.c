@@ -72,7 +72,7 @@ For more documentation than found here, see
 #ifdef IMB2018
 char* VERSION="2018";
 #else
-char* VERSION="2019 Update 6";
+char* VERSION="2021.1";
 #endif
 
 #include <stdio.h>

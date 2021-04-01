@@ -76,13 +76,14 @@ void imb_p2p_stencil3d() {
         length_z++;
     }
     while ((length_x * length_y * length_z) > nranks) {
+        int n, lx, ly;
         length_z--;
         while ((length_z > 1) && (nranks % length_z)) {
             length_z--;
         }
-        int n = nranks / length_z;
-        int lx = 2;
-        int ly = 2;
+        n = nranks / length_z;
+        lx = 2;
+        ly = 2;
         while ((lx * ly) < n) {
             lx++;
             ly++;

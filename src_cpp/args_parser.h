@@ -216,7 +216,7 @@ class args_parser {
     protected:
     std::set<flag_t> flags;
     std::string current_group;
-    std::map<std::string, std::vector<smart_ptr<option> > > expected_args;
+    std::map<const std::string, std::vector<smart_ptr<option> > > expected_args;
     std::vector<std::string> unknown_args;
     option *prev_option;
     error_t last_error;

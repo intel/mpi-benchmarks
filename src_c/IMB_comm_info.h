@@ -151,6 +151,8 @@ struct comm_info {
 
     int warm_up;
 
+    int max_win_size;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
     char*       filename;

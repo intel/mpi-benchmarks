@@ -1,4 +1,13 @@
-Common Public License Version 1.0
+   Intel(R) MPI Benchmarks is provided under the terms of the Common Public 
+   License Version 1.0. Third party programs or components provided with 
+   Intel(R) MPI Benchmarks are governed by separate license terms.
+   Such separate license terms (and not the Common Public License) solely 
+   govern your use of these third party programs. Information on those 
+   components and licenses can be found in the "third-party-programs.txt" text
+   file that is included with Intel(R) MPI Benchmarks.
+   
+
+             Common Public License Version 1.0.
 
 THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS COMMON
 PUBLIC LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF
@@ -229,5 +238,3 @@ the intellectual property laws of the United States of America. No
 party to this Agreement will bring a legal action under this Agreement
 more than one year after the cause of action arose. Each party waives
 its rights to a jury trial in any resulting litigation.
-
-

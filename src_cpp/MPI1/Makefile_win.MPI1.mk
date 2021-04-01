@@ -52,6 +52,8 @@
 CFLAGS = $(CFLAGS) -DMPI1
 CPPFLAGS = $(CPPFLAGS) -DMPI1
 C_SRC_DIR = ../$(C_SRC_DIR)
+RC_FILE = ../WINDOWS/IMB-MPI1_VS_2017/IMB-MPI1.rc
+RC = rc.exe
 
 C_OBJ = IMB_declare.obj \
              IMB_init.obj \
@@ -86,7 +88,8 @@ C_OBJ = IMB_declare.obj \
              IMB_gatherv.obj \
              IMB_scatter.obj \
              IMB_scatterv.obj \
-             IMB_bandwidth.obj
+             IMB_bandwidth.obj \
+             IMB-MPI1.res
 
 BECHMARK_SUITE_OBJ = MPI1_suite.obj \
                      MPI1_benchmark.obj\
@@ -105,3 +108,7 @@ BECHMARK_SUITE_OBJ = MPI1_suite.obj \
 {MPI1/}.cpp.obj:
 	$(CPP) /I"$(MPI_INCLUDE)" /I. $(CPPFLAGS) -c MPI1/$*.cpp
 
+all: resources
+
+resources:
+	$(RC) /R /FO MPI1/IMB-MPI1.res $(RC_FILE)
