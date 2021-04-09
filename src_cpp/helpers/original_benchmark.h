@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2020 Intel Corporation.                                    *
+ * Copyright 2016-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -215,7 +215,8 @@ class OriginalBenchmark : public Benchmark {
                 fn_ptr(&c_info, size, &ITERATIONS, BMODE, time);
                 t = MPI_Wtime() - t;
                 MPI_Barrier(MPI_COMM_WORLD);
-                SLEEP(t);
+                if (c_info.msg_pause == 1)
+                    SLEEP(t);
             }
             IMB_output(&c_info, BMark, BMODE, glob.header, size, &ITERATIONS, time);
             IMB_close_transfer(&c_info, BMark, size);

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2020 Intel Corporation.                                    *
+ * Copyright 2003-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -88,6 +88,58 @@ For more documentation than found here, see
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
+
+#if defined(GPU_ENABLE) && defined(MPI1)
+#include "IMB_l0.h"
+
+#define IMB_ALLOC(buff, size, where)                                  \
+    do {                                                              \
+        if (c_info->mem_alloc_type != MAT_CPU) {                      \
+            buff = IMB_l0_alloc(size, where, c_info->mem_alloc_type); \
+        }                                                             \
+        else {                                                        \
+            buff = IMB_v_alloc(size, where);                          \
+        }                                                             \
+    } while (0);
+
+#define IMB_FREE(buff)                           \
+    do {                                         \
+        if (c_info->mem_alloc_type != MAT_CPU) { \
+            IMB_l0_free(buff);                   \
+        }                                        \
+        else {                                   \
+            IMB_v_free(buff);                    \
+        }                                        \
+    } while (0);
+
+#define IMB_ASSIGN(buf, rank, pos1, pos2, value)          \
+    do {                                                  \
+        if (c_info->mem_alloc_type != MAT_CPU) {          \
+            IMB_l0_ass_buf(buf, rank, pos1, pos2, value); \
+        }                                                 \
+        else {                                            \
+            IMB_ass_buf(buf, rank, pos1, pos2, value);    \
+        }                                                 \
+    } while (0);
+
+#else // !GPU_ENABLE or !MPI1
+#define IMB_ALLOC(buff, size, where)     \
+    do {                                 \
+        buff = IMB_v_alloc(size, where); \
+    } while (0);
+
+#define IMB_FREE(buff)    \
+    do {                  \
+        IMB_v_free(buff); \
+    } while (0);
+
+#define IMB_ASSIGN(buf, rank, pos1, pos2, value)   \
+    do {                                           \
+        IMB_ass_buf(buf, rank, pos1, pos2, value); \
+    } while (0);
+
+#endif // defined(GPU_ENABLE) && defined(MPI1)
+
 static int asize = (int) sizeof(assign_type);
 
 void* IMB_v_alloc(size_t size, char* where) {
@@ -163,18 +215,18 @@ In/out variables:
 
     if (c_info->s_alloc < s_len) {
         size_t size;
-        IMB_v_free((void**)&c_info->s_buffer);
+        IMB_FREE((void**)&c_info->s_buffer);
         size = s_len * ((size_t)c_info->size_scale);
-        c_info->s_buffer = IMB_v_alloc(size, where);
+        IMB_ALLOC(c_info->s_buffer, size, where);
         c_info->s_alloc = size / ((size_t)c_info->size_scale);
         c_info->s_data = (assign_type*)c_info->s_buffer;
     }
 
     if (c_info->r_alloc < r_len) {
         size_t size;
-        IMB_v_free((void**)&c_info->r_buffer);
+        IMB_FREE((void**)&c_info->r_buffer);
         size = r_len * ((size_t)c_info->size_scale);
-        c_info->r_buffer = IMB_v_alloc(size, where);
+        IMB_ALLOC(c_info->r_buffer, size, where);
         c_info->r_alloc = size / ((size_t)c_info->size_scale);
         c_info->r_data = (assign_type*)c_info->r_buffer;
     }
@@ -336,10 +388,10 @@ Checks right allocation.
     IMB_alloc_buf(c_info, "set_buf 1", s_len, r_len);
 
     if (s_pos2 >= s_pos1)
-        IMB_ass_buf(c_info->s_buffer, selected_rank, s_pos1, s_pos2, 1);
+        IMB_ASSIGN(c_info->s_buffer, selected_rank, s_pos1, s_pos2, 1);
 
     if (r_pos2 >= r_pos1)
-        IMB_ass_buf(c_info->r_buffer, selected_rank, r_pos1, r_pos2, 0);
+        IMB_ASSIGN(c_info->r_buffer, selected_rank, r_pos1, r_pos2, 0);
 }
 
 
@@ -410,6 +462,10 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
 #ifdef CHECK
     all_defect = NULL;
 #endif
+
+#ifdef GPU_ENABLE
+    c_info->mem_alloc_type = MAT_CPU;
+#endif //GPU_ENABLE
 
     IMB_init_errhand(c_info);
 
@@ -902,7 +958,7 @@ In/out variables:
 
 */
     if (c_info->s_alloc > 0) {
-        IMB_v_free((void**)&c_info->s_buffer);
+        IMB_FREE((void**)&c_info->s_buffer);
         c_info->s_alloc = 0;
         c_info->s_buffer = NULL;
 
@@ -922,7 +978,7 @@ In/out variables:
 
 */
     if (c_info->r_alloc > 0) {
-        IMB_v_free((void**)&c_info->r_buffer);
+        IMB_FREE((void**)&c_info->r_buffer);
         c_info->r_alloc = 0;
         c_info->r_buffer = NULL;
 

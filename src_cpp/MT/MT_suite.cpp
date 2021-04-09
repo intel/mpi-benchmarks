@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2020 Intel Corporation.                                    *
+ * Copyright 2016-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -196,7 +196,7 @@ template <> bool BenchmarkSuite<BS_MT>::prepare(const args_parser &parser,
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0 && !noheader) {
         output << "#------------------------------------------------------------------" << std::endl;
-        output << "#    Intel(R) MPI Benchmarks " << "2021.1" << ", MT part    " << std::endl;
+        output << "#    Intel(R) MPI Benchmarks " << "2021.2" << ", MT part    " << std::endl;
         output << "#------------------------------------------------------------------" << std::endl;
         output << "#" << std::endl;
     }

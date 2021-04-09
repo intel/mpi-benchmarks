@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2020 Intel Corporation.                                    *
+ * Copyright 2016-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -328,6 +328,12 @@ template <> bool BenchmarkSuite<BS_IO>::declare_args(args_parser &parser, std::o
                 "\n"
                 "Default:\n"
                 "on\n");
+    parser.add<bool>("msg_pause", false).set_caption("on or off").
+           set_description(
+               "Use additional pause between different benchmarks or messages"
+              "\n"
+              "Default:\n"
+              "off\n");
     parser.set_default_current_group();
     return true;
 }
@@ -496,6 +502,11 @@ template <> bool BenchmarkSuite<BS_IO>::prepare(const args_parser &parser, const
     }
 //    IMB_cpu_exploit(TARGET_CPU_SECS, 1);
 
+    // msg_pause
+    if (parser.get<bool>("msg_pause") == true) {
+        c_info.msg_pause = 1;
+    }
+                            
 #endif
     
 #if BASIC_INPUT_EXPERIMENT == 0

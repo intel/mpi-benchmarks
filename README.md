@@ -1,6 +1,6 @@
 # Intel(R) MPI Benchmarks
 [![Common Public License Version 1.0](https://img.shields.io/badge/license-Common%20Public%20License%20Version%201.0-green.svg)](license/license.txt)
-![v2021.1](https://img.shields.io/badge/v.2021.1-Update-orange.svg)
+![v2021.2](https://img.shields.io/badge/v.2021.2-Update-orange.svg)
 --------------------------------------------------
 
 --------
@@ -63,6 +63,14 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.2
+----------------------------------------
+- New IMB-MPI1-GPU benchmarks (Technical Preview).
+  The benchmarks implement the GPU version of the IMB-MPI1
+- Added -msg_pause option.
+- Changed default window_size 64 -> 256
+- Bug fixes.
+
 New in Intel(R) MPI Benchmarks 2021.1
 ----------------------------------------
 - Added -window_size option for IMB-MPI1

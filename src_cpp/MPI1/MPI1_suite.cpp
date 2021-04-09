@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2020 Intel Corporation.                                    *
+ * Copyright 2016-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -181,11 +181,11 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
             "\n"
             "Default:\n"
             "multi off\n");
-    parser.add<int>("window_size", 64).set_caption("WindowSize").
+    parser.add<int>("window_size", 256).set_caption("WindowSize").
         set_description(
             "Set uniband/biband send/recv window size\n"
             "\n"
-            "Default: 64");
+            "Default: 256");
     parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
            set_caption("cache_size[,cache_line_size]").
            set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
@@ -379,6 +379,26 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "on\n");
+   parser.add<bool>("msg_pause", false).set_caption("on or off").
+           set_description(
+               "Use additional pause between different benchmarks or messages"
+               "\n"
+               "Default:\n"
+               "off\n");
+#ifdef GPU_ENABLE
+   parser.add<string>("mem_alloc_type", "cpu").set_caption("buffer type").
+           set_description(
+                "The argument after -mem_alloc_type is a one from possible strings,\n"
+                "Specifying that type will be used:\n"
+                "device, host, shared, cpu\n"
+                "\n"
+                "Example:\n"
+                "-mem_alloc_type device\n"
+                "\n"
+                "Default:\n"
+                "cpu\n");
+#endif //GPU_ENABLE
+
     parser.set_default_current_group();
     return true;
 }
@@ -685,6 +705,27 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         ITERATIONS.numiters = (int *)malloc(c_info.n_lens * sizeof(int));
     }
 
+    // msg_pause
+    if (parser.get<bool>("msg_pause") == true) {
+        c_info.msg_pause = 1;
+    }
+
+#ifdef GPU_ENABLE
+    // mem_alloc_type
+    string mem_alloc_type = parser.get<string>("mem_alloc_type");
+    if (mem_alloc_type == "cpu") {
+        c_info.mem_alloc_type = MAT_CPU;
+    }
+    else if (mem_alloc_type == "device") {
+        c_info.mem_alloc_type = MAT_DEVICE;
+    }
+    else if (mem_alloc_type == "host") {
+        c_info.mem_alloc_type = MAT_HOST;
+    }
+    else if (mem_alloc_type == "shared") {
+        c_info.mem_alloc_type = MAT_SHARED;
+    }
+#endif //GPU_ENABLE
 #endif
 
 #if BASIC_INPUT_EXPERIMENT == 0

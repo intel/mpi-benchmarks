@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2020 Intel Corporation.                                    *
+ * Copyright 2003-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -1399,6 +1399,8 @@ void IMB_set_default(struct comm_info* c_info) {
     c_info->ERR = MPI_ERRHANDLER_NULL;
 
     c_info->warm_up = 1;
+
+    c_info->msg_pause = 0;
 
 #ifdef MPIIO
     /*   FILE INFORMATION     */

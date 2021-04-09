@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2020 Intel Corporation.                                    *
+ * Copyright 2003-2021 Intel Corporation.                                    *
  *                                                                           *
  *****************************************************************************
 
@@ -111,7 +111,7 @@ Output variables:
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    MPI_Request *requests = (MPI_Request*)malloc(c_info->max_win_size * sizeof(MPI_Request));
+    MPI_Request *requests = NULL;
 
     int ws, peers;
     char ack;
@@ -135,6 +135,7 @@ Output variables:
         return;
     }
 
+    requests = (MPI_Request*)malloc(c_info->max_win_size * sizeof(MPI_Request));
     for (i = 0; i < N_BARR; i++)
         MPI_Barrier(c_info->communicator);
 
@@ -221,7 +222,7 @@ Output variables:
     int dest, source;
     MPI_Status stat;
     const int max_win_size2 = 2 * c_info->max_win_size;
-    MPI_Request *requests = (MPI_Request*)malloc(2 * c_info->max_win_size * sizeof(MPI_Request));
+    MPI_Request *requests = NULL;
 
     int ws, peers;
     char ack;
@@ -245,6 +246,7 @@ Output variables:
         return;
     }
 
+    requests = (MPI_Request*)malloc(2 * c_info->max_win_size * sizeof(MPI_Request));
     for (i = 0; i < N_BARR; i++)
         MPI_Barrier(c_info->communicator);
 

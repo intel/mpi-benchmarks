@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2021 Intel Corporation.                                    *
+ * Copyright 2020 Intel Corporation.                                         *
  *                                                                           *
  *****************************************************************************
 
@@ -13,7 +13,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory.
+"use-of-trademark-license.txt" in the "license" subdirectory. 
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -33,7 +33,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -46,43 +46,30 @@ Afghanistan and any other country to which the U.S. has embargoed
 goods and services.
 
  ***************************************************************************
-*/
 
-#include "scope.h"
+For more documentation than found here, see
 
-using namespace std;
+[1] doc/ReadMe_IMB.txt 
 
-bool ScopeIterator::operator==(const ScopeIterator &other) { 
-    return other.scope.sequence.size() == scope.sequence.size() && other.n == n; 
-}
-
-bool ScopeIterator::operator!=(const ScopeIterator &other) { 
-    return !operator==(other); 
-}
-
-ScopeIterator &ScopeIterator::operator++() { 
-    n++; 
-    return *this; 
-}
-
-ScopeIterator ScopeIterator::operator++(int) { 
-    ScopeIterator tmp(*this); 
-    operator++(); 
-    return tmp; 
-}
-
-scope_item ScopeIterator::operator*() { 
-    return scope.sequence[n]; 
-}
-
-ScopeIterator Scope::begin() { 
-    assert(formed); 
-    return ScopeIterator(*this, 0); 
-}
-
-ScopeIterator Scope::end() { 
-    assert(formed); 
-    return ScopeIterator(*this, sequence.size()); 
-}
+[2] Intel(R) MPI Benchmarks
+    Users Guide and Methodology Description
+    In 
+    doc/IMB_Users_Guide.pdf
+    
+ ***************************************************************************/
 
 
+
+#ifndef __l0_h__
+#define __l0_h__
+
+
+#include <stddef.h>
+
+#define IMB_L0_MEM_ALIGNMENT 64
+
+void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type);
+void IMB_l0_free(void **B);
+void IMB_l0_ass_buf(void *buf, int rank, size_t pos1, size_t pos2, int value);
+
+#endif
