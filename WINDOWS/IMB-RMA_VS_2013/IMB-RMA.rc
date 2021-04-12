@@ -73,7 +73,7 @@ BEGIN
             VALUE "FileDescription", "Intel(R) MPI Benchmarks"
             VALUE "FileVersion", "2021.2"
             VALUE "InternalName", "IMB-RMA"
-            VALUE "LegalCopyright", "Copyright 2003-2021 Intel Corporation."
+            VALUE "LegalCopyright", "Copyright Intel Corporation."
             VALUE "OriginalFilename", "IMB-RMA.exe"
             VALUE "ProductName", "Intel(R) MPI Benchmarks"
             VALUE "ProductVersion", "2021.2"
