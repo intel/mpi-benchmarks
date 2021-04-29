@@ -150,6 +150,10 @@ Output variables:
     if (c_info->rank < 0)
         *time = 0.;
     else {
+
+        for (i = 0; i < N_BARR; i++)
+            MPI_Barrier(c_info->communicator);
+
         if (!RUN_MODE->AGGREGATE) {
 
             *time = MPI_Wtime();
@@ -179,9 +183,6 @@ Output variables:
         }
 
         if (RUN_MODE->AGGREGATE) {
-
-            for (i = 0; i < N_BARR; i++)
-                MPI_Barrier(c_info->communicator);
 
             *time = MPI_Wtime();
 
