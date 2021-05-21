@@ -58,7 +58,7 @@ For more documentation than found here, see
     
  ***************************************************************************/
 #ifdef GPU_ENABLE
-#include <ze_api.h>
+#include <level_zero/ze_api.h>
 #include <stdio.h>
 
 #include "IMB_declare.h"
