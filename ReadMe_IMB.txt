@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.2
+Intel(R) MPI Benchmarks 2021.3
 README
 --------------------------------------
 
@@ -62,6 +62,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+
+New in Intel(R) MPI Benchmarks 2021.3
+----------------------------------------
+- Change default value for mem_alloc_type to device
+- License update
+- Bug fixes.
 
 New in Intel(R) MPI Benchmarks 2021.2
 ----------------------------------------

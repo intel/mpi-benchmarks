@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2003-2021 Intel Corporation.                                    *
+ * Copyright Intel Corporation.                                              *
  *                                                                           *
  *****************************************************************************
 
@@ -72,7 +72,7 @@ For more documentation than found here, see
 #ifdef IMB2018
 char* VERSION="2018";
 #else
-char* VERSION="2021.2";
+char* VERSION="2021.3";
 #endif
 
 #include <stdio.h>

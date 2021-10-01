@@ -1,6 +1,6 @@
 /*****************************************************************************
  *                                                                           *
- * Copyright 2016-2021 Intel Corporation.                                    *
+ * Copyright Intel Corporation.                                              *
  *                                                                           *
  *****************************************************************************
 
@@ -386,17 +386,17 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "Default:\n"
                "off\n");
 #ifdef GPU_ENABLE
-   parser.add<string>("mem_alloc_type", "cpu").set_caption("buffer type").
+   parser.add<string>("mem_alloc_type", "device").set_caption("buffer type").
            set_description(
                 "The argument after -mem_alloc_type is a one from possible strings,\n"
                 "Specifying that type will be used:\n"
                 "device, host, shared, cpu\n"
                 "\n"
                 "Example:\n"
-                "-mem_alloc_type device\n"
+                "-mem_alloc_type host\n"
                 "\n"
                 "Default:\n"
-                "cpu\n");
+                "device\n");
 #endif //GPU_ENABLE
 
     parser.set_default_current_group();
