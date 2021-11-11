@@ -116,7 +116,7 @@ menu to run the associated benchmark application.
 #### Building "x64" Executable Files 
 
 1) Check that the Include, Lib, and Path environment variables are set as follows:
-    - ```%I_MPI_ROOT%\intel64\include``
+    - ```%I_MPI_ROOT%\intel64\include```
     - ```%I_MPI_ROOT%\intel64\lib```
     - ```%I_MPI_ROOT%\mpi\intel64\bin```
    
@@ -124,9 +124,10 @@ menu to run the associated benchmark application.
    installation directory.
 
 2) Open the `.vcproj` or `.vcxproj` file for the component you build. From the Visual Studio Project panel:
-   a) Change the `Solution Platforms` dialog box to `x64`.
-   b) Change the `Solution Configurations` dialog box to `Release`.
-   c) Check other settings as required, for example:
+  
+    a) Change the `Solution Platforms` dialog box to `x64`.
+    b) Change the `Solution Configurations` dialog box to `Release`.
+    c) Check other settings as required, for example:
     General > Project Defaults
        - Set `Character Set` to `Use Multi-Byte Character Set`
     C/C++ > General 
