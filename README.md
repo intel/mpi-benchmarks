@@ -116,10 +116,11 @@ menu to run the associated benchmark application.
 #### Building "x64" Executable Files 
 
 1) Check that the Include, Lib, and Path environment variables are set as follows:
-    ```%I_MPI_ROOT%\intel64\include``
-    ```%I_MPI_ROOT%\intel64\lib```
-    ```%I_MPI_ROOT%\mpi\intel64\bin```
-   The `%I_MPI_ROOT%` environment variable is set to the Intel(R) MPI Library 
+    - ```%I_MPI_ROOT%\intel64\include``
+    - ```%I_MPI_ROOT%\intel64\lib```
+    - ```%I_MPI_ROOT%\mpi\intel64\bin```
+   
+  The ``%I_MPI_ROOT%`` environment variable is set to the Intel(R) MPI Library 
    installation directory.
 
 2) Open the `.vcproj` or `.vcxproj` file for the component you build. From the Visual Studio Project panel:
