@@ -123,28 +123,23 @@ menu to run the associated benchmark application.
   The ``%I_MPI_ROOT%`` environment variable is set to the Intel(R) MPI Library 
    installation directory.
 
-2) Open the `.vcproj` or `.vcxproj` file for the component you build. From the Visual Studio Project panel:
+2) Open the `.vcproj` or `.vcxproj` file for the component you build. 
   
-    a) Change the `Solution Platforms` dialog box to `x64`.
-    b) Change the `Solution Configurations` dialog box to `Release`.
-    c) Check other settings as required, for example:
-    General > Project Defaults
-       - Set `Character Set` to `Use Multi-Byte Character Set`
-    C/C++ > General 
-       - Set `Additional Include Directories` to 
-           ```$(I_MPI_ROOT)\intel64\include```
-       - Set `Warning Level` to `Level 1 (/W1)`
-    C/C++ > Preprocessor
-       - For the `Preprocessor definitions` within the Visual Studio 
+3) From the Visual Studio Project panel change the `Solution Platforms` dialog box to `x64`.
+
+4) Change the `Solution Configurations` dialog box to `Release`.
+
+5) Check other settings as required, for example:
+    - General > Project Defaults : set `Character Set` to `Use Multi-Byte Character Set`
+    - C/C++ > General: set `Additional Include Directories` to ```$(I_MPI_ROOT)\intel64\include``` and `Warning Level` to `Level 1 (/W1)`
+    - C/C++ > Preprocessor: for the `Preprocessor definitions` within the Visual Studio 
          projects, add the conditional compilation macros `WIN_IMB` and 
          `_CRT_SECURE_NO_DEPRECATE`. Depending on the components you intend to 
          use, add one or more of the following macros: 
          MPI1, EXT, MPIIO, NBC, RMA.
-    Linker > Input
-       - Set `Additional Dependencies` to ```$(I_MPI_ROOT)\intel64\lib\impi.lib```. 
-         Make sure to add quotes.
+    - Linker > Input: set `Additional Dependencies` to ```$(I_MPI_ROOT)\intel64\lib\impi.lib```. Make sure to add quotes.
 
-3) Use F7 or Build > Build Solution to create an executable.
+6) Use F7 or Build > Build Solution to create an executable.
 
 
 
