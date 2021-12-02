@@ -51,6 +51,7 @@ goods and services.
 #pragma once
 
 #include <algorithm>
+#include <climits>
 
 #ifdef MPIIO
 static int do_nonblocking_;
@@ -484,7 +485,26 @@ struct Bmark_descr {
         if (!result) {
             throw std::logic_error("wrong recv or send buffer requirement description on a benchmark");
         }
-//        printf(">> s_len=%ld, r_len=%ld\n", s_len, r_len);
+        if (flags.count(REDUCTION)) {
+            int red_size_dt;
+            MPI_Type_size(c_info->red_data_type, &red_size_dt);
+
+            if (s_len / red_size_dt > INT_MAX || r_len / red_size_dt > INT_MAX) {
+                Bmark->sample_failure = SAMPLE_FAILED_INT_OVERFLOW;
+                return;
+            }
+        }
+        else {
+            int s_size_dt,
+                r_size_dt;
+            MPI_Type_size(c_info->s_data_type, &s_size_dt);
+            MPI_Type_size(c_info->r_data_type, &r_size_dt);
+
+            if (s_len / s_size_dt > INT_MAX || r_len / r_size_dt > INT_MAX) {
+                Bmark->sample_failure = SAMPLE_FAILED_INT_OVERFLOW;
+                return;
+            }
+        }
 //---------------------------------------------------------------------------------------------------
 // --- STEP 3: set s_alloc and r_alloc AND all these ITERATIONS->s_offs,r_offs,...
 //---------------------------------------------------------------------------------------------------

@@ -645,25 +645,10 @@ In/out variables:
     /* the displ is declared as int by MPI1 standard
        If c_info->num_procs*init_size  exceed INT_MAX value there is no way to run this sample
        */
-    if (
-#ifdef MPI1
-        !strcmp(Bmark->name, "Alltoallv") ||
-        !strcmp(Bmark->name, "Allgatherv") ||
-        !strcmp(Bmark->name, "Scatterv") ||
-        !strcmp(Bmark->name, "Gatherv")
-#elif defined NBC // MPI1
-        !strcmp(Bmark->name, "Ialltoallv") || !strcmp(Bmark->name, "Ialltoallv_pure") ||
-        !strcmp(Bmark->name, "Iallgatherv") || !strcmp(Bmark->name, "Iallgatherv_pure") ||
-        !strcmp(Bmark->name, "Iscatterv") || !strcmp(Bmark->name, "Iscatterv_pure") ||
-        !strcmp(Bmark->name, "Igatherv") || !strcmp(Bmark->name, "Igatherv_pure")
-#else // NBC // MPI1
-        0
-#endif // NBC // MPI1
-        ) {
-        if (s_len > INT_MAX || r_len > INT_MAX) {
-            Bmark->sample_failure = SAMPLE_FAILED_INT_OVERFLOW;
-            return;
-        }
+
+    if (s_len > INT_MAX || r_len > INT_MAX) {
+        Bmark->sample_failure = SAMPLE_FAILED_INT_OVERFLOW;
+        return;
     }
     /*===============================================*/
 
