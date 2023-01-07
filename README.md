@@ -1,3 +1,14 @@
+DISCONTINUATION OF PROJECT
+
+This project will no longer be maintained by Intel.
+
+Intel has ceased development and contributions including, but not limited to, maintenance, bug fixes, new releases, or updates, to this project.  
+
+Intel no longer accepts patches to this project.
+
+If you have an ongoing need to use this project, are interested in independently developing it, or would like to maintain patches for the open source software community, please create your own fork of this project.  
+
+Contact: webadmin@linux.intel.com
 # Intel(R) MPI Benchmarks
 [![Common Public License Version 1.0](https://img.shields.io/badge/license-Common%20Public%20License%20Version%201.0-green.svg)](license/license.txt)
 ![v2021.3](https://img.shields.io/badge/v.2021.3-Update-orange.svg)
