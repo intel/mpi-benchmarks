@@ -79,6 +79,9 @@ endif
 override CPPFLAGS += -I.
 override CFLAGS += -g -O0 -Wall -Wno-long-long
 override CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long
+ifeq "$(CC)" "icx"
+CFLAGS += -std=c++11
+endif
 ifdef WITH_OPENMP
 override CFLAGS += -fopenmp
 override CXXFLAGS += -fopenmp
