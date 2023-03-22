@@ -64,6 +64,7 @@ What's New
 ----------
 New in Intel(R) MPI Benchmarks 2021.5
 ----------------------------------------
+- License update
 - Bug fixes.
 
 New in Intel(R) MPI Benchmarks 2021.4
