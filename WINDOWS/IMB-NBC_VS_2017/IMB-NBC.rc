@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2021,5,0,0
- PRODUCTVERSION 2021,5,0,0
+ FILEVERSION 2021,6,0,0
+ PRODUCTVERSION 2021,6,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Intel Corporation"
             VALUE "FileDescription", "Intel(R) MPI Benchmarks"
-            VALUE "FileVersion", "2021.5"
+            VALUE "FileVersion", "2021.6"
             VALUE "InternalName", "IMB-NBC"
             VALUE "LegalCopyright", "Copyright Intel Corporation."
             VALUE "OriginalFilename", "IMB-NBC.exe"
             VALUE "ProductName", "Intel(R) MPI Benchmarks"
-            VALUE "ProductVersion", "2021.5"
+            VALUE "ProductVersion", "2021.6"
         END
     END
     BLOCK "VarFileInfo"
