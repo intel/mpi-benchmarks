@@ -591,7 +591,7 @@ struct Bmark_descr {
             int acc_rep_test, t_sample;
             int selected_n_sample = ITERATIONS->n_sample;
 
-            memset(time, 0, MAX_TIME_ID);
+            memset(time, 0, MAX_TIME_ID * sizeof(*time));
             if (iter == 0 || BMODE->type == Sync) {
                 ITERATIONS->n_sample_prev = ITERATIONS->msgspersample;
                 if (c_info->n_lens > 0) {
