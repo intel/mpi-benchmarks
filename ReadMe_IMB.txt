@@ -146,7 +146,7 @@ New in Intel(R) MPI Benchmarks 2019
   The benchmarks implement the multi-threaded version of IMB-MPI1
   benchmarks using the OpenMP* paradigm.
 - New benchmarks infrastructure for easier benchmarks extension is implemented in C++
-  (See the guide: https://software.intel.com/en-us/articles/creating-custom-benchmarks-for-imb-2019).
+  (See the guide:  https://www.intel.com/content/www/us/en/developer/articles/technical/creating-custom-benchmarks-for-imb-2019.html?wapkw=creating-custom-benchmarks-for-imb-2019).
   The IMB-MPI1, IMB-RMA, IMB-NBC, IMB-EXT, IMB-IO and IMB-MT implementation is now based on the new C++
   infrastructure.
   The legacy infrastructure is preserved in the src_c subdirectory.
@@ -173,7 +173,7 @@ New in Intel(R) MPI Benchmarks 2018 Update 1
 New in Intel(R) MPI Benchmarks 2018
 --------------------------------------------
 - Product documentation is now available online only at:
-  https://software.intel.com/en-us/imb-user-guide
+  https://www.intel.com/content/www/us/en/docs/mpi-library/user-guide-benchmarks/2021-2/overview.html
 - Removed support of the Intel(R) Xeon Phi(TM) coprocessors (formerly code named
   Knights Corner).
 
@@ -257,7 +257,7 @@ Building Instructions for Linux* OS
 
    where <component> is one of the make targets above.
    For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
-   https://software.intel.com/en-us/imb-user-guide-2018-beta
+   https://www.intel.com/content/www/us/en/docs/mpi-library/user-guide-benchmarks/2021-2/overview.html
 
 -----------------------------------------
 Building Instructions for Windows* OS
@@ -300,7 +300,7 @@ Building "x64" Executable Files
 3) Use F7 or Build > Build Solution to create an executable.
 
    For details, refer to the Intel(R) MPI Benchmarks User's Guide at:
-   https://software.intel.com/en-us/imb-user-guide-2018-beta
+   https://www.intel.com/content/www/us/en/docs/mpi-library/user-guide-benchmarks/2021-2/overview.html
 
 ----------------------
 Copyright and Licenses
