@@ -78,50 +78,46 @@ For more documentation than found here, see
 
  ***************************************************************************/
 
-
-
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
 
 #include "IMB_prototypes.h"
 
+
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
-
 #if defined(GPU_ENABLE) && defined(MPI1)
-#include "IMB_l0.h"
-
+#include "IMB_gpu_common.h"
 #define IMB_ALLOC(buff, size, where)                                  \
     do {                                                              \
         if (c_info->mem_alloc_type != MAT_CPU) {                      \
-            buff = IMB_l0_alloc(size, where, c_info->mem_alloc_type); \
+            buff = IMB_gpu_backend.IMB_gpu_alloc(size, where, c_info->mem_alloc_type);\
         }                                                             \
         else {                                                        \
             buff = IMB_v_alloc(size, where);                          \
         }                                                             \
     } while (0);
 
-#define IMB_FREE(buff)                           \
-    do {                                         \
-        if (c_info->mem_alloc_type != MAT_CPU) { \
-            IMB_l0_free(buff);                   \
-        }                                        \
-        else {                                   \
-            IMB_v_free(buff);                    \
-        }                                        \
+#define IMB_FREE(buff)                                 \
+    do {                                               \
+        if (c_info->mem_alloc_type != MAT_CPU) {       \
+            IMB_gpu_backend.IMB_gpu_free(buff, c_info->mem_alloc_type);\
+        }                                              \
+        else {                                         \
+            IMB_v_free(buff);                          \
+        }                                              \
     } while (0);
 
 #define IMB_ASSIGN(buf, rank, pos1, pos2, value)          \
     do {                                                  \
         if (c_info->mem_alloc_type != MAT_CPU) {          \
-            IMB_l0_ass_buf(buf, rank, pos1, pos2, value); \
+            IMB_gpu_backend.IMB_gpu_ass_buf(buf, rank, pos1, pos2, value);\
         }                                                 \
         else {                                            \
             IMB_ass_buf(buf, rank, pos1, pos2, value);    \
         }                                                 \
     } while (0);
-
 #else // !GPU_ENABLE or !MPI1
 #define IMB_ALLOC(buff, size, where)     \
     do {                                 \
@@ -741,10 +737,11 @@ In/out variables:
 
     /* Determine #iterations if dynamic adaptation requested */
     if ((ITERATIONS->iter_policy == imode_dynamic) || (ITERATIONS->iter_policy == imode_auto && !root_based)) {
-        double time[MAX_TIME_ID] = {0};
+        double time[MAX_TIME_ID];
         int acc_rep_test, t_sample;
         int selected_n_sample = ITERATIONS->n_sample;
 
+        memset(time, 0, MAX_TIME_ID);
         if (iter == 0 || BMODE->type == Sync) {
             ITERATIONS->n_sample_prev = ITERATIONS->msgspersample;
             if (c_info->n_lens > 0) {
@@ -968,4 +965,3 @@ In/out variables:
 
     }
 }
-
