@@ -711,6 +711,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     }
 
 #ifdef GPU_ENABLE
+    gpu_initialize();
     // mem_alloc_type
     string mem_alloc_type = parser.get<string>("mem_alloc_type");
     if (mem_alloc_type == "cpu") {

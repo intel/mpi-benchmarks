@@ -559,6 +559,10 @@ void* IMB_v_alloc(size_t Len, char* where);
 
 /*void IMB_i_alloc(int** B, size_t Len, char* where );  ==> define macro*/
 
+void gpu_initialize();
+
+int gpu_memcpy(void *dst, const void *src, size_t sz);
+
 void IMB_alloc_buf(struct comm_info* c_info, char* where, size_t s_len,
                    size_t r_len);
 

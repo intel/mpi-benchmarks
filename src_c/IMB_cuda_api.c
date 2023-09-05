@@ -13,7 +13,7 @@ contained in above mentioned license.
 Use of the name and trademark "Intel(R) MPI Benchmarks" is allowed ONLY
 within the regulations of the "License for Use of "Intel(R) MPI
 Benchmarks" Name and Trademark" as reproduced in the file
-"use-of-trademark-license.txt" in the "license" subdirectory. 
+"use-of-trademark-license.txt" in the "license" subdirectory.
 
 THE PROGRAM IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT
@@ -33,7 +33,7 @@ WITHOUT LIMITATION LOST PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OR
 DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS GRANTED
-HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. 
+HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
 EXPORT LAWS: THIS LICENSE ADDS NO RESTRICTIONS TO THE EXPORT LAWS OF
 YOUR JURISDICTION. It is licensee's responsibility to comply with any
@@ -49,27 +49,70 @@ goods and services.
 
 For more documentation than found here, see
 
-[1] doc/ReadMe_IMB.txt 
+[1] doc/ReadMe_IMB.txt
 
 [2] Intel(R) MPI Benchmarks
-    Users Guide and Methodology Description
-    In 
-    doc/IMB_Users_Guide.pdf
-    
+        Users Guide and Methodology Description
+        In
+        doc/IMB_Users_Guide.pdf
+
  ***************************************************************************/
+#ifdef GPU_ENABLE
+#include "IMB_cuda_api.h"
 
+cuda_functable_t cuda_proxy = {
+    NULL,
+};
 
+static const char *fn_names[] = {
+    "cudaMalloc",
+    "cudaMallocHost",
+    "cudaMallocManaged",
+    "cudaFree",
+    "cudaFreeHost",
+    "cudaMemcpyAsync",
+    "cudaGetDeviceCount",
+    "cudaStreamCreate",
+    "cudaStreamDestroy",
+    "cudaStreamSynchronize",
+};
 
-#ifndef __l0_h__
-#define __l0_h__
+#define CUDA_FUNCTABLE_COUNT (sizeof(cuda_proxy) / sizeof(void *))
 
+void cuda_init_functable_dll(const char *dll_name)
+{
+    void **sym_ptr = (void **)&cuda_proxy;
 
-#include <stddef.h>
+    void *handle = dlopen(dll_name, RTLD_LAZY | RTLD_GLOBAL);
 
-#define IMB_L0_MEM_ALIGNMENT 64
+    char *dl_error = dlerror();
 
-void *IMB_l0_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type);
-void IMB_l0_free(void **B);
-void IMB_l0_ass_buf(void *buf, int rank, size_t pos1, size_t pos2, int value);
+    if (dl_error)
+    {
+        printf("%s\n", dl_error);
+        exit(1);
+    }
 
-#endif
+    size_t i;
+
+    for (i = 0; i < CUDA_FUNCTABLE_COUNT; i++)
+    {
+        sym_ptr[i] = dlsym(handle, fn_names[i]);
+
+        dl_error = dlerror();
+
+        if (dl_error)
+        {
+            printf("%s\n", dl_error);
+            exit(1);
+        }
+
+        if (sym_ptr[i] == NULL)
+        {
+            printf("Symbol %s is not available!\n", fn_names[i]);
+            exit(1);
+        }
+    }
+}
+
+#endif // GPU_ENABLE

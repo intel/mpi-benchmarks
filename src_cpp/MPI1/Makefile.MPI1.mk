@@ -88,9 +88,12 @@ $(C_SRC_DIR)/IMB_strgs.c \
 $(C_SRC_DIR)/IMB_utils.c \
 $(C_SRC_DIR)/IMB_warm_up.c 
 ifdef GPU_ENABLE
-override C_SRC += $(C_SRC_DIR)/IMB_l0.c 
-override LDFLAGS += -lze_loader
-override CPPFLAGS += -DGPU_ENABLE
+override C_SRC += $(C_SRC_DIR)/IMB_gpu_common.c \
+$(C_SRC_DIR)/IMB_cuda.c \
+$(C_SRC_DIR)/IMB_cuda_api.c \
+$(C_SRC_DIR)/IMB_ze.c \
+$(C_SRC_DIR)/IMB_ze_api.c
+override CPPFLAGS += -DGPU_ENABLE -ldl
 SUBDIR:=GPU
 else
 SUBDIR:=CPU
