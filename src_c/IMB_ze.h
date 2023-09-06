@@ -62,12 +62,12 @@ For more documentation than found here, see
 #define __ze_h__
 
 #include <stddef.h>
-#include "IMB_ze_api.h"
 #include "stdbool.h"
 #include <stdio.h>
 
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
+#include "IMB_ze_api.h"
 
 #define IMB_L0_MEM_ALIGNMENT 64
 #define ZE_NULL_HANDLE NULL /* just for verbosity */

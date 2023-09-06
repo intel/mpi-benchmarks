@@ -82,6 +82,7 @@ static const char *fn_names[] = {
     "zeCommandListCreateImmediate",
     "zeCommandListAppendMemoryCopy",
     "zeCommandListReset",
+    "zeCommandListClose",
     "zeContextCreate",
 };
 
