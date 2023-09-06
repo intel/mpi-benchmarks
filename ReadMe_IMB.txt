@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.6
+Intel(R) MPI Benchmarks 2021.7
 README
 --------------------------------------
 
@@ -62,6 +62,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.7
+----------------------------------------
+- IMB-MPI1-GPU benchmarks support cuda.
+  Dinamically loading from LD_LIBRARY_PATH
+  cuda or level zero library.
+
 New in Intel(R) MPI Benchmarks 2021.6
 ----------------------------------------
 - Bug fixes.

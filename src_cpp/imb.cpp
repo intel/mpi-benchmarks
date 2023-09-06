@@ -70,7 +70,7 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
-    const char *program_name = "Intel(R) MPI Benchmarks 2021.6";
+    const char *program_name = "Intel(R) MPI Benchmarks 2021.7";
     std::ostringstream output;
 
     // Some unit tests for args parser
