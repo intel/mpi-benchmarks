@@ -93,7 +93,10 @@ $(C_SRC_DIR)/IMB_cuda.c \
 $(C_SRC_DIR)/IMB_cuda_api.c \
 $(C_SRC_DIR)/IMB_ze.c \
 $(C_SRC_DIR)/IMB_ze_api.c
-override CPPFLAGS += -DGPU_ENABLE -ldl
+ifndef CUDA_INCLUDE_DIR
+$(error CUDA_INCLUDE_DIR is not set) 
+endif
+override CPPFLAGS += -DGPU_ENABLE -I${CUDA_INCLUDE_DIR} -ldl
 SUBDIR:=GPU
 else
 SUBDIR:=CPU
