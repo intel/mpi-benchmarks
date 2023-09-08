@@ -60,8 +60,8 @@ For more documentation than found here, see
 #ifndef CUDA_API_H
 #define CUDA_API_H
 
-#include "GPU/api/cuda/cuda_runtime_api.h"
-#include "GPU/api/cuda/driver_types.h"
+#include "cuda_runtime_api.h"
+#include "driver_types.h"
 #include <dlfcn.h>
 
 /* *INDENT-OFF* */
