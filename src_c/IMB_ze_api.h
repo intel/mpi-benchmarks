@@ -62,7 +62,7 @@ For more documentation than found here, see
 #define IMB_ZE_API_H
 
 #include <dlfcn.h>
-#include "GPU/api/ze_api.h"
+#include "ze_api.h"
 
 typedef struct level_zero_functable_t {
     typeof(zeInit)                            *zeInit;

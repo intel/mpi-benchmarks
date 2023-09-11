@@ -67,20 +67,24 @@ void gpu_initialize()
     char dll_name_ze[] = "libze_loader.so.1";
 
     if (dlopen(dll_name_cuda, RTLD_LAZY | RTLD_GLOBAL)) {
+#ifdef CUDA_INCLUDE_DIR
         cuda_initialize(dll_name_cuda);
         IMB_gpu_backend.IMB_gpu_backend_type = GPU_BACKEND_CUDA;
         IMB_gpu_backend.IMB_gpu_alloc = cuda_alloc;
         IMB_gpu_backend.IMB_gpu_free = cuda_free;
         IMB_gpu_backend.IMB_gpu_ass_buf = cuda_ass_buf;
         IMB_gpu_backend.IMB_gpu_memcpy = cuda_memcpy;
+#endif
     } else {
         if (dlopen(dll_name_ze, RTLD_LAZY | RTLD_GLOBAL)) {
+#ifdef ZE_INCLUDE_DIR
             ze_initialize(dll_name_ze);
             IMB_gpu_backend.IMB_gpu_backend_type = GPU_BACKEND_ZE;
             IMB_gpu_backend.IMB_gpu_alloc = ze_alloc;
             IMB_gpu_backend.IMB_gpu_free = ze_free;
             IMB_gpu_backend.IMB_gpu_ass_buf = ze_ass_buf;
             IMB_gpu_backend.IMB_gpu_memcpy = ze_memcpy;
+#endif
         } else {
             fprintf(stderr,"Neither CUDA nor Level Zero is available! \nPlease put path to gpu library in LD_LIBRARY_PATH\n");
             exit(1);

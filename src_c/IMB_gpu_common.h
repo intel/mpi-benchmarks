@@ -63,8 +63,13 @@ For more documentation than found here, see
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include "IMB_comm_info.h"
+#if defined(ZE_INCLUDE_DIR)
 #include "IMB_ze.h"
+#endif
+#if defined(CUDA_INCLUDE_DIR)
 #include "IMB_cuda.h"
+#endif
 
 typedef enum gpu_backend_type_t {
     GPU_BACKEND_ZE = 0,
