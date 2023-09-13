@@ -64,10 +64,10 @@ For more documentation than found here, see
 #include <stdlib.h>
 #include <dlfcn.h>
 #include "IMB_comm_info.h"
-#if defined(ZE_INCLUDE_DIR)
+#ifdef ZE_INCLUDE_DIR
 #include "IMB_ze.h"
 #endif
-#if defined(CUDA_INCLUDE_DIR)
+#ifdef CUDA_INCLUDE_DIR
 #include "IMB_cuda.h"
 #endif
 

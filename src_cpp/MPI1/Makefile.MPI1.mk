@@ -93,12 +93,12 @@ override CPPFLAGS += -DGPU_ENABLE -ldl
 ifdef CUDA_INCLUDE_DIR
 override C_SRC += $(C_SRC_DIR)/IMB_cuda.c \
 $(C_SRC_DIR)/IMB_cuda_api.c
-override CPPFLAGS += -I${CUDA_INCLUDE_DIR}
+override CPPFLAGS += -I${CUDA_INCLUDE_DIR} -DCUDA_INCLUDE_DIR
 endif
 ifdef ZE_INCLUDE_DIR
 override C_SRC += $(C_SRC_DIR)/IMB_ze.c \
 $(C_SRC_DIR)/IMB_ze_api.c
-override CPPFLAGS += -I${ZE_INCLUDE_DIR}
+override CPPFLAGS += -I${ZE_INCLUDE_DIR} -DZE_INCLUDE_DIR
 endif
 ifndef CUDA_INCLUDE_DIR
 ifndef ZE_INCLUDE_DIR
