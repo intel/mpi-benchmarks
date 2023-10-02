@@ -306,6 +306,7 @@ BENCHMARK(IMB_rma_passive_put, Truly_passive_put)
     descr->flags.insert(N_MODES_1);
     descr->flags.insert(NON_AGGREGATE);
     descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_2);
     descr->flags.insert(PUT);
     descr->comments.push_back("The benchmark measures execution time of MPI_Put for 2 cases:");
     descr->comments.push_back("1) The target is waiting in MPI_Barrier call (t_pure value)");

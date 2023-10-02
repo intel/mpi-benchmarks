@@ -216,11 +216,11 @@ struct Bmark_descr {
                 found = true;
             }
         }
+#endif /*MPIIO*/
         if (flags.count(NTIMES_2) > 0) {
             Bmark->Ntimes = 2;
         }
 
-#endif /*MPIIO*/
         if (flags.count(NON_AGGREGATE)) {
             Bmark->RUN_MODES[0].AGGREGATE = -1;
         }
