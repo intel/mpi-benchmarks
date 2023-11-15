@@ -14,7 +14,7 @@ Contents
 - Building Instructions for Linux* OS
 - Building Instructions for Windows* OS
 - Copyright and License Information
-- Legal Information
+- Notices & Disclaimers
 
 ------------
 Introduction
@@ -314,28 +314,12 @@ Copyright and Licenses
 See the license files in the imb/license directory.
 
 --------------------------------
-Legal Information
+Notices & Disclaimers
 --------------------------------
-No license (express or implied, by estoppel or otherwise) to any intellectual
-property rights is granted by this document.
+Intel technologies may require enabled hardware, software or service activation.
 
-Intel disclaims all express and implied warranties, including without limitation,
-the implied warranties of merchantability, fitness for a particular purpose, and
-non-infringement, as well as any warranty arising from course of performance,
-course of dealing, or usage in trade.
+No product or component can be absolutely secure. 
 
-This document contains information on products, services and/or processes in
-development. All information provided here is subject to change without notice.
-Contact your Intel representative to obtain the latest forecast, schedule,
-specifications and roadmaps.
+Your costs and results may vary. 
 
-The products and services described may contain defects or errors known as
-errata which may cause deviations from published specifications. Current
-characterized errata are available on request.
-
-Intel, Intel Core, Xeon, Xeon Phi and the Intel logo are trademarks of Intel
-Corporation in the U.S. and/or other countries.
-
-* Other names and brands may be claimed as the property of others.
-
-(C) Intel Corporation
+© Intel Corporation.  Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries.  Other names and brands may be claimed as the property of others.   
