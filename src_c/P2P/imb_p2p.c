@@ -39,16 +39,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Windows.h>
 #define INFO_BUFFER_SIZE 32767
 #endif
+#define IMB_INPUT_ARG_LEN (72)
 
 static const char * VERSION = "2021.7";
 FILE* unit = NULL;
 imb_p2p_configuration_t imb_p2p_config = { 0 };
 
 static void print_main_header(int argc, char **argv);
-static void print_main_footer();
+static void print_main_footer(void);
 static void loading(int argc, char **argv);
 static void initialization(int argc, char **argv);
-static void finalization();
+static void finalization(void);
 
 int main(int argc, char **argv) {
     size_t i;
@@ -127,7 +128,7 @@ void imb_p2p_barrier(MPI_Comm comm) {
     }
 }
 
-void imb_p2p_pause() {
+void imb_p2p_pause(void) {
 #ifndef WIN_IMB
     if (imb_p2p_config.pause_usec >= 0) {
         usleep(imb_p2p_config.pause_usec);
@@ -135,7 +136,7 @@ void imb_p2p_pause() {
 #endif
 }
 
-static void print_title() {
+static void print_title(void) {
     fprintf(unit, "#------------------------------------------------------------\n");
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, IMB-P2P part\n", VERSION);
     fprintf(unit, "#------------------------------------------------------------\n");
@@ -252,7 +253,7 @@ static void print_main_header(int argc, char **argv) {
     fflush(unit);
 }
 
-static void print_main_footer() {
+static void print_main_footer(void) {
     fprintf(unit, "\n\n# All processes entering MPI_Finalize\n\n");
     fflush(unit);
     if (unit != stdout) {
@@ -261,7 +262,7 @@ static void print_main_footer() {
     }
 }
 
-static void free_benchmarks() {
+static void free_benchmarks(void) {
     if (imb_p2p_config.benchmarks.array) {
         imb_p2p_free_mem(imb_p2p_config.benchmarks.array);
     }
@@ -288,7 +289,7 @@ static void add_benchmark(const char * name, imb_p2p_procedure_t procedure) {
     imb_p2p_config.benchmarks.length++;
 }
 
-static void free_messages() {
+static void free_messages(void) {
     if (imb_p2p_config.messages.array) {
         imb_p2p_free_mem(imb_p2p_config.messages.array);
     }
@@ -540,7 +541,7 @@ static void initialization(int argc, char **argv) {
                     }
                     exit(1);
                 } else {
-                    char line[72];
+                    char line[IMB_INPUT_ARG_LEN];
                     char s[sizeof(line)];
                     free_messages();
                     while (fgets(line, sizeof(line), file)) {
@@ -625,7 +626,7 @@ static void initialization(int argc, char **argv) {
     }
 }
 
-static void finalization() {
+static void finalization(void) {
     imb_p2p_barrier(MPI_COMM_WORLD);
     if (imb_p2p_config.rank == 0) {
         print_main_footer();

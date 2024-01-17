@@ -43,7 +43,7 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
         static pnames_t *pnames;
         static BenchmarkSuite<bs> *instance;
         std::vector<std::string> names_list;
-    public:   
+    public:
         static BenchmarkSuite<bs> &get_instance() { 
             if (instance == NULL) {
                 instance = new BenchmarkSuite<bs>(); 
@@ -136,4 +136,4 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
 #define DECLARE_BENCHMARK_SUITE_STUFF(SUITE, NAME) \
 template<> BenchmarkSuite<SUITE>::pnames_t *BenchmarkSuite<SUITE>::pnames = 0; \
 template<> BenchmarkSuite<SUITE> *BenchmarkSuite<SUITE>::instance = 0; \
-template <> const std::string BenchmarkSuite<SUITE>::get_name() const { return #NAME; }
+template<> const std::string BenchmarkSuite<SUITE>::get_name() const { return #NAME; }

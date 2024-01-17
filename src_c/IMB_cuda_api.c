@@ -72,7 +72,7 @@ void cuda_init_functable_dll(const char *dll_name)
 
     if (dl_error)
     {
-        printf("%s\n", dl_error);
+        fprintf(stderr, "%s\n", dl_error);
         exit(1);
     }
 
@@ -86,13 +86,13 @@ void cuda_init_functable_dll(const char *dll_name)
 
         if (dl_error)
         {
-            printf("%s\n", dl_error);
+            fprintf(stderr, "%s\n", dl_error);
             exit(1);
         }
 
         if (sym_ptr[i] == NULL)
         {
-            printf("Symbol %s is not available!\n", fn_names[i]);
+            fprintf(stderr, "Symbol %s is not available!\n", fn_names[i]);
             exit(1);
         }
     }

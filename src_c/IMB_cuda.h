@@ -49,8 +49,7 @@ For more documentation than found here, see
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
 #include "IMB_cuda_api.h"
-
-static unsigned num_devices = 0;
+#include "IMB_prototypes.h"
 
 #define CUDA_CHKERR_EXPL_FINALLY(f, fin, a) { cudaError_t _cuda_chkerr_err; \
     if ((_cuda_chkerr_err=(f), (fin), _cuda_chkerr_err) != cudaSuccess) { \
@@ -75,7 +74,7 @@ static unsigned num_devices = 0;
 }
 #define C_CHKERR(f) C_CHKERR_EXPL(f, goto f_err)
 
-cudaStream_t cuda_stream;
+extern cudaStream_t cuda_stream;
 
 int cuda_initialize(char *dll_name);
 void *cuda_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type);

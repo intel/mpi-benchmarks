@@ -246,7 +246,8 @@ command-line parameters.
 -----------------------------------------
 Building Instructions for Linux* OS
 -----------------------------------------
-1) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or mpicc.
+1) Set the CC and CXX variables to point to the appropriate compiler wrapper,
+   mpiicx or mpicc for C, mpiicpx or mpicxx for C++.
 2) Run one or more Makefile commands below:
 
    make clean - remove legacy binary object files and executable files

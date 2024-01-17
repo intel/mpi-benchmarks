@@ -53,6 +53,8 @@ extern "C" {
 using namespace std;
 
 #define BENCHMARK(BMRK_FN, BMRK_NAME) \
+template<> BenchmarkSuite<BS_MPI1>::pnames_t *BenchmarkSuite<BS_MPI1>::pnames; \
+template<> BenchmarkSuite<BS_MPI1> *BenchmarkSuite<BS_MPI1>::instance; \
 template<> smart_ptr<Bmark_descr> OriginalBenchmark<BenchmarkSuite<BS_MPI1>, BMRK_FN>::descr = NULL; \
 DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<BenchmarkSuite<BS_MPI1>, BMRK_FN>), BMRK_NAME) \
 template class OriginalBenchmark<BenchmarkSuite<BS_MPI1>, BMRK_FN>; \

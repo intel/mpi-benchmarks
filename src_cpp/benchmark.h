@@ -36,6 +36,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
+#define IMB_INPUT_NAME_LEN 32
+#define IMB_INPUT_ARG_LEN 72
 
 class BenchmarkSuiteBase;
 class Benchmark {

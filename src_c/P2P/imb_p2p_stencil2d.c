@@ -41,7 +41,7 @@ static int get_rank(int x, int y, int length_x, int length_y)
     return length_x * y + x;
 }
 
-void imb_p2p_stencil2d() {
+void imb_p2p_stencil2d(void) {
     char *send_buffers[NUMBER_OF_NEIGHBORS];
     char *recv_buffers[NUMBER_OF_NEIGHBORS];
     int neighbours[NUMBER_OF_NEIGHBORS];

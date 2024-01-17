@@ -633,6 +633,6 @@ void IMB_chk_contained(void* part, size_t p_size, void* whole,
                        size_t w_size, size_t* pos, size_t* fpos,
                        double* D, char*msg);
 
-long IMB_compute_crc(register char* buf, register size_t size);
+long IMB_compute_crc(char* buf, size_t size);
 
 #endif // IMB_PROTOTYPES_H

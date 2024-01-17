@@ -32,7 +32,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imb_p2p.h"
 
-void imb_p2p_corandom() {
+void imb_p2p_corandom(void) {
     char *s_buffer;
     char *r_buffer;
     int *random_ring;

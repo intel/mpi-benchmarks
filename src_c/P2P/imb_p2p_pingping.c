@@ -32,7 +32,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imb_p2p.h"
 
-void imb_p2p_pingping() {
+void imb_p2p_pingping(void) {
     char *s_buffer;
     char *r_buffer;
     size_t msg_size_index;

@@ -63,8 +63,9 @@ struct ScopeIterator {
     scope_item operator*();
 };
 
-struct Scope {
-    friend class ScopeIterator;
+class Scope {
+    public:
+    friend struct ScopeIterator;
     typedef ScopeIterator iterator;
     Scope() : formed(false) {}
     bool formed;

@@ -79,6 +79,14 @@ class args_parser {
 
     class value {
         public:
+            value(const value &other) {
+                this->initialized = other.initialized;
+                this->i = other.i;
+                this->f = other.f;
+                this->str = other.str;
+                this->b = other.b;
+                this->type = other.type;
+            }
             value() : initialized(false) {}
             value(float v) : initialized(true), i(0), str("(none)"), b(false) { type = FLOAT; f = v; }
             value(int v) : initialized(true), f(0), str("(none)"), b(false) { type = INT; i = v; }
@@ -193,7 +201,7 @@ class args_parser {
 #endif        
         virtual void set_default_value();
         virtual bool is_default_setting_required() { return val.size() == 0 && !required; }
-        virtual bool is_required_but_not_set() { return required && vec_min != 0 && !val.size() ==0; }
+        virtual bool is_required_but_not_set() { return required && vec_min != 0 && (!val.size()) == 0; }
         virtual std::vector<args_parser::value> get_value_as_vector() const { return val; }
     };
 

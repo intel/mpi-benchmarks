@@ -1310,13 +1310,13 @@ static long crc_32_tab[] = { /* CRC polynomial 0xedb88320 */
 
 
 
-long IMB_compute_crc (register char* buf, register size_t size) {
+long IMB_compute_crc (char* buf, size_t size) {
 /*
 
 In/out variables:
 
--buf                  (type register char*)
--size                 (type register int)
+-buf                  (type char*)
+-size                 (type int)
 
 Return value          (type long)
 
