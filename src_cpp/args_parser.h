@@ -194,7 +194,7 @@ class args_parser {
 #endif        
         virtual void set_default_value();
         virtual bool is_default_setting_required() { return val.size() == 0 && !required; }
-        virtual bool is_required_but_not_set() { return required && vec_min != 0 && !val.size() ==0; }
+        virtual bool is_required_but_not_set() { return required && vec_min != 0 && (!val.size()) == 0; }
         virtual std::vector<args_parser::value> get_value_as_vector() const { return val; }
     };
 

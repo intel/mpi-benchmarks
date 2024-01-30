@@ -168,7 +168,7 @@ int main(int argc, char * *argv)
             char input_line[72+1], name[32+1];
             while (fgets(input_line, 72, t)) {
                 if (input_line[0] != '#' && strlen(input_line) > 0) {
-                    sscanf(input_line, "%32s", name);
+                    sscanf(input_line, "%32s[^\n]", name);
                     requested_benchmarks.push_back(name);
                 }
             }

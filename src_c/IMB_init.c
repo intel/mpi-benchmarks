@@ -574,10 +574,10 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
 
 
                     if (t) {
-                        char inp_line[72], nam[32];
+                        char inp_line[72+1], nam[32+1];
                         while (fgets(inp_line, 72, t)) {
                             if (inp_line[0] != '#' && strlen(inp_line) - 1) {
-                                sscanf(inp_line, "%32s", nam);
+                                sscanf(inp_line, "%32s[^\n]", nam);
                                 if (n_cases >= 1000) {
                                     fprintf(unit, "Too many benchmark cases\n");
                                     fflush(stderr);
