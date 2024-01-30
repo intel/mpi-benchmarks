@@ -74,4 +74,5 @@ clean:
 	make -C src_cpp -f Makefile TARGET=MT clean
 	make -C src_c/P2P -f Makefile TARGET=P2P clean
 	make -C src_cpp -f Makefile TARGET=MPI1 clean GPU_ENABLE=1
-	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P IMB-MPI1-GPU
+	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
+	if [ -e IMB-MPI1-GPU ]; then rm -f IMB-MPI1-GPU; fi
