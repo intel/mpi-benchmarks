@@ -54,20 +54,17 @@ BINARY:=imb
 endif
 
 ifeq ($(origin CC),default)
-CC=mpiicc
+CC=mpiicx
 endif
 ifeq ($(origin CXX),default)
-CXX=mpiicpc
+CXX=mpiicpx
 endif
 override CPPFLAGS += -I.
 override CFLAGS += -g -O0 -Wall -Wno-long-long
 override CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long
-ifeq "$(CC)" "icx"
-CFLAGS += -std=c++11
-endif
 ifdef WITH_OPENMP
-override CFLAGS += -fopenmp
-override CXXFLAGS += -fopenmp
+override CFLAGS += -qopenmp
+override CXXFLAGS += -qopenmp
 endif
 
 #ifeq ($(origin CC),default)
