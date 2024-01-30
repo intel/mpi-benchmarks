@@ -40,8 +40,8 @@ class BenchmarkSuite : public BenchmarkSuiteBase {
     public:
         typedef std::map<std::string, const Benchmark*, set_operations::case_insens_cmp> pnames_t;
     protected:
-        static pnames_t *pnames;
-        static BenchmarkSuite<bs> *instance;
+        static inline pnames_t *pnames;
+        static inline BenchmarkSuite<bs> *instance;
         std::vector<std::string> names_list;
     public:   
         static BenchmarkSuite<bs> &get_instance() { 
