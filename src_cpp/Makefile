@@ -60,8 +60,8 @@ ifeq ($(origin CXX),default)
 CXX=mpiicpx
 endif
 override CPPFLAGS += -I.
-override CFLAGS += -g -O0 -Wall -Wno-long-long
-override CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long
+override CFLAGS += -g -O0 -Wall -Werror
+override CXXFLAGS += -g -O0 -Wall -Wextra -Werror
 ifdef WITH_OPENMP
 override CFLAGS += -qopenmp
 override CXXFLAGS += -qopenmp

@@ -33,7 +33,7 @@
 TARGET=P2P
 BINARY:=IMB-P2P
 
-override CFLAGS += -O3 -Wall -Wextra -pedantic -Wno-long-long
+override CFLAGS += -O3 -Wall -Wextra -Werror
 override LDFLAGS += -lm
 
 ifeq ($(origin CC),default)

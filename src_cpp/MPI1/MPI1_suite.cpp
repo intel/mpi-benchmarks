@@ -45,7 +45,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 #include "any.h"
 #include "benchmark_suite.h"
-
 extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"

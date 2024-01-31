@@ -79,7 +79,14 @@ class args_parser {
 
     class value {
         public:
-            value(const value&) = default;
+            value(const value &other) {
+                this->initialized = other.initialized;
+                this->i = other.i;
+                this->f = other.f;
+                this->str = other.str;
+                this->b = other.b;
+                this->type = other.type;
+            }
             value() : initialized(false) {}
             value(float v) : initialized(true), i(0), str("(none)"), b(false) { type = FLOAT; f = v; }
             value(int v) : initialized(true), f(0), str("(none)"), b(false) { type = INT; i = v; }
