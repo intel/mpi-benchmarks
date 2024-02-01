@@ -63,25 +63,36 @@ override CPPFLAGS += -I.
 override CFLAGS += -g -O0 -Wall -Werror
 override CXXFLAGS += -g -O0 -Wall -Wextra -Werror
 ifdef WITH_OPENMP
-override CFLAGS += -qopenmp
+ifeq ("$(CXX)",$(filter "$(CXX)", "mpiicpx" "icpx"))
 override CXXFLAGS += -qopenmp
 endif
+ifeq ("$(CC)",$(filter "$(CC)", "mpiicx" "icx"))
+override CFLAGS += -qopenmp
+endif
+ifeq ("$(CXX)",$(filter "$(CXX)", "mpiicpc" "icpc"))
+override CXXFLAGS += -qopenmp
+endif
+ifeq ("$(CC)",$(filter "$(CC)", "mpiicc" "icc"))
+override CFLAGS += -qopenmp
+endif
+ifeq "$(CXX)" "g++"
+override CXXFLAGS += -fopenmp
+endif
+ifeq "$(CC)" "gcc"
+override CFLAGS += -fopenmp
+endif
+endif
 
+# ICC ICPC
 #ifeq ($(origin CC),default)
-#CXX=mpicc
+#CC=mpiicc
 #endif
 #ifeq ($(origin CXX),default)
-#CC=mpicxx
+#CXX=mpiicpc
 #endif
 #override CPPFLAGS += -I.
 #override CFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
 #CXXFLAGS = -g -Wall -Wextra -pedantic -Wno-long-long
-#ifdef WITH_OPENMP
-#override CFLAGS += -qopenmp
-#override CXXFLAGS += -qopenmp
-#endif
-
-
 
 all: $(BINARY)
 

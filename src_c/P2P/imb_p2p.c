@@ -39,6 +39,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Windows.h>
 #define INFO_BUFFER_SIZE 32767
 #endif
+#define IMB_INPUT_ARG_LEN (72)
 
 static const char * VERSION = "2021.7";
 FILE* unit = NULL;
@@ -540,7 +541,7 @@ static void initialization(int argc, char **argv) {
                     }
                     exit(1);
                 } else {
-                    char line[72];
+                    char line[IMB_INPUT_ARG_LEN];
                     char s[sizeof(line)];
                     free_messages();
                     while (fgets(line, sizeof(line), file)) {

@@ -161,7 +161,6 @@ void ze_ass_buf(void *buf, int rank, size_t pos1, size_t pos2, int value)
     if (pos2 <= pos1)
         return;
 
-    static const int asize = (int)sizeof(assign_type);
     char *tmp_buf = malloc(pos2 + 1 - pos1);
     ze_memcpy(tmp_buf, buf + pos1, pos2 - pos1);
     IMB_ass_buf(tmp_buf, rank, pos1, pos2, value);

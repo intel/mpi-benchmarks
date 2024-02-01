@@ -46,6 +46,8 @@ For more documentation than found here, see
 #include "cuda_runtime_api.h"
 #include "driver_types.h"
 #include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* *INDENT-OFF* */
 /* The current function names are from CUDA 12.0 */

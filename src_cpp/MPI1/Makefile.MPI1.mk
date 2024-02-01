@@ -72,7 +72,8 @@ $(C_SRC_DIR)/IMB_utils.c \
 $(C_SRC_DIR)/IMB_warm_up.c 
 ifdef GPU_ENABLE
 override C_SRC += $(C_SRC_DIR)/IMB_gpu_common.c
-override CPPFLAGS += -DGPU_ENABLE -ldl
+override CPPFLAGS += -DGPU_ENABLE
+override LDFLAGS += -ldl
 ifdef CUDA_INCLUDE_DIR
 override C_SRC += $(C_SRC_DIR)/IMB_cuda.c \
 $(C_SRC_DIR)/IMB_cuda_api.c
