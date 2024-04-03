@@ -442,8 +442,7 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 }
             } else if (pos == explic) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-
-                    Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
+                    Offset = c_info->split.Offset + (MPI_Offset)j*(MPI_Offset)Totalsize;
 
                     MPI_ERRHAND(MPI_File_read_at_all_begin(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype));
 

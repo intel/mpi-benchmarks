@@ -306,7 +306,7 @@ void IMB_write_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 }
             } else if (pos == explic) {
                 for (j = 0; j < j_sample; j++) {
-                    Offset = c_info->split.Offset + (MPI_Offset)((i + j)*Totalsize);
+                    Offset = c_info->split.Offset + (MPI_Offset)(i + j)*(MPI_Offset)Totalsize;
 
                     MPI_ERRHAND(GEN_File_write_at(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &stat));
 
@@ -406,7 +406,7 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 }
             } else if (pos == explic) {
                 for (j = 0; j < i_sample*j_sample; j++) {
-                    Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
+                    Offset = c_info->split.Offset + (MPI_Offset)j*(MPI_Offset)Totalsize;
 
                     MPI_ERRHAND(MPI_File_write_at_all_begin(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype));
 
@@ -471,7 +471,7 @@ void IMB_iwrite_ij(struct comm_info* c_info, int size, POSITIONING pos,
                 } else if (pos == explic) {
                     for (j = 0; j < j_sample; j++)
                     {
-                        Offset = c_info->split.Offset + (MPI_Offset)((i + j)*Totalsize);
+                        Offset = c_info->split.Offset + (MPI_Offset)(i + j)*(MPI_Offset)Totalsize;
 
                         MPI_ERRHAND(MPI_File_iwrite_at(c_info->fh, Offset, c_info->s_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 
