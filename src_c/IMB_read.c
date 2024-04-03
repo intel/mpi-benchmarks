@@ -346,7 +346,7 @@ Output variables:
             } /*if( pos == indv_block )*/
             else if (pos == explic) {
                 for (j = 0; j < j_sample; j++) {
-                    Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
+                    Offset = c_info->split.Offset + (MPI_Offset)j*(MPI_Offset)Totalsize;
 
                     MPI_ERRHAND(GEN_File_read_at(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &stat));
 
@@ -514,7 +514,7 @@ void IMB_iread_ij(struct comm_info* c_info, int size, POSITIONING pos,
                     }
                 } else if (pos == explic) {
                     for (j = 0; j < j_sample; j++) {
-                        Offset = c_info->split.Offset + (MPI_Offset)(j*Totalsize);
+                        Offset = c_info->split.Offset + (MPI_Offset)j*(MPI_Offset)Totalsize;
 
                         MPI_ERRHAND(MPI_File_iread_at(c_info->fh, Offset, c_info->r_buffer, Locsize, c_info->etype, &REQUESTS[j]));
 

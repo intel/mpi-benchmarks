@@ -515,7 +515,7 @@ Output variables:
                 j2 = j_sample;
             }
 
-            MPI_ERRHAND(MPI_File_seek(restore, (MPI_Offset)(j1*Totalsize), MPI_SEEK_SET));
+            MPI_ERRHAND(MPI_File_seek(restore, (MPI_Offset)j1*(MPI_Offset)Totalsize, MPI_SEEK_SET));
 
             for (j = j1; j <= j2 && faultpos == CHK_NO_FAULT /*faultpos<0*/; j++) {
                 IMB_Assert(Totalsize <= INT_MAX);
