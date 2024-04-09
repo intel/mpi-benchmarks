@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.7
+Intel(R) MPI Benchmarks 2021.8
 README
 --------------------------------------
 
@@ -62,6 +62,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.8
+----------------------------------------
+- Migration to icx,icpx compiler
+- IMB-MPI1: FP16/BF16 data_type support
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.7
 ----------------------------------------
 - IMB-MPI1-GPU benchmarks support cuda.

@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -55,7 +55,7 @@ For more documentation than found here, see
 #ifdef IMB2018
 char* VERSION="2018";
 #else
-char* VERSION="2021.7";
+char* VERSION="2021.8";
 #endif
 
 #include <stdio.h>
