@@ -427,10 +427,10 @@ MPI_Op get_op(MPI_Datatype type) {
     else if (!memcmp(&type, &mpi_float, type_size)) { MPI_Op_create(&(contig_sum<float>), 1, &op); }
     else if (!memcmp(&type, &mpi_double, type_size)) { MPI_Op_create(&(contig_sum<double>), 1, &op); }
 #ifdef MPIX_C_FLOAT16
-    else if (!memcmp(&type, &mpi_float16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type doesn't supported\n"); }
+    else if (!memcmp(&type, &mpi_float16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported\n"); }
 #endif
 #ifdef MPIX_C_BF16
-    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type doesn't supported \n"); }
+    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported \n"); }
 #endif
 
     return op;
