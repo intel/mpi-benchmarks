@@ -71,7 +71,7 @@ New in Intel(R) MPI Benchmarks 2021.8
 New in Intel(R) MPI Benchmarks 2021.7
 ----------------------------------------
 - IMB-MPI1-GPU benchmarks support cuda.
-  Dinamically loading from LD_LIBRARY_PATH
+  Dynamically loading from LD_LIBRARY_PATH
   cuda or level zero library.
 
 New in Intel(R) MPI Benchmarks 2021.6
