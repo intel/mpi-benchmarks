@@ -172,7 +172,7 @@ struct comm_info {
     MPI_Errhandler  ERRF;
 #endif
 
-#if (defined EXT || defined RMA)
+#if (defined EXT || defined RMA || defined MPI4)
     MPI_Win         WIN;
     MPI_Info        info;
     MPI_Errhandler  ERRW;

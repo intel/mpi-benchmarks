@@ -40,6 +40,10 @@ IMB-NBC:
 	make -C src_cpp -f Makefile TARGET=NBC
 	@cp src_cpp/IMB-NBC .
 
+IMB-MPI4:
+	make -C src_cpp -f Makefile TARGET=MPI4
+	@cp src_cpp/IMB-MPI4 .
+
 IMB-EXT:
 	make -C src_cpp -f Makefile TARGET=EXT
 	@cp src_cpp/IMB-EXT .

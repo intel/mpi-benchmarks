@@ -987,6 +987,8 @@ void IMB_help()
     const char *progname = "IMB-RMA";
 #elif defined (NBC)
     const char *progname = "IMB-NBC";
+#elif defined (MPI4)
+    const char *progname = "IMB-MPI4";
 #endif
 
     fflush(stderr);
@@ -1014,7 +1016,7 @@ void IMB_help()
         "[-include      [benchmark1,[benchmark2,[...]]]\n"
         "[-exclude      [benchmark1,[benchmark2,[...]]]\n"
         "[-msglog       <[min_msglog]:max_msglog>]\n"
-#if (defined MPI1 || defined NBC)
+#if (defined MPI1 || defined NBC || defined MPI4)
         "[-root_shift   <on or off>]\n"
         "[-sync         <on or off>]\n"
 #endif            
@@ -1191,7 +1193,7 @@ void IMB_help()
         "(the smallest always being 0), where unit = sizeof(float) for reductions, unit = 1 else\n"
         "max is power of 2 so that 2^max is largest messages size, max must be less than 31"
         "\n\n"
-#if (defined MPI1 || defined NBC)
+#if (defined MPI1 || defined NBC || defined MPI4)
         "-root_shift\n\n"
         "controls root change at each iteration step for certain collective benchmarks,\n"
         "possible argument values are on (1|enable|yes) or off (0|disable|no)\n"

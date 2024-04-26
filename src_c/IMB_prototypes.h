@@ -636,3 +636,45 @@ void IMB_chk_contained(void* part, size_t p_size, void* whole,
 long IMB_compute_crc(char* buf, size_t size);
 
 #endif // IMB_PROTOTYPES_H
+
+#ifdef MPI4
+
+void IMB_bcast_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_bcast_pure_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_alltoall_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_alltoall_pure_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
+void IMB_reduce_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_reduce_pure_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_user_set_info(MPI_Info* opt_info);
+
+#endif // MPI4
