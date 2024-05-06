@@ -81,6 +81,86 @@ BENCHMARK(IMB_bcast_pure_persist, Bcast_pure_persistent)
     return true;
 }
 
+BENCHMARK(IMB_allgather_persist, Allgather_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_allgather_pure_persist, Allgather_pure_persist)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_allgatherv_persist, Allgatherv_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_allgatherv_pure_persist, Allgatherv_pure_persist)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_gather_persist, Gather_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_gather_pure_persist, Gather_pure_persist)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_gatherv_persist, Gatherv_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_gatherv_pure_persist, Gatherv_pure_persist)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_NP_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
 BENCHMARK(IMB_alltoall_persist, Alltoall_persistent)
 {
     descr->flags.insert(DEFAULT);
@@ -119,5 +199,24 @@ BENCHMARK(IMB_reduce_pure_persist, Reduce_pure_persistent)
     descr->flags.insert(RECVBUF_SIZE_I);
     descr->flags.insert(REDUCTION);
     descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_barrier_persist, Barrier_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(SYNC);
+    return true;
+}
+
+BENCHMARK(IMB_barrier_pure_persist, Barrier_pure_persist)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(SYNC);
     return true;
 }

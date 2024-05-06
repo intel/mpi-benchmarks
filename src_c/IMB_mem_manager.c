@@ -424,7 +424,7 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
     IMB_i_alloc(int, c_info->g_ranks, c_info->w_num_procs, "Init_Pointers 1");
     IMB_i_alloc(int, c_info->g_sizes, c_info->w_num_procs, "Init_Pointers 2");
 
-#if (defined MPI1 || defined NBC)
+#if (defined MPI1 || defined NBC || defined MPI4)
     IMB_i_alloc(int, c_info->sndcnt, c_info->w_num_procs, "Init_Pointers 3");
     IMB_i_alloc(int, c_info->sdispl, c_info->w_num_procs, "Init_Pointers 4");
 
@@ -585,9 +585,14 @@ In/out variables:
         || !strcmp(Bmark->name, "Iallgatherv") || !strcmp(Bmark->name, "Iallgatherv_pure")
         || !strcmp(Bmark->name, "Igather") || !strcmp(Bmark->name, "Igather_pure")
         || !strcmp(Bmark->name, "Igatherv") || !strcmp(Bmark->name, "Igatherv_pure")
-#else // MPI1 // NBC
+#elif defined MPI4
+        !strcmp(Bmark->name, "allgather_persist") || !strcmp(Bmark->name, "allgather_pure_persist")
+        || !strcmp(Bmark->name, "allgatherv_persist") || !strcmp(Bmark->name, "allgatherv_pure_persist")
+        || !strcmp(Bmark->name, "gather_persist") || !strcmp(Bmark->name, "gather_pure_persist")
+        || !strcmp(Bmark->name, "gatherv_persist") || !strcmp(Bmark->name, "gatherv_pure_persist")
+#else // MPI1 // NBC // MPI4
         0
-#endif // MPI1 // NBC
+#endif // MPI1 // NBC //MPI4
         ) {
         s_len = (size_t)init_size;
         r_len = (size_t)c_info->num_procs * (size_t)init_size;

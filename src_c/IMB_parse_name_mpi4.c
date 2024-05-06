@@ -128,6 +128,22 @@ In/out variables:
         Bmark->Benchmark = IMB_bcast_persist;
     } else if (!strcmp(Bmark->name, "bcast_pure_persist")) {
         Bmark->Benchmark = IMB_bcast_pure_persist;
+    } else if (!strcmp(Bmark->name, "allgather_persist")) {
+        Bmark->Benchmark = IMB_allgather_persist;
+    } else if (!strcmp(Bmark->name, "allgather_pure_persist")) {
+        Bmark->Benchmark = IMB_allgather_pure_persist;
+    } else if (!strcmp(Bmark->name, "allgatherv_persist")) {
+        Bmark->Benchmark = IMB_allgatherv_persist;
+    } else if (!strcmp(Bmark->name, "allgatherv_pure_persist")) {
+        Bmark->Benchmark = IMB_allgatherv_pure_persist;
+    } else if (!strcmp(Bmark->name, "gather_persist")) {
+        Bmark->Benchmark = IMB_gather_persist;
+    } else if (!strcmp(Bmark->name, "gather_pure_persist")) {
+        Bmark->Benchmark = IMB_gather_pure_persist;
+    } else if (!strcmp(Bmark->name, "gatherv_persist")) {
+        Bmark->Benchmark = IMB_gatherv_persist;
+    } else if (!strcmp(Bmark->name, "gatherv_pure_persist")) {
+        Bmark->Benchmark = IMB_gatherv_pure_persist;
     } else if (!strcmp(Bmark->name, "alltoall_persist")) {
         Bmark->Benchmark = IMB_alltoall_persist;
     } else if (!strcmp(Bmark->name, "alltoall_pure_persist")) {
@@ -138,6 +154,15 @@ In/out variables:
     } else if (!strcmp(Bmark->name, "reduce_pure_persist")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_reduce_pure_persist;
+    } else if (!strcmp(Bmark->name, "barrier_persist")) {
+        Bmark->Benchmark = IMB_barrier_persist;
+        Bmark->RUN_MODES[0].type = Sync;
+    } else if (!strcmp(Bmark->name, "barrier_pure_persist")) {
+        Bmark->Benchmark = IMB_barrier_pure_persist;
+        Bmark->RUN_MODES[0].type = Sync;
+    } else {
+        Bmark->RUN_MODES[0].type = BTYPE_INVALID;
+        return;
     }
 
     Bmark->name[0] = toupper(Bmark->name[0]);

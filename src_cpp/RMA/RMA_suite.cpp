@@ -30,7 +30,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  ***************************************************************************/
 
-#if defined MPI1 || defined NBC || defined MPIIO || defined EXT
+#if defined MPI1 || defined NBC || defined MPIIO || defined EXT || defined MPI4
 #error Legacy benchmark components cannot be linked together
 #endif
 

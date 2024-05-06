@@ -675,7 +675,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 }
 #endif
                 /* >> IMB 3.2.3  */
-#if (defined MPI1 || defined NBC )
+#if (defined MPI1 || defined NBC || defined MPI4 )
                 else if (!strcmp((*argv)[iarg], "-root_shift")) {
                     int val = -1;
 

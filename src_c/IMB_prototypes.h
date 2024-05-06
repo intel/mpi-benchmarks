@@ -651,6 +651,54 @@ void IMB_bcast_pure_persist(struct comm_info* c_info,
                             MODES RUN_MODE,
                             double* time);
 
+void IMB_allgather_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_allgather_pure_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
+void IMB_allgatherv_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_allgatherv_pure_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
+void IMB_gather_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_gather_pure_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_gatherv_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_gatherv_pure_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
 void IMB_alltoall_persist(struct comm_info* c_info,
                         int size,
                         struct iter_schedule* ITERATIONS,
@@ -670,6 +718,18 @@ void IMB_reduce_persist(struct comm_info* c_info,
                         double* time);
 
 void IMB_reduce_pure_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_barrier_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_barrier_pure_persist(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
