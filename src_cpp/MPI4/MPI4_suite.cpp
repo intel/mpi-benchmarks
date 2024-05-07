@@ -45,6 +45,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 #include "any.h"
 #include "benchmark_suite.h"
+
 extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
@@ -74,7 +75,7 @@ bool load_msg_sizes(const char *filename)
 
     int n_lens = 0;
     char inp_line[IMB_INPUT_ARG_LEN];
-    while(fgets(inp_line,IMB_INPUT_ARG_LEN,t)) {
+    while(fgets(inp_line, IMB_INPUT_ARG_LEN, t)) {
         if( inp_line[0] != '#' && strlen(inp_line)>1 )
             n_lens++;
     }
@@ -162,11 +163,6 @@ template <> bool BenchmarkSuite<BS_MPI4>::declare_args(args_parser &parser, std:
             "\n"
             "Default:\n"
             "multi off\n");
-    parser.add<int>("window_size", 256).set_caption("WindowSize").
-        set_description(
-            "Set uniband/biband send/recv window size\n"
-            "\n"
-            "Default: 256");
     parser.add_vector<float>("off_cache", "-1.0,0.0", ',', 1, 2).
            set_caption("cache_size[,cache_line_size]").
            set_mode(args_parser::option::APPLY_DEFAULTS_ONLY_WHEN_MISSING).
@@ -191,7 +187,7 @@ template <> bool BenchmarkSuite<BS_MPI4>::declare_args(args_parser &parser, std:
                 "A cache_size and a cache_line_size are assumed as statically defined\n"
                 "in  => IMB_mem_info.h; these are used when -off_cache -1 is entered\n"
                 "\n"
-                "remark: -off_cache is effective for IMB-MPI4, IMB-EXT, but not IMB-IO\n"
+                "remark: -off_cache is effective for IMB-RMA, IMB-EXT, but not IMB-IO\n"
                 "\n"
                 "Examples:\n"
                 "-off_cache -1 (use defaults of IMB_mem_info.h);\n"
@@ -265,7 +261,7 @@ template <> bool BenchmarkSuite<BS_MPI4>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "no lengths_file, lengths defined by settings.h, settings_io.h\n");
-    parser.add_vector<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ").
+    parser.add_vector<int>("map", "0x0", 'x', 2, 2).set_caption("PxQ").
            set_description(
                "The argument after -map is PxQ, P,Q are integer numbers with P*Q <= NP\n"
                "enter PxQ with the 2 numbers separated by letter \"x\" and no blancs\n"
@@ -308,44 +304,6 @@ template <> bool BenchmarkSuite<BS_MPI4>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "off\n");
-    parser.add<string>("data_type", "byte").set_caption("data type").
-           set_description(
-                "The argument after -data_type is a one from possible strings,\n"
-                "Specifying that type will be used:\n"
-                "byte, char, int, float, double, float16, bfloat16\n"
-                "\n"
-                "Example:\n"
-                "-data_type char\n"
-                "\n"
-                "Default:\n"
-                "byte\n");
-    parser.add<string>("red_data_type", "float").set_caption("data type for reductions").
-           set_description(
-                "The argument after -red_data_type is a one from possible strings,\n"
-                "Specifying that type will be used:\n"
-                "char, int, float, double, float16, bfloat16\n"
-                "\n"
-                "Example:\n"
-                "-red_data_type int\n"
-                "\n"
-                "Default:\n"
-                "float\n");
-    parser.add<string>("contig_type", "base").set_caption("contig type").
-           set_description(
-                "The argument after -contig_type is a one from possible strings,\n"
-                "Specifying that type will be used:\n"
-                "base, base_vec, resize, resize_vec\n"
-                "\n"
-                "base - simple MPI type, like MPI_INT, MPI_CHAR, etc.\n"
-                "base_vec - vector of 'simple MPI type'\n"
-                "resize - simple MPI type with extent(type) = 2 * size(type)\n"
-                "resize_vec - vector of 'resize type'\n"
-                "\n"
-                "Example:\n"
-                "-contig_type resize\n"
-                "\n"
-                "Default:\n"
-                "base\n");
    parser.add<bool>("zero_size", true).set_caption("on or off").
            set_description(
                "Do not run benchmarks with message size 0,\n"
@@ -391,79 +349,6 @@ void preprocess_list(T &list) {
     T tmp;
     transform(list.begin(), list.end(), inserter(tmp, tmp.end()), tolower);
     list = tmp;
-}
-
-template <typename T>
-void contig_sum(void* in_buf, void* in_out_buf, int* len, MPI_Datatype* datatype) {
-    MPI_Aint extent, lb;
-    int      size,
-             step,
-             count,
-             i;
-    MPI_Type_get_extent(*datatype, &lb, &extent);
-    MPI_Type_size(*datatype, &size);
-    step = extent / size;
-    count = extent / sizeof(T) * (*len);
-    for (i = 0; i < count ; i += step)
-        ((T*)in_out_buf)[i] += ((T*)in_buf)[i];
-}
-
-MPI_Op get_op(MPI_Datatype type) {
-    MPI_Op op = MPI_SUM;
-    MPI_Datatype mpi_char = MPI_CHAR;
-    MPI_Datatype mpi_int = MPI_INT;
-    MPI_Datatype mpi_float = MPI_FLOAT;
-    MPI_Datatype mpi_double = MPI_DOUBLE;
-#ifdef MPIX_C_FLOAT16
-    MPI_Datatype mpi_float16 = MPIX_C_FLOAT16;
-#endif
-#ifdef MPIX_C_BF16
-    MPI_Datatype mpi_bfloat16 = MPIX_C_BF16;
-#endif
-    size_t type_size = sizeof(MPI_Datatype);
-
-    if (!memcmp(&type, &mpi_char, type_size)) { MPI_Op_create(&(contig_sum<char>), 1, &op); }
-    else if (!memcmp(&type, &mpi_int, type_size)) { MPI_Op_create(&(contig_sum<int>), 1, &op); }
-    else if (!memcmp(&type, &mpi_float, type_size)) { MPI_Op_create(&(contig_sum<float>), 1, &op); }
-    else if (!memcmp(&type, &mpi_double, type_size)) { MPI_Op_create(&(contig_sum<double>), 1, &op); }
-#ifdef MPIX_C_FLOAT16
-    else if (!memcmp(&type, &mpi_float16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported\n"); }
-#endif
-#ifdef MPIX_C_BF16
-    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported \n"); }
-#endif
-
-    return op;
-}
-
-string type_to_name(MPI_Datatype type) {
-    string name = "null";
-    MPI_Datatype mpi_byte = MPI_BYTE;
-    MPI_Datatype mpi_char = MPI_CHAR;
-    MPI_Datatype mpi_int = MPI_INT;
-    MPI_Datatype mpi_float = MPI_FLOAT;
-    MPI_Datatype mpi_double = MPI_DOUBLE;
-#ifdef MPIX_C_FLOAT16
-    MPI_Datatype mpi_float16 = MPIX_C_FLOAT16;
-#endif
-#ifdef MPIX_C_BF16
-    MPI_Datatype mpi_bfloat16 = MPIX_C_BF16;
-#endif
-    size_t type_size = sizeof(MPI_Datatype);
-
-    if (!memcmp(&type, &mpi_byte, type_size)) { name = "MPI_BYTE"; }
-    else if (!memcmp(&type, &mpi_char, type_size)) { name = "MPI_CHAR"; }
-    else if (!memcmp(&type, &mpi_int, type_size)) { name = "MPI_INT"; }
-    else if (!memcmp(&type, &mpi_float, type_size)) { name = "MPI_FLOAT"; }
-    else if (!memcmp(&type, &mpi_double, type_size)) { name = "MPI_DOUBLE"; }
-#ifdef MPIX_C_FLOAT16
-    else if (!memcmp(&type, &mpi_float16, type_size)) { name = "MPIX_C_FLOAT16"; }
-#endif
-#ifdef MPIX_C_BF16
-    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { name = "MPIX_C_BF16"; }
-#endif
-
-    return name;
 }
 
 template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, const vector<string> &benchs,
@@ -520,9 +405,6 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
 
     // multi
     c_info.group_mode = parser.get<int>("multi");
-
-    // window_size
-    c_info.max_win_size = parser.get<int>("window_size");
 
     // off_cache
     vector<float> csize;
@@ -609,104 +491,6 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
     // imb_barrier
     IMB_internal_barrier = (parser.get<bool>("imb_barrier") ? 1 : 0);
 
-    // data_type
-    string given_data_type = parser.get<string>("data_type");
-    if (given_data_type == "byte") {
-        c_info.s_data_type = MPI_BYTE;
-        c_info.r_data_type = MPI_BYTE;
-    } else if (given_data_type == "char") {
-        c_info.s_data_type = MPI_CHAR;
-        c_info.r_data_type = MPI_CHAR;
-    } else if (given_data_type == "int") {
-        c_info.s_data_type = MPI_INT;
-        c_info.r_data_type = MPI_INT;
-    } else if (given_data_type == "float") {
-        c_info.s_data_type = MPI_FLOAT;
-        c_info.r_data_type = MPI_FLOAT;
-    } else if (given_data_type == "double") {
-        c_info.s_data_type = MPI_DOUBLE;
-        c_info.r_data_type = MPI_DOUBLE;
-#ifdef MPIX_C_FLOAT16
-    } else if (given_data_type == "float16") {
-        c_info.s_data_type = MPIX_C_FLOAT16;
-        c_info.r_data_type = MPIX_C_FLOAT16;
-#endif
-#ifdef MPIX_C_BF16
-    } else if (given_data_type == "bfloat16") {
-        c_info.s_data_type = MPIX_C_BF16;
-        c_info.r_data_type = MPIX_C_BF16;
-#endif
-    } else {
-        output << "Invalid data_type " << given_data_type << endl;
-        output << "    Set data_type byte" << endl;
-    }
-
-    MPI_Datatype base_dt = c_info.s_data_type;
-
-    // red_data_type
-    string given_red_data_type = parser.get<string>("red_data_type");
-    if (given_red_data_type == "char") {
-        c_info.red_data_type = MPI_CHAR;
-    } else if (given_red_data_type == "int") {
-        c_info.red_data_type = MPI_INT;
-    } else if (given_red_data_type == "float") {
-        c_info.red_data_type = MPI_FLOAT;
-    } else if (given_red_data_type == "double") {
-        c_info.red_data_type = MPI_DOUBLE;
-#ifdef MPIX_C_FLOAT16
-    } else if (given_red_data_type == "float16") {
-        c_info.red_data_type = MPIX_C_FLOAT16;
-#endif
-#ifdef MPIX_C_BF16
-    } else if (given_red_data_type == "bfloat16") {
-        c_info.red_data_type = MPIX_C_BF16;
-#endif
-    } else {
-        output << "Invalid red_data_type " << given_red_data_type << endl;
-        output << "    Set red_data_type float" << endl;
-    }
-
-    MPI_Datatype base_red_dt = c_info.red_data_type;
-
-    // contig_type
-    string given_contig_type = parser.get<string>("contig_type");
-    if (given_contig_type == "base") {
-        c_info.size_scale = 1;
-        c_info.contig_type = CT_BASE;
-    } else if (given_contig_type == "base_vec") {
-        c_info.size_scale = 1;
-        c_info.contig_type = CT_BASE_VEC;
-    } else if (given_contig_type == "resize") {
-        int base_dt_size,
-            base_red_dt_size;
-        c_info.contig_type = CT_RESIZE;
-        c_info.size_scale = 2;
-        MPI_Type_size(base_dt, &base_dt_size);
-        MPI_Type_size(base_red_dt, &base_red_dt_size);
-        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.s_data_type));
-        MPI_Type_commit(&(c_info.s_data_type));
-        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.r_data_type));
-        MPI_Type_commit(&(c_info.r_data_type));
-        MPI_Type_create_resized(base_red_dt, base_red_dt_size, 2 * base_red_dt_size, &(c_info.red_data_type));
-        MPI_Type_commit(&(c_info.red_data_type));
-    } else if (given_contig_type == "resize_vec") {
-        int base_dt_size,
-            base_red_dt_size;
-        c_info.contig_type = CT_RESIZE_VEC;
-        c_info.size_scale = 2;
-        MPI_Type_size(base_dt, &base_dt_size);
-        MPI_Type_size(base_red_dt, &base_red_dt_size);
-        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.s_data_type));
-        MPI_Type_commit(&(c_info.s_data_type));
-        MPI_Type_create_resized(base_dt, base_dt_size, 2 * base_dt_size, &(c_info.r_data_type));
-        MPI_Type_commit(&(c_info.r_data_type));
-        MPI_Type_create_resized(base_red_dt, base_red_dt_size, 2 * base_red_dt_size, &(c_info.red_data_type));
-        MPI_Type_commit(&(c_info.red_data_type));
-    } else {
-        output << "Invalid contig_type " << given_contig_type << endl;
-        output << "    Set contig_type base" << endl;
-    }
-
     // zero_size
     if (parser.get<bool>("zero_size") == false) {
         c_info.zero_size = 0;
@@ -715,9 +499,6 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
     if (parser.get<bool>("warm_up") == false) {
         c_info.warm_up = 0;
     }
-
-    if (c_info.contig_type > 0)
-        c_info.op_type = get_op(base_red_dt);
 
     if (cmd_line_error)
         return false;
@@ -764,7 +545,7 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
         fprintf(unit,"\n\n# Calling sequence was: \n\n");
         string cmd_line;
         parser.get_command_line(cmd_line);
-        fprintf(unit, "# %s \n\n", cmd_line.c_str());
+        fprintf(unit, "# %s\n\n", cmd_line.c_str());
         if (c_info.n_lens) {
             fprintf(unit,"# Message lengths were user defined\n");
         } else {
@@ -773,8 +554,8 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
         }
 
         fprintf(unit,"#\n");
-        fprintf(unit,"# MPI_Datatype                   :   %s \n", type_to_name(base_dt).c_str());
-        fprintf(unit,"# MPI_Datatype for reductions    :   %s \n", type_to_name(base_red_dt).c_str());
+        fprintf(unit,"# MPI_Datatype                   :   MPI_BYTE \n");
+        fprintf(unit,"# MPI_Datatype for reductions    :   MPI_FLOAT\n");
         fprintf(unit,"# MPI_Op                         :   MPI_SUM  \n");
         fprintf(unit,"# \n");
         fprintf(unit,"# \n");
@@ -782,6 +563,10 @@ template <> bool BenchmarkSuite<BS_MPI4>::prepare(const args_parser &parser, con
         fprintf(unit,"# List of Benchmarks to run:\n\n");
         for (vector<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
             printf("# %s\n", it->c_str());
+            std::vector<std::string> comments = create(it->c_str())->get_comments();
+            for (vector<string>::iterator it_com = comments.begin(); it_com != comments.end(); ++it_com) {
+                printf("#     %s\n", it_com->c_str());
+            }
         }
     }
     return true;

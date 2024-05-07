@@ -80,3 +80,4 @@ clean:
 	make -C src_cpp -f Makefile TARGET=MPI1 clean GPU_ENABLE=1
 	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
 	if [ -e IMB-MPI1-GPU ]; then rm -f IMB-MPI1-GPU; fi
+	if [ -e IMB-MPI4 ]; then make -C src_cpp -f Makefile TARGET=MPI4 clean; rm -f IMB-MPI4; fi

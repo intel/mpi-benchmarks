@@ -211,7 +211,7 @@ In/out variables:
             MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
         }
     }
-#elif defined RMA || defined MPI4
+#elif defined RMA
     int s_size, r_size;
 
     if (Bmark->reduction) {

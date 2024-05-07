@@ -424,7 +424,7 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
     IMB_i_alloc(int, c_info->g_ranks, c_info->w_num_procs, "Init_Pointers 1");
     IMB_i_alloc(int, c_info->g_sizes, c_info->w_num_procs, "Init_Pointers 2");
 
-#if (defined MPI1 || defined NBC || defined MPI4)
+#if (defined MPI1 || defined NBC )
     IMB_i_alloc(int, c_info->sndcnt, c_info->w_num_procs, "Init_Pointers 3");
     IMB_i_alloc(int, c_info->sdispl, c_info->w_num_procs, "Init_Pointers 4");
 
@@ -475,9 +475,22 @@ static int has_root(const char* bname) {
         !strcmp(bname, "Iscatterv_pure") ||
         !strcmp(bname, "Ibcast_pure") ||
         !strcmp(bname, "Ireduce_pure"));
+#elif defined MPI4
+        (!strcmp(bname, "Gather_persist") ||
+        !strcmp(bname, "Gatherv_persist") ||
+        !strcmp(bname, "Scatter_persist") ||
+        !strcmp(bname, "Scatterv_persist") ||
+        !strcmp(bname, "Bcast_persist") ||
+        !strcmp(bname, "Reduce_persist") ||
+        !strcmp(bname, "Gather_pure_persist") ||
+        !strcmp(bname, "Gatherv_pure_persist") ||
+        !strcmp(bname, "Scatter_pure_persist") ||
+        !strcmp(bname, "Scatterv_pure_persist") ||
+        !strcmp(bname, "Bcast_pure_persist") ||
+        !strcmp(bname, "Reduce_pure_persist"));
 #else
         0;
-#endif /* MPI1 | NBC */
+#endif /* MPI1 | NBC | MPI4 */
 }
 
 /* IMB 3.1 << */
@@ -570,6 +583,9 @@ In/out variables:
 #elif defined NBC // MPI1
         !strcmp(Bmark->name, "Ialltoall") || !strcmp(Bmark->name, "Ialltoall_pure")
         || !strcmp(Bmark->name, "Ialltoallv") || !strcmp(Bmark->name, "Ialltoallv_pure")
+#elif defined MPI4 // NBC
+        !strcmp(Bmark->name, "Alltoall_persist") || !strcmp(Bmark->name, "Alltoall_pure_persist")
+        || !strcmp(Bmark->name, "Alltoallv_persist") || !strcmp(Bmark->name, "Alltoallv_pure_persist")
 #else
         0
 #endif // NBC // MPI1
@@ -586,13 +602,13 @@ In/out variables:
         || !strcmp(Bmark->name, "Igather") || !strcmp(Bmark->name, "Igather_pure")
         || !strcmp(Bmark->name, "Igatherv") || !strcmp(Bmark->name, "Igatherv_pure")
 #elif defined MPI4
-        !strcmp(Bmark->name, "allgather_persist") || !strcmp(Bmark->name, "allgather_pure_persist")
-        || !strcmp(Bmark->name, "allgatherv_persist") || !strcmp(Bmark->name, "allgatherv_pure_persist")
-        || !strcmp(Bmark->name, "gather_persist") || !strcmp(Bmark->name, "gather_pure_persist")
-        || !strcmp(Bmark->name, "gatherv_persist") || !strcmp(Bmark->name, "gatherv_pure_persist")
+        !strcmp(Bmark->name, "Allgather_persist") || !strcmp(Bmark->name, "Allgather_pure_persist")
+        || !strcmp(Bmark->name, "Allgatherv_persist") || !strcmp(Bmark->name, "Allgatherv_pure_persist")
+        || !strcmp(Bmark->name, "Gather_persist") || !strcmp(Bmark->name, "Gather_pure_persist")
+        || !strcmp(Bmark->name, "Gatherv_persist") || !strcmp(Bmark->name, "Gatherv_pure_persist")
 #else // MPI1 // NBC // MPI4
         0
-#endif // MPI1 // NBC //MPI4
+#endif // MPI1 // NBC // MPI4
         ) {
         s_len = (size_t)init_size;
         r_len = (size_t)c_info->num_procs * (size_t)init_size;

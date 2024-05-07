@@ -55,7 +55,7 @@ For more documentation than found here, see
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
 
-#include "IMB_bnames_nbc.h"
+#include "IMB_bnames_mpi4.h"
 #include "IMB_comments.h"
 
 #include "IMB_prototypes.h"
@@ -148,6 +148,10 @@ In/out variables:
         Bmark->Benchmark = IMB_alltoall_persist;
     } else if (!strcmp(Bmark->name, "alltoall_pure_persist")) {
         Bmark->Benchmark = IMB_alltoall_pure_persist;
+    } else if (!strcmp(Bmark->name, "alltoallv_persist")) {
+        Bmark->Benchmark = IMB_alltoallv_persist;
+    } else if (!strcmp(Bmark->name, "alltoallv_pure_persist")) {
+        Bmark->Benchmark = IMB_alltoallv_pure_persist;
     } else if (!strcmp(Bmark->name, "reduce_persist")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_reduce_persist;

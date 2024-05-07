@@ -105,7 +105,8 @@ clean:
 
 # DEPENDENCIES
 IMB_declare.h:  IMB_settings.h IMB_comm_info.h IMB_settings_io.h IMB_bnames_mpi1.h \
-                IMB_bnames_ext.h IMB_bnames_io.h IMB_err_check.h IMB_appl_errors.h IMB_mem_info.h
+                IMB_bnames_ext.h IMB_bnames_io.h IMB_err_check.h IMB_appl_errors.h IMB_mem_info.h \
+				IMB_bnames_mpi4.h IMB_bnames_nbc.h
 	touch IMB_declare.h
 
 IMB.o:              IMB_declare.h IMB_benchmark.h

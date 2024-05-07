@@ -100,7 +100,7 @@ void IMB_general_info() {
 #elif defined RMA
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-RMA part\n", VERSION);
 #elif defined MPI4
-    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-MPI4 part\n", VERSION);
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-4 part\n", VERSION);
 #endif
 
 

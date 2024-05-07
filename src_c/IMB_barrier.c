@@ -243,7 +243,7 @@ void IMB_barrier_persist(struct comm_info* c_info,
         t_ovrlp = (MPI_Wtime() - t_ovrlp) / ITERATIONS->n_sample;
         t_comp /= ITERATIONS->n_sample;
     }
-
+ 
     time[0] = t_pure;
     time[1] = t_ovrlp;
     time[2] = t_comp;

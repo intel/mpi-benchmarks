@@ -282,7 +282,7 @@ Input variables:
     IMB_calculate_times(Bmark->Ntimes, c_info, group, tlist, timing);
 #endif
 
-#ifdef NBC
+#if defined NBC || defined MPI4
     if (!strstr(Bmark->name, "_pure")) {
         const size_t rank_index = timing[MAX].offset[OVRLP];
         t_pure = tlist[rank_index + PURE];
@@ -375,12 +375,12 @@ Input variables:
                 sprintf(aux_string + offset, format, size, n_sample, timing[MIN].times[PURE], timing[MAX].times[PURE], timing[AVG].times[PURE]);
                 break;
             case OUT_SYNC:
-#ifdef NBC
+#if defined NBC || defined MPI4
                 if (Bmark->RUN_MODES[0].NONBLOCKING && !strstr(Bmark->name, "_pure")) {
                     IMB_edit_format(1, 4);
                     sprintf(aux_string + offset, format, n_sample, t_ovrlp, t_pure, t_comp, overlap);
                 } else
-#endif // NBC
+#endif // NBC || MPI4
                 {
                     IMB_edit_format(1, 3);
                     sprintf(aux_string + offset, format, n_sample, timing[MIN].times[PURE], timing[MAX].times[PURE], timing[AVG].times[PURE]);
@@ -1327,6 +1327,37 @@ void IMB_help()
         "Compare_and_swap\n"
         "Truly_passive_put\n"
         "\n");
+
+#elif defined(MPI4) 
+    fprintf(unit,
+        "Bcast_persist\n"
+        "Bcast_pure_persist\n"
+        "Allgather_persist\n"
+        "Allgather_pure_persist\n"
+        "Allgatherv_persist\n"
+        "Allgatherv_pure_persist\n"
+        "Gather_persist\n"
+        "Gather_pure_persist\n"
+        "Gatherv_persist\n"
+        "Gatherv_pure_persist\n"
+        "Scatter_persist\n"
+        "Scatter_pure_persist\n"
+        "Scatterv_persist\n"
+        "Scatterv_pure_persist\n"
+        "Alltoall_persist\n"
+        "Alltoall_pure_persist\n"
+        "Alltoallv_persist\n"
+        "Alltoallv_pure_persist\n"
+        "Reduce_persist\n"
+        "Reduce_pure_persist\n"
+        "Reduce_scatter_persist\n"
+        "Reduce_scatter_pure_persist\n"
+        "Allreduce_persist\n"
+        "Allreduce_pure_persist\n"
+        "Barrier_persist\n"
+        "Barrier_pure_persist\n"
+        "\n");
+
 #endif
 
 }

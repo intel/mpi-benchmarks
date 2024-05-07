@@ -360,11 +360,8 @@ void IMB_alltoall_persist(struct comm_info* c_info,
                         double* time) {
 /*
 
-
-                      MPI-MPI4 benchmark kernel
+                      MPI4 benchmark kernel
                       Benchmarks MPI_Alltoall_init
-
-
 
 Input variables:
 
@@ -381,12 +378,10 @@ Input variables:
 
 -RUN_MODE             (type MODES)
 
-
 Output variables:
 
 -time                 (type double*)
                       Timing result per sample
-
 
 */
     int         i = 0;
@@ -433,6 +428,7 @@ Output variables:
             t_ovrlp -= MPI_Wtime();
             // Start the persistent request
             MPI_ERRHAND(MPI_Start(&request));
+
             t_comp -= MPI_Wtime();
             IMB_cpu_exploit(t_pure, 0);
             t_comp += MPI_Wtime();
@@ -464,7 +460,7 @@ void IMB_alltoall_pure_persist(struct comm_info* c_info,
 /*
 
 
-                      MPI-MPI4 benchmark kernel
+                      MPI4 benchmark kernel
                       Benchmarks MPI_Alltoall_init
 
 Input variables:

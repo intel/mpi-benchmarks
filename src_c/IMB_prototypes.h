@@ -711,6 +711,18 @@ void IMB_alltoall_pure_persist(struct comm_info* c_info,
                                 MODES RUN_MODE,
                                 double* time);
 
+void IMB_alltoallv_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_alltoallv_pure_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
 void IMB_reduce_persist(struct comm_info* c_info,
                         int size,
                         struct iter_schedule* ITERATIONS,

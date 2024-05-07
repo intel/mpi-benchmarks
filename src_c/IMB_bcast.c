@@ -525,7 +525,6 @@ Output variables:
                                    c_info->info,
                                    &request));
         for(i = 0; i < ITERATIONS->n_sample; i++) {
-
             t_pure -= MPI_Wtime();
             // Start the persistent request
             MPI_ERRHAND(MPI_Start(&request));
