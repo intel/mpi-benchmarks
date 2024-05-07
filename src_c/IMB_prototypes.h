@@ -645,7 +645,7 @@ void IMB_bcast_persist(struct comm_info* c_info,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_bcast_pure_persist(struct comm_info* c_info,
+void IMB_bcast_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
@@ -657,7 +657,7 @@ void IMB_allgather_persist(struct comm_info* c_info,
                             MODES RUN_MODE,
                             double* time);
 
-void IMB_allgather_pure_persist(struct comm_info* c_info,
+void IMB_allgather_persist_pure(struct comm_info* c_info,
                                 int size,
                                 struct iter_schedule* ITERATIONS,
                                 MODES RUN_MODE,
@@ -669,7 +669,7 @@ void IMB_allgatherv_persist(struct comm_info* c_info,
                             MODES RUN_MODE,
                             double* time);
 
-void IMB_allgatherv_pure_persist(struct comm_info* c_info,
+void IMB_allgatherv_persist_pure(struct comm_info* c_info,
                                 int size,
                                 struct iter_schedule* ITERATIONS,
                                 MODES RUN_MODE,
@@ -681,7 +681,7 @@ void IMB_gather_persist(struct comm_info* c_info,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_gather_pure_persist(struct comm_info* c_info,
+void IMB_gather_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
@@ -693,19 +693,43 @@ void IMB_gatherv_persist(struct comm_info* c_info,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_gatherv_pure_persist(struct comm_info* c_info,
+void IMB_gatherv_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
                             double* time);
 
-void IMB_alltoall_persist(struct comm_info* c_info,
+void IMB_scatter_persist(struct comm_info* c_info,
                         int size,
                         struct iter_schedule* ITERATIONS,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_alltoall_pure_persist(struct comm_info* c_info,
+void IMB_scatter_persist_pure(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_scatterv_persist(struct comm_info* c_info,
+                        int size,
+                        struct iter_schedule* ITERATIONS,
+                        MODES RUN_MODE,
+                        double* time);
+
+void IMB_scatterv_persist_pure(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
+void IMB_alltoall_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_alltoall_persist_pure(struct comm_info* c_info,
                                 int size,
                                 struct iter_schedule* ITERATIONS,
                                 MODES RUN_MODE,
@@ -717,7 +741,7 @@ void IMB_alltoallv_persist(struct comm_info* c_info,
                             MODES RUN_MODE,
                             double* time);
 
-void IMB_alltoallv_pure_persist(struct comm_info* c_info,
+void IMB_alltoallv_persist_pure(struct comm_info* c_info,
                                 int size,
                                 struct iter_schedule* ITERATIONS,
                                 MODES RUN_MODE,
@@ -729,11 +753,35 @@ void IMB_reduce_persist(struct comm_info* c_info,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_reduce_pure_persist(struct comm_info* c_info,
+void IMB_reduce_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
                             double* time);
+
+void IMB_reduce_scatter_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
+
+void IMB_reduce_scatter_persist_pure(struct comm_info* c_info,
+                                    int size,
+                                    struct iter_schedule* ITERATIONS,
+                                    MODES RUN_MODE,
+                                    double* time);
+
+void IMB_allreduce_persist(struct comm_info* c_info,
+                            int size,
+                            struct iter_schedule* ITERATIONS,
+                            MODES RUN_MODE,
+                            double* time);
+
+void IMB_allreduce_persist_pure(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time);
 
 void IMB_barrier_persist(struct comm_info* c_info,
                         int size,
@@ -741,7 +789,7 @@ void IMB_barrier_persist(struct comm_info* c_info,
                         MODES RUN_MODE,
                         double* time);
 
-void IMB_barrier_pure_persist(struct comm_info* c_info,
+void IMB_barrier_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,

@@ -336,4 +336,130 @@ void IMB_ireduce_scatter_pure(struct comm_info* c_info,
     time[0] = t_pure;
 }
 
-#endif // NBC // MPI1
+#elif defined MPI4 // NBC
+
+/*************************************************************************/
+
+void IMB_reduce_scatter_persist(struct comm_info* c_info,
+                                int size,
+                                struct iter_schedule* ITERATIONS,
+                                MODES RUN_MODE,
+                                double* time) {
+    int         i = 0;
+    Type_Size   s_size;
+    MPI_Request request;
+    MPI_Status  status;
+    double      t_pure = 0.,
+                t_comp = 0.,
+                t_ovrlp = 0.;
+
+    /* GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->red_data_type, &s_size);
+
+    if (size > 0) {
+        for (i = 0; i < c_info->num_procs; i++) {
+            c_info->reccnt[i] = size / s_size;
+        }
+    } else {
+        for (i = 0; i < c_info->num_procs; i++) {
+            c_info->reccnt[i] = 0;
+        }
+    }
+
+    if (c_info->rank != -1) {
+        IMB_reduce_scatter_persist_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
+
+        /* INITIALIZATION CALL */
+        IMB_cpu_exploit(t_pure, 1);
+
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
+
+        // Create a persistent collective operation
+        MPI_ERRHAND(MPI_Reduce_scatter_init((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                            (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                            c_info->reccnt,
+                                            c_info->red_data_type,
+                                            c_info->op_type,
+                                            c_info->communicator,
+                                            c_info->info,
+                                            &request));
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            t_ovrlp -= MPI_Wtime();
+            // Start the persistent request
+            MPI_ERRHAND(MPI_Start(&request));
+
+            t_comp -= MPI_Wtime();
+            IMB_cpu_exploit(t_pure, 0);
+            t_comp += MPI_Wtime();
+
+            MPI_Wait(&request, &status);
+            t_ovrlp += MPI_Wtime();
+
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+        // Clean up
+        MPI_Request_free(&request);
+
+        t_ovrlp /= ITERATIONS->n_sample;
+        t_comp /= ITERATIONS->n_sample;
+    }
+
+    time[0] = t_pure;
+    time[1] = t_ovrlp;
+    time[2] = t_comp;
+}
+
+/*************************************************************************/
+
+void IMB_reduce_scatter_persist_pure(struct comm_info* c_info,
+                                    int size,
+                                    struct iter_schedule* ITERATIONS,
+                                    MODES RUN_MODE,
+                                    double* time) {
+    int         i = 0;
+    Type_Size   s_size;
+    MPI_Request request;
+    MPI_Status  status;
+    double      t_pure = 0.;
+
+    /* GET SIZE OF DATA TYPE */
+    MPI_Type_size(c_info->red_data_type, &s_size);
+
+    for (i = 0; i < c_info->num_procs; i++) {
+        if (size > 0) {
+            c_info->reccnt[i] = size / s_size;
+        } else {
+            c_info->reccnt[i] = 0;
+        }
+    }
+
+    if (c_info->rank != -1) {
+        IMB_do_n_barriers(c_info->communicator, N_BARR);
+
+        // Create a persistent collective operation
+        MPI_ERRHAND(MPI_Reduce_scatter_init((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
+                                            (char*)c_info->r_buffer + i % ITERATIONS->r_cache_iter * ITERATIONS->r_offs,
+                                            c_info->reccnt,
+                                            c_info->red_data_type,
+                                            c_info->op_type,
+                                            c_info->communicator,
+                                            c_info->info,
+                                            &request));
+        for (i = 0; i < ITERATIONS->n_sample; i++) {
+            t_pure -= MPI_Wtime();
+            // Start the persistent request
+            MPI_ERRHAND(MPI_Start(&request));
+            MPI_Wait(&request, &status);
+            t_pure += MPI_Wtime();
+
+            IMB_do_n_barriers(c_info->communicator, c_info->sync);
+        }
+        // Clean up
+        MPI_Request_free(&request);
+
+        t_pure /= ITERATIONS->n_sample;
+    }
+    time[0] = t_pure;
+}
+
+#endif // NBC // MPI1 // MPI4

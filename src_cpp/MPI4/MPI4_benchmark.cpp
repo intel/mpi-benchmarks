@@ -72,7 +72,7 @@ BENCHMARK(IMB_bcast_persist, Bcast_persist)
     return true;
 }
 
-BENCHMARK(IMB_bcast_pure_persist, Bcast_pure_persist)
+BENCHMARK(IMB_bcast_persist_pure, Bcast_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
@@ -80,10 +80,10 @@ BENCHMARK(IMB_bcast_pure_persist, Bcast_pure_persist)
     descr->flags.insert(COLLECTIVE);
     return true;
 }
-/*
+
 BENCHMARK(IMB_allgather_persist, Allgather_persist)
 {
-    descr->flags.insert(DEFAULT);
+    //descr->flags.insert(DEFAULT);
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
     descr->flags.insert(NONBLOCKING);
@@ -92,7 +92,7 @@ BENCHMARK(IMB_allgather_persist, Allgather_persist)
     return true;
 }
 
-BENCHMARK(IMB_allgather_pure_persist, Allgather_pure_persist)
+BENCHMARK(IMB_allgather_persist_pure, Allgather_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
@@ -111,7 +111,7 @@ BENCHMARK(IMB_allgatherv_persist, Allgatherv_persist)
     return true;
 }
 
-BENCHMARK(IMB_allgatherv_pure_persist, Allgatherv_pure_persist)
+BENCHMARK(IMB_allgatherv_persist_pure, Allgatherv_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
@@ -131,7 +131,7 @@ BENCHMARK(IMB_gather_persist, Gather_persist)
     return true;
 }
 
-BENCHMARK(IMB_gather_pure_persist, Gather_pure_persist)
+BENCHMARK(IMB_gather_persist_pure, Gather_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
@@ -152,14 +152,56 @@ BENCHMARK(IMB_gatherv_persist, Gatherv_persist)
     return true;
 }
 
-BENCHMARK(IMB_gatherv_pure_persist, Gatherv_pure_persist)
+BENCHMARK(IMB_gatherv_persist_pure, Gatherv_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
     descr->flags.insert(HAS_ROOT);
     descr->flags.insert(COLLECTIVE);
     return true;
-} */
+}
+
+BENCHMARK(IMB_scatter_persist, Scatter_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_scatter_persist_pure, Scatter_persist_pure)
+{
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_scatterv_persist, Scatterv_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_scatterv_persist_pure, Scatterv_persist_pure)
+{
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(HAS_ROOT);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
 
 BENCHMARK(IMB_alltoall_persist, Alltoall_persist)
 {
@@ -172,7 +214,7 @@ BENCHMARK(IMB_alltoall_persist, Alltoall_persist)
     return true;
 }
 
-BENCHMARK(IMB_alltoall_pure_persist, Alltoall_pure_persist)
+BENCHMARK(IMB_alltoall_persist_pure, Alltoall_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
@@ -191,7 +233,7 @@ BENCHMARK(IMB_alltoallv_persist, Alltoallv_persist)
     return true;
 }
 
-BENCHMARK(IMB_alltoallv_pure_persist, Alltoallv_pure_persist)
+BENCHMARK(IMB_alltoallv_persist_pure, Alltoallv_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_NP_I);
     descr->flags.insert(RECVBUF_SIZE_NP_I);
@@ -212,7 +254,49 @@ BENCHMARK(IMB_reduce_persist, Reduce_persist)
     return true;
 }
 
-BENCHMARK(IMB_reduce_pure_persist, Reduce_pure_persist)
+BENCHMARK(IMB_reduce_persist_pure, Reduce_persist_pure)
+{
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_reduce_scatter_persist, Reduce_scatter_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_reduce_scatter_persist_pure, Reduce_scatter_persist_pure)
+{
+    descr->flags.insert(SENDBUF_SIZE_NP_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_allreduce_persist, Allreduce_persist)
+{
+    descr->flags.insert(DEFAULT);
+    descr->flags.insert(SENDBUF_SIZE_I);
+    descr->flags.insert(RECVBUF_SIZE_I);
+    descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_3);
+    descr->flags.insert(REDUCTION);
+    descr->flags.insert(COLLECTIVE);
+    return true;
+}
+
+BENCHMARK(IMB_allreduce_persist_pure, Allreduce_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);
@@ -232,7 +316,7 @@ BENCHMARK(IMB_barrier_persist, Barrier_persist)
     return true;
 }
 
-BENCHMARK(IMB_barrier_pure_persist, Barrier_pure_persist)
+BENCHMARK(IMB_barrier_persist_pure, Barrier_persist_pure)
 {
     descr->flags.insert(SENDBUF_SIZE_I);
     descr->flags.insert(RECVBUF_SIZE_I);

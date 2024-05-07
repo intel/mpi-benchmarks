@@ -424,7 +424,7 @@ In/Out     : c_info   | struct comm_info* | see comm_info.h
     IMB_i_alloc(int, c_info->g_ranks, c_info->w_num_procs, "Init_Pointers 1");
     IMB_i_alloc(int, c_info->g_sizes, c_info->w_num_procs, "Init_Pointers 2");
 
-#if (defined MPI1 || defined NBC )
+#if (defined MPI1 || defined NBC || defined MPI4)
     IMB_i_alloc(int, c_info->sndcnt, c_info->w_num_procs, "Init_Pointers 3");
     IMB_i_alloc(int, c_info->sdispl, c_info->w_num_procs, "Init_Pointers 4");
 
@@ -482,12 +482,12 @@ static int has_root(const char* bname) {
         !strcmp(bname, "Scatterv_persist") ||
         !strcmp(bname, "Bcast_persist") ||
         !strcmp(bname, "Reduce_persist") ||
-        !strcmp(bname, "Gather_pure_persist") ||
-        !strcmp(bname, "Gatherv_pure_persist") ||
-        !strcmp(bname, "Scatter_pure_persist") ||
-        !strcmp(bname, "Scatterv_pure_persist") ||
-        !strcmp(bname, "Bcast_pure_persist") ||
-        !strcmp(bname, "Reduce_pure_persist"));
+        !strcmp(bname, "Gather_persist_pure") ||
+        !strcmp(bname, "Gatherv_persist_pure") ||
+        !strcmp(bname, "Scatter_persist_pure") ||
+        !strcmp(bname, "Scatterv_persist_pure") ||
+        !strcmp(bname, "Bcast_persist_pure") ||
+        !strcmp(bname, "Reduce_persist_pure"));
 #else
         0;
 #endif /* MPI1 | NBC | MPI4 */
@@ -541,11 +541,10 @@ In/out variables:
     int init_size, irep, i_s, i_r, x_sample;
     const int root_based = has_root(Bmark->name);
 
-
     x_sample = BMODE->AGGREGATE ? ITERATIONS->msgspersample : ITERATIONS->msgs_nonaggr;
 
     /* July 2002 fix V2.2.1: */
-#if (defined EXT || defined MPIIO || RMA)
+#if (defined EXT || defined MPIIO || defined RMA)
     if (Bmark->access == no) x_sample = ITERATIONS->msgs_nonaggr;
 #endif
 
@@ -584,8 +583,8 @@ In/out variables:
         !strcmp(Bmark->name, "Ialltoall") || !strcmp(Bmark->name, "Ialltoall_pure")
         || !strcmp(Bmark->name, "Ialltoallv") || !strcmp(Bmark->name, "Ialltoallv_pure")
 #elif defined MPI4 // NBC
-        !strcmp(Bmark->name, "Alltoall_persist") || !strcmp(Bmark->name, "Alltoall_pure_persist")
-        || !strcmp(Bmark->name, "Alltoallv_persist") || !strcmp(Bmark->name, "Alltoallv_pure_persist")
+        !strcmp(Bmark->name, "Alltoall_persist") || !strcmp(Bmark->name, "Alltoall_persist_pure")
+        || !strcmp(Bmark->name, "Alltoallv_persist") || !strcmp(Bmark->name, "Alltoallv_persist_pure")
 #else
         0
 #endif // NBC // MPI1
@@ -602,10 +601,10 @@ In/out variables:
         || !strcmp(Bmark->name, "Igather") || !strcmp(Bmark->name, "Igather_pure")
         || !strcmp(Bmark->name, "Igatherv") || !strcmp(Bmark->name, "Igatherv_pure")
 #elif defined MPI4
-        !strcmp(Bmark->name, "Allgather_persist") || !strcmp(Bmark->name, "Allgather_pure_persist")
-        || !strcmp(Bmark->name, "Allgatherv_persist") || !strcmp(Bmark->name, "Allgatherv_pure_persist")
-        || !strcmp(Bmark->name, "Gather_persist") || !strcmp(Bmark->name, "Gather_pure_persist")
-        || !strcmp(Bmark->name, "Gatherv_persist") || !strcmp(Bmark->name, "Gatherv_pure_persist")
+        !strcmp(Bmark->name, "Allgather_persist") || !strcmp(Bmark->name, "Allgather_persist_pure")
+        || !strcmp(Bmark->name, "Allgatherv_persist") || !strcmp(Bmark->name, "Allgatherv_persist_pure")
+        || !strcmp(Bmark->name, "Gather_persist") || !strcmp(Bmark->name, "Gather_persist_pure")
+        || !strcmp(Bmark->name, "Gatherv_persist") || !strcmp(Bmark->name, "Gatherv_persist_pure")
 #else // MPI1 // NBC // MPI4
         0
 #endif // MPI1 // NBC // MPI4
@@ -621,7 +620,10 @@ In/out variables:
 #elif defined NBC // MPI1
         !strcmp(Bmark->name, "Iscatter") || !strcmp(Bmark->name, "Iscatter_pure")
         || !strcmp(Bmark->name, "Iscatterv") || !strcmp(Bmark->name, "Iscatterv_pure")
-#else // NBC // MPI1
+#elif defined MPI4 // NBC
+        !strcmp(Bmark->name, "Scatter_persist") || !strcmp(Bmark->name, "Scatter_persist_pure")
+        || !strcmp(Bmark->name, "Scatterv_persist") || !strcmp(Bmark->name, "Scatterv_persist_pure")
+#else // NBC // MPI1 // MPI4
         0
 #endif // NBC // MPI1
         ) {

@@ -1413,11 +1413,15 @@ void IMB_set_default(struct comm_info* c_info) {
     c_info->ERRF = MPI_ERRHANDLER_NULL;
 #endif /*MPIIO*/
 
-#if (defined EXT || defined RMA || defined MPI4)
+#if (defined EXT || defined RMA)
     c_info->WIN = MPI_WIN_NULL;
     c_info->info = MPI_INFO_NULL;
     c_info->ERRW = MPI_ERRHANDLER_NULL;
 #endif /*EXT || RMA*/
+
+#ifdef MPI4
+    c_info->info = MPI_INFO_NULL;
+#endif /*MPI4*/
 
 #if (defined EXT || defined RMA || defined MPIIO)
     c_info->aggregate_mode = AM_ERROR;

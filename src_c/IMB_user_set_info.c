@@ -98,4 +98,13 @@ In/out variables:
 
 #endif
 
+#ifdef MPI4
+    /*
+    Set info for all MPI_***_init functions, where ***=collective_operation
+    */
+
+    *opt_info = MPI_INFO_NULL;
+
+#endif
+
 }

@@ -313,7 +313,7 @@ Output variables:
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
-    MPI_Type_size(c_info->s_data_type, &r_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
 
     if ((s_size != 0) && (r_size != 0)) {
         s_num = size / s_size;
@@ -406,7 +406,7 @@ Output variables:
     }
 
     if (c_info->rank != -1) {
-        IMB_alltoall_pure_persist(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
+        IMB_alltoall_persist_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
         /* INITIALIZATION CALL */
         IMB_cpu_exploit(t_pure, 1);
@@ -452,13 +452,12 @@ Output variables:
 
 /*************************************************************************/
 
-void IMB_alltoall_pure_persist(struct comm_info* c_info,
+void IMB_alltoall_persist_pure(struct comm_info* c_info,
                                 int size,
                                 struct iter_schedule* ITERATIONS,
                                 MODES RUN_MODE,
                                 double* time) {
 /*
-
 
                       MPI4 benchmark kernel
                       Benchmarks MPI_Alltoall_init
@@ -468,7 +467,6 @@ Input variables:
 -c_info               (type struct comm_info*)
                       Collection of all base data for MPI;
                       see [1] for more information
-
 
 -size                 (type int)
                       Basic message size in bytes
@@ -485,7 +483,6 @@ Output variables:
 -time                 (type double*)
                       Timing result per sample
 
-
 */
     int         i = 0;
     Type_Size   s_size,
@@ -498,7 +495,7 @@ Output variables:
 
     /* GET SIZE OF DATA TYPE */
     MPI_Type_size(c_info->s_data_type, &s_size);
-    MPI_Type_size(c_info->s_data_type, &r_size);
+    MPI_Type_size(c_info->r_data_type, &r_size);
 
     if ((s_size != 0) && (r_size != 0)) {
         s_num = size / s_size;

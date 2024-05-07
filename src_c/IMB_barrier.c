@@ -216,7 +216,7 @@ void IMB_barrier_persist(struct comm_info* c_info,
                 t_ovrlp = 0.;
 
     if(c_info->rank != -1) {
-        IMB_barrier_pure_persist(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
+        IMB_barrier_persist_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
         /* INITIALIZATION CALL */
         IMB_cpu_exploit(t_pure, 1);
@@ -251,7 +251,7 @@ void IMB_barrier_persist(struct comm_info* c_info,
 
 /*************************************************************************/
 
-void IMB_barrier_pure_persist(struct comm_info* c_info,
+void IMB_barrier_persist_pure(struct comm_info* c_info,
                        int size,
                        struct iter_schedule* ITERATIONS,
                        MODES RUN_MODE,

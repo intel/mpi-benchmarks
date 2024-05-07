@@ -65,12 +65,12 @@ $(C_SRC_DIR)/IMB_pingpong.c \
 $(C_SRC_DIR)/IMB_reduce.c \
 $(C_SRC_DIR)/IMB_reduce_local.c \
 $(C_SRC_DIR)/IMB_reduce_scatter.c \
-$(C_SRC_DIR)/IMB_reduce_scatter_block.c \
 $(C_SRC_DIR)/IMB_scatter.c \
 $(C_SRC_DIR)/IMB_scatterv.c \
 $(C_SRC_DIR)/IMB_sendrecv.c \
 $(C_SRC_DIR)/IMB_strgs.c \
 $(C_SRC_DIR)/IMB_utils.c \
+$(C_SRC_DIR)/IMB_user_set_info.c \
 $(C_SRC_DIR)/IMB_warm_up.c 
 ifdef GPU_ENABLE
 override C_SRC += $(C_SRC_DIR)/IMB_gpu_common.c

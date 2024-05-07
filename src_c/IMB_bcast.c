@@ -403,7 +403,7 @@ Output variables:
     }
 
     if(c_info->rank != -1) {
-        IMB_bcast_pure_persist(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
+        IMB_bcast_persist_pure(c_info, size, ITERATIONS, RUN_MODE, &t_pure);
 
         /* INITIALIZATION CALL */
         IMB_cpu_exploit(t_pure, 1);
@@ -456,18 +456,15 @@ Output variables:
 
 /*************************************************************************/
 
-void IMB_bcast_pure_persist(struct comm_info* c_info,
+void IMB_bcast_persist_pure(struct comm_info* c_info,
                             int size,
                             struct iter_schedule* ITERATIONS,
                             MODES RUN_MODE,
                             double* time) {
 /*
 
-
-                      MPI-MPI4 benchmark kernel
+                      MPI-4 benchmark kernel
                       Benchmarks MPI_Bcast_init
-
-
 
 Input variables:
 
@@ -485,12 +482,10 @@ Input variables:
 -RUN_MODE             (type MODES)
                       (only MPI-2 case: see [1])
 
-
 Output variables:
 
 -time                 (type double*)
                       Timing result per sample
-
 
 */
     int         i    = 0,

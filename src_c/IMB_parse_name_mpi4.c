@@ -117,7 +117,7 @@ In/out variables:
 */
     Bmark->N_Modes = 1;
     Bmark->RUN_MODES[0].AGGREGATE = -1;
-    Bmark->RUN_MODES[0].NONBLOCKING = strstr(Bmark->name, "_pure_persist") ? 0 : 1;
+    Bmark->RUN_MODES[0].NONBLOCKING = strstr(Bmark->name, "_persist_pure") ? 0 : 1;
     Bmark->RUN_MODES[0].type = Collective;
 
     Bmark->reduction = 0;
@@ -126,43 +126,63 @@ In/out variables:
 
     if (!strcmp(Bmark->name, "bcast_persist")) {
         Bmark->Benchmark = IMB_bcast_persist;
-    } else if (!strcmp(Bmark->name, "bcast_pure_persist")) {
-        Bmark->Benchmark = IMB_bcast_pure_persist;
+    } else if (!strcmp(Bmark->name, "bcast_persist_pure")) {
+        Bmark->Benchmark = IMB_bcast_persist_pure;
     } else if (!strcmp(Bmark->name, "allgather_persist")) {
         Bmark->Benchmark = IMB_allgather_persist;
-    } else if (!strcmp(Bmark->name, "allgather_pure_persist")) {
-        Bmark->Benchmark = IMB_allgather_pure_persist;
+    } else if (!strcmp(Bmark->name, "allgather_persist_pure")) {
+        Bmark->Benchmark = IMB_allgather_persist_pure;
     } else if (!strcmp(Bmark->name, "allgatherv_persist")) {
         Bmark->Benchmark = IMB_allgatherv_persist;
-    } else if (!strcmp(Bmark->name, "allgatherv_pure_persist")) {
-        Bmark->Benchmark = IMB_allgatherv_pure_persist;
+    } else if (!strcmp(Bmark->name, "allgatherv_persist_pure")) {
+        Bmark->Benchmark = IMB_allgatherv_persist_pure;
     } else if (!strcmp(Bmark->name, "gather_persist")) {
         Bmark->Benchmark = IMB_gather_persist;
-    } else if (!strcmp(Bmark->name, "gather_pure_persist")) {
-        Bmark->Benchmark = IMB_gather_pure_persist;
+    } else if (!strcmp(Bmark->name, "gather_persist_pure")) {
+        Bmark->Benchmark = IMB_gather_persist_pure;
     } else if (!strcmp(Bmark->name, "gatherv_persist")) {
         Bmark->Benchmark = IMB_gatherv_persist;
-    } else if (!strcmp(Bmark->name, "gatherv_pure_persist")) {
-        Bmark->Benchmark = IMB_gatherv_pure_persist;
+    } else if (!strcmp(Bmark->name, "gatherv_persist_pure")) {
+        Bmark->Benchmark = IMB_gatherv_persist_pure;
+    } else if (!strcmp(Bmark->name, "scatter_persist")) {
+        Bmark->Benchmark = IMB_scatter_persist;
+    } else if (!strcmp(Bmark->name, "scatter_persist_pure")) {
+        Bmark->Benchmark = IMB_scatter_persist_pure;
+    } else if (!strcmp(Bmark->name, "scatterv_persist")) {
+        Bmark->Benchmark = IMB_scatterv_persist;
+    } else if (!strcmp(Bmark->name, "scatterv_persist_pure")) {
+        Bmark->Benchmark = IMB_scatterv_persist_pure;
     } else if (!strcmp(Bmark->name, "alltoall_persist")) {
         Bmark->Benchmark = IMB_alltoall_persist;
-    } else if (!strcmp(Bmark->name, "alltoall_pure_persist")) {
-        Bmark->Benchmark = IMB_alltoall_pure_persist;
+    } else if (!strcmp(Bmark->name, "alltoall_persist_pure")) {
+        Bmark->Benchmark = IMB_alltoall_persist_pure;
     } else if (!strcmp(Bmark->name, "alltoallv_persist")) {
         Bmark->Benchmark = IMB_alltoallv_persist;
-    } else if (!strcmp(Bmark->name, "alltoallv_pure_persist")) {
-        Bmark->Benchmark = IMB_alltoallv_pure_persist;
+    } else if (!strcmp(Bmark->name, "alltoallv_persist_pure")) {
+        Bmark->Benchmark = IMB_alltoallv_persist_pure;
     } else if (!strcmp(Bmark->name, "reduce_persist")) {
         Bmark->reduction = 1;
         Bmark->Benchmark = IMB_reduce_persist;
-    } else if (!strcmp(Bmark->name, "reduce_pure_persist")) {
+    } else if (!strcmp(Bmark->name, "reduce_persist_pure")) {
         Bmark->reduction = 1;
-        Bmark->Benchmark = IMB_reduce_pure_persist;
+        Bmark->Benchmark = IMB_reduce_persist_pure;
+    } else if (!strcmp(Bmark->name, "reduce_scatter_persist")) {
+        Bmark->reduction = 1;
+        Bmark->Benchmark = IMB_reduce_scatter_persist;
+    } else if (!strcmp(Bmark->name, "reduce_scatter_persist_pure")) {
+        Bmark->reduction = 1;
+        Bmark->Benchmark = IMB_reduce_scatter_persist_pure;
+    } else if (!strcmp(Bmark->name, "allreduce_persist")) {
+        Bmark->reduction = 1;
+        Bmark->Benchmark = IMB_allreduce_persist;
+    } else if (!strcmp(Bmark->name, "allreduce_persist_pure")) {
+        Bmark->reduction = 1;
+        Bmark->Benchmark = IMB_allreduce_persist_pure;
     } else if (!strcmp(Bmark->name, "barrier_persist")) {
         Bmark->Benchmark = IMB_barrier_persist;
         Bmark->RUN_MODES[0].type = Sync;
-    } else if (!strcmp(Bmark->name, "barrier_pure_persist")) {
-        Bmark->Benchmark = IMB_barrier_pure_persist;
+    } else if (!strcmp(Bmark->name, "barrier_persist_pure")) {
+        Bmark->Benchmark = IMB_barrier_persist_pure;
         Bmark->RUN_MODES[0].type = Sync;
     } else {
         Bmark->RUN_MODES[0].type = BTYPE_INVALID;
@@ -171,5 +191,3 @@ In/out variables:
 
     Bmark->name[0] = toupper(Bmark->name[0]);
 }
-
-

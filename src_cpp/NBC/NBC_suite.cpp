@@ -526,8 +526,8 @@ template <> bool BenchmarkSuite<BS_NBC>::prepare(const args_parser &parser, cons
         fprintf(unit,"# MPI_Datatype                   :   MPI_BYTE \n");
         fprintf(unit,"# MPI_Datatype for reductions    :   MPI_FLOAT\n");
         fprintf(unit,"# MPI_Op                         :   MPI_SUM  \n");
-        fprintf(unit,"# \n");
-        fprintf(unit,"# \n");
+        fprintf(unit,"#\n");
+        fprintf(unit,"#\n");
         fprintf(unit,"\n");
         fprintf(unit,"# List of Benchmarks to run:\n\n");
         for (vector<string>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
