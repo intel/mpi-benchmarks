@@ -81,6 +81,12 @@ endif
 ifeq "$(CC)" "gcc"
 override CFLAGS += -fopenmp
 endif
+ifeq "$(CXX)" "mpicxx"
+override CXXFLAGS += -fopenmp
+endif
+ifeq "$(CC)" "mpicc"
+override CFLAGS += -fopenmp
+endif
 endif
 
 # ICC ICPC
