@@ -86,7 +86,9 @@ override CPPFLAGS += -I${ZE_INCLUDE_DIR} -DZE_INCLUDE_DIR
 endif
 ifndef CUDA_INCLUDE_DIR
 ifndef ZE_INCLUDE_DIR
+ifneq (clean, $(filter clean,$(MAKECMDGOALS)))
 $(error CUDA_INCLUDE_DIR and ZE_INCLUDE_DIR are not set) 
+endif
 endif
 endif
 SUBDIR:=GPU
