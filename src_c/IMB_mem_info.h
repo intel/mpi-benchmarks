@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -55,6 +55,6 @@ Header file newly introduced in IMB 3.1
 #define CACHE_LINE_SIZE  64 /* default last level cache line size (Bytes) */
 
 #define MEM_UNIT 1073741824 /* Units for memory usage sizes */
-#define MAX_MEM_USAGE  1  /* default max. memory (in units MEM_UNIT Bytes) used for message buffers */
+#define MAX_MEM_USAGE  2  /* default max. memory (in units MEM_UNIT Bytes) used for message buffers */
 
 #endif

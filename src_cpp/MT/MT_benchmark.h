@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -300,9 +300,9 @@ class BenchmarkMTBase : public Benchmark {
         }
         if (!result)
             t = 0;
-            if (odata_local.checks.failures) {
-                cout << "CHECK FAILURES: rank " << rank << ": " << odata_local.checks.failures << endl;
-            }
+        if (odata_local.checks.failures) {
+            cout << "CHECK FAILURES: rank " << rank << ": " << odata_local.checks.failures << endl;
+        }
         return;
     }
     virtual void init() {

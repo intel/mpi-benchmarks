@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -51,6 +51,7 @@ For more documentation than found here, see
 #include "IMB_declare.h"
 #include "IMB_benchmark.h"
 #include "IMB_ze_api.h"
+#include "IMB_prototypes.h"
 
 #define IMB_L0_MEM_ALIGNMENT 64
 #define ZE_NULL_HANDLE NULL /* just for verbosity */

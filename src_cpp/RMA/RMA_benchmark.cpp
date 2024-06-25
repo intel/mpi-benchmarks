@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -53,6 +53,8 @@ extern "C" {
 using namespace std;
 
 #define BENCHMARK(BMRK_FN, BMRK_NAME) \
+template<> BenchmarkSuite<BS_RMA>::pnames_t *BenchmarkSuite<BS_RMA>::pnames; \
+template<> BenchmarkSuite<BS_RMA> *BenchmarkSuite<BS_RMA>::instance; \
 template<> smart_ptr<Bmark_descr> OriginalBenchmark<BenchmarkSuite<BS_RMA>, BMRK_FN>::descr = NULL; \
 DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<BenchmarkSuite<BS_RMA>, BMRK_FN>), BMRK_NAME) \
 template class OriginalBenchmark<BenchmarkSuite<BS_RMA>, BMRK_FN>; \
@@ -288,6 +290,7 @@ BENCHMARK(IMB_rma_passive_put, Truly_passive_put)
     descr->flags.insert(N_MODES_1);
     descr->flags.insert(NON_AGGREGATE);
     descr->flags.insert(NONBLOCKING);
+    descr->flags.insert(NTIMES_2);
     descr->flags.insert(PUT);
     descr->comments.push_back("The benchmark measures execution time of MPI_Put for 2 cases:");
     descr->comments.push_back("1) The target is waiting in MPI_Barrier call (t_pure value)");

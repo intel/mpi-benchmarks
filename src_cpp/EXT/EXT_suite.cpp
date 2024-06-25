@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -74,8 +74,8 @@ bool load_msg_sizes(const char *filename)
         return false;
 
     int n_lens = 0;
-    char inp_line[72];
-    while(fgets(inp_line,72,t)) {
+    char inp_line[IMB_INPUT_ARG_LEN];
+    while(fgets(inp_line,IMB_INPUT_ARG_LEN,t)) {
         if( inp_line[0] != '#' && strlen(inp_line)>1 )
             n_lens++;
     }
@@ -90,7 +90,7 @@ bool load_msg_sizes(const char *filename)
 
     c_info.n_lens = n_lens;
 
-    char S[72];
+    char S[IMB_INPUT_ARG_LEN];
     int sz, isz;
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
@@ -102,7 +102,7 @@ bool load_msg_sizes(const char *filename)
 
     isz=-1;
 
-    while(fgets(inp_line,72,t)) {
+    while(fgets(inp_line,IMB_INPUT_ARG_LEN,t)) {
         S[0]='\0';
         if( inp_line[0] != '#' && strlen(inp_line)-1 ) {
             int ierr;

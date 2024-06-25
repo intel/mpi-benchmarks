@@ -1,6 +1,6 @@
 # *****************************************************************************
 # *                                                                           *
-# * Copyright (C) 2023 Intel Corporation                                      *
+# * Copyright (C) 2024 Intel Corporation                                      *
 # *                                                                           *
 # *****************************************************************************
 
@@ -72,7 +72,8 @@ $(C_SRC_DIR)/IMB_utils.c \
 $(C_SRC_DIR)/IMB_warm_up.c 
 ifdef GPU_ENABLE
 override C_SRC += $(C_SRC_DIR)/IMB_gpu_common.c
-override CPPFLAGS += -DGPU_ENABLE -ldl
+override CPPFLAGS += -DGPU_ENABLE
+override LDFLAGS += -ldl
 ifdef CUDA_INCLUDE_DIR
 override C_SRC += $(C_SRC_DIR)/IMB_cuda.c \
 $(C_SRC_DIR)/IMB_cuda_api.c
@@ -85,7 +86,9 @@ override CPPFLAGS += -I${ZE_INCLUDE_DIR} -DZE_INCLUDE_DIR
 endif
 ifndef CUDA_INCLUDE_DIR
 ifndef ZE_INCLUDE_DIR
+ifneq (clean, $(filter clean,$(MAKECMDGOALS)))
 $(error CUDA_INCLUDE_DIR and ZE_INCLUDE_DIR are not set) 
+endif
 endif
 endif
 SUBDIR:=GPU

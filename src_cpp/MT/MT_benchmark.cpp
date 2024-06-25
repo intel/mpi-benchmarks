@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -86,6 +86,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
 using namespace std;
+
+template<> BenchmarkSuite<BS_MT>::pnames_t *BenchmarkSuite<BS_MT>::pnames;
+template<> BenchmarkSuite<BS_MT> *BenchmarkSuite<BS_MT>::instance;
 
 inline bool set_stride(int rank, int size, int &stride, int &group)
 {

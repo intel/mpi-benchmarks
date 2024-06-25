@@ -32,7 +32,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imb_p2p.h"
 
-void imb_p2p_sendrecv_replace() {
+void imb_p2p_sendrecv_replace(void) {
     char *buffer;
     size_t msg_size_index;
     int nranks = imb_p2p_config.nranks;

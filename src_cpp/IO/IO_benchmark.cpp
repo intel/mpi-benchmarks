@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -53,6 +53,8 @@ extern "C" {
 using namespace std;
 
 #define BENCHMARK(BMRK_FN, BMRK_NAME) \
+template<> BenchmarkSuite<BS_IO>::pnames_t *BenchmarkSuite<BS_IO>::pnames; \
+template<> BenchmarkSuite<BS_IO> *BenchmarkSuite<BS_IO>::instance; \
 template<> smart_ptr<Bmark_descr> OriginalBenchmark<BenchmarkSuite<BS_IO>, BMRK_FN>::descr = NULL; \
 DECLARE_INHERITED_TEMPLATE(GLUE_TYPENAME(OriginalBenchmark<BenchmarkSuite<BS_IO>, BMRK_FN>), BMRK_NAME) \
 template class OriginalBenchmark<BenchmarkSuite<BS_IO>, BMRK_FN>; \

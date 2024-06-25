@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -42,6 +42,8 @@ For more documentation than found here, see
  ***************************************************************************/
 #ifdef GPU_ENABLE
 #include "IMB_gpu_common.h"
+
+gpu_backend IMB_gpu_backend;
 
 void gpu_initialize()
 {

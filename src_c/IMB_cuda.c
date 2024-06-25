@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -42,6 +42,9 @@ For more documentation than found here, see
  ***************************************************************************/
 #ifdef GPU_ENABLE
 #include "IMB_cuda.h"
+
+static unsigned num_devices = 0;
+cudaStream_t cuda_stream;
 
 int cuda_initialize(char *dll_name)
 {
@@ -86,7 +89,7 @@ void *cuda_alloc(size_t size, char *where, MEM_ALLOC_TYPE mem_alloc_type)
         }
         default:
         {
-            printf("Error: Unknown buf type\n");
+            printf("ERROR: Unknown buf type\n");
             exit(1);
         }
     }
@@ -122,7 +125,6 @@ void cuda_ass_buf(void *buf, int rank, size_t pos1, size_t pos2, int value)
     if (pos2 <= pos1)
         return;
 
-    static const int asize = (int)sizeof(assign_type);
     char *tmp_buf = malloc(pos2 + 1 - pos1);
     cuda_memcpy(tmp_buf, buf + pos1, pos2 - pos1);
     IMB_ass_buf(tmp_buf, rank, pos1, pos2, value);
@@ -153,7 +155,7 @@ void cuda_free(void **B, MEM_ALLOC_TYPE mem_alloc_type)
             }
             default:
             {
-                printf("Error: Unknown buf type\n");
+                printf("ERROR: Unknown buf type\n");
                 exit(1);
             }
         }

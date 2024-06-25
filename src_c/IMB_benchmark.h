@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -48,6 +48,9 @@ For more documentation than found here, see
 #define __Bmark_h__
 
 #include "IMB_mem_info.h"
+
+#define IMB_INPUT_NAME_LEN 32
+#define IMB_INPUT_ARG_LEN 72
 
 /* Classification of benchmarks */
 

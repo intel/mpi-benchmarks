@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -61,7 +61,7 @@ namespace set_operations {
     void diff(T1 &one, T2 &two, T3 &result) {
         set_difference(one.begin(), one.end(), two.begin(), two.end(), inserter(result, result.end()));
     }
-    static const std::string to_lower(const std::string &in) {
+    static inline const std::string to_lower(const std::string &in) {
         std::string out = in;
         transform(in.begin(), in.end(), out.begin(), ::tolower);
         return out;

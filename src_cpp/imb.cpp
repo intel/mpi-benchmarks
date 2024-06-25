@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -52,7 +52,7 @@ int main(int argc, char * *argv)
     bool no_mpi_init_flag = true;
     int return_value = 0;
     int rank = 0, size = 0;
-    const char *program_name = "Intel(R) MPI Benchmarks 2021.7";
+    const char *program_name = "Intel(R) MPI Benchmarks 2021.8";
     std::ostringstream output;
 
     // Some unit tests for args parser
@@ -165,10 +165,10 @@ int main(int argc, char * *argv)
             if (t == NULL) {
                 throw runtime_error("can't open a file given in -input option");
             }
-            char input_line[72+1], name[32+1];
-            while (fgets(input_line, 72, t)) {
+            char input_line[IMB_INPUT_ARG_LEN], name[IMB_INPUT_NAME_LEN];
+            while (fgets(input_line, IMB_INPUT_ARG_LEN, t)) {
                 if (input_line[0] != '#' && strlen(input_line) > 0) {
-                    sscanf(input_line, "%32s", name);
+                    sscanf(input_line, "%31s[^\n]", name);
                     requested_benchmarks.push_back(name);
                 }
             }

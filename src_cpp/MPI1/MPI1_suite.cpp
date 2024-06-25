@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -45,7 +45,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 #include "any.h"
 #include "benchmark_suite.h"
-
 extern "C" {
 #include "IMB_benchmark.h"
 #include "IMB_comm_info.h"
@@ -74,8 +73,8 @@ bool load_msg_sizes(const char *filename)
         return false;
 
     int n_lens = 0;
-    char inp_line[72];
-    while(fgets(inp_line,72,t)) {
+    char inp_line[IMB_INPUT_ARG_LEN];
+    while(fgets(inp_line,IMB_INPUT_ARG_LEN,t)) {
         if( inp_line[0] != '#' && strlen(inp_line)>1 )
             n_lens++;
     }
@@ -90,7 +89,7 @@ bool load_msg_sizes(const char *filename)
 
     c_info.n_lens = n_lens;
 
-    char S[72];
+    char S[IMB_INPUT_ARG_LEN];
     int sz, isz;
 
     c_info.msglen = (int *)malloc(n_lens * sizeof(int));
@@ -102,7 +101,7 @@ bool load_msg_sizes(const char *filename)
 
     isz=-1;
 
-    while(fgets(inp_line,72,t)) {
+    while(fgets(inp_line,IMB_INPUT_ARG_LEN,t)) {
         S[0]='\0';
         if( inp_line[0] != '#' && strlen(inp_line)-1 ) {
             int ierr;
@@ -313,7 +312,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
            set_description(
                 "The argument after -data_type is a one from possible strings,\n"
                 "Specifying that type will be used:\n"
-                "byte, char, int, float, double\n"
+                "byte, char, int, float, double, float16, bfloat16\n"
                 "\n"
                 "Example:\n"
                 "-data_type char\n"
@@ -324,7 +323,7 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
            set_description(
                 "The argument after -red_data_type is a one from possible strings,\n"
                 "Specifying that type will be used:\n"
-                "char, int, float, double\n"
+                "char, int, float, double, float16, bfloat16\n"
                 "\n"
                 "Example:\n"
                 "-red_data_type int\n"
@@ -415,12 +414,24 @@ MPI_Op get_op(MPI_Datatype type) {
     MPI_Datatype mpi_int = MPI_INT;
     MPI_Datatype mpi_float = MPI_FLOAT;
     MPI_Datatype mpi_double = MPI_DOUBLE;
+#ifdef MPIX_C_FLOAT16
+    MPI_Datatype mpi_float16 = MPIX_C_FLOAT16;
+#endif
+#ifdef MPIX_C_BF16
+    MPI_Datatype mpi_bfloat16 = MPIX_C_BF16;
+#endif
     size_t type_size = sizeof(MPI_Datatype);
 
     if (!memcmp(&type, &mpi_char, type_size)) { MPI_Op_create(&(contig_sum<char>), 1, &op); }
     else if (!memcmp(&type, &mpi_int, type_size)) { MPI_Op_create(&(contig_sum<int>), 1, &op); }
     else if (!memcmp(&type, &mpi_float, type_size)) { MPI_Op_create(&(contig_sum<float>), 1, &op); }
     else if (!memcmp(&type, &mpi_double, type_size)) { MPI_Op_create(&(contig_sum<double>), 1, &op); }
+#ifdef MPIX_C_FLOAT16
+    else if (!memcmp(&type, &mpi_float16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported\n"); }
+#endif
+#ifdef MPIX_C_BF16
+    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { op = MPI_OP_NULL; fprintf(stdout, "\nWarning: contig_type isn't supported \n"); }
+#endif
 
     return op;
 }
@@ -432,6 +443,12 @@ string type_to_name(MPI_Datatype type) {
     MPI_Datatype mpi_int = MPI_INT;
     MPI_Datatype mpi_float = MPI_FLOAT;
     MPI_Datatype mpi_double = MPI_DOUBLE;
+#ifdef MPIX_C_FLOAT16
+    MPI_Datatype mpi_float16 = MPIX_C_FLOAT16;
+#endif
+#ifdef MPIX_C_BF16
+    MPI_Datatype mpi_bfloat16 = MPIX_C_BF16;
+#endif
     size_t type_size = sizeof(MPI_Datatype);
 
     if (!memcmp(&type, &mpi_byte, type_size)) { name = "MPI_BYTE"; }
@@ -439,6 +456,12 @@ string type_to_name(MPI_Datatype type) {
     else if (!memcmp(&type, &mpi_int, type_size)) { name = "MPI_INT"; }
     else if (!memcmp(&type, &mpi_float, type_size)) { name = "MPI_FLOAT"; }
     else if (!memcmp(&type, &mpi_double, type_size)) { name = "MPI_DOUBLE"; }
+#ifdef MPIX_C_FLOAT16
+    else if (!memcmp(&type, &mpi_float16, type_size)) { name = "MPIX_C_FLOAT16"; }
+#endif
+#ifdef MPIX_C_BF16
+    else if (!memcmp(&type, &mpi_bfloat16, type_size)) { name = "MPIX_C_BF16"; }
+#endif
 
     return name;
 }
@@ -603,6 +626,16 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
     } else if (given_data_type == "double") {
         c_info.s_data_type = MPI_DOUBLE;
         c_info.r_data_type = MPI_DOUBLE;
+#ifdef MPIX_C_FLOAT16
+    } else if (given_data_type == "float16") {
+        c_info.s_data_type = MPIX_C_FLOAT16;
+        c_info.r_data_type = MPIX_C_FLOAT16;
+#endif
+#ifdef MPIX_C_BF16
+    } else if (given_data_type == "bfloat16") {
+        c_info.s_data_type = MPIX_C_BF16;
+        c_info.r_data_type = MPIX_C_BF16;
+#endif
     } else {
         output << "Invalid data_type " << given_data_type << endl;
         output << "    Set data_type byte" << endl;
@@ -620,6 +653,14 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         c_info.red_data_type = MPI_FLOAT;
     } else if (given_red_data_type == "double") {
         c_info.red_data_type = MPI_DOUBLE;
+#ifdef MPIX_C_FLOAT16
+    } else if (given_red_data_type == "float16") {
+        c_info.red_data_type = MPIX_C_FLOAT16;
+#endif
+#ifdef MPIX_C_BF16
+    } else if (given_red_data_type == "bfloat16") {
+        c_info.red_data_type = MPIX_C_BF16;
+#endif
     } else {
         output << "Invalid red_data_type " << given_red_data_type << endl;
         output << "    Set red_data_type float" << endl;

@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -459,7 +459,7 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
 
                 } else if (!strcmp((*argv)[iarg], "-iter_policy")) {
                     int ierr;
-                    char iter_policy[32];
+                    char iter_policy[IMB_INPUT_NAME_LEN];
                     if (iarg + 1 >= *argc) {
                         fprintf(stderr, "Missing argument after \"iter_policy\"\n");
                         ok = -1;
@@ -549,9 +549,9 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     iarg_msg = iarg + 1;
 
                     if (t) {
-                        char inp_line[72];
+                        char inp_line[IMB_INPUT_ARG_LEN];
 
-                        while (fgets(inp_line, 72, t)) {
+                        while (fgets(inp_line, IMB_INPUT_ARG_LEN, t)) {
                             if (inp_line[0] != '#' && strlen(inp_line) > 1)
                                 n_lens++;
                         }
@@ -574,17 +574,17 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
 
 
                     if (t) {
-                        char inp_line[72], nam[32];
-                        while (fgets(inp_line, 72, t)) {
+                        char inp_line[IMB_INPUT_ARG_LEN], name[IMB_INPUT_NAME_LEN];
+                        while (fgets(inp_line, IMB_INPUT_ARG_LEN, t)) {
                             if (inp_line[0] != '#' && strlen(inp_line) - 1) {
-                                sscanf(inp_line, "%32s", nam);
+                                sscanf(inp_line, "%31s[^\n]", name);
                                 if (n_cases >= 1000) {
                                     fprintf(unit, "Too many benchmark cases\n");
                                     fflush(stderr);
                                     ok = -1;
                                     break;
                                 }
-                                IMB_add_to_list_tail(nam, &Blist_head, &Blist_tail, &n_cases);
+                                IMB_add_to_list_tail(name, &Blist_head, &Blist_tail, &n_cases);
                             }
                         }
                         fclose(t);
@@ -631,8 +631,8 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                         if ((min_log >= 0) &&
                             (max_log > 0) &&
                             (min_log < MAX_INT_LOG) &&
-                            (max_log<MAX_INT_LOG) &&
-                            (max_log>min_log)) {
+                            (max_log < MAX_INT_LOG) &&
+                            (max_log > min_log)) {
                             c_info->min_msg_log = min_log;
                             c_info->max_msg_log = max_log;
                         } else {
@@ -819,14 +819,14 @@ int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                 c_info->n_lens = n_lens;
 
                 if (t && n_lens > 0) {
-                    char inp_line[72], S[72];
+                    char inp_line[IMB_INPUT_ARG_LEN], S[IMB_INPUT_ARG_LEN];
                     int sz, isz;
 
                     IMB_i_alloc(int, c_info->msglen, n_lens, "Basic_Input");
 
                     isz = -1;
 
-                    while (fgets(inp_line, 72, t)) {
+                    while (fgets(inp_line, IMB_INPUT_ARG_LEN, t)) {
                         S[0] = '\0';
                         if (inp_line[0] != '#' && strlen(inp_line) - 1) {
                             int ierr;

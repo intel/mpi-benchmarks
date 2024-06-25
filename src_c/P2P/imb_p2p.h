@@ -66,21 +66,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern FILE* unit;
 void imb_p2p_barrier(MPI_Comm comm);
-void imb_p2p_pause();
-void imb_p2p_pingpong();
-void imb_p2p_pingping();
-void imb_p2p_unirandom();
-void imb_p2p_birandom();
-void imb_p2p_corandom();
-void imb_p2p_stencil2d();
-void imb_p2p_stencil3d();
-void imb_p2p_sendrecv_replace();
+void imb_p2p_pause(void);
+void imb_p2p_pingpong(void);
+void imb_p2p_pingping(void);
+void imb_p2p_unirandom(void);
+void imb_p2p_birandom(void);
+void imb_p2p_corandom(void);
+void imb_p2p_stencil2d(void);
+void imb_p2p_stencil3d(void);
+void imb_p2p_sendrecv_replace(void);
 void imb_p2p_print_benchmark_header(const char * name);
 void imb_p2p_free_mem(void *ptr);
 void* imb_p2p_alloc_mem(size_t size);
 void* imb_p2p_realloc_mem(void *old_ptr, size_t old_size, size_t new_size);
 
-typedef void(*imb_p2p_procedure_t)();
+typedef void(*imb_p2p_procedure_t)(void);
 
 typedef struct imb_p2p_benchmark {
     const char * name;

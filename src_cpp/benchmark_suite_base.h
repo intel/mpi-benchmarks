@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -38,7 +38,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class args_parser;
 class Benchmark;
 
-struct BenchmarkSuiteBase {
+class BenchmarkSuiteBase {
+    public:
     enum BenchListFilter { ALL_BENCHMARKS, DEFAULT_BENCHMARKS };
     virtual void init() {}
     virtual bool declare_args(args_parser &,

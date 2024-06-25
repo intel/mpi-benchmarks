@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -515,7 +515,7 @@ Output variables:
                 j2 = j_sample;
             }
 
-            MPI_ERRHAND(MPI_File_seek(restore, (MPI_Offset)(j1*Totalsize), MPI_SEEK_SET));
+            MPI_ERRHAND(MPI_File_seek(restore, (MPI_Offset)j1*(MPI_Offset)Totalsize, MPI_SEEK_SET));
 
             for (j = j1; j <= j2 && faultpos == CHK_NO_FAULT /*faultpos<0*/; j++) {
                 IMB_Assert(Totalsize <= INT_MAX);
@@ -1310,13 +1310,13 @@ static long crc_32_tab[] = { /* CRC polynomial 0xedb88320 */
 
 
 
-long IMB_compute_crc (register char* buf, register size_t size) {
+long IMB_compute_crc (char* buf, size_t size) {
 /*
 
 In/out variables:
 
--buf                  (type register char*)
--size                 (type register int)
+-buf                  (type char*)
+-size                 (type int)
 
 Return value          (type long)
 

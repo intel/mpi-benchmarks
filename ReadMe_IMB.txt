@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.7
+Intel(R) MPI Benchmarks 2021.8
 README
 --------------------------------------
 
@@ -62,6 +62,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.8
+----------------------------------------
+- Migration to icx,icpx compiler
+- IMB-MPI1: FP16/BF16 data_type support
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.7
 ----------------------------------------
 - IMB-MPI1-GPU benchmarks support cuda.
@@ -246,7 +252,8 @@ command-line parameters.
 -----------------------------------------
 Building Instructions for Linux* OS
 -----------------------------------------
-1) Set the CC variable to point to the appropriate compiler wrapper, mpiicc or mpicc.
+1) Set the CC and CXX variables to point to the appropriate compiler wrapper,
+   mpiicx or mpicc for C, mpiicpx or mpicxx for C++.
 2) Run one or more Makefile commands below:
 
    make clean - remove legacy binary object files and executable files

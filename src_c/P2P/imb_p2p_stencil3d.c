@@ -42,7 +42,7 @@ static int get_rank(int x, int y, int z, int length_x, int length_y, int length_
     return length_x * length_y * z + length_x * y + x;
 }
 
-void imb_p2p_stencil3d() {
+void imb_p2p_stencil3d(void) {
     char *send_buffers[NUMBER_OF_NEIGHBORS];
     char *recv_buffers[NUMBER_OF_NEIGHBORS];
     int neighbours[NUMBER_OF_NEIGHBORS];
@@ -59,12 +59,14 @@ void imb_p2p_stencil3d() {
         length_z++;
     }
     while ((length_x * length_y * length_z) > nranks) {
-        int n, lx, ly;
+        int lx, ly, n = 0;
         length_z--;
         while ((length_z > 1) && (nranks % length_z)) {
             length_z--;
         }
-        n = nranks / length_z;
+        if (length_z != 0) {
+            n = nranks / length_z;
+        }
         lx = 2;
         ly = 2;
         while ((lx * ly) < n) {

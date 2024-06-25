@@ -1,6 +1,6 @@
 /****************************************************************************
 *                                                                           *
-* Copyright (C) 2023 Intel Corporation                                      *
+* Copyright (C) 2024 Intel Corporation                                      *
 *                                                                           *
 *****************************************************************************
 
@@ -67,7 +67,7 @@ typedef struct gpu_backend {
     int   (*IMB_gpu_memcpy) (void*, const void*, size_t);
 } gpu_backend;
 
-gpu_backend IMB_gpu_backend;
+extern gpu_backend IMB_gpu_backend;
 
 void gpu_initialize();
 
