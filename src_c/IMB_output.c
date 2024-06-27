@@ -343,9 +343,9 @@ Input variables:
 
             case SAMPLE_FAILED_INT_OVERFLOW:
 #ifdef MPI1
-                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow for given sample; use flag \"-data_type double\"");
+                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow; use \"-data_type double\"");
 #else
-                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow for given sample");
+                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow;");
 #endif
                 break;
             case SAMPLE_FAILED_TIME_OUT:
