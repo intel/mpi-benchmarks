@@ -139,7 +139,7 @@ Input variables:
                       3 numbers (min/max/average)
 
 */
-    double scaled_time[MAX_TIME_ID];
+    double scaled_time[MAX_TIME_ID] = {0};
 
     int i, i_gr;
     int out_format;

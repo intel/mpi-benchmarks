@@ -107,7 +107,7 @@ Output variables:
     int s_num = 0,
         r_num = 0;
     int s_tag, r_tag;
-    int left, right;
+    int left = 0, right = 0;
     MPI_Status  stat[2];
     MPI_Request request[2];
 
