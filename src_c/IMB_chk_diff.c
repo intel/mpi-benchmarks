@@ -1062,8 +1062,10 @@ Output variables:
         if (pos2 - pos1 + 1 == lengths[i])
             c_info->reccnt[rank]++;
         else if (i < Npos) {
-            if (ranks[i + 1] == rank && pos2 - pos1 + 1 == (lengths[i] + (lengths[i + 1])))
-                c_info->reccnt[rank]++; i++;
+            if (ranks[i + 1] == rank && ((pos2 - pos1 + 1) == (lengths[i] + lengths[i + 1]))) {
+                c_info->reccnt[rank]++;
+                i++;
+            }
         }
 
         i++;
