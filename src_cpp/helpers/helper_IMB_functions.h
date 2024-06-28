@@ -378,7 +378,7 @@ struct Bmark_descr {
     {
 
     /* IMB 3.1 << */
-        size_t s_len, r_len, s_alloc, r_alloc;
+        size_t s_len = 0, r_len = 0, s_alloc, r_alloc;
         int init_size, irep, i_s, i_r, x_sample;
         int asize = (int) sizeof(assign_type);
 
