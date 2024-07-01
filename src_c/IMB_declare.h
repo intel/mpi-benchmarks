@@ -200,7 +200,8 @@ typedef struct {
 extern double *all_times;
 
 /* STRING FOR OUTPUT    */
-extern char aux_string[out_fields*ow_format];
+#define AUX_STRING_SIZE (out_fields*ow_format+128)
+extern char aux_string[AUX_STRING_SIZE];
 
 /* FORMAT FOR OUTPUT    */
 extern char format    [out_fields*7];

@@ -74,7 +74,7 @@ char* dbgf_name;
 double *all_times;
 
 /*  STRINGS FOR OUTPUT   */
-char aux_string[out_fields*ow_format];
+char aux_string[AUX_STRING_SIZE];
 
 /* FORMAT FOR OUTPUT    */
 char format [out_fields*7];
