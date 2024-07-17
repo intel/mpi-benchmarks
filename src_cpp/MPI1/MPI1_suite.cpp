@@ -840,6 +840,10 @@ template <> void BenchmarkSuite<BS_MPI1>::get_bench_list(vector<string> &benchs,
                                         result.detach_ptr(); }
 
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+#endif
 template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
     using namespace NS_MPI1;
     any result;
@@ -848,6 +852,9 @@ template<> any BenchmarkSuite<BS_MPI1>::get_parameter(const std::string &key) {
     HANDLE_PARAMETER(GLOBALS, glob);
     return result;
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef WIN32
 template BenchmarkSuite<BS_MPI1>;
