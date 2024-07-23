@@ -490,6 +490,9 @@ void IMB_warm_up(struct Bench* Bmark, struct comm_info* c_info, int size, struct
 void IMB_cpu_exploit(float target_secs, int initialize);
 double IMB_cpu_exploit_reworked(float target_secs, int initialize);
 
+void IMB_cpu_exploit_With_Test(float target_secs, MPI_Request* request, int count,int initialize);
+double IMB_cpu_exploit_reworked_With_Test(float target_secs,int count, int initialize);
+
 void IMB_general_info();
 
 void IMB_make_sys_info();
