@@ -183,7 +183,7 @@ class OriginalBenchmark : public Benchmark {
 				// IMB_cpu_exploit_reworked(TARGET_CPU_SECS, 1);
 			if(c_info.w_rank == 0 &&
                do_nonblocking_) {
-				double MFlops = IMB_cpu_exploit_reworked_With_Test(TARGET_CPU_SECS,10, 1);//double MFlops = IMB_cpu_exploit_reworked(TARGET_CPU_SECS, 1);
+				double MFlops = IMB_cpu_exploit_reworked_With_Test(TARGET_CPU_SECS,10, 1);
 				// or
 				// double MFlops = IMB_cpu_exploit_reworked(TARGET_CPU_SECS, 1);
                 printf("\n\n# For nonblocking benchmarks:\n\n");
