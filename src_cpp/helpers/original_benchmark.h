@@ -177,12 +177,13 @@ class OriginalBenchmark : public Benchmark {
                 glob.iter = c_info.n_lens - 1;
             }
 #ifdef MPIIO
-            if(c_info.w_rank == 0 &&
-               do_nonblocking_) {
+            if(do_nonblocking_) {
                 double MFlops = IMB_cpu_exploit_reworked(TARGET_CPU_SECS, 1);
-                printf("\n\n# For nonblocking benchmarks:\n\n");
-                printf("# Function CPU_Exploit obtains an undisturbed\n");
-                printf("# performance of %7.2f MFlops\n",MFlops);
+                if (c_info.w_rank == 0) {
+                    printf("\n\n# For nonblocking benchmarks:\n\n");
+                    printf("# Function CPU_Exploit obtains an undisturbed\n");
+                    printf("# performance of %7.2f MFlops\n",MFlops);
+                }
                 do_nonblocking_ = 0;
             }
 #endif
