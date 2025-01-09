@@ -75,7 +75,6 @@ struct Bmark_descr {
     std::vector<std::string> comments;
     std::vector<const char *> cmt;
     bool stop_iterations;
-    int time_limit[2];
     double sample_time;
     BTYPES descr2type(descr_t t) {
         switch(t) {
@@ -758,7 +757,6 @@ struct Bmark_descr {
         glob.header=1;
         Bmark->sample_failure = 0;
         sample_time = MPI_Wtime();
-        time_limit[0] = time_limit[1] = 0;
         Bmark->success = 1;
 #ifdef MPI1
         c_info.select_source = Bmark->select_source;
@@ -776,15 +774,15 @@ struct Bmark_descr {
 
     void helper_time_check(comm_info &c_info, GLOBALS &,
                            Bench *Bmark, iter_schedule &ITERATIONS) {
-        if (!Bmark->sample_failure) {
-            time_limit[1] = 0;
-            if (c_info.rank >= 0) {
-                time_limit[1] = (MPI_Wtime() - sample_time < std::max(std::max(c_info.n_lens, c_info.max_msg_log - c_info.min_msg_log) - 1, 1) * ITERATIONS.secs) ? 0 : 1;
-            }
+        int __tmp = 0;
+
+        if ((!Bmark->sample_failure) && (c_info.rank >= 0)
+             && (MPI_Wtime() - sample_time > std::max(std::max(c_info.n_lens, c_info.max_msg_log - c_info.min_msg_log) - 1, 1) * ITERATIONS.secs)) {
+                Bmark->sample_failure = SAMPLE_FAILED_TIME_OUT;
         }
-        MPI_Allreduce(&time_limit[1], &time_limit[0], 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-        if (time_limit[0]) {
-            Bmark->sample_failure = SAMPLE_FAILED_TIME_OUT;
+
+        MPI_Allreduce(&Bmark->sample_failure, &__tmp, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+        if (__tmp < 0) {
             stop_iterations = true;
         }
         return;
