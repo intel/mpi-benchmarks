@@ -781,7 +781,7 @@ struct Bmark_descr {
                 Bmark->sample_failure = SAMPLE_FAILED_TIME_OUT;
         }
 
-        MPI_Allreduce(&mark->sample_failure, __tmp, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(&Bmark->sample_failure, &__tmp, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
         if (__tmp < 0) {
             stop_iterations = true;
         }
