@@ -53,8 +53,42 @@ $(C_SRC_DIR)/IMB_rma_put.c \
 $(C_SRC_DIR)/IMB_cpu_exploit.c \
 $(C_SRC_DIR)/IMB_rma_get.c \
 $(C_SRC_DIR)/IMB_rma_atomic.c
-C_OBJ=$(subst $(C_SRC_DIR),RMA,$(C_SRC:.c=.o))
-ADDITIONAL_OBJ += $(C_OBJ)
+ifdef GPU_ENABLE
+override C_SRC += $(C_SRC_DIR)/IMB_gpu_common.c
+override CPPFLAGS += -DGPU_ENABLE
+override LDFLAGS += -ldl
+ifdef CUDA_INCLUDE_DIR
+override C_SRC += $(C_SRC_DIR)/IMB_cuda.c \
+$(C_SRC_DIR)/IMB_cuda_api.c
+override CPPFLAGS += -I${CUDA_INCLUDE_DIR} -DCUDA_INCLUDE_DIR
+endif
+ifdef ZE_INCLUDE_DIR
+override C_SRC += $(C_SRC_DIR)/IMB_ze.c \
+$(C_SRC_DIR)/IMB_ze_api.c
+override CPPFLAGS += -I${ZE_INCLUDE_DIR} -DZE_INCLUDE_DIR
+endif
+ifndef CUDA_INCLUDE_DIR
+ifndef ZE_INCLUDE_DIR
+ifneq (clean, $(filter clean,$(MAKECMDGOALS)))
+$(error CUDA_INCLUDE_DIR and ZE_INCLUDE_DIR are not set) 
+endif
+endif
+endif
+SUBDIR:=GPU
+else
+SUBDIR:=CPU
+endif
 
-RMA/%.o: $(C_SRC_DIR)/%.c
+C_OBJ=$(subst $(C_SRC_DIR),RMA/$(SUBDIR),$(C_SRC:.c=.o))
+ADDITIONAL_OBJ += $(C_OBJ)
+BECHMARK_SUITE_LOCAL_OBJ=$(subst RMA/,RMA/$(SUBDIR)/,$(BECHMARK_SUITE_LOCAL_SRC:.cpp=.o))
+ADDITIONAL_OBJ += $(BECHMARK_SUITE_LOCAL_OBJ)
+
+RMA/$(SUBDIR)/%.o: $(C_SRC_DIR)/%.c $(SUBDIR)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -DRMA -c -o $@ $<
+
+RMA/$(SUBDIR)/%.o: RMA/%.cpp $(SUBDIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DRMA -c -o $@ $<
+
+${SUBDIR}:
+	mkdir -p RMA/${SUBDIR}

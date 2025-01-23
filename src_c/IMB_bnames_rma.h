@@ -62,8 +62,10 @@ char *DEFC[] = {
     "Exchange_get",
     "Accumulate",
     "Get_accumulate",
+#ifndef GPU_ENABLE
     "Fetch_and_op",
     "Compare_and_swap",
+#endif //!GPU_ENABLE
     "Truly_passive_put"
 };
 
@@ -88,7 +90,9 @@ char *ALLC[] = {
     "Exchange_get",
     "Accumulate",
     "Get_accumulate",
+#ifndef GPU_ENABLE
     "Fetch_and_op",
     "Compare_and_swap",
+#endif //!GPU_ENABLE
     "Truly_passive_put"
 };

@@ -193,6 +193,7 @@ void IMB_set_bmark(struct Bench* bmark) {
         type = SingleTransfer;
         bmark->access = put;
         bmark->reduction = 1;
+#ifndef GPU_ENABLE
     } else if (!strcmp(bmark->name, "fetch_and_op")) {
         bmark->Benchmark = IMB_rma_fetch_and_op;
         type = SingleElementTransfer;
@@ -203,6 +204,7 @@ void IMB_set_bmark(struct Bench* bmark) {
         type = SingleElementTransfer;
         bmark->access = put;
         bmark->bench_comments = Compare_and_swap_cmt;
+#endif //!GPU_ENABLE
     } else if (!strcmp(bmark->name, "truly_passive_put")) {
         bmark->Benchmark = IMB_rma_passive_put;
         type = SingleTransfer;

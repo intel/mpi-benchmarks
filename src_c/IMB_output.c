@@ -1323,8 +1323,10 @@ void IMB_help()
         "Exchange_get\n"
         "Accumulate\n"
         "Get_accumulate\n"
+#ifndef GPU_ENABLE
         "Fetch_and_op\n"
         "Compare_and_swap\n"
+#endif //!GPU_ENABLE
         "Truly_passive_put\n"
         "\n");
 

@@ -259,6 +259,7 @@ BENCHMARK(IMB_rma_get_accumulate, Get_accumulate)
     return true;
 }
 
+#ifndef GPU_ENABLE
 BENCHMARK(IMB_rma_fetch_and_op, Fetch_and_op)
 {
     descr->flags.insert(DEFAULT);
@@ -280,6 +281,7 @@ BENCHMARK(IMB_rma_compare_and_swap, Compare_and_swap)
     descr->comments.push_back("Uses MPI_INT data type");
     return true;
 }
+#endif //!GPU_ENABLE
 
 BENCHMARK(IMB_rma_passive_put, Truly_passive_put)
 {

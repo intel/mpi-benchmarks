@@ -98,7 +98,11 @@ void IMB_general_info() {
 #elif defined NBC
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-NBC part\n", VERSION);
 #elif defined RMA
+#ifdef GPU_ENABLE
+    fprintf(unit, "#    Intel(R) MPI Benchmarks %s, RMA part (GPU), Technical preview\n", VERSION);
+#else
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-RMA part\n", VERSION);
+#endif //GPU_ENABLE
 #elif defined MPI4
     fprintf(unit, "#    Intel(R) MPI Benchmarks %s, MPI-4 part\n", VERSION);
 #endif

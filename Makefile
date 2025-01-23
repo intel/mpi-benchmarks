@@ -68,16 +68,22 @@ IMB-MPI1-GPU:
 	make -C src_cpp -f Makefile TARGET=MPI1 GPU_ENABLE=1
 	@cp src_cpp/IMB-MPI1 ./IMB-MPI1-GPU
 
+IMB-RMA-GPU:
+	make -C src_cpp -f Makefile TARGET=RMA GPU_ENABLE=1
+	@cp src_cpp/IMB-RMA ./IMB-RMA-GPU
+
 
 clean:
 	make -C src_cpp -f Makefile TARGET=MPI1 clean
+	make -C src_cpp -f Makefile TARGET=MPI1 clean GPU_ENABLE=1
 	make -C src_cpp -f Makefile TARGET=NBC clean
 	make -C src_cpp -f Makefile TARGET=RMA clean
+	make -C src_cpp -f Makefile TARGET=RMA clean GPU_ENABLE=1
 	make -C src_cpp -f Makefile TARGET=EXT clean
 	make -C src_cpp -f Makefile TARGET=IO clean
 	make -C src_cpp -f Makefile TARGET=MT clean
 	make -C src_c/P2P -f Makefile TARGET=P2P clean
-	make -C src_cpp -f Makefile TARGET=MPI1 clean GPU_ENABLE=1
 	rm -f IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
 	if [ -e IMB-MPI1-GPU ]; then rm -f IMB-MPI1-GPU; fi
+	if [ -e IMB-RMA-GPU ]; then rm -f IMB-RMA-GPU; fi
 	if [ -e IMB-MPI4 ]; then make -C src_cpp -f Makefile TARGET=MPI4 clean; rm -f IMB-MPI4; fi

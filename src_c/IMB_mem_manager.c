@@ -70,7 +70,7 @@ For more documentation than found here, see
 #include <limits.h> /* for INT_MAX declaration*/
 #include <stdint.h>
 
-#if defined(GPU_ENABLE) && defined(MPI1)
+#if defined(GPU_ENABLE) && (defined(MPI1) || defined(RMA))
 #include "IMB_gpu_common.h"
 #define IMB_ALLOC(buff, size, where)                                  \
     do {                                                              \
