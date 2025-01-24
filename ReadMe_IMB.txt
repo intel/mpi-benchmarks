@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.8
+Intel(R) MPI Benchmarks 2021.9
 README
 --------------------------------------
 
@@ -62,6 +62,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.9
+----------------------------------------
+- Add IMB-RMA-GPU Technical Preview 
+- Add IMB-MPI4 persistent collectives
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.8
 ----------------------------------------
 - Migration to icx,icpx compiler

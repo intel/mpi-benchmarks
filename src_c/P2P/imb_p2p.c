@@ -41,7 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #define IMB_INPUT_ARG_LEN (72)
 
-static const char * VERSION = "2021.8";
+static const char * VERSION = "2021.9";
 FILE* unit = NULL;
 imb_p2p_configuration_t imb_p2p_config = { 0 };
 

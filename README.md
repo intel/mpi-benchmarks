@@ -1,6 +1,6 @@
 # Intel(R) MPI Benchmarks
 [![3-Clause BSD License](https://img.shields.io/badge/license-3%20Clause%20BSD%20License-green.svg)](license/license.txt)
-![v2021.8](https://img.shields.io/badge/v.2021.8-Update-orange.svg)
+![v2021.9](https://img.shields.io/badge/v.2021.9-Update-orange.svg)
 --------------------------------------------------
 
 --------
@@ -63,6 +63,12 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.9
+----------------------------------------
+- Add IMB-RMA-GPU Technical Preview 
+- Add IMB-MPI4 persistent collectives
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.8
 ----------------------------------------
 - Migration to icx,icpx compiler
