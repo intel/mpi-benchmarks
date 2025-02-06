@@ -52,7 +52,7 @@ For more documentation than found here, see
 #include "IMB_prototypes.h"
 
 #define CUDA_CHKERR_EXPL_FINALLY(f, fin, a) { cudaError_t _cuda_chkerr_err; \
-    if ((_cuda_chkerr_err=(f), (fin), _cuda_chkerr_err) != cudaSuccess) { \
+    if ((_cuda_chkerr_err = (f), (void)(fin), _cuda_chkerr_err) != cudaSuccess) { \
         fprintf(stderr, "ERROR: 0x%x returned from %s\n", _cuda_chkerr_err, #f); \
         a; \
     } \

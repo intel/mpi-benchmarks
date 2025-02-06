@@ -95,6 +95,7 @@ Output variables:
     int dest, source;
     MPI_Status stat;
     MPI_Request *requests = NULL;
+    MPI_Status *statuses = (MPI_Status*)_alloca((c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
     char ack;
@@ -134,8 +135,7 @@ Output variables:
                                       s_tag,
                                       c_info->communicator,
                                       &requests[ws]));
-
-            MPI_Waitall(c_info->max_win_size, &requests[0], MPI_STATUSES_IGNORE);
+            MPI_Waitall(c_info->max_win_size, &requests[0], statuses);
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
         }
     }
@@ -150,8 +150,7 @@ Output variables:
                                       r_tag,
                                       c_info->communicator,
                                       &requests[ws]));
-
-            MPI_Waitall(c_info->max_win_size, &requests[0], MPI_STATUSES_IGNORE);
+            MPI_Waitall(c_info->max_win_size, &requests[0], statuses);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);
         }
     }
@@ -204,8 +203,8 @@ Output variables:
     int s_tag, r_tag;
     int dest, source;
     MPI_Status stat;
-    const int max_win_size2 = 2 * c_info->max_win_size;
     MPI_Request *requests = NULL;
+    MPI_Status *statuses = (MPI_Status*)_alloca((2 * c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
     char ack;
@@ -255,7 +254,7 @@ Output variables:
                                       c_info->communicator,
                                       &requests[ws + c_info->max_win_size]));
 
-            MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
+            MPI_Waitall(2 * c_info->max_win_size, &requests[0], statuses);
             MPI_Recv(&ack, 1, MPI_CHAR, dest, r_tag, c_info->communicator, &stat);
         }
     }
@@ -279,7 +278,7 @@ Output variables:
                                       c_info->communicator,
                                       &requests[ws + c_info->max_win_size]));
 
-            MPI_Waitall(max_win_size2, &requests[0], MPI_STATUSES_IGNORE);
+            MPI_Waitall(2 * c_info->max_win_size, &requests[0], statuses);
             MPI_Send(&ack, 1, MPI_CHAR, source, s_tag, c_info->communicator);
         }
     }

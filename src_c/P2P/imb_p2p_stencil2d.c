@@ -99,6 +99,7 @@ void imb_p2p_stencil2d(void) {
     }
     for (msg_size_index = 0; msg_size_index < imb_p2p_config.messages.length; msg_size_index++) {
         MPI_Request requests[NUMBER_OF_NEIGHBORS * 2];
+        MPI_Status statuses[NUMBER_OF_NEIGHBORS * 2]; 
         size_t size = imb_p2p_config.messages.array[msg_size_index];
         size_t iteration, number_of_iterations, number_of_warm_up_iterations;
         double time;
@@ -116,7 +117,7 @@ void imb_p2p_stencil2d(void) {
             for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
                 MPI_Isend(send_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[NUMBER_OF_NEIGHBORS + i]);
             }
-            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, statuses);
             for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
                 touch_recv_buff(size, recv_buffers[i]);
             }
@@ -133,7 +134,7 @@ void imb_p2p_stencil2d(void) {
             for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
                 MPI_Isend(send_buffers[i], size, MPI_BYTE, neighbours[i], 0, MPI_COMM_WORLD, &requests[NUMBER_OF_NEIGHBORS + i]);
             }
-            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, MPI_STATUSES_IGNORE);
+            MPI_Waitall((NUMBER_OF_NEIGHBORS * 2), requests, statuses);
             for (i = 0; i < NUMBER_OF_NEIGHBORS; i++) {
                 touch_recv_buff(size, recv_buffers[i]);
             }

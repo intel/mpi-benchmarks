@@ -134,7 +134,7 @@ class OriginalBenchmark : public Benchmark {
             int np = item.np;
             int imod = *(item.extra_fields.as<int>());
             double t;
-            MPI_Datatype base_s_dt, base_r_dt, base_red_dt;
+            MPI_Datatype base_s_dt = 0, base_r_dt = 0, base_red_dt = 0;
             if (!initialized)
                 return;
             if (descr->stop_iterations)
