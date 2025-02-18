@@ -53,6 +53,14 @@ extern "C" {
 
 #include "helper_IMB_functions.h"
 
+void split_string(const std::string &str, std::vector<int> &out, char delimiter) {
+    std::stringstream ss(str);
+    std::string token;
+    while (std::getline(ss, token, delimiter)) {
+        out.push_back(std::stoi(token));
+    }
+}
+
 using namespace std;
 
 DECLARE_BENCHMARK_SUITE_STUFF(BS_MPI1, IMB-MPI1)
@@ -265,6 +273,13 @@ template <> bool BenchmarkSuite<BS_MPI1>::declare_args(args_parser &parser, std:
                "\n"
                "Default:\n"
                "no lengths_file, lengths defined by settings.h, settings_io.h\n");
+    parser.add<string>("msgsize", "").set_caption("Lengths list").
+           set_description(
+                "The argument after -msgsize is a comma separated list of integer numbers\n"
+                "each number represents a message size in bytes\n"
+                "\n"
+                "Default:\n"
+                "no lengths list, lengths defined by settings.h, settings_io.h\n");
     parser.add_vector<int>("map", "1x1", 'x', 2, 2).set_caption("PxQ").
            set_description(
                "The argument after -map is PxQ, P,Q are integer numbers with P*Q <= NP\n"
@@ -579,6 +594,17 @@ template <> bool BenchmarkSuite<BS_MPI1>::prepare(const args_parser &parser, con
         if (!load_msg_sizes(given_msglen_filename.c_str())) {
             output << "Sizes File " << given_msglen_filename << " invalid or doesnt exist" << endl;
             cmd_line_error = true;
+        }
+    }
+
+    string given_msglen_list = parser.get<string>("msgsize");
+    if (given_msglen_list != "") {
+        vector<int> msglen_list;
+        split_string(given_msglen_list, msglen_list, ',');
+        c_info.n_lens = msglen_list.size();
+        c_info.msglen = (int *)malloc(c_info.n_lens * sizeof(int));
+        for (int i = 0; i < c_info.n_lens; i++) {
+            c_info.msglen[i] = msglen_list[i];
         }
     }
 
