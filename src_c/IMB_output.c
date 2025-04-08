@@ -96,7 +96,35 @@ enum output_format {
 
 /*****************************************************************/
 
+#ifdef MPI1
+static const char *red_data_type_msg = " use \"-red_data_type double\"";
+static const char *data_type_msg = " use \"-data_type double\"";
+static const char *generic_overflow_msg = " Stopping benchmark";
+static const char *get_overflow_message(struct Bench* Bmark, struct comm_info* c_info)
+{
+    int dtsize;
+    int double_size;
+    int is_reduce;
 
+    MPI_Type_size(MPI_DOUBLE, &double_size);
+    if (!strcmp(Bmark->name, "Allreduce")
+            || !strcmp(Bmark->name, "Reduce")
+            || !strcmp(Bmark->name, "Reduce_scatter")
+            || !strcmp(Bmark->name, "Reduce_scatter_block")
+            || !strcmp(Bmark->name, "Reduce_local")) {
+        MPI_Type_size(c_info->red_data_type, &dtsize);
+        is_reduce = 1;
+    } else {
+        MPI_Type_size(c_info->r_data_type, &dtsize);
+        is_reduce = 0;
+    }
+    if (dtsize < double_size) {
+        return is_reduce ? red_data_type_msg : data_type_msg;
+    }
+    return generic_overflow_msg;
+
+}
+#endif
 
 /* IMB 3.1 << */
 /*
@@ -342,11 +370,14 @@ Input variables:
                 break;
 
             case SAMPLE_FAILED_INT_OVERFLOW:
+                aux_string[offset] = '\0';
 #ifdef MPI1
-                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow; use \"-data_type double\"");
+                fprintf(unit, "%s%s%s", aux_string, " int-overflow; The production rank*size caused int overflow;",
+                            get_overflow_message(Bmark, c_info));
 #else
-                sprintf(aux_string + offset, " int-overflow; The production rank*size caused int overflow;");
+                fprintf(unit, "%s%s", aux_string, " int-overflow; The production rank*size caused int overflow;");
 #endif
+                aux_string[0] = '\0';
                 break;
             case SAMPLE_FAILED_TIME_OUT:
                 aux_string[offset] = '\0';
