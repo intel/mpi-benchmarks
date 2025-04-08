@@ -52,6 +52,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "IMB_prototypes.h"
 
+#ifdef WIN_IMB
+#define IMB_alloca(X) _alloca(X)
+#else
+#define IMB_alloca(X) alloca(X)
+#endif
+
 /*************************************************************************/
 
 void IMB_uni_bandwidth(struct comm_info* c_info, int size,  struct iter_schedule* ITERATIONS,
@@ -95,7 +101,7 @@ Output variables:
     int dest, source;
     MPI_Status stat;
     MPI_Request *requests = NULL;
-    MPI_Status *statuses = (MPI_Status*)_alloca((c_info->max_win_size) * sizeof(MPI_Status));
+    MPI_Status *statuses = (MPI_Status*)IMB_alloca((c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
     char ack;
@@ -204,7 +210,7 @@ Output variables:
     int dest, source;
     MPI_Status stat;
     MPI_Request *requests = NULL;
-    MPI_Status *statuses = (MPI_Status*)_alloca((2 * c_info->max_win_size) * sizeof(MPI_Status));
+    MPI_Status *statuses = (MPI_Status*)IMB_alloca((2 * c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
     char ack;
