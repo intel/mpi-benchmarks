@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Intel Corporation"
             VALUE "FileDescription", "Intel(R) MPI Benchmarks"
-            VALUE "FileVersion", "2021.9"
+            VALUE "FileVersion", "2021.10"
             VALUE "InternalName", "IMB-NBC"
             VALUE "LegalCopyright", "Copyright Intel Corporation."
             VALUE "OriginalFilename", "IMB-NBC.exe"
             VALUE "ProductName", "Intel(R) MPI Benchmarks"
-            VALUE "ProductVersion", "2021.9"
+            VALUE "ProductVersion", "2021.10"
         END
     END
     BLOCK "VarFileInfo"
