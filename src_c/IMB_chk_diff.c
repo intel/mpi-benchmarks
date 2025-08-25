@@ -459,7 +459,7 @@ Output variables:
     MPI_File    restore;
     MPI_Status  stat;
     double      def_tmp;
-    int         j, j1, j2, ierr, rank, allpos;
+    int         j, j1, j2, ierr, allpos;
     size_t      pos1, pos2;
     int*        rankj;
     size_t*     lenj;
