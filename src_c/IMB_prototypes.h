@@ -420,9 +420,6 @@ void IMB_user_set_info(MPI_Info* opt_info);
 
 /* Organizational functions */
 
-
-int main(int argc, char **argv);
-
 /* IMB 3.1 << */
 int IMB_basic_input(struct comm_info* c_info, struct Bench** P_BList,
                     struct iter_schedule* ITERATIONS,
