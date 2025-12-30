@@ -105,7 +105,7 @@ Output variables:
 
 */
     double t1, t2;
-    int    i, dum;
+    int    i, dum = 0;
     MPI_Status stat;
 
     if (c_info->rank != -1) {

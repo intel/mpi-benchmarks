@@ -104,7 +104,7 @@ Output variables:
     MPI_Status *statuses = (MPI_Status*)IMB_alloca((c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
-    char ack;
+    char ack = 0;
 
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
@@ -213,7 +213,7 @@ Output variables:
     MPI_Status *statuses = (MPI_Status*)IMB_alloca((2 * c_info->max_win_size) * sizeof(MPI_Status));
 
     int ws, peers;
-    char ack;
+    char ack = 0;
 
     MPI_Type_size(c_info->s_data_type, &s_size);
     MPI_Type_size(c_info->r_data_type, &r_size);
