@@ -137,24 +137,53 @@ Output variables:
 
             *time = MPI_Wtime();
 
-            for (i = 0; i < ITERATIONS->n_sample; i++) {
-                MPI_ERRHAND(MPI_Accumulate((char*)c_info->s_buffer + i % ITERATIONS->s_cache_iter * ITERATIONS->s_offs,
-                                           s_num, c_info->red_data_type,
-                                           0, i % ITERATIONS->r_cache_iter * r_off,
-                                           r_num, c_info->red_data_type, c_info->op_type,
-                                           c_info->WIN));
 
-                MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
+            for (i = 0; i < ITERATIONS->n_sample; i++) {
 #ifdef CHECK
-                if (root) {
-                    CHK_DIFF("Accumulate", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
-                             0, size, size, asize,
-                             put, 0, ITERATIONS->n_sample, i,
-                             -1, &defect);
-                    IMB_ass_buf((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0, 0,
-                                (size > 0) ? size - 1 : 0, 0);
+                /* Initialize the target buffer BEFORE the first RMA operation for this sample */
+                {
+                    const int root = (c_info->rank == 0);
+                    if (root) {
+                        char* tgt = (char*)c_info->r_buffer
+                                  + (MPI_Aint)(i % ITERATIONS->r_cache_iter) * ITERATIONS->r_offs;
+                        IMB_ass_buf(tgt, 0, 0, (size > 0) ? size - 1 : 0, 0);
+                    }
+                    /* Synchronize initialization across all ranks before starting the epoch */
+                    MPI_Barrier(c_info->communicator);
                 }
-                MPI_Barrier(c_info->communicator);
+#endif
+                /* Start RMA epoch */
+                MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
+
+                MPI_ERRHAND(MPI_Accumulate(
+                        (char*)c_info->s_buffer
+                        + (MPI_Aint)(i % ITERATIONS->s_cache_iter) * ITERATIONS->s_offs,
+                        s_num, c_info->red_data_type,
+                        /*target=*/0,
+                        /*target_disp (in elements):*/
+                        (MPI_Aint)((i % ITERATIONS->r_cache_iter) * r_off),
+                        r_num, c_info->red_data_type, c_info->op_type,
+                        c_info->WIN));
+
+                /* End RMA epoch and ensure completion */
+                MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOSUCCEED, c_info->WIN));
+
+#ifdef CHECK
+               {
+                    const int root = (c_info->rank == 0);
+                    if (root) {
+                        CHK_DIFF("Accumulate", c_info,
+                                 (char*)c_info->r_buffer
+                                 + (MPI_Aint)(i % ITERATIONS->r_cache_iter) * ITERATIONS->r_offs,
+                                 0, size, size, asize,
+                                 put, 0, ITERATIONS->n_sample, i,
+                                 -1, &defect);
+                        IMB_ass_buf((char*)c_info->r_buffer
+                                    + (MPI_Aint)(i % ITERATIONS->r_cache_iter) * ITERATIONS->r_offs,
+                                    0, 0, (size > 0) ? size - 1 : 0, 0);
+                    }
+                    MPI_Barrier(c_info->communicator);
+                }
 #endif
 
             }
@@ -168,12 +197,30 @@ Output variables:
 
             *time = MPI_Wtime();
 
+            /* Start one large RMA epoch for all Accumulate operations */
+            MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
+
+#ifdef CHECK
+            /* Initialize ALL target slots before starting the epoch */
+            {
+                const int root = (c_info->rank == 0);
+                if (root) {
+                    for (int k = 0; k < ITERATIONS->r_cache_iter; k++) {
+                        char* tgt = (char*)c_info->r_buffer + (MPI_Aint)k * ITERATIONS->r_offs;
+                        IMB_ass_buf(tgt, 0, 0, (size > 0) ? size - 1 : 0, 0);
+                    }
+                }
+                MPI_Barrier(c_info->communicator);
+            }
+#endif
+
 #ifdef CHECK
             for (i = 0; i < ITERATIONS->r_cache_iter; i++)
 #else
             for (i = 0; i < ITERATIONS->n_sample; i++)
 #endif
             {
+
                 MPI_ERRHAND(MPI_Accumulate((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
                                            s_num, c_info->red_data_type,
                                            0, i%ITERATIONS->r_cache_iter*r_off,
@@ -181,7 +228,8 @@ Output variables:
                                            c_info->WIN));
             }
 
-            MPI_ERRHAND(MPI_Win_fence(0, c_info->WIN));
+            /* End the epoch and ensure all updates are visible */
+            MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOSUCCEED, c_info->WIN));
 
             *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
 
