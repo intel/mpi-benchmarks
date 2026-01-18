@@ -115,8 +115,8 @@ Output variables:
     int i;
 
 #ifdef CHECK 
-    int asize = (int) sizeof(assign_type);
-    int root = (c_info->rank == 0);
+    const int asize = (int) sizeof(assign_type);
+    const int root = (c_info->rank == 0);
     defect = 0;
 #endif
 
@@ -134,6 +134,9 @@ Output variables:
         *time = 0.;
     else {
         if (!RUN_MODE->AGGREGATE) {
+            /* Measure only the RMA critical section: fence → Accumulate → fence.
+             * All target initialization and validation are performed outside timing. */
+            double t_sum = 0.0;
 
             *time = MPI_Wtime();
 
@@ -142,7 +145,7 @@ Output variables:
 #ifdef CHECK
                 /* Initialize the target buffer BEFORE the first RMA operation for this sample */
                 {
-                    const int root = (c_info->rank == 0);
+                    root = (c_info->rank == 0);
                     if (root) {
                         char* tgt = (char*)c_info->r_buffer
                                   + (MPI_Aint)(i % ITERATIONS->r_cache_iter) * ITERATIONS->r_offs;
@@ -152,6 +155,10 @@ Output variables:
                     MPI_Barrier(c_info->communicator);
                 }
 #endif
+
+                /* Time only the RMA epoch and operation(s). */
+                double t0 = MPI_Wtime();
+
                 /* Start RMA epoch */
                 MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
 
@@ -168,9 +175,12 @@ Output variables:
                 /* End RMA epoch and ensure completion */
                 MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOSUCCEED, c_info->WIN));
 
+                double t1 = MPI_Wtime();
+                t_sum += (t1 - t0);
+
 #ifdef CHECK
                {
-                    const int root = (c_info->rank == 0);
+                    root = (c_info->rank == 0);
                     if (root) {
                         CHK_DIFF("Accumulate", c_info,
                                  (char*)c_info->r_buffer
@@ -187,7 +197,7 @@ Output variables:
 #endif
 
             }
-            *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
+            *time = t_sum / ITERATIONS->n_sample;
         }
 
         if (RUN_MODE->AGGREGATE) {
@@ -195,15 +205,10 @@ Output variables:
             for (i = 0; i < N_BARR; i++)
                 MPI_Barrier(c_info->communicator);
 
-            *time = MPI_Wtime();
-
-            /* Start one large RMA epoch for all Accumulate operations */
-            MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
-
 #ifdef CHECK
             /* Initialize ALL target slots before starting the epoch */
             {
-                const int root = (c_info->rank == 0);
+                root = (c_info->rank == 0);
                 if (root) {
                     for (int k = 0; k < ITERATIONS->r_cache_iter; k++) {
                         char* tgt = (char*)c_info->r_buffer + (MPI_Aint)k * ITERATIONS->r_offs;
@@ -213,6 +218,10 @@ Output variables:
                 MPI_Barrier(c_info->communicator);
             }
 #endif
+            *time = MPI_Wtime();
+            /* Start one large RMA epoch for all Accumulate operations */
+            MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
+
 
 #ifdef CHECK
             for (i = 0; i < ITERATIONS->r_cache_iter; i++)
