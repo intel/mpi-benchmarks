@@ -231,7 +231,11 @@ Output variables:
             /* End the epoch and ensure all updates are visible */
             MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOSUCCEED, c_info->WIN));
 
+#ifdef CHECK
+            *time = (MPI_Wtime() - *time) / ITERATIONS->r_cache_iter;
+#else
             *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
+#endif
 
 #ifdef CHECK
             if (root) {
