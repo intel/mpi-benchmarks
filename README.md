@@ -1,6 +1,6 @@
 # Intel(R) MPI Benchmarks
 [![3-Clause BSD License](https://img.shields.io/badge/license-3%20Clause%20BSD%20License-green.svg)](license/license.txt)
-![v2021.10](https://img.shields.io/badge/v.2021.10-Update-orange.svg)
+![v2021.11](https://img.shields.io/badge/v.2021.11-Update-orange.svg)
 --------------------------------------------------
 
 --------
@@ -63,6 +63,10 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.11
+----------------------------------------
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.10
 ----------------------------------------
 - Bug fixes
