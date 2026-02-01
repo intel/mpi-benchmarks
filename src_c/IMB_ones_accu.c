@@ -145,7 +145,6 @@ Output variables:
 #ifdef CHECK
                 /* Initialize the target buffer BEFORE the first RMA operation for this sample */
                 {
-                    const int root = (c_info->rank == 0);
                     if (root) {
                         char* tgt = (char*)c_info->r_buffer
                                   + (MPI_Aint)(i % ITERATIONS->r_cache_iter) * ITERATIONS->r_offs;
@@ -180,7 +179,6 @@ Output variables:
 
 #ifdef CHECK
                {
-                    const int root = (c_info->rank == 0);
                     if (root) {
                         CHK_DIFF("Accumulate", c_info,
                                  (char*)c_info->r_buffer
@@ -208,7 +206,6 @@ Output variables:
 #ifdef CHECK
             /* Initialize ALL target slots before starting the epoch */
             {
-                const int root = (c_info->rank == 0);
                 if (root) {
                     for (int k = 0; k < ITERATIONS->r_cache_iter; k++) {
                         char* tgt = (char*)c_info->r_buffer + (MPI_Aint)k * ITERATIONS->r_offs;
@@ -217,17 +214,17 @@ Output variables:
                 }
                 MPI_Barrier(c_info->communicator);
             }
+            /* Temporarily align reported iterations with actual CHECK passes */
+            int saved_n_sample = ITERATIONS->n_sample;
+            ITERATIONS->n_sample = ITERATIONS->r_cache_iter;
+
 #endif
             *time = MPI_Wtime();
             /* Start one large RMA epoch for all Accumulate operations */
             MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOPRECEDE, c_info->WIN));
 
 
-#ifdef CHECK
-            for (i = 0; i < ITERATIONS->r_cache_iter; i++)
-#else
             for (i = 0; i < ITERATIONS->n_sample; i++)
-#endif
             {
 
                 MPI_ERRHAND(MPI_Accumulate((char*)c_info->s_buffer + i%ITERATIONS->s_cache_iter*ITERATIONS->s_offs,
@@ -240,15 +237,11 @@ Output variables:
             /* End the epoch and ensure all updates are visible */
             MPI_ERRHAND(MPI_Win_fence(MPI_MODE_NOSUCCEED, c_info->WIN));
 
-#ifdef CHECK
-            *time = (MPI_Wtime() - *time) / ITERATIONS->r_cache_iter;
-#else
             *time = (MPI_Wtime() - *time) / ITERATIONS->n_sample;
-#endif
 
 #ifdef CHECK
             if (root) {
-                for (i = 0; i < ITERATIONS->r_cache_iter; i++) {
+                for (i = 0; i < ITERATIONS->n_sample; i++) {
                     CHK_DIFF("Accumulate", c_info, (char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs,
                              0, size, size, asize,
                              put, 0, ITERATIONS->n_sample, i,
@@ -256,6 +249,8 @@ Output variables:
                     IMB_ass_buf((char*)c_info->r_buffer + i%ITERATIONS->r_cache_iter*ITERATIONS->r_offs, 0, 0, (size>0) ? size - 1 : 0, 0);
                 }
             }
+            /* Restore original n_sample after CHECK reporting */
+            ITERATIONS->n_sample = saved_n_sample;
 #endif
         }
     }
