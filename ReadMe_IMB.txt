@@ -1,5 +1,5 @@
 --------------------------------------
-Intel(R) MPI Benchmarks 2021.10
+Intel(R) MPI Benchmarks 2021.11
 README
 --------------------------------------
 
@@ -62,6 +62,10 @@ files and folders appear on your system:
 ----------
 What's New
 ----------
+New in Intel(R) MPI Benchmarks 2021.11
+----------------------------------------
+- Bug fixes
+
 New in Intel(R) MPI Benchmarks 2021.10
 ----------------------------------------
 - Bug fixes
