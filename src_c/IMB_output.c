@@ -823,11 +823,18 @@ void IMB_print_info() {
         for (ikey = 0; ikey < nkeys; ikey++) {
             MPI_Info_get_nthkey(tmp_info, ikey, key);
 
+#if MPI_VERSION >= 4
+            vlen = 0;
+            MPI_Info_get_string(tmp_info, key, &vlen, NULL, &exists);
+            value = (char*)IMB_v_alloc(vlen * sizeof(char), "Print_Info");
+            MPI_Info_get_string(tmp_info, key, &vlen, value, &exists);
+#else
             MPI_Info_get_valuelen(tmp_info, key, &vlen, &exists);
 
             value = (char*)IMB_v_alloc((vlen + 1)* sizeof(char), "Print_Info");
 
             MPI_Info_get(tmp_info, key, vlen, value, &exists);
+#endif
             printf("# %s = \"%s\"\n", key, value);
 
             IMB_v_free((void**)&value);
