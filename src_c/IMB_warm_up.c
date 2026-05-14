@@ -111,8 +111,8 @@ IMB 3.1 <<
             int n_sample = ITERATIONS->n_sample;
 
             ITERATIONS->n_sample /= WARMUP_PERCENT;
-            if ((ITERATIONS->n_sample == 0) && (n_sample > 1))
-                ITERATIONS->n_sample = 1;
+            if (ITERATIONS->n_sample < MIN_WARMUP_ITERS)
+                ITERATIONS->n_sample = min(MIN_WARMUP_ITERS, n_sample);
 #ifdef MPI1
             c_info->select_source = Bmark->select_source;
 #endif
