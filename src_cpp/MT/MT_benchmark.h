@@ -487,5 +487,5 @@ template <class bs, mt_benchmark_func_t fn_ptr>
 class BenchmarkMT : public BenchmarkMTBase<bs, fn_ptr> {
     public:
     virtual void init_flags();
-    DEFINE_INHERITED(GLUE_TYPENAME(BenchmarkMT<bs, fn_ptr>), bs);
+    DEFINE_INHERITED(BenchmarkMT, bs);
 };
