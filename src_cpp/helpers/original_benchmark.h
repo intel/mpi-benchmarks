@@ -229,6 +229,6 @@ class OriginalBenchmark : public Benchmark {
         ~OriginalBenchmark() {
             free(BMark[0].name);
         }
-        DEFINE_INHERITED(GLUE_TYPENAME(OriginalBenchmark<bs, fn_ptr>), bs);
+        DEFINE_INHERITED(OriginalBenchmark, bs);
 };
 

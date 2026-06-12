@@ -295,7 +295,7 @@ class HaloBenchmark : public Benchmark {
         if (rank >= required_nranks)
             return;
     }
-    DEFINE_INHERITED(HaloBenchmark<bs>, bs);
+    DEFINE_INHERITED(HaloBenchmark, bs);
 };
 
 }
