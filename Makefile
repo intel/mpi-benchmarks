@@ -30,6 +30,20 @@
 #
 #  ***************************************************************************
 
+# The IMB-* targets each recurse into the same src_cpp/ directory and compile a
+# shared set of intermediate objects (imb.o, benchmark_suites_collection.o,
+# args_parser.o, scope.o, libyaml-cpp.a) to identical paths. Running these
+# recursive builds concurrently (make -j) makes multiple sub-makes write those
+# same object files at once, which clobbers them and intermittently breaks the
+# link with errors such as "undefined reference to BenchmarkSuitesCollection::pnames"
+# or "imb.o: File truncated". The recipes are not jobserver-aware (plain `make`,
+# not `$(MAKE)`/`+`), so GNU Make < 4.4 happened to run them effectively serial;
+# GNU Make >= 4.4's FIFO jobserver connects them to the parallel pool and exposes
+# the race. Mark this Makefile non-parallel so the top-level suite builds are
+# serialized regardless of -j. (Compilation within each suite sub-make is
+# unaffected.)
+.NOTPARALLEL:
+
 all: IMB-MPI1 IMB-NBC IMB-RMA IMB-EXT IMB-IO IMB-MT IMB-P2P
 
 IMB-MPI1:
