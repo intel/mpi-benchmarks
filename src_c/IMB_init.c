@@ -1385,6 +1385,8 @@ void IMB_set_default(struct comm_info* c_info) {
 
     c_info->msg_pause = 0;
 
+    c_info->max_win_size = 256;
+
 #ifdef MPIIO
     /*   FILE INFORMATION     */
 
